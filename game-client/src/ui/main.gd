@@ -1,216 +1,374 @@
 extends Control
 
-const WorldCatalogData = preload("res://src/data/world_catalog.gd")
+const Catalog = preload("res://src/data/game_catalog.gd")
 const CombatStateData = preload("res://src/combat/combat_state.gd")
 
+var combat := CombatStateData.new()
 var selected_gender := "男"
 var selected_face := 1
 var selected_hair := 1
-var player_position := Vector2(420, 420)
-var combat := CombatStateData.new()
-var status_label: Label
-var detail_label: Label
+var content: VBoxContainer
+var notice_label: Label
 
 func _ready() -> void:
-	GameState.screen_changed.connect(_render_screen)
-	set_process(true)
-	_render_screen(GameState.current_screen)
-
-func _process(delta: float) -> void:
-	if GameState.current_screen == GameState.Screen.OVERWORLD:
-		var move_direction := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-		if move_direction.length() > 0.0:
-			player_position += move_direction * 260.0 * delta
-			player_position.x = clampf(player_position.x, 80.0, 1160.0)
-			player_position.y = clampf(player_position.y, 210.0, 610.0)
-			queue_redraw()
-	elif GameState.current_screen == GameState.Screen.DUNGEON:
-		combat.tick(delta)
-		queue_redraw()
+	GameState.screen_changed.connect(func(_screen): _render())
+	GameState.profile_changed.connect(_render)
+	GameState.notice_changed.connect(_update_notice)
+	_render()
 
 func _unhandled_key_input(event: InputEvent) -> void:
-	if not event.is_pressed() or event.is_echo():
+	if not event.is_pressed() or event.is_echo() or GameState.current_screen != GameState.Screen.DUNGEON:
 		return
-	if GameState.current_screen == GameState.Screen.DUNGEON:
-		if event.keycode == KEY_J:
-			combat.normal_attack()
-			_refresh_combat_text()
-			return
-		if event.keycode >= KEY_1 and event.keycode <= KEY_5:
-			combat.use_skill(event.keycode - KEY_1)
-			_refresh_combat_text()
+	if event.keycode == KEY_J:
+		combat.normal_attack()
+		_render()
+	if event.keycode >= KEY_1 and event.keycode <= KEY_5:
+		combat.use_skill(event.keycode - KEY_1)
+		_render()
 
-func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color("09151d"))
-	match GameState.current_screen:
-		GameState.Screen.CHARACTER_SELECT:
-			_draw_character_select_background()
-		GameState.Screen.OVERWORLD:
-			_draw_overworld()
-		GameState.Screen.DUNGEON:
-			_draw_dungeon()
-		GameState.Screen.PVP:
-			_draw_pvp()
+func _process(delta: float) -> void:
+	if GameState.current_screen == GameState.Screen.DUNGEON or GameState.current_screen == GameState.Screen.PVP:
+		combat.tick(delta)
 
-func _clear_ui() -> void:
+func _render() -> void:
 	for child in get_children():
 		child.queue_free()
-	status_label = null
-	detail_label = null
-
-func _render_screen(_next_screen: GameState.Screen) -> void:
-	_clear_ui()
-	queue_redraw()
+	var background := ColorRect.new()
+	background.color = Color("101a27")
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(background)
+	var frame := Panel.new()
+	frame.position = Vector2(25, 18)
+	frame.size = Vector2(1230, 684)
+	add_child(frame)
+	var title := Label.new()
+	title.text = "寻岚记"
+	title.position = Vector2(54, 34)
+	title.add_theme_font_size_override("font_size", 34)
+	title.modulate = Color("f2d79c")
+	add_child(title)
+	var subtitle := Label.new()
+	subtitle.text = _subtitle()
+	subtitle.position = Vector2(58, 78)
+	subtitle.add_theme_font_size_override("font_size", 16)
+	subtitle.modulate = Color("a7d5ca")
+	add_child(subtitle)
+	if GameState.current_screen != GameState.Screen.CHARACTER_SELECT:
+		_add_navigation()
+	content = VBoxContainer.new()
+	content.position = Vector2(58, 138)
+	content.size = Vector2(1120, 490)
+	content.add_theme_constant_override("separation", 10)
+	add_child(content)
+	notice_label = Label.new()
+	notice_label.text = "提示：%s" % GameState.last_notice
+	notice_label.position = Vector2(58, 652)
+	notice_label.size = Vector2(1130, 30)
+	notice_label.add_theme_font_size_override("font_size", 15)
+	notice_label.modulate = Color("b8c9c4")
+	add_child(notice_label)
 	match GameState.current_screen:
-		GameState.Screen.CHARACTER_SELECT:
-			_show_character_select()
-		GameState.Screen.OVERWORLD:
-			_show_overworld()
-		GameState.Screen.DUNGEON:
-			_show_dungeon()
-		GameState.Screen.PVP:
-			_show_pvp()
+		GameState.Screen.CHARACTER_SELECT: _show_character_select()
+		GameState.Screen.HOME: _show_home()
+		GameState.Screen.OVERWORLD: _show_overworld()
+		GameState.Screen.DUNGEON: _show_dungeon()
+		GameState.Screen.REALM: _show_realm()
+		GameState.Screen.INVENTORY: _show_inventory()
+		GameState.Screen.SECT: _show_sect()
+		GameState.Screen.MARKET: _show_market()
+		GameState.Screen.PVP: _show_pvp()
+		GameState.Screen.CODEX: _show_codex()
+		GameState.Screen.SETTINGS: _show_settings()
 
-func _add_label(text_value: String, position_value: Vector2, font_size: int = 20, color: Color = Color.WHITE, width: float = 0.0) -> Label:
+func _subtitle() -> String:
+	var labels := {
+		GameState.Screen.CHARACTER_SELECT: "首发角色模板 · 原创国漫修仙视觉方向",
+		GameState.Screen.HOME: "修行、探索、宗门与人世，都从此处展开",
+		GameState.Screen.OVERWORLD: "三大区开放世界 · 固定副本与可解释随机机缘",
+		GameState.Screen.DUNGEON: "横版即时手操战斗 · 当前为本地基础动作逻辑",
+		GameState.Screen.REALM: "炼气至化神圆满 · 多重小境界成长",
+		GameState.Screen.INVENTORY: "武器、材料、法宝与时装的统一入口",
+		GameState.Screen.SECT: "自由加入与退出 · 门规、贡献、身份与后果",
+		GameState.Screen.MARKET: "自由交易与拍卖行接口 · 当前为本地演示",
+		GameState.Screen.PVP: "1v1 论剑 · 后续接入房间与服务器权威同步",
+		GameState.Screen.CODEX: "人物、宗门、地区、副本、法宝的收藏与知识库",
+		GameState.Screen.SETTINGS: "原型设置与联网状态说明",
+	}
+	return labels.get(GameState.current_screen, "")
+
+func _add_navigation() -> void:
+	var row := HBoxContainer.new()
+	row.position = Vector2(430, 37)
+	row.size = Vector2(780, 45)
+	row.add_theme_constant_override("separation", 6)
+	add_child(row)
+	for entry in [["洞府", GameState.Screen.HOME], ["世界", GameState.Screen.OVERWORLD], ["修炼", GameState.Screen.REALM], ["行囊", GameState.Screen.INVENTORY], ["宗门", GameState.Screen.SECT], ["市集", GameState.Screen.MARKET], ["论剑", GameState.Screen.PVP], ["图鉴", GameState.Screen.CODEX]]:
+		var button := Button.new()
+		button.text = entry[0]
+		button.custom_minimum_size = Vector2(83, 40)
+		button.pressed.connect(func(): GameState.enter_screen(entry[1]))
+		row.add_child(button)
+
+func _heading(value: String) -> void:
 	var label := Label.new()
-	label.text = text_value
-	label.position = position_value
-	label.add_theme_font_size_override("font_size", font_size)
-	label.modulate = color
-	if width > 0.0:
-		label.size = Vector2(width, 0.0)
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	add_child(label)
-	return label
+	label.text = value
+	label.add_theme_font_size_override("font_size", 27)
+	label.modulate = Color.WHITE
+	content.add_child(label)
 
-func _add_button(text_value: String, position_value: Vector2, callback: Callable, button_size := Vector2(190, 54)) -> Button:
-	var button := Button.new()
-	button.text = text_value
-	button.position = position_value
-	button.size = button_size
-	button.add_theme_font_size_override("font_size", 18)
-	button.pressed.connect(callback)
-	add_child(button)
-	return button
+func _text(value: String, size := 17, tint := Color("c8d5d1")) -> void:
+	var label := Label.new()
+	label.text = value
+	label.add_theme_font_size_override("font_size", size)
+	label.modulate = tint
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size = Vector2(1100, 0)
+	content.add_child(label)
 
-func _add_header(subtitle: String) -> void:
-	_add_label("寻岚记", Vector2(54, 34), 40, Color("efe1bf"))
-	_add_label(subtitle, Vector2(57, 90), 20, Color("8ec8bd"))
+func _buttons(entries: Array) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	content.add_child(row)
+	for entry in entries:
+		var button := Button.new()
+		button.text = entry[0]
+		button.custom_minimum_size = Vector2(entry[2] if entry.size() > 2 else 180, 46)
+		button.disabled = entry.size() > 3 and entry[3]
+		button.pressed.connect(entry[1])
+		row.add_child(button)
+
+func _line() -> void:
+	content.add_child(HSeparator.new())
 
 func _show_character_select() -> void:
-	_add_header("首发角色模板 · 先选择性别、脸型与发型")
-	_add_label("角色创建", Vector2(720, 188), 30, Color("ffffff"))
-	_add_label("性别", Vector2(720, 250), 18, Color("bdc9c6"))
-	_add_button("男", Vector2(720, 282), func(): _set_gender("男"), Vector2(120, 48))
-	_add_button("女", Vector2(850, 282), func(): _set_gender("女"), Vector2(120, 48))
-	_add_label("脸型模板：%d" % selected_face, Vector2(720, 350), 18, Color("bdc9c6"))
-	_add_button("切换脸型", Vector2(720, 382), _cycle_face, Vector2(250, 48))
-	_add_label("发型模板：%d" % selected_hair, Vector2(720, 448), 18, Color("bdc9c6"))
-	_add_button("切换发型", Vector2(720, 480), _cycle_hair, Vector2(250, 48))
-	_add_button("踏入云岚村", Vector2(720, 568), _confirm_character, Vector2(250, 60))
-	status_label = _add_label("当前选择：%s · 脸型 %d · 发型 %d" % [selected_gender, selected_face, selected_hair], Vector2(720, 650), 17, Color("a2bab4"))
+	var portrait := TextureRect.new()
+	portrait.texture = _load_portrait(selected_gender)
+	portrait.position = Vector2(70, 145)
+	portrait.size = Vector2(390, 450)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	add_child(portrait)
+	content.position = Vector2(560, 170)
+	content.size = Vector2(570, 420)
+	_heading("创建你的修士")
+	_text("首发仅开放男女角色模板、脸型模板与发型模板；体型捏脸将在后续版本评估。")
+	_text("当前选择：%s · 脸型 %d · 发型 %d" % [selected_gender, selected_face, selected_hair], 20, Color("f2d79c"))
+	_buttons([["男模板", func(): _set_gender("男"), 140], ["女模板", func(): _set_gender("女"), 140]])
+	_buttons([["切换脸型", _cycle_face, 180], ["切换发型", _cycle_hair, 180]])
+	_line()
+	_text("人物三层资产：立绘用于详情与剧情；地图小人用于大世界；横版战斗角色用于副本与 PVP。", 16)
+	_buttons([["踏入云岚村", _confirm_character, 250]])
+
+func _show_home() -> void:
+	_heading("修士洞府")
+	_text("%s · %s · 灵石 %d · 金钱 %d" % [GameState.player.gender, GameState.realm_name(), GameState.player.spirit_stones, GameState.player.gold], 21, Color("f2d79c"))
+	_text("已装备：%s｜法宝：%s" % [GameState.player.equipped_weapon, GameState.player.equipped_artifact])
+	_line()
+	_text("核心循环：探索区域 → 获得资源/机缘 → 修炼与装备成长 → 宗门/交易/PVP → 解锁更高区域。")
+	_buttons([["进入开放世界", func(): GameState.enter_screen(GameState.Screen.OVERWORLD), 220], ["吐纳修炼", func(): GameState.enter_screen(GameState.Screen.REALM), 180], ["查看行囊", func(): GameState.enter_screen(GameState.Screen.INVENTORY), 180]])
+	_buttons([["宗门身份", func(): GameState.enter_screen(GameState.Screen.SECT), 180], ["自由市集", func(): GameState.enter_screen(GameState.Screen.MARKET), 180], ["1v1 论剑", func(): GameState.enter_screen(GameState.Screen.PVP), 180], ["设置", func(): GameState.enter_screen(GameState.Screen.SETTINGS), 120]])
 
 func _show_overworld() -> void:
-	var region: Dictionary = WorldCatalogData.REGIONS[0]
-	_add_header("云岚村与近郊 · 方向键模拟左侧虚拟摇杆")
-	_add_label("%s｜%s" % [GameState.character.gender, GameState.character.realm], Vector2(54, 134), 19, Color("d8e5df"))
-	_add_label("当前区域：%s" % region.name, Vector2(54, 170), 22, Color("ffffff"))
-	detail_label = _add_label("固定副本：%s\n随机机缘：在野外移动时将触发（下一轮接入）。" % "、".join(region.fixed_dungeons), Vector2(54, 210), 18, Color("bdcfca"), 430)
-	_add_button("进入雾溪水府", Vector2(54, 530), _enter_dungeon, Vector2(210, 56))
-	_add_button("前往 1v1 论剑台", Vector2(280, 530), _enter_pvp, Vector2(220, 56))
-	_add_button("返回角色选择", Vector2(54, 600), _back_to_create, Vector2(210, 48))
-	_add_label("宗门边境与雾原、险地山脉与古遗址将在境界达到后解锁。", Vector2(54, 670), 16, Color("92a9a3"))
+	_heading("开放世界 · 三大区")
+	_text("当前区域：%s。大区以短暂切换连接；正式联网目标为单区最多 10 名玩家。" % _current_region().name)
+	var thresholds := [0, 1, 3]
+	for region_index in Catalog.REGIONS.size():
+		var region: Dictionary = Catalog.REGIONS[region_index]
+		var available: bool = bool(region.unlocked) or GameState.player.realm_index >= thresholds[region_index]
+		_text("【%s】适配：%s｜%s" % [region.name, region.realm, region.description], 17, Color.WHITE if available else Color("82908c"))
+		_buttons([["前往 %s" % region.name, func(): _select_region(region), 245, not available]])
+	_line()
+	var region: Dictionary = _current_region()
+	_text("固定副本：%s" % _dungeon_names(region.dungeons), 18, Color("f2d79c"))
+	var dungeon_buttons: Array = []
+	for dungeon_id in region.dungeons:
+		dungeon_buttons.append([Catalog.DUNGEONS[dungeon_id].name, func(): _enter_dungeon(dungeon_id), 180])
+	_buttons(dungeon_buttons)
+	_buttons([["探索随机机缘", _explore, 220], ["返回洞府", func(): GameState.enter_screen(GameState.Screen.HOME), 160]])
 
 func _show_dungeon() -> void:
-	combat.reset()
-	_add_header("雾溪水府 · 横版即时战斗原型")
-	status_label = _add_label("玩家 HP：100    守卫 HP：100", Vector2(54, 145), 22, Color("ffffff"))
-	detail_label = _add_label(combat.battle_log, Vector2(54, 190), 18, Color("b8c9c4"), 650)
-	_add_button("J 普攻", Vector2(46, 584), _normal_attack, Vector2(130, 52))
-	for index in 5:
-		var skill_button := _add_button("%d·%s" % [index + 1, combat.skill_names[index]], Vector2(190 + index * 170, 584), func(): _use_skill(index), Vector2(155, 52))
-		skill_button.tooltip_text = "数字 %d 也可施放" % (index + 1)
-	_add_button("退出副本", Vector2(1000, 62), _leave_dungeon, Vector2(180, 48))
+	var dungeon: Dictionary = Catalog.DUNGEONS[GameState.selected_dungeon_id]
+	_heading("%s · 横版副本" % dungeon.name)
+	_text("目标：击败%s｜适配：%s｜首通演示奖励：%s" % [dungeon.enemy, dungeon.realm, dungeon.reward], 19, Color("f2d79c"))
+	_text("玩家 HP：%d / 100｜对手 HP：%d / 100" % [combat.player_hp, combat.enemy_hp], 22, Color.WHITE)
+	_text(combat.battle_log)
+	_text("当前使用无武器基础战斗逻辑；每把武器需在武器卡确认后单独制作动作与特效。", 15, Color("a7d5ca"))
+	_buttons(_combat_entries())
+	_buttons([["领取副本演示奖励", _claim_reward, 220, combat.enemy_hp > 0], ["退出副本", func(): GameState.enter_screen(GameState.Screen.OVERWORLD), 160]])
+
+func _show_realm() -> void:
+	_heading("修炼体系")
+	_text("当前境界：%s｜修为：%d" % [GameState.realm_name(), GameState.player.cultivation], 22, Color("f2d79c"))
+	_text("炼气使用一至九层与圆满；筑基、结丹、元婴、化神使用初期至后期圆满；首发上限为化神圆满。")
+	for realm_index in Catalog.REALMS.size():
+		var realm: Dictionary = Catalog.REALMS[realm_index]
+		var status := "已到达" if realm_index < GameState.player.realm_index else ("当前" if realm_index == GameState.player.realm_index else "未解锁")
+		_text("%s · %s · %s" % [realm.name, "、".join(realm.minor_stages), status], 16, Color.WHITE if realm_index <= GameState.player.realm_index else Color("82908c"))
+	_buttons([["静坐吐纳（+25 修为）", func(): GameState.gain_cultivation(25), 240], ["服用灵泉露（+40 修为）", _use_dew, 240]])
+
+func _show_inventory() -> void:
+	_heading("行囊 · 装备与法宝")
+	_text("已装备武器：%s｜已装备法宝：%s" % [GameState.player.equipped_weapon, GameState.player.equipped_artifact], 20, Color("f2d79c"))
+	_text("当前物品：%s" % "、".join(GameState.player.inventory))
+	_line()
+	_text("武器大类（先大类，后大分支、小分支与品级）：")
+	for family in Catalog.WEAPON_FAMILIES:
+		_text("%s：%s｜逻辑样品：%s" % [family.name, family.branches, family.starter], 16)
+	_buttons([["领取八类逻辑样品", _claim_weapon_samples, 250]])
+	var equips: Array = []
+	for item_name in GameState.player.inventory:
+		if "练气" in item_name:
+			equips.append(["装备 %s" % item_name, func(): GameState.equip_weapon(item_name), 180])
+	if not equips.is_empty(): _buttons(equips)
+
+func _show_sect() -> void:
+	_heading("宗门与身份")
+	if GameState.player.sect_id == "":
+		_text("当前为散修。可自由加入宗门；初始身份为外门弟子，后续通过贡献与实力晋升。")
+		for sect in Catalog.SECTS:
+			_text("【%s】%s｜门规：%s" % [sect.name, sect.trait, sect.rule])
+			_buttons([["加入 %s" % sect.name, func(): GameState.join_sect(sect.id), 230]])
+	else:
+		var sect: Dictionary = _find_sect(GameState.player.sect_id)
+		_text("当前宗门：%s｜身份：外门弟子（本地演示）" % sect.name, 21, Color("f2d79c"))
+		_text("%s\n门规：%s" % [sect.trait, sect.rule])
+		_text("正式版将由服务器结算升迁、任职、通缉、赎罪和关系修复。", 15, Color("a7d5ca"))
+		_buttons([["退出宗门（演示）", GameState.leave_sect, 220]])
+
+func _show_market() -> void:
+	_heading("云市 · 自由交易与拍卖行")
+	_text("当前金钱：%d。正式版将由服务器校验所有权、上架、成交、税率与反作弊；本页仅演示客户端交互。" % GameState.player.gold, 17, Color("f2d79c"))
+	for listing in Catalog.MARKET_LISTINGS:
+		_text("%s｜%s｜价格 %d 金" % [listing.name, listing.type, listing.price], 18)
+		_buttons([["购买", func(): _buy(listing), 130, GameState.player.gold < listing.price]])
+	_buttons([["发布自己的物品（接口）", func(): GameState.notify("已记录上架意图，正式版将打开定价和服务器校验。"), 280]])
 
 func _show_pvp() -> void:
-	_add_header("1v1 论剑台 · 联机接口占位")
-	_add_label("首发目标：同区最多 10 人；PVP 当前仅开放两人对战。", Vector2(80, 200), 26, Color("ffffff"))
-	_add_label("下一轮：接入房间匹配、服务器权威结算与双方战斗同步。", Vector2(80, 250), 19, Color("bdcfca"))
-	_add_button("返回云岚村", Vector2(80, 520), _leave_pvp, Vector2(220, 56))
+	_heading("1v1 论剑台")
+	if combat.mode != "论剑" or combat.enemy_name != "山门试剑使": combat.begin("论剑", "山门试剑使")
+	_text("首发 PVP 最多支持两人。当前为本地对战演示，不代表已经完成实时联网。", 18, Color("f2d79c"))
+	_text("玩家 HP：%d / 100｜对手 HP：%d / 100" % [combat.player_hp, combat.enemy_hp], 22, Color.WHITE)
+	_text(combat.battle_log)
+	_buttons(_combat_entries(true))
+	_text("联网清单：房间匹配、同步、断线处理、服务器权威结算、战绩与反作弊。", 15, Color("a7d5ca"))
+
+func _show_codex() -> void:
+	_heading("万物图鉴")
+	_text("已发现：%s" % "、".join(GameState.player.codex), 18, Color("f2d79c"))
+	_text("首批 NPC：")
+	for npc in Catalog.NPCS:
+		_text("%s · %s · %s" % [npc.name, npc.role, npc.place], 17)
+	_line()
+	_text("图鉴分类接口：人物、宗门、妖怪、法宝、灵植、资源、地点、副本、功法、事件。")
+
+func _show_settings() -> void:
+	_heading("设置与开发状态")
+	_text("引擎：Godot 4.7｜目标：微信小游戏优先｜当前：Windows 本地原型。")
+	_text("已具备：首发内容数据、完整模块入口、本地修炼/机缘/副本/交易/PVP 演示、首批立绘。")
+	_text("后续尚需：微信导出验证、服务器、账号、真实多人同步、去背切图和完整动作帧、数值平衡、音频、存档与测试。")
+	_buttons([["返回洞府", func(): GameState.enter_screen(GameState.Screen.HOME), 160], ["重新创建角色", func(): GameState.enter_screen(GameState.Screen.CHARACTER_SELECT), 180]])
+
+func _combat_entries(include_reset := false) -> Array:
+	var entries: Array = [["J 普攻", func(): _attack(), 120]]
+	if include_reset: entries.push_front(["重新开始", func(): _restart_pvp(), 150])
+	for skill_index in 5:
+		entries.append(["%d · %s" % [skill_index + 1, combat.skill_names[skill_index]], func(): _skill(skill_index), 145])
+	return entries
 
 func _set_gender(value: String) -> void:
 	selected_gender = value
-	status_label.text = "当前选择：%s · 脸型 %d · 发型 %d" % [selected_gender, selected_face, selected_hair]
+	_render()
 
 func _cycle_face() -> void:
 	selected_face = selected_face % 3 + 1
-	_render_screen(GameState.current_screen)
+	_render()
 
 func _cycle_hair() -> void:
 	selected_hair = selected_hair % 3 + 1
-	_render_screen(GameState.current_screen)
+	_render()
 
 func _confirm_character() -> void:
 	GameState.update_character(selected_gender, selected_face, selected_hair)
-	GameState.enter_screen(GameState.Screen.OVERWORLD)
+	GameState.notify("角色创建完成，云岚村的雾潮正等待你的第一次探索。")
+	GameState.enter_screen(GameState.Screen.HOME)
 
-func _back_to_create() -> void:
-	GameState.enter_screen(GameState.Screen.CHARACTER_SELECT)
+func _load_portrait(gender: String) -> Texture2D:
+	var path := "res://assets/art/prototype_batch_01/male_anchor_portrait_v01.png" if gender == "男" else "res://assets/art/prototype_batch_01/female_anchor_portrait_v01.png"
+	var image := Image.load_from_file(path)
+	if image.is_empty(): return null
+	return ImageTexture.create_from_image(image)
 
-func _enter_dungeon() -> void:
+func _current_region() -> Dictionary:
+	for region in Catalog.REGIONS:
+		if region.id == GameState.current_region_id: return region
+	return Catalog.REGIONS[0]
+
+func _select_region(region: Dictionary) -> void:
+	GameState.current_region_id = region.id
+	GameState.notify("已切换至%s。" % region.name)
+	_render()
+
+func _dungeon_names(ids: Array) -> String:
+	var names: Array[String] = []
+	for dungeon_id in ids: names.append(Catalog.DUNGEONS[dungeon_id].name)
+	return "、".join(names)
+
+func _enter_dungeon(dungeon_id: String) -> void:
+	GameState.selected_dungeon_id = dungeon_id
+	combat.begin("副本", Catalog.DUNGEONS[dungeon_id].enemy)
 	GameState.enter_screen(GameState.Screen.DUNGEON)
 
-func _leave_dungeon() -> void:
-	GameState.enter_screen(GameState.Screen.OVERWORLD)
+func _explore() -> void:
+	var opportunity: Dictionary = Catalog.OPPORTUNITIES.pick_random()
+	GameState.add_item(opportunity.item)
+	GameState.gain_cultivation(opportunity.cultivation)
+	GameState.notify("机缘【%s】：%s 获得 %s。" % [opportunity.title, opportunity.text, opportunity.item])
+	_render()
 
-func _enter_pvp() -> void:
-	GameState.enter_screen(GameState.Screen.PVP)
-
-func _leave_pvp() -> void:
-	GameState.enter_screen(GameState.Screen.OVERWORLD)
-
-func _normal_attack() -> void:
+func _attack() -> void:
 	combat.normal_attack()
-	_refresh_combat_text()
+	_render()
 
-func _use_skill(index: int) -> void:
+func _skill(index: int) -> void:
 	combat.use_skill(index)
-	_refresh_combat_text()
+	_render()
 
-func _refresh_combat_text() -> void:
-	if status_label:
-		status_label.text = "玩家 HP：%d    守卫 HP：%d" % [combat.player_hp, combat.enemy_hp]
-	if detail_label:
-		detail_label.text = combat.battle_log
+func _claim_reward() -> void:
+	var dungeon: Dictionary = Catalog.DUNGEONS[GameState.selected_dungeon_id]
+	GameState.add_item(dungeon.reward)
+	GameState.player.spirit_stones += 12
+	GameState.gain_cultivation(20)
+	GameState.notify("副本结算：获得 %s、12 灵石与修为。" % dungeon.reward)
 
-func _draw_character_select_background() -> void:
-	draw_circle(Vector2(340, 330), 170.0, Color("29485a"))
-	draw_circle(Vector2(340, 300), 108.0, Color("d9d4c4"))
-	draw_rect(Rect2(250, 410, 180, 190), Color("2b6672"))
-	draw_line(Vector2(120, 630), Vector2(590, 630), Color("6e9f98"), 4.0)
+func _use_dew() -> void:
+	if GameState.player.inventory.has("灵泉露"):
+		GameState.player.inventory.erase("灵泉露")
+		GameState.gain_cultivation(40)
+	else:
+		GameState.notify("行囊中没有灵泉露，可在探索机缘中获得。")
 
-func _draw_overworld() -> void:
-	draw_rect(Rect2(0, 150, size.x, size.y - 150), Color("1f4d4a"))
-	draw_circle(Vector2(190, 300), 125.0, Color("356953"))
-	draw_circle(Vector2(980, 360), 175.0, Color("315f4f"))
-	draw_rect(Rect2(560, 360, 220, 150), Color("8a694a"))
-	draw_rect(Rect2(580, 325, 180, 55), Color("c2b180"))
-	draw_circle(player_position, 26.0, Color("ecdfbd"))
-	draw_circle(player_position + Vector2(0, -34), 18.0, Color("161f29"))
-	draw_string(ThemeDB.fallback_font, player_position + Vector2(-32, 62), "道友", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color.WHITE)
+func _claim_weapon_samples() -> void:
+	for family in Catalog.WEAPON_FAMILIES:
+		if not GameState.player.inventory.has(family.starter): GameState.add_item(family.starter)
+	GameState.notify("已加入八种武器大类的逻辑样品；武器卡确认后再制作专属动作与特效。")
 
-func _draw_dungeon() -> void:
-	draw_rect(Rect2(0, 150, size.x, size.y - 150), Color("152938"))
-	draw_rect(Rect2(0, 510, size.x, 210), Color("294451"))
-	draw_rect(Rect2(340, 405, 250, 30), Color("476a70"))
-	draw_circle(Vector2(300, 460), 42.0, Color("dce6dd"))
-	draw_circle(Vector2(890, 458), 50.0, Color("a04e53"))
-	draw_rect(Rect2(770, 355, 250, 16), Color("43252a"))
-	draw_rect(Rect2(770, 355, 2.5 * combat.enemy_hp, 16), Color("d76566"))
-	draw_string(ThemeDB.fallback_font, Vector2(770, 335), "水府守卫", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
+func _find_sect(id: String) -> Dictionary:
+	for sect in Catalog.SECTS:
+		if sect.id == id: return sect
+	return Catalog.SECTS[0]
 
-func _draw_pvp() -> void:
-	draw_rect(Rect2(0, 150, size.x, size.y - 150), Color("30233c"))
-	draw_circle(Vector2(310, 430), 68.0, Color("b7d8d4"))
-	draw_circle(Vector2(970, 430), 68.0, Color("d58e91"))
-	draw_line(Vector2(120, 560), Vector2(1160, 560), Color("d9c28f"), 8.0)
+func _buy(listing: Dictionary) -> void:
+	if GameState.player.gold < listing.price:
+		GameState.notify("金钱不足。")
+		return
+	GameState.player.gold -= listing.price
+	GameState.add_item(listing.name)
+	GameState.notify("已完成本地演示购买：%s。" % listing.name)
+
+func _restart_pvp() -> void:
+	combat.begin("论剑", "山门试剑使")
+	GameState.notify("已开始本地 1v1 演示。")
+	_render()
+
+func _update_notice(text: String) -> void:
+	if notice_label: notice_label.text = "提示：%s" % text
