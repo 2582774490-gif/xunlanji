@@ -1,0 +1,20 @@
+# Godot 编辑器与导出文件
+.godot/
+.import/
+*.import
+export/
+build/
+
+# 本地环境与工具缓存
+.env
+.env.*
+node_modules/
+*.log
+
+# Obsidian 本地状态与 Office 临时文件
+.obsidian/
+~$*
+
+# 操作系统临时文件
+Thumbs.db
+Desktop.ini
