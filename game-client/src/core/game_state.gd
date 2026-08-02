@@ -26,6 +26,9 @@ var player := {
 	"gender": "男",
 	"face": 1,
 	"hair": 1,
+	"spirit_root": "水灵根",
+	"physique": "岚息体",
+	"cultivation_path": "云岚吐纳诀",
 	"realm_index": 0,
 	"minor_stage": 1,
 	"cultivation": 0,
@@ -47,6 +50,16 @@ func update_character(gender: String, face: int, hair: int) -> void:
 	player.gender = gender
 	player.face = face
 	player.hair = hair
+	profile_changed.emit()
+
+func update_innate(spirit_root: String, physique: String) -> void:
+	player.spirit_root = spirit_root
+	player.physique = physique
+	profile_changed.emit()
+
+func choose_cultivation_path(path_name: String) -> void:
+	player.cultivation_path = path_name
+	notify("已选定主修功法：%s" % path_name)
 	profile_changed.emit()
 
 func realm_name() -> String:

@@ -4,12 +4,12 @@
 
 | 文件 | 角色 | 用途 | 当前状态 |
 | --- | --- | --- | --- |
-| `male_anchor_portrait_v01.png` | 云岚行者（男模板） | 角色选择与立绘视觉锚点 | 可用于原型展示 |
-| `male_overworld_8dir_v01_green.png` | 云岚行者 | 开放世界八方向静止方向参考 | 待去绿、切成 8 个精灵图、补行走帧 |
-| `male_combat_base_9pose_v01_green.png` | 云岚行者 | 横版战斗无武器基础动作参考 | 待去绿、逐动作重绘为连贯帧组 |
-| `female_anchor_portrait_v01.png` | 赤月灵修（女模板） | 角色选择与立绘视觉锚点 | 可用于原型展示 |
-| `female_overworld_8dir_v01_green.png` | 赤月灵修 | 开放世界八方向静止方向参考 | 待去绿、切成 8 个精灵图、补行走帧 |
-| `female_combat_base_9pose_v01_green.png` | 赤月灵修 | 横版战斗无武器基础动作参考 | 待去绿、逐动作重绘为连贯帧组 |
+| `male_anchor_portrait_v01.png` | 玩家男模板 | 角色选择与立绘视觉锚点 | 可用于原型展示 |
+| `male_overworld_8dir_v01_green.png` | 玩家男模板 | 开放世界八方向静止方向参考 | 待去绿、切成 8 个精灵图、补行走帧 |
+| `male_combat_base_9pose_v01_green.png` | 玩家男模板 | 横版战斗无武器基础动作参考 | 待去绿、逐动作重绘为连贯帧组 |
+| `female_anchor_portrait_v01.png` | 玩家女模板 | 角色选择与立绘视觉锚点 | 可用于原型展示 |
+| `female_overworld_8dir_v01_green.png` | 玩家女模板 | 开放世界八方向静止方向参考 | 待去绿、切成 8 个精灵图、补行走帧 |
+| `female_combat_base_9pose_v01_green.png` | 玩家女模板 | 横版战斗无武器基础动作参考 | 待去绿、逐动作重绘为连贯帧组 |
 
 ## 重要约定
 

@@ -7,6 +7,8 @@ var combat := CombatStateData.new()
 var selected_gender := "男"
 var selected_face := 1
 var selected_hair := 1
+var selected_root_index := 2
+var selected_physique_index := 0
 var content: VBoxContainer
 var notice_label: Label
 
@@ -155,6 +157,8 @@ func _show_character_select() -> void:
 	_text("当前选择：%s · 脸型 %d · 发型 %d" % [selected_gender, selected_face, selected_hair], 20, Color("f2d79c"))
 	_buttons([["男模板", func(): _set_gender("男"), 140], ["女模板", func(): _set_gender("女"), 140]])
 	_buttons([["切换脸型", _cycle_face, 180], ["切换发型", _cycle_hair, 180]])
+	_text("灵根：%s｜体质：%s" % [Catalog.SPIRIT_ROOTS[selected_root_index].name, Catalog.PHYSIQUES[selected_physique_index].name], 17, Color("a7d5ca"))
+	_buttons([["切换灵根", _cycle_root, 180], ["切换体质", _cycle_physique, 180]])
 	_line()
 	_text("人物三层资产：立绘用于详情与剧情；地图小人用于大世界；横版战斗角色用于副本与 PVP。", 16)
 	_buttons([["踏入云岚村", _confirm_character, 250]])
@@ -162,6 +166,7 @@ func _show_character_select() -> void:
 func _show_home() -> void:
 	_heading("修士洞府")
 	_text("%s · %s · 灵石 %d · 金钱 %d" % [GameState.player.gender, GameState.realm_name(), GameState.player.spirit_stones, GameState.player.gold], 21, Color("f2d79c"))
+	_text("灵根：%s｜体质：%s｜主修：%s" % [GameState.player.spirit_root, GameState.player.physique, GameState.player.cultivation_path])
 	_text("已装备：%s｜法宝：%s" % [GameState.player.equipped_weapon, GameState.player.equipped_artifact])
 	_line()
 	_text("核心循环：探索区域 → 获得资源/机缘 → 修炼与装备成长 → 宗门/交易/PVP → 解锁更高区域。")
@@ -204,6 +209,11 @@ func _show_realm() -> void:
 		var realm: Dictionary = Catalog.REALMS[realm_index]
 		var status := "已到达" if realm_index < GameState.player.realm_index else ("当前" if realm_index == GameState.player.realm_index else "未解锁")
 		_text("%s · %s · %s" % [realm.name, "、".join(realm.minor_stages), status], 16, Color.WHITE if realm_index <= GameState.player.realm_index else Color("82908c"))
+	_line()
+	_text("功法派系：可选择一部主修功法；不同灵根和体质将影响后续的实际数值与技能树。", 17, Color("f2d79c"))
+	for school in Catalog.CULTIVATION_SCHOOLS:
+		_text("【%s】%s" % [school.faction, "、".join(school.techniques)], 16)
+		_buttons([["主修 %s" % school.techniques[0], func(): GameState.choose_cultivation_path(school.techniques[0]), 250]])
 	_buttons([["静坐吐纳（+25 修为）", func(): GameState.gain_cultivation(25), 240], ["服用灵泉露（+40 修为）", _use_dew, 240]])
 
 func _show_inventory() -> void:
@@ -211,10 +221,10 @@ func _show_inventory() -> void:
 	_text("已装备武器：%s｜已装备法宝：%s" % [GameState.player.equipped_weapon, GameState.player.equipped_artifact], 20, Color("f2d79c"))
 	_text("当前物品：%s" % "、".join(GameState.player.inventory))
 	_line()
-	_text("武器大类（先大类，后大分支、小分支与品级）：")
+	_text("首发正式基础器型：每种大类先做一把正式武器，再逐步补大分支、小分支、品级、武器卡、动作和特效。")
 	for family in Catalog.WEAPON_FAMILIES:
-		_text("%s：%s｜逻辑样品：%s" % [family.name, family.branches, family.starter], 16)
-	_buttons([["领取八类逻辑样品", _claim_weapon_samples, 250]])
+		_text("%s｜%s｜基础器：%s｜派系：%s" % [family.name, family.branches, family.starter, family.school], 16)
+	_buttons([["录入全部基础器型（本地演示）", _claim_weapon_samples, 300]])
 	var equips: Array = []
 	for item_name in GameState.player.inventory:
 		if "练气" in item_name:
@@ -287,8 +297,17 @@ func _cycle_hair() -> void:
 	selected_hair = selected_hair % 3 + 1
 	_render()
 
+func _cycle_root() -> void:
+	selected_root_index = (selected_root_index + 1) % Catalog.SPIRIT_ROOTS.size()
+	_render()
+
+func _cycle_physique() -> void:
+	selected_physique_index = (selected_physique_index + 1) % Catalog.PHYSIQUES.size()
+	_render()
+
 func _confirm_character() -> void:
 	GameState.update_character(selected_gender, selected_face, selected_hair)
+	GameState.update_innate(Catalog.SPIRIT_ROOTS[selected_root_index].name, Catalog.PHYSIQUES[selected_physique_index].name)
 	GameState.notify("角色创建完成，云岚村的雾潮正等待你的第一次探索。")
 	GameState.enter_screen(GameState.Screen.HOME)
 
@@ -350,7 +369,7 @@ func _use_dew() -> void:
 func _claim_weapon_samples() -> void:
 	for family in Catalog.WEAPON_FAMILIES:
 		if not GameState.player.inventory.has(family.starter): GameState.add_item(family.starter)
-	GameState.notify("已加入八种武器大类的逻辑样品；武器卡确认后再制作专属动作与特效。")
+	GameState.notify("已录入全部首发基础器型；每把武器仍需建立武器卡后制作专属动作与特效。")
 
 func _find_sect(id: String) -> Dictionary:
 	for sect in Catalog.SECTS:
