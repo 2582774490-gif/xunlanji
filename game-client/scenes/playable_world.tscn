@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/maps/concepts/wuxi_ferry_concept_v01.png" id="2_map"]
 [ext_resource type="Script" path="res://src/world/world_test_player.gd" id="3_player"]
 [ext_resource type="Script" path="res://src/animation/frame_animation_controller.gd" id="4_animator"]
+[ext_resource type="Script" path="res://src/animation/weapon_motion_controller.gd" id="5_weapon_motion"]
 
 [sub_resource type="CircleShape2D" id="CirclePlayer"]
 radius = 22.0
@@ -74,6 +75,10 @@ position = Vector2(0, -26)
 scale = Vector2(0.24, 0.24)
 z_index = 3
 script = ExtResource("4_animator")
+
+[node name="WeaponPivot" type="Node2D" parent="Player"]
+z_index = 4
+script = ExtResource("5_weapon_motion")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 position = Vector2(0, 23)

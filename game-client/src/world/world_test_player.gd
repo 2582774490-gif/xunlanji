@@ -8,6 +8,7 @@ const WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/player_
 @export var map_bounds := Rect2(70.0, 105.0, 1140.0, 550.0)
 
 @onready var animator: FrameAnimationController = $Animation
+@onready var weapon_motion: WeaponMotionController = get_node_or_null("WeaponPivot")
 
 func _ready() -> void:
 	animator.configure_from_grid(IDLE_SHEET, 4, 2, {
@@ -33,6 +34,8 @@ func _physics_process(_delta: float) -> void:
 	_update_visual_animation(movement)
 
 func _update_visual_animation(movement: Vector2) -> void:
+	if weapon_motion:
+		weapon_motion.update_from_movement(movement, animator.direction_from_vector(movement))
 	if movement.length_squared() <= 0.001:
 		animator.play_action("idle", animator.current_direction)
 		return
