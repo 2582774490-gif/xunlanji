@@ -1,0 +1,29 @@
+{
+  "asset_id": "PLAYER-MALE-QINGLAN-SWORD-ATTACK-SOUTH-7F-V03",
+  "role": "male_player_template",
+  "weapon_id": "weapon_qinglan_sword",
+  "weapon_name": "青岚剑",
+  "skill_id": "qinglan_sword_normal_01",
+  "skill_name": "岚痕斩",
+  "kind": "normal_attack",
+  "direction": "south",
+  "status": "prototype_integrated",
+  "source": "source_magic2/player_male_qinglan_sword_attack_south_7f_v03_key.png",
+  "processed": "processed_alpha/player_male_qinglan_sword_attack_south_7f_v03_alpha.png",
+  "runtime": "processed_alpha/player_male_qinglan_sword_attack_south_7f_v03_runtime.png",
+  "grid": { "columns": 7, "rows": 1 },
+  "fps": 12,
+  "loop": false,
+  "frame_order": ["ready", "weight_shift", "wind_up", "slash", "follow_through", "recovery", "neutral_return"],
+  "effect_frames": [3, 4],
+  "effect_description": "浅青色岚风剑痕，只贴随青岚剑剑路出现，不覆盖角色本体。",
+  "slices": [
+    "slices/player_male_qinglan_sword_attack_south_01_runtime_v03.png",
+    "slices/player_male_qinglan_sword_attack_south_02_runtime_v03.png",
+    "slices/player_male_qinglan_sword_attack_south_03_runtime_v03.png",
+    "slices/player_male_qinglan_sword_attack_south_04_runtime_v03.png",
+    "slices/player_male_qinglan_sword_attack_south_05_runtime_v03.png",
+    "slices/player_male_qinglan_sword_attack_south_06_runtime_v03.png",
+    "slices/player_male_qinglan_sword_attack_south_07_runtime_v03.png"
+  ]
+}

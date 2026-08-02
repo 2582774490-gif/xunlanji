@@ -3,6 +3,7 @@ extends CharacterBody2D
 
 const IDLE_SHEET: Texture2D = preload("res://assets/art/characters/player_male_template/processed_alpha/player_male_qinglan_sword_idle_8dir_v02_alpha.png")
 const WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/player_male_template/processed_alpha/player_male_qinglan_sword_walk_south_6f_v02_runtime.png")
+const ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/player_male_template/processed_alpha/player_male_qinglan_sword_attack_south_7f_v03_runtime.png")
 
 @export var move_speed := 255.0
 @export var map_bounds := Rect2(70.0, 105.0, 1140.0, 550.0)
@@ -24,7 +25,17 @@ func _ready() -> void:
 	animator.append_grid_clips(WALK_SOUTH_SHEET, 6, 1, {
 		"walk_south": {"frames": [0, 1, 2, 3, 4, 5], "fps": 9.0, "loop": true},
 	})
+	animator.append_grid_clips(ATTACK_SOUTH_SHEET, 7, 1, {
+		"attack_south": {"frames": [0, 1, 2, 3, 4, 5, 6], "fps": 12.0, "loop": false},
+	})
 	animator.play_action("idle", "south")
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not event.is_pressed() or event.is_echo() or event.keycode != KEY_J:
+		return
+	if animator.trigger_attack() and weapon_motion:
+		weapon_motion.trigger_attack(animator.current_direction)
+	get_viewport().set_input_as_handled()
 
 func _physics_process(_delta: float) -> void:
 	var movement := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
@@ -36,6 +47,8 @@ func _physics_process(_delta: float) -> void:
 func _update_visual_animation(movement: Vector2) -> void:
 	if weapon_motion:
 		weapon_motion.update_from_movement(movement, animator.direction_from_vector(movement))
+	if animator.current_action == "attack" and animator.is_playing():
+		return
 	if movement.length_squared() <= 0.001:
 		animator.play_action("idle", animator.current_direction)
 		return
