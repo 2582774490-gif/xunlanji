@@ -189,7 +189,7 @@ func _show_overworld() -> void:
 	for dungeon_id in region.dungeons:
 		dungeon_buttons.append([Catalog.DUNGEONS[dungeon_id].name, func(): _enter_dungeon(dungeon_id), 180])
 	_buttons(dungeon_buttons)
-	_buttons([["Playable World Test", _open_playable_world, 240]])
+	_buttons([["进入可运行大地图", _open_playable_world, 240]])
 	_buttons([["探索随机机缘", _explore, 220], ["返回洞府", func(): GameState.enter_screen(GameState.Screen.HOME), 160]])
 
 func _show_dungeon() -> void:

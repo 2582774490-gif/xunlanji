@@ -1,12 +1,14 @@
 class_name WorldTestPlayer
 extends CharacterBody2D
 
+signal attack_started(direction: String)
+
 const IDLE_SHEET: Texture2D = preload("res://assets/art/characters/player_male_template/processed_alpha/player_male_qinglan_sword_idle_8dir_v02_alpha.png")
 const WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/player_male_template/processed_alpha/player_male_qinglan_sword_walk_south_6f_v02_runtime.png")
 const ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/player_male_template/processed_alpha/player_male_qinglan_sword_attack_south_7f_v03_runtime.png")
 
 @export var move_speed := 255.0
-@export var map_bounds := Rect2(70.0, 105.0, 1140.0, 550.0)
+@export var map_bounds := Rect2(64.0, 64.0, 3968.0, 2176.0)
 
 @onready var animator: FrameAnimationController = $Animation
 @onready var weapon_motion: WeaponMotionController = get_node_or_null("WeaponPivot")
@@ -35,6 +37,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	if animator.trigger_attack() and weapon_motion:
 		weapon_motion.trigger_attack(animator.current_direction)
+		attack_started.emit(animator.current_direction)
 	get_viewport().set_input_as_handled()
 
 func _physics_process(_delta: float) -> void:

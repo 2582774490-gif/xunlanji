@@ -84,3 +84,8 @@
 - 用户确认 GPT Image 生成的玩家男模板可作为当前游戏运行测试资产；最终角色需要支持模板、时装、武器、法宝和功法的组合，因此必须持续扩充资产而不能锁死为单一角色。
 - 当前已具备八方向静止图和南向六帧行走图；其余方向的连续行走、攻击、受击、冲刺与武器特效尚未制作，测试场景不得伪造为已完成。
 - 首个运行切片应优先验证：地图加载、角色移动、朝向切换、南向行走播放、场景交互和回到已有系统框架；装备/功法仅使用数据接口占位，不依赖尚未制作的外观。
+## 2026-08-03: Open world framework correction
+
+- Character frames alone do not constitute a game. The next acceptance target is a runnable world loop: large map navigation, region gates, resource nodes/NPC interaction, and a dungeon entrance that loads a visual dungeon scene.
+- The initial maps are structural graybox maps rendered from reusable 2D layers. They establish scale, navigation, markers, and integration points now; AI-made background, building, and foreground layers will replace their presentation without rewriting world logic.
+- Final online play still requires a server-authoritative architecture. This milestone is deliberately a local Godot gameplay prototype.

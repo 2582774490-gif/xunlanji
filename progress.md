@@ -59,3 +59,10 @@
 
 - 用户确认第一套 GPT Image 角色帧表可以投入运行测试。
 - 将以雾溪渡口微区作为第一个可玩世界入口；测试重点是运行稳定性和系统接口，不把测试角色误称为最终可换装角色系统。
+## 2026-08-03: Open world framework started
+
+- User corrected the priority: build the actual game framework and maps, not only character images.
+- Started Phase 20: turn the existing ferry micro-test into a large, camera-driven, three-region world framework with a visual dungeon entry.
+
+- Completed the first implementation: a 4096 x 2304 camera world, three data-driven regions, resource/NPC/gate interactions, and a visual Mist-Stream Water Palace boss prototype.
+- Validation passed: Godot editor scan, `playable_world.tscn`, and `mist_stream_water_palace.tscn` all run headlessly without parser or runtime errors.

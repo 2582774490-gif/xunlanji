@@ -127,3 +127,13 @@
 - [ ] 将角色、时装、武器与功法维持为独立接口，避免测试资产锁死最终系统。
 - [ ] 运行 Godot 场景测试、记录结果并提交 GitHub。
 - **状态：** 进行中
+## Phase 20: Runnable Open World Framework (active)
+
+- [ ] Replace the single-screen ferry test with a camera-based 4096 x 2304 world region.
+- [ ] Add three connected launch regions with data-driven gates, resource nodes, and NPC interaction markers.
+- [ ] Add a visual dungeon scene for Mist-Stream Water Palace and connect it to the world entrance.
+- [ ] Keep generated character assets modular; map, dungeon, NPC, weapon, and costume assets must remain swappable.
+- [ ] Run Godot headless validation, record results, then commit and push the runnable framework.
+
+- [x] Initial implementation completed: three-region procedural world, gates, resources, NPC markers, and a visual Water Palace dungeon.
+- [x] Godot editor scan and both new scenes passed headless validation on 2026-08-03.
