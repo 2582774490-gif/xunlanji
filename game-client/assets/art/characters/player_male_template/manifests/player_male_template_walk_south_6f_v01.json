@@ -1,0 +1,14 @@
+{
+  "asset_id": "player_male_template_walk_south_6f_v01",
+  "role": "player_male_template",
+  "kind": "walk_cycle",
+  "source": "source_key/player_male_template_walk_south_6f_v01_key.png",
+  "processed": "processed_alpha/player_male_template_walk_south_6f_v01.png",
+  "grid": { "columns": 3, "rows": 2 },
+  "direction": "south",
+  "frame_order": [0, 1, 2, 3, 4, 5],
+  "frames_per_second": 9,
+  "loop": true,
+  "collision_anchor": "foot-center",
+  "state": "first-playable-animation-test-awaiting-user-art-review"
+}

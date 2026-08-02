@@ -1,0 +1,20 @@
+{
+  "asset_id": "player_male_template_idle_8dir_v01",
+  "role": "player_male_template",
+  "kind": "direction_reference",
+  "source": "source_key/player_male_template_idle_8dir_v01_key.png",
+  "processed": "processed_alpha/player_male_template_idle_8dir_v01.png",
+  "grid": { "columns": 4, "rows": 2 },
+  "cell_order": [
+    "south",
+    "south_west",
+    "west",
+    "north_west",
+    "north",
+    "north_east",
+    "east",
+    "south_east"
+  ],
+  "frames_per_direction": 1,
+  "state": "direction-verified-not-a-walk-cycle"
+}
