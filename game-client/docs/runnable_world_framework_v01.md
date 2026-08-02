@@ -7,6 +7,7 @@
 - Region gates, resource nodes, and NPC interaction markers are created from data in `playable_world.gd`.
 - Mist-Stream Water Palace is a separate visual dungeon scene reached from the Yunlan Village map.
 - The dungeon uses the same player controller and supports a local boss-hit loop against Qiao Tide Demoness Lansa.
+- Yunlan Village now has an original generated base-map asset and a first-chapter onboarding chain: Shen Yan's guidance → Mist-Stream Herb → Water Palace.
 - Player art, map art, NPCs, weapons, costumes, and effects are separate assets. Replacing them does not require rewiring map navigation or interaction logic.
 
 ## Current map layer contract

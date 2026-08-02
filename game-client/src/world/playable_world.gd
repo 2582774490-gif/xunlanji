@@ -5,6 +5,7 @@ const Catalog = preload("res://src/data/game_catalog.gd")
 const WorldMarkerScript = preload("res://src/world/world_marker.gd")
 
 @onready var map_canvas: Node2D = $MapCanvas
+@onready var yunlan_art: Sprite2D = $YunlanVillageBaseArt
 @onready var player: CharacterBody2D = $Player
 @onready var interactables: Node2D = $Interactables
 @onready var status: Label = $HUD/StatusPanel/Status
@@ -13,13 +14,15 @@ const WorldMarkerScript = preload("res://src/world/world_marker.gd")
 
 var active_marker
 var collected_markers: Dictionary = {}
+var tutorial_stage := 0
 
 func _ready() -> void:
 	map_canvas.configure(GameState.current_region_id)
+	yunlan_art.visible = GameState.current_region_id == "starter_village"
 	player.map_bounds = Rect2(Vector2(64, 64), WORLD_SIZE - Vector2(128, 128))
 	player.position = _spawn_position()
 	region_label.text = _region_title()
-	status.text = "Explore the full region. Follow roads, find resources and NPCs, then enter the Water Palace."
+	status.text = "Chapter One — Mist Tide Awakens: speak with Sect Guide Shen Yan in Yunlan Village."
 	prompt.text = ""
 	_build_markers()
 
@@ -82,15 +85,22 @@ func _activate_marker() -> void:
 			active_marker.visible = false
 			GameState.add_item(active_marker.title)
 			GameState.gain_cultivation(5)
-			status.text = "Collected %s. Resources and cultivation are now linked to the world map." % active_marker.title
+			if active_marker.marker_id == "mist_herb" and tutorial_stage >= 1:
+				tutorial_stage = 2
+				status.text = "You gather the Mist-Stream Herb. Shen Yan senses its tide resonance: investigate Mist-Stream Water Palace."
+			else:
+				status.text = "Collected %s. Resources and cultivation are now linked to the world map." % active_marker.title
 			prompt.text = ""
 			active_marker = null
 		"npc":
-			status.text = "%s: The roads and gates are open. Your choices decide which opportunities you pursue." % active_marker.title
+			_play_npc_story(active_marker.marker_id)
 		"gate":
 			GameState.current_region_id = active_marker.payload
 			get_tree().reload_current_scene()
 		"dungeon":
+			if active_marker.marker_id == "water_palace" and tutorial_stage < 2:
+				status.text = "The palace tide rejects you for now. First hear Shen Yan's guidance and gather a Mist-Stream Herb."
+				return
 			GameState.selected_dungeon_id = active_marker.payload
 			get_tree().change_scene_to_file("res://scenes/mist_stream_water_palace.tscn")
 
@@ -101,6 +111,18 @@ func _interaction_text(marker) -> String:
 		"gate": return "Travel through " + marker.title
 		"dungeon": return "Enter " + marker.title
 	return "Interact"
+
+func _play_npc_story(marker_id: String) -> void:
+	if marker_id != "village_guide":
+		status.text = "The road remains open. The world will remember what you choose to pursue."
+		return
+	if tutorial_stage == 0:
+		tutorial_stage = 1
+		status.text = "Shen Yan: The Mist Tide has risen around Yunlan. You need not chase a single fate—first learn your own root, then gather one Mist-Stream Herb from the village garden."
+	elif tutorial_stage == 1:
+		status.text = "Shen Yan: The herb garden lies along the central village road. Bring its tide resonance to the Water Palace entrance."
+	else:
+		status.text = "Shen Yan: The herb has answered you. The Water Palace is now your first trial; return alive, and choose your cultivation path freely."
 
 func _spawn_position() -> Vector2:
 	return Vector2(360, 1710) if GameState.current_region_id != "starter_village" else Vector2(400, 1700)
