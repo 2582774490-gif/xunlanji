@@ -87,7 +87,7 @@ func _subtitle() -> String:
 		GameState.Screen.CHARACTER_SELECT: "首发角色模板 · 原创国漫修仙视觉方向",
 		GameState.Screen.HOME: "修行、探索、宗门与人世，都从此处展开",
 		GameState.Screen.OVERWORLD: "三大区开放世界 · 固定副本与可解释随机机缘",
-		GameState.Screen.DUNGEON: "横版即时手操战斗 · 当前为本地基础动作逻辑",
+		GameState.Screen.DUNGEON: "统一 2D 斜俯视场景战斗 · 当前为本地基础动作逻辑",
 		GameState.Screen.REALM: "炼气至化神圆满 · 多重小境界成长",
 		GameState.Screen.INVENTORY: "武器、材料、法宝与时装的统一入口",
 		GameState.Screen.SECT: "自由加入与退出 · 门规、贡献、身份与后果",
@@ -160,7 +160,7 @@ func _show_character_select() -> void:
 	_text("灵根：%s｜体质：%s" % [Catalog.SPIRIT_ROOTS[selected_root_index].name, Catalog.PHYSIQUES[selected_physique_index].name], 17, Color("a7d5ca"))
 	_buttons([["切换灵根", _cycle_root, 180], ["切换体质", _cycle_physique, 180]])
 	_line()
-	_text("人物三层资产：立绘用于详情与剧情；地图小人用于大世界；横版战斗角色用于副本与 PVP。", 16)
+	_text("人物资产统一为：立绘用于详情与剧情；2D 斜俯视角色用于大世界、副本与 PVP。", 16)
 	_buttons([["踏入云岚村", _confirm_character, 250]])
 
 func _show_home() -> void:
@@ -193,7 +193,7 @@ func _show_overworld() -> void:
 
 func _show_dungeon() -> void:
 	var dungeon: Dictionary = Catalog.DUNGEONS[GameState.selected_dungeon_id]
-	_heading("%s · 横版副本" % dungeon.name)
+	_heading("%s · 2D 场景副本" % dungeon.name)
 	_text("目标：击败%s｜适配：%s｜首通演示奖励：%s" % [dungeon.enemy, dungeon.realm, dungeon.reward], 19, Color("f2d79c"))
 	_text("玩家 HP：%d / 100｜对手 HP：%d / 100" % [combat.player_hp, combat.enemy_hp], 22, Color.WHITE)
 	_text(combat.battle_log)

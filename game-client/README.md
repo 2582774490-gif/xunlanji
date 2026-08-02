@@ -21,7 +21,7 @@
 - `src/data/game_catalog.gd`：首发世界、境界、副本、武器、宗门、NPC、机缘与市集数据。
 - `src/combat/combat_state.gd`：副本与 1v1 共用的基础即时战斗状态。
 - `src/ui/main.gd`：完整导航和各系统的本地交互界面。
-- `assets/art/prototype_batch_01/`：第一批角色立绘、地图方向图与横版战斗动作参考。
+- `assets/art/prototype_batch_01/`：第一批角色立绘、地图方向图；其中横版动作试片已废止，不进入新管线。
 
 ## 运行方式
 
