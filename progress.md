@@ -66,3 +66,8 @@
 
 - Completed the first implementation: a 4096 x 2304 camera world, three data-driven regions, resource/NPC/gate interactions, and a visual Mist-Stream Water Palace boss prototype.
 - Validation passed: Godot editor scan, `playable_world.tscn`, and `mist_stream_water_palace.tscn` all run headlessly without parser or runtime errors.
+
+## 2026-08-03: Reference method locked
+
+- Rechecked the user-provided eight-direction ARPG reference in Douyin.
+- Added the production standard for modular maps, layered character composition, eight-direction action packages, AI asset cleanup, and original-art boundaries.

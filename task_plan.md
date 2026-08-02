@@ -137,3 +137,10 @@
 
 - [x] Initial implementation completed: three-region procedural world, gates, resources, NPC markers, and a visual Water Palace dungeon.
 - [x] Godot editor scan and both new scenes passed headless validation on 2026-08-03.
+
+## Phase 21: Reference-driven 2D production pipeline (active)
+
+- [x] Re-analyze the supplied reference videos and extract the reusable production method.
+- [x] Freeze the style direction: polished original Chinese-fantasy 2D ARPG, not copied pixel art.
+- [ ] Replace graybox map visuals with the layered Yunlan Village map package.
+- [ ] Build complete eight-direction character, weapon, and effect packages before calling a character playable-complete.

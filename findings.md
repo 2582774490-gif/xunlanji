@@ -89,3 +89,9 @@
 - Character frames alone do not constitute a game. The next acceptance target is a runnable world loop: large map navigation, region gates, resource nodes/NPC interaction, and a dungeon entrance that loads a visual dungeon scene.
 - The initial maps are structural graybox maps rendered from reusable 2D layers. They establish scale, navigation, markers, and integration points now; AI-made background, building, and foreground layers will replace their presentation without rewriting world logic.
 - Final online play still requires a server-authoritative architecture. This milestone is deliberately a local Godot gameplay prototype.
+
+## 2026-08-03: Reference-video production decision
+
+- The reference videos establish a production method: modular layered maps, camera-follow exploration, separate character/weapon/effect nodes, and eight-direction frame packages.
+- The user wants this method and gameplay readability, but with an original polished Chinese-fantasy 2D visual language and the independent 《寻岚记》 world system.
+- The procedural world visuals are now explicitly graybox-only. Future map work must be delivered as separable terrain, decoration, foreground/occlusion, collision, and interaction layers.
