@@ -189,6 +189,7 @@ func _show_overworld() -> void:
 	for dungeon_id in region.dungeons:
 		dungeon_buttons.append([Catalog.DUNGEONS[dungeon_id].name, func(): _enter_dungeon(dungeon_id), 180])
 	_buttons(dungeon_buttons)
+	_buttons([["Playable World Test", _open_playable_world, 240]])
 	_buttons([["探索随机机缘", _explore, 220], ["返回洞府", func(): GameState.enter_screen(GameState.Screen.HOME), 160]])
 
 func _show_dungeon() -> void:
@@ -313,9 +314,7 @@ func _confirm_character() -> void:
 
 func _load_portrait(gender: String) -> Texture2D:
 	var path := "res://assets/art/prototype_batch_01/male_anchor_portrait_v01.png" if gender == "男" else "res://assets/art/prototype_batch_01/female_anchor_portrait_v01.png"
-	var image := Image.load_from_file(path)
-	if image.is_empty(): return null
-	return ImageTexture.create_from_image(image)
+	return load(path) as Texture2D
 
 func _current_region() -> Dictionary:
 	for region in Catalog.REGIONS:
@@ -336,6 +335,9 @@ func _enter_dungeon(dungeon_id: String) -> void:
 	GameState.selected_dungeon_id = dungeon_id
 	combat.begin("副本", Catalog.DUNGEONS[dungeon_id].enemy)
 	GameState.enter_screen(GameState.Screen.DUNGEON)
+
+func _open_playable_world() -> void:
+	get_tree().change_scene_to_file("res://scenes/playable_world.tscn")
 
 func _explore() -> void:
 	var opportunity: Dictionary = Catalog.OPPORTUNITIES.pick_random()

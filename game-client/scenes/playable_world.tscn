@@ -1,0 +1,112 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/world/playable_world.gd" id="1_world"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/concepts/wuxi_ferry_concept_v01.png" id="2_map"]
+[ext_resource type="Script" path="res://src/world/world_test_player.gd" id="3_player"]
+[ext_resource type="Script" path="res://src/animation/frame_animation_controller.gd" id="4_animator"]
+
+[sub_resource type="CircleShape2D" id="CirclePlayer"]
+radius = 22.0
+
+[sub_resource type="CircleShape2D" id="CircleHerb"]
+radius = 44.0
+
+[sub_resource type="CircleShape2D" id="CirclePortal"]
+radius = 74.0
+
+[node name="PlayableWorld" type="Node2D"]
+script = ExtResource("1_world")
+
+[node name="WuxiFerryConceptBase" type="Sprite2D" parent="."]
+position = Vector2(640, 360)
+texture = ExtResource("2_map")
+scale = Vector2(0.766, 0.766)
+
+[node name="WorldTitle" type="Label" parent="."]
+offset_left = 30.0
+offset_top = 20.0
+theme_override_colors/font_color = Color(0.95, 0.84, 0.58, 1)
+theme_override_font_sizes/font_size = 27
+text = "Mist-Stream Ferry — playable world slice"
+
+[node name="Interactables" type="Node2D" parent="."]
+
+[node name="SpiritHerb" type="Area2D" parent="Interactables"]
+position = Vector2(430, 315)
+
+[node name="Marker" type="Polygon2D" parent="Interactables/SpiritHerb"]
+polygon = PackedVector2Array(-13, 13, 0, -16, 13, 13)
+color = Color(0.34, 1, 0.61, 0.95)
+
+[node name="Label" type="Label" parent="Interactables/SpiritHerb"]
+offset_left = -45.0
+offset_top = 18.0
+theme_override_colors/font_color = Color(0.78, 1, 0.86, 1)
+theme_override_font_sizes/font_size = 15
+text = "Spirit Herb"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactables/SpiritHerb"]
+shape = SubResource("CircleHerb")
+
+[node name="MistStreamPalaceEntrance" type="Area2D" parent="Interactables"]
+position = Vector2(1135, 160)
+
+[node name="Marker" type="Polygon2D" parent="Interactables/MistStreamPalaceEntrance"]
+polygon = PackedVector2Array(-16, 0, 0, -16, 16, 0, 0, 16)
+color = Color(0.42, 0.82, 1, 0.95)
+
+[node name="Label" type="Label" parent="Interactables/MistStreamPalaceEntrance"]
+offset_left = -74.0
+offset_top = 23.0
+theme_override_colors/font_color = Color(0.75, 0.91, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "Mist-Stream Palace"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactables/MistStreamPalaceEntrance"]
+shape = SubResource("CirclePortal")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(405, 485)
+script = ExtResource("3_player")
+
+[node name="Animation" type="AnimatedSprite2D" parent="Player"]
+position = Vector2(0, -26)
+scale = Vector2(0.24, 0.24)
+z_index = 3
+script = ExtResource("4_animator")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(0, 23)
+shape = SubResource("CirclePlayer")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="ColorRect" parent="HUD"]
+offset_left = 24.0
+offset_top = 618.0
+offset_right = 1256.0
+offset_bottom = 698.0
+color = Color(0.035, 0.07, 0.1, 0.86)
+
+[node name="Status" type="Label" parent="HUD/Panel"]
+offset_left = 16.0
+offset_top = 10.0
+offset_right = 1190.0
+theme_override_colors/font_color = Color(0.83, 0.91, 0.88, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+
+[node name="Help" type="Label" parent="HUD/Panel"]
+offset_left = 16.0
+offset_top = 42.0
+theme_override_colors/font_color = Color(0.64, 0.78, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "Arrow keys: move  |  E: interact  |  J: combat input test  |  H / Esc: return to framework"
+
+[node name="Prompt" type="Label" parent="HUD"]
+offset_left = 440.0
+offset_top = 568.0
+offset_right = 850.0
+theme_override_colors/font_color = Color(1, 0.88, 0.58, 1)
+theme_override_font_sizes/font_size = 19
+horizontal_alignment = 1
