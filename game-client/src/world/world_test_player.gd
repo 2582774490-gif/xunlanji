@@ -1,8 +1,8 @@
 class_name WorldTestPlayer
 extends CharacterBody2D
 
-const IDLE_SHEET: Texture2D = preload("res://assets/art/characters/player_male_template/processed_alpha/player_male_template_idle_8dir_v01.png")
-const WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/player_male_template/processed_alpha/player_male_template_walk_south_6f_v01.png")
+const IDLE_SHEET: Texture2D = preload("res://assets/art/characters/player_male_template/processed_alpha/player_male_qinglan_sword_idle_8dir_v02_alpha.png")
+const WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/player_male_template/processed_alpha/player_male_qinglan_sword_walk_south_6f_v02_runtime.png")
 
 @export var move_speed := 255.0
 @export var map_bounds := Rect2(70.0, 105.0, 1140.0, 550.0)
@@ -21,7 +21,7 @@ func _ready() -> void:
 		"idle_east": {"frames": [6], "fps": 1.0, "loop": true},
 		"idle_south_east": {"frames": [7], "fps": 1.0, "loop": true},
 	})
-	animator.append_grid_clips(WALK_SOUTH_SHEET, 3, 2, {
+	animator.append_grid_clips(WALK_SOUTH_SHEET, 6, 1, {
 		"walk_south": {"frames": [0, 1, 2, 3, 4, 5], "fps": 9.0, "loop": true},
 	})
 	animator.play_action("idle", "south")

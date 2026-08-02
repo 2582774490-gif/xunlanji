@@ -1,0 +1,35 @@
+{
+  "asset_id": "PLAYER-MALE-QINGLAN-SWORD-WALK-SOUTH-6F-V02",
+  "role": "male_player_template",
+  "weapon_id": "weapon_qinglan_sword",
+  "weapon_name": "青岚剑",
+  "kind": "walk_cycle",
+  "direction": "south",
+  "status": "prototype_integrated",
+  "source": "source_magic2/player_male_qinglan_sword_walk_south_6f_v02_key.png",
+  "processed": "processed_alpha/player_male_qinglan_sword_walk_south_6f_v02_alpha.png",
+  "runtime": "processed_alpha/player_male_qinglan_sword_walk_south_6f_v02_runtime.png",
+  "grid": { "columns": 6, "rows": 1 },
+  "fps": 9,
+  "loop": true,
+  "frame_order": ["left_contact", "left_down", "passing", "right_contact", "right_down", "passing_return"],
+  "slices": [
+    "slices/player_male_qinglan_sword_walk_south_01_runtime_v02.png",
+    "slices/player_male_qinglan_sword_walk_south_02_runtime_v02.png",
+    "slices/player_male_qinglan_sword_walk_south_03_runtime_v02.png",
+    "slices/player_male_qinglan_sword_walk_south_04_runtime_v02.png",
+    "slices/player_male_qinglan_sword_walk_south_05_runtime_v02.png",
+    "slices/player_male_qinglan_sword_walk_south_06_runtime_v02.png"
+  ],
+  "motion_checks": [
+    "双脚交替可读。",
+    "剑始终固定在右手，保留轻微滞后。",
+    "发丝和衣摆有小幅反向摆动。",
+    "六帧循环边缘均保留安全边距。"
+  ],
+  "remaining_work": [
+    "生成其余七个方向的六帧行走。",
+    "将武器从身体帧中拆分为可换装层。",
+    "补齐冲刺、普攻、受击和首个技能帧表。"
+  ]
+}

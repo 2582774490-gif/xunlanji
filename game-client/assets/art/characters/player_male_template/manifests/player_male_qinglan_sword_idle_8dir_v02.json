@@ -1,0 +1,36 @@
+{
+  "asset_id": "PLAYER-MALE-QINGLAN-SWORD-IDLE-8DIR-V02",
+  "role": "male_player_template",
+  "weapon_id": "weapon_qinglan_sword",
+  "weapon_name": "青岚剑",
+  "kind": "eight_direction_idle_reference",
+  "status": "prototype_integrated",
+  "source": "source_magic2/player_male_qinglan_sword_idle_8dir_v02_key.png",
+  "processed": "processed_alpha/player_male_qinglan_sword_idle_8dir_v02_alpha.png",
+  "grid": { "columns": 4, "rows": 2 },
+  "cell_order": [
+    "south",
+    "south_west",
+    "west",
+    "north_west",
+    "north",
+    "north_east",
+    "east",
+    "south_east"
+  ],
+  "slices": {
+    "south": "slices/player_male_qinglan_sword_idle_south_v02.png",
+    "south_west": "slices/player_male_qinglan_sword_idle_south_west_v02.png",
+    "west": "slices/player_male_qinglan_sword_idle_west_v02.png",
+    "north_west": "slices/player_male_qinglan_sword_idle_north_west_v02.png",
+    "north": "slices/player_male_qinglan_sword_idle_north_v02.png",
+    "north_east": "slices/player_male_qinglan_sword_idle_north_east_v02.png",
+    "east": "slices/player_male_qinglan_sword_idle_east_v02.png",
+    "south_east": "slices/player_male_qinglan_sword_idle_south_east_v02.png"
+  },
+  "notes": [
+    "本图已完成洋红底去背、八向切分，并被可玩世界原型调用。",
+    "它是八向待机基准；行走、冲刺、受击、攻击必须由后续独立的连续帧图提供。",
+    "剑现在与角色同图，用于比例和手部关系校准；正式版将输出可独立替换的武器层。"
+  ]
+}
