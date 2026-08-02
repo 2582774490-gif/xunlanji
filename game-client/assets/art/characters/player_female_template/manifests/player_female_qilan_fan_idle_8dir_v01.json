@@ -1,0 +1,32 @@
+{
+  "asset_id": "PLAYER-FEMALE-QILAN-FAN-IDLE-8DIR-V01",
+  "role": "female_player_template",
+  "weapon_id": "weapon_qilan_folding_fan",
+  "weapon_name": "栖岚折扇",
+  "kind": "eight_direction_idle_reference",
+  "status": "art_ready_waiting_for_walk_cycle",
+  "source": "source_magic2/player_female_qilan_fan_idle_8dir_v01_key.png",
+  "processed": "processed_alpha/player_female_qilan_fan_idle_8dir_v01_alpha.png",
+  "grid": { "columns": 4, "rows": 2 },
+  "cell_order": [
+    "south",
+    "south_west",
+    "west",
+    "north_west",
+    "north",
+    "north_east",
+    "east",
+    "south_east"
+  ],
+  "slices": {
+    "south": "slices/player_female_qilan_fan_idle_south_v01.png",
+    "south_west": "slices/player_female_qilan_fan_idle_south_west_v01.png",
+    "west": "slices/player_female_qilan_fan_idle_west_v01.png",
+    "north_west": "slices/player_female_qilan_fan_idle_north_west_v01.png",
+    "north": "slices/player_female_qilan_fan_idle_north_v01.png",
+    "north_east": "slices/player_female_qilan_fan_idle_north_east_v01.png",
+    "east": "slices/player_female_qilan_fan_idle_east_v01.png",
+    "south_east": "slices/player_female_qilan_fan_idle_south_east_v01.png"
+  },
+  "next_assets": ["南向六帧行走", "八向行走", "折扇普攻", "折扇功法技能"]
+}
