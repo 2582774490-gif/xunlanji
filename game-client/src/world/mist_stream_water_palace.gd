@@ -11,7 +11,7 @@ var near_boss := false
 
 func _ready() -> void:
 	player.map_bounds = Rect2(64, 64, 2432, 1408)
-	player.position = Vector2(260, 1160)
+	player.position = Vector2(240, 1250)
 	player.attack_started.connect(_on_player_attack)
 	boss.body_entered.connect(func(body: Node2D): near_boss = body == player; _refresh_prompt())
 	boss.body_exited.connect(func(body: Node2D): if body == player: near_boss = false; _refresh_prompt())

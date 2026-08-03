@@ -27,7 +27,7 @@ func update_from_movement(movement: Vector2, direction: String) -> void:
 	# The weapon trails slightly against travel, then catches up. This is kept
 	# deliberately small so it supports hand-authored frames instead of hiding
 	# weak animation with excessive procedural motion.
-	_target_position = hand_offset - normalized * move_lag_pixels
+	_target_position = _hand_offset_for(direction) - normalized * move_lag_pixels
 	_target_rotation = _rest_rotation_for(direction)
 
 
@@ -54,3 +54,16 @@ func _rest_rotation_for(direction: String) -> float:
 	if direction.ends_with("west") or direction == "west":
 		return deg_to_rad(168.0)
 	return deg_to_rad(-12.0)
+
+
+func _hand_offset_for(direction: String) -> Vector2:
+	match direction:
+		"south": return Vector2(18.0, -8.0)
+		"south_east": return Vector2(24.0, -15.0)
+		"east": return Vector2(27.0, -20.0)
+		"north_east": return Vector2(17.0, -28.0)
+		"north": return Vector2(-4.0, -30.0)
+		"north_west": return Vector2(-19.0, -26.0)
+		"west": return Vector2(-25.0, -18.0)
+		"south_west": return Vector2(-19.0, -10.0)
+	return hand_offset

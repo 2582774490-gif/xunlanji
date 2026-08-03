@@ -144,3 +144,6 @@
 - [x] Freeze the style direction: polished original Chinese-fantasy 2D ARPG, not copied pixel art.
 - [ ] Replace graybox map visuals with the layered Yunlan Village map package.
 - [ ] Build complete eight-direction character, weapon, and effect packages before calling a character playable-complete.
+
+- [x] Replace the prototype's baked character weapon with a separate Yunlan male body layer and Qinglan Sword layer.
+- [x] Add an original Mist-Stream Water Palace dungeon background and align its boss anchor to the arena.

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://src/world/playable_world.gd" id="1_world"]
 [ext_resource type="Script" path="res://src/world/open_world_map.gd" id="2_map"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://src/animation/frame_animation_controller.gd" id="4_animator"]
 [ext_resource type="Script" path="res://src/animation/weapon_motion_controller.gd" id="5_weapon_motion"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/yunlan_village_base_map_v01.png" id="6_yunlan_map"]
+[ext_resource type="Texture2D" path="res://assets/art/weapons/qinglan_sword/processed_alpha/qinglan_sword_idle_v01_alpha.png" id="7_qinglan_sword"]
 
 [sub_resource type="CircleShape2D" id="CirclePlayer"]
 radius = 22.0
@@ -39,6 +40,11 @@ script = ExtResource("4_animator")
 [node name="WeaponPivot" type="Node2D" parent="Player"]
 z_index = 4
 script = ExtResource("5_weapon_motion")
+
+[node name="QinglanSword" type="Sprite2D" parent="Player/WeaponPivot"]
+texture = ExtResource("7_qinglan_sword")
+position = Vector2(0, 35)
+scale = Vector2(0.05, 0.05)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 position = Vector2(0, 23)

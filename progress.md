@@ -71,3 +71,9 @@
 
 - Rechecked the user-provided eight-direction ARPG reference in Douyin.
 - Added the production standard for modular maps, layered character composition, eight-direction action packages, AI asset cleanup, and original-art boundaries.
+
+## 2026-08-03: First layered gameplay art pass
+
+- Added original Yunlan Village and Mist-Stream Water Palace base-map art to the runnable scenes.
+- Added the first separate player-body layer and the Qinglan Sword weapon layer with direction-aware hand anchors and swing motion.
+- Confirmed the two scenes still run after importing the new art assets; complete walk/attack sheets are explicitly the next production task.

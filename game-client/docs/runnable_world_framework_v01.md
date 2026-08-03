@@ -8,6 +8,8 @@
 - Mist-Stream Water Palace is a separate visual dungeon scene reached from the Yunlan Village map.
 - The dungeon uses the same player controller and supports a local boss-hit loop against Qiao Tide Demoness Lansa.
 - Yunlan Village now has an original generated base-map asset and a first-chapter onboarding chain: Shen Yan's guidance → Mist-Stream Herb → Water Palace.
+- Mist-Stream Water Palace now has an original dungeon base-map asset with the boss anchor aligned to its inner circular arena.
+- The current player proof uses a separate eight-direction body layer plus a separate Qinglan Sword layer, attached through hand offsets and weapon follow/swing logic. It is deliberately not yet called a complete animation package because the matching walk and attack frame sequences remain to be produced.
 - Player art, map art, NPCs, weapons, costumes, and effects are separate assets. Replacing them does not require rewiring map navigation or interaction logic.
 
 ## Current map layer contract
