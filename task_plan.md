@@ -147,3 +147,5 @@
 
 - [x] Replace the prototype's baked character weapon with a separate Yunlan male body layer and Qinglan Sword layer.
 - [x] Add an original Mist-Stream Water Palace dungeon background and align its boss anchor to the arena.
+- [x] Integrate a six-frame south-facing walk cycle and a six-frame south-facing body attack cycle for the Yunlan male test template.
+- [x] Keep the Qinglan Sword on its own transform controller; it can still follow and swing in all eight directions while the remaining body sheets are produced.

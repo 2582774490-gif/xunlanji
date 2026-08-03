@@ -95,3 +95,8 @@
 - The reference videos establish a production method: modular layered maps, camera-follow exploration, separate character/weapon/effect nodes, and eight-direction frame packages.
 - The user wants this method and gameplay readability, but with an original polished Chinese-fantasy 2D visual language and the independent 《寻岚记》 world system.
 - The procedural world visuals are now explicitly graybox-only. Future map work must be delivered as separable terrain, decoration, foreground/occlusion, collision, and interaction layers.
+
+## 2026-08-04: Action asset integration finding
+
+- A character action sheet must be kept weapon-free when the weapon is intended to be swappable. The body can provide stance, recoil, and cloth motion; the weapon controller supplies the held-item pose, direction, swing timing, and later its weapon-specific effects.
+- South-facing cycles are accepted as the first verified production slice only. The game must not describe the template as eight-direction action-complete until the other seven directional walk and attack sheets are produced and tested.

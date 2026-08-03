@@ -77,3 +77,9 @@
 - Added original Yunlan Village and Mist-Stream Water Palace base-map art to the runnable scenes.
 - Added the first separate player-body layer and the Qinglan Sword weapon layer with direction-aware hand anchors and swing motion.
 - Confirmed the two scenes still run after importing the new art assets; complete walk/attack sheets are explicitly the next production task.
+
+## 2026-08-04: Character action pass one
+
+- Added and alpha-cleaned six-frame south-facing walk and attack sheets for the Yunlan male test template.
+- The player controller now holds the body attack until its non-looping frames finish, while the Qinglan Sword remains a separate, direction-aware weapon layer.
+- Validation passed again for both `playable_world.tscn` and `mist_stream_water_palace.tscn` after importing the new images.
