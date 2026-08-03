@@ -95,3 +95,9 @@
 - Replaced the normal “enter playable world” route with `yunlan_south_gate.tscn`.
 - Generated and processed an original eight-direction map avatar, South Gate prop and jade pine prop.
 - Implemented terrain / prop / player feet sorting / occlusion / collision structure and launched the visible test scene.
+
+## 2026-08-04: South Gate now has first-world interactions
+
+- Added a two-frame eight-direction movement baseline for the newly generated player map actor.
+- Added Shen Yan NPC dialogue and an interactive Mist-Stream Spirit Herb resource node.
+- Validated the updated South Gate scene after Godot asset import and relaunched the local test window.

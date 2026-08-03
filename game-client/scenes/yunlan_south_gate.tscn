@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_south_gate.gd" id="1_scene"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_south_gate/terrain/yunlan_south_gate_ground_v01.png" id="2_ground"]
@@ -7,6 +7,9 @@
 [ext_resource type="Script" path="res://src/animation/frame_animation_controller.gd" id="5_animator"]
 [ext_resource type="Script" path="res://src/world/ground_shadow.gd" id="6_shadow"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_south_gate/props/processed_alpha/yunlan_south_gate_jade_pine_v01_alpha.png" id="7_pine"]
+[ext_resource type="Texture2D" path="res://assets/art/npcs/guide_shen/processed_alpha/guide_shen_idle_south_v01_alpha.png" id="8_guide"]
+[ext_resource type="Script" path="res://src/world/world_interaction.gd" id="9_interaction"]
+[ext_resource type="Texture2D" path="res://assets/art/resources/mist_stream_spirit_herb/processed_alpha/mist_stream_spirit_herb_v01_alpha.png" id="10_herb"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -16,6 +19,12 @@ size = Vector2(102, 180)
 
 [sub_resource type="RectangleShape2D" id="PineTrunkShape"]
 size = Vector2(92, 128)
+
+[sub_resource type="CircleShape2D" id="GuideInteractionShape"]
+radius = 92.0
+
+[sub_resource type="CircleShape2D" id="HerbInteractionShape"]
+radius = 72.0
 
 [node name="YunlanSouthGate" type="Node2D"]
 y_sort_enabled = true
@@ -75,8 +84,57 @@ position = Vector2(0, -62)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="JadePine/Trunk"]
 shape = SubResource("PineTrunkShape")
 
+[node name="GuideShen" type="Node2D" parent="."]
+position = Vector2(1290, 690)
+
+[node name="GuideArt" type="Sprite2D" parent="GuideShen"]
+texture = ExtResource("8_guide")
+scale = Vector2(0.19, 0.19)
+centered = false
+offset = Vector2(-627, -1254)
+
+[node name="Name" type="Label" parent="GuideShen"]
+offset_left = -78.0
+offset_top = -260.0
+offset_right = 78.0
+offset_bottom = -236.0
+theme_override_colors/font_color = Color(0.9, 0.84, 0.64, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "引路人 · 沈衍"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="GuideShen"]
+script = ExtResource("9_interaction")
+interaction_id = "guide_shen"
+prompt_text = "与引路人 · 沈衍交谈"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GuideShen/Interaction"]
+position = Vector2(0, -72)
+shape = SubResource("GuideInteractionShape")
+
+[node name="MistHerb" type="Node2D" parent="."]
+position = Vector2(1470, 594)
+
+[node name="HerbArt" type="Sprite2D" parent="MistHerb"]
+texture = ExtResource("10_herb")
+scale = Vector2(0.15, 0.15)
+centered = false
+offset = Vector2(-627, -1254)
+
+[node name="Interaction" type="Area2D" parent="MistHerb"]
+script = ExtResource("9_interaction")
+interaction_id = "mist_herb"
+prompt_text = "采集雾溪灵草"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MistHerb/Interaction"]
+position = Vector2(0, -70)
+shape = SubResource("HerbInteractionShape")
+
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(836, 760)
+groups = ["player_actor"]
 script = ExtResource("4_player")
 
 [node name="GroundShadow" type="Node2D" parent="Player"]
@@ -138,6 +196,20 @@ offset_bottom = 48.0
 theme_override_colors/font_color = Color(0.83, 0.91, 0.88, 1)
 theme_override_font_sizes/font_size = 16
 autowrap_mode = 2
+
+[node name="Prompt" type="Label" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+offset_bottom = -110.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.88, 0.58, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 19
+horizontal_alignment = 1
 
 [node name="Help" type="Label" parent="HUD/StatusPanel"]
 offset_left = 24.0

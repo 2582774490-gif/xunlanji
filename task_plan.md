@@ -158,3 +158,11 @@
 - [x] Rebuild the player as a modular actor node with a feet-based sorting anchor, shadow, costume-ready body slots, and front/back weapon layers.
 - [x] Validate the South Gate scene loads cleanly and start its visible walk-behind route for review.
 - [ ] After visual acceptance, add matching eight-direction walk frames and expand the same spatial system into Yunlan Village proper.
+
+## Phase 23: Make the South Gate slice behave like an open world (active)
+
+- [x] Add a second eight-direction walking-key-pose atlas and blend it with the idle atlas for an actual movement cycle.
+- [x] Add an independently placed NPC with proximity prompt and dialogue interaction.
+- [x] Add an independently placed gathering resource that removes itself on collection and updates player inventory/cultivation.
+- [ ] Add the first short travel route from South Gate into the expanded Yunlan Village scene.
+- [ ] Upgrade the current two-frame movement loop into a fuller eight-direction frame package after visual review.

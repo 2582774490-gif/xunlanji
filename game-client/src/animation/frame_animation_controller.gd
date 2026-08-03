@@ -64,6 +64,38 @@ func append_grid_clips(sheet: Texture2D, columns: int, rows: int, clips: Diction
 			sprite_frames.add_frame(clip_name, atlas_texture)
 
 
+## Builds one animation from frames that live on different atlases.  This is
+## useful when AI-assisted production gives us a carefully checked idle sheet
+## and a matching walking-key-pose sheet instead of a destructive monolithic
+## sprite export.
+func append_mixed_grid_clip(clip_name: String, frame_sources: Array, fps := 8.0, loop := true) -> void:
+	if sprite_frames == null:
+		sprite_frames = SpriteFrames.new()
+	if sprite_frames.has_animation(clip_name):
+		sprite_frames.remove_animation(clip_name)
+	sprite_frames.add_animation(clip_name)
+	sprite_frames.set_animation_speed(clip_name, fps)
+	sprite_frames.set_animation_loop(clip_name, loop)
+	for source_variant in frame_sources:
+		var source: Dictionary = source_variant
+		var sheet := source.get("sheet") as Texture2D
+		var columns := int(source.get("columns", 1))
+		var rows := int(source.get("rows", 1))
+		var frame_index := int(source.get("frame", 0))
+		if sheet == null or columns <= 0 or rows <= 0:
+			push_warning("Mixed animation frame has no valid atlas.")
+			continue
+		if frame_index < 0 or frame_index >= columns * rows:
+			push_warning("Mixed animation frame is outside its atlas grid.")
+			continue
+		var cell_size := Vector2(sheet.get_size().x / columns, sheet.get_size().y / rows)
+		var cell := Vector2i(frame_index % columns, frame_index / columns)
+		var atlas_texture := AtlasTexture.new()
+		atlas_texture.atlas = sheet
+		atlas_texture.region = Rect2(Vector2(cell) * cell_size, cell_size)
+		sprite_frames.add_frame(clip_name, atlas_texture)
+
+
 func play_action(action_name: String, direction := current_direction, return_to_idle := false) -> bool:
 	if sprite_frames == null:
 		return false

@@ -113,3 +113,9 @@
 - The gate and pine sort against the character root by their ground contact position; the player can pass behind their crowns/roof and appear in front after walking below their base position.
 - Added two gate-pillar collision bodies, a pine-trunk collision body, feet-rooted player collision, a separate ground shadow and reserved front/back weapon slots.
 - The new `yunlan_south_gate.tscn` loaded cleanly in Godot headless runtime and is launched locally for visible review.
+
+## 2026-08-04: South Gate interaction pass
+
+- The new male map actor now alternates the validated idle atlas with a matching generated walking-key-pose atlas for all eight directions. This is an honest two-frame movement baseline, not a claim of final-frame completeness.
+- Added guide NPC Shen Yan as a separate Y-sorted visual plus independent proximity `Area2D`; dialogue is activated with E.
+- Added Mist-Stream Spirit Herb as a separate alpha-cut resource prop. E removes it from the scene, adds 雾溪灵草 to the inventory and grants early cultivation progress.
