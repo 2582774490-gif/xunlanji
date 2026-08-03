@@ -83,3 +83,15 @@
 - Added and alpha-cleaned six-frame south-facing walk and attack sheets for the Yunlan male test template.
 - The player controller now holds the body attack until its non-looping frames finish, while the Qinglan Sword remains a separate, direction-aware weapon layer.
 - Validation passed again for both `playable_world.tscn` and `mist_stream_water_palace.tscn` after importing the new images.
+
+## 2026-08-04: Spatial scene rebuild started
+
+- User correctly rejected the panorama-plus-sprite presentation as not matching the supplied reference videos.
+- Rewatched both local videos and recorded the change in production method: assets and occlusion must be scene objects with foot anchors and collision, not a decorative overlay on a complete landscape image.
+- Started Phase 22: rebuild a single Yunlan South Gate slice as the new visual and technical acceptance target before extending the larger world.
+
+## 2026-08-04: First spatial slice now running
+
+- Replaced the normal “enter playable world” route with `yunlan_south_gate.tscn`.
+- Generated and processed an original eight-direction map avatar, South Gate prop and jade pine prop.
+- Implemented terrain / prop / player feet sorting / occlusion / collision structure and launched the visible test scene.

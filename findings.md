@@ -100,3 +100,16 @@
 
 - A character action sheet must be kept weapon-free when the weapon is intended to be swappable. The body can provide stance, recoil, and cloth motion; the weapon controller supplies the held-item pose, direction, swing timing, and later its weapon-specific effects.
 - South-facing cycles are accepted as the first verified production slice only. The game must not describe the template as eight-direction action-complete until the other seven directional walk and attack sheets are produced and tested.
+
+## 2026-08-04: Reference-video reconstruction findings
+
+- The supplied map video demonstrates a scene-building method, not a single-background workflow: a terrain image is combined with independently placed scenery, separate foreground/occlusion objects, collision geometry, transfer triggers, and a player placed by foot position.
+- The supplied animation video demonstrates extracting or preparing individual assets and continuous sprite frames before placing them in Godot. A static scenic panorama with an unrelated small sprite does not reproduce this result.
+- The replacement acceptance target is therefore one original Yunlan South Gate slice with: ground-only art; prop sprites that share the same camera angle; Y-sorted actor and props; high/foreground props that cover the actor; walk collisions; and a modular player root whose equipment is separate from its body.
+
+## 2026-08-04: Yunlan South Gate spatial prototype
+
+- Built a separate opaque terrain layer, independent alpha-cut main gate and jade pine props, rather than using the previous baked village panorama.
+- The gate and pine sort against the character root by their ground contact position; the player can pass behind their crowns/roof and appear in front after walking below their base position.
+- Added two gate-pillar collision bodies, a pine-trunk collision body, feet-rooted player collision, a separate ground shadow and reserved front/back weapon slots.
+- The new `yunlan_south_gate.tscn` loaded cleanly in Godot headless runtime and is launched locally for visible review.

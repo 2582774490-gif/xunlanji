@@ -149,3 +149,12 @@
 - [x] Add an original Mist-Stream Water Palace dungeon background and align its boss anchor to the arena.
 - [x] Integrate a six-frame south-facing walk cycle and a six-frame south-facing body attack cycle for the Yunlan male test template.
 - [x] Keep the Qinglan Sword on its own transform controller; it can still follow and swing in all eight directions while the remaining body sheets are produced.
+
+## Phase 22: Rebuild Yunlan South Gate as a spatial 2D scene (active)
+
+- [x] Rewatch both supplied production videos and record the actual construction method.
+- [x] Stop using the fully baked Yunlan panorama as the playable scene's visual foundation; retain it only as atmosphere reference.
+- [x] Create a ground-only layer, independently anchored scene props, actor sorting, occlusion objects, and collision areas for one Yunlan South Gate slice.
+- [x] Rebuild the player as a modular actor node with a feet-based sorting anchor, shadow, costume-ready body slots, and front/back weapon layers.
+- [x] Validate the South Gate scene loads cleanly and start its visible walk-behind route for review.
+- [ ] After visual acceptance, add matching eight-direction walk frames and expand the same spatial system into Yunlan Village proper.

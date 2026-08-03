@@ -337,7 +337,7 @@ func _enter_dungeon(dungeon_id: String) -> void:
 	GameState.enter_screen(GameState.Screen.DUNGEON)
 
 func _open_playable_world() -> void:
-	get_tree().change_scene_to_file("res://scenes/playable_world.tscn")
+	get_tree().change_scene_to_file("res://scenes/yunlan_south_gate.tscn")
 
 func _explore() -> void:
 	var opportunity: Dictionary = Catalog.OPPORTUNITIES.pick_random()
