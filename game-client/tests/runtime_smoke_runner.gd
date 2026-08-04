@@ -11,6 +11,7 @@ func _run() -> void:
 	await _check_village_routes()
 	await _check_water_palace_loop()
 	await _check_mist_border_scene()
+	await _check_mist_bone_creek()
 	await _check_mist_forest_grove()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
@@ -33,10 +34,12 @@ func _check_manual_progression() -> void:
 	GameState.player.minor_stage = 10
 	GameState.player.cultivation = GameState.cultivation_threshold()
 	_expect(not GameState.try_breakthrough(), "Foundation breakthrough should require its dedicated materials.")
-	GameState.player.inventory.append("筑基丹")
+	GameState.player.inventory.append("雾林妖丹")
 	GameState.player.inventory.append("雾潮晶簇")
 	GameState.player.inventory.append("雾潮晶簇")
 	GameState.player.inventory.append("雾潮晶簇")
+	_expect(GameState.craft_foundation_pill(), "Foundation pill should be craftable from its forest and border materials.")
+	_expect(GameState.player.inventory.has("筑基丹"), "Foundation-pill craft did not add the item to inventory.")
 	_expect(GameState.try_breakthrough(), "Foundation breakthrough should succeed after materials are prepared.")
 	_expect(GameState.player.realm_index == 1 and GameState.player.minor_stage == 1, "Foundation breakthrough did not move to the first Foundation stage.")
 	GameState.player = profile_before
@@ -95,6 +98,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.player.map_bounds.size.x >= 3000.0, "Mist Tide Border did not create a larger regional movement space.")
 	_expect(border.return_interaction != null, "Mist Tide Border is missing the return route interaction.")
 	_expect(border.scout_interaction != null, "Mist Tide Border is missing its first border-scout NPC route.")
+	_expect(border.creek_gate_interaction != null, "Mist Tide Border is missing the Qi Refining third-layer creek entrance.")
 	var realm_before: int = GameState.player.realm_index
 	var stage_before: int = GameState.player.minor_stage
 	GameState.player.realm_index = 0
@@ -102,6 +106,9 @@ func _check_mist_border_scene() -> void:
 	_expect(not border.can_enter_mist_forest(), "Mist Forest should remain locked for first-layer Qi Refining.")
 	GameState.player.minor_stage = 2
 	_expect(border.can_enter_mist_forest(), "Mist Forest should open at second-layer Qi Refining.")
+	_expect(not border.can_enter_mist_bone_creek(), "Mist Bone Creek should wait until third-layer Qi Refining.")
+	GameState.player.minor_stage = 3
+	_expect(border.can_enter_mist_bone_creek(), "Mist Bone Creek should open at third-layer Qi Refining.")
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 	border.active_interaction = border.scout_interaction
@@ -114,10 +121,33 @@ func _check_mist_border_scene() -> void:
 	border.queue_free()
 	await get_tree().process_frame
 
+func _check_mist_bone_creek() -> void:
+	var realm_before: int = GameState.player.realm_index
+	var stage_before: int = GameState.player.minor_stage
+	var inventory_before: int = GameState.player.inventory.size()
+	var log_before: int = GameState.player.opportunity_log.size()
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 3
+	var creek := preload("res://scenes/mist_bone_creek.tscn").instantiate()
+	add_child(creek)
+	await get_tree().process_frame
+	_expect(creek.player.map_bounds.size.x >= 2900.0, "Mist Bone Creek did not create an independent wide exploration space.")
+	_expect(creek.chosen_opportunity.size() > 0, "Mist Bone Creek did not select a free-exploration opportunity.")
+	creek.active_interaction = creek.opportunity_interaction
+	creek._activate_contextual()
+	_expect(creek.opportunity_collected, "Mist Bone Creek opportunity did not collect through the shared interaction path.")
+	_expect(GameState.player.inventory.size() == inventory_before + 1, "Mist Bone Creek opportunity did not grant its configured exploration item.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 1, "Mist Bone Creek opportunity did not record a world discovery.")
+	creek.queue_free()
+	await get_tree().process_frame
+	GameState.player.realm_index = realm_before
+	GameState.player.minor_stage = stage_before
+
 func _check_mist_forest_grove() -> void:
 	var realm_before: int = GameState.player.realm_index
 	var stage_before: int = GameState.player.minor_stage
 	var runs_before: int = GameState.player.dungeon_runs.size()
+	var inventory_before: int = GameState.player.inventory.size()
 	GameState.player.realm_index = 0
 	GameState.player.minor_stage = 2
 	var forest := preload("res://scenes/mist_forest_grove.tscn").instantiate()
@@ -132,6 +162,7 @@ func _check_mist_forest_grove() -> void:
 	await get_tree().process_frame
 	_expect(forest.clear_panel.visible, "Mist Forest clear did not show the settlement panel.")
 	_expect(GameState.player.dungeon_runs.size() == runs_before + 1, "Mist Forest clear did not record a separate dungeon run.")
+	_expect(GameState.player.inventory.has("雾林妖丹") and GameState.player.inventory.size() >= inventory_before + 2, "Mist Forest clear should grant an always-available foundation-pill core plus one random reward.")
 	forest.queue_free()
 	await get_tree().process_frame
 	GameState.player.realm_index = realm_before

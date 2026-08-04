@@ -241,3 +241,11 @@
 - [x] Add a material gate to the first major-realm breakthrough, while keeping small-stage breakthroughs approachable.
 - [x] Limit static meditation and turn early pills into inventory objects with use conditions.
 - [ ] Build the first 筑基丹 recipe and deeper筑基 border route around the new long-term progression loop.
+
+## Phase 34: Open-world Qi Refining layers (active)
+
+- [x] Define no-mandatory-quest exploration policy and the lightweight world thread.
+- [x] Map distinct content types across 炼气一层 to 炼气大圆满, with sect/path guidance rather than forced routes.
+- [x] Build 雾骨溪 as the first actual 炼气三层 independent open exploration map and random opportunity.
+- [x] Make the 筑基丹 material loop playable: 雾林妖丹 + 3 雾潮晶簇 -> 筑基丹 -> 炼气圆满冲关.
+- [ ] Build the 炼气四层沉舟遗府 as the next independent dungeon with its own terrain, boss and resource loop.

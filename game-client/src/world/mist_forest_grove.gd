@@ -86,6 +86,8 @@ func _defeat_boss() -> void:
 	boss.set_deferred("monitoring", false)
 	last_drop = MIST_FOREST_DROPS.pick_random().duplicate()
 	GameState.add_item(str(last_drop.item))
+	# 妖丹是筑基丹的稳定核心，随机装备/材料掉落仍保留其探索感。
+	GameState.add_item("雾林妖丹")
 	GameState.add_spirit_stones(int(last_drop.stones))
 	GameState.gain_cultivation(int(last_drop.cultivation))
 	GameState.record_dungeon_run({
@@ -95,9 +97,9 @@ func _defeat_boss() -> void:
 		"spirit_stones": last_drop.stones,
 		"cultivation": last_drop.cultivation,
 	})
-	status.text = "雾林试炼完成：已获得掉落，可从结算面板返回雾潮边境。"
+	status.text = "雾林试炼完成：已获得随机掉落与雾林妖丹，可从结算面板返回雾潮边境。"
 	prompt.text = ""
-	clear_summary.text = "雾林妖将 · 玄枝散入林雾。\n\n获得：%s\n灵石 +%d　修为 +%d\n\n本次掉落已进入行囊，并记入雾林试炼记录。" % [str(last_drop.item), int(last_drop.stones), int(last_drop.cultivation)]
+	clear_summary.text = "雾林妖将 · 玄枝散入林雾。\n\n获得：%s、雾林妖丹\n灵石 +%d　修为 +%d\n\n妖丹可作为筑基丹丹方的核心；本次战利品已进入行囊。" % [str(last_drop.item), int(last_drop.stones), int(last_drop.cultivation)]
 	clear_panel.visible = true
 
 func _return_to_village() -> void:

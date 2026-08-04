@@ -6,6 +6,7 @@ extends Node2D
 @onready var scout_interaction: Area2D = $BorderScoutLiuShuo/Interaction
 @onready var crystal_interaction: Area2D = $MistTideCrystal/Interaction
 @onready var forest_gate_interaction: Area2D = $MistForestGate/Interaction
+@onready var creek_gate_interaction: Area2D = $MistBoneCreekGate/Interaction
 @onready var prompt: Label = $HUD/Prompt
 @onready var status: Label = $HUD/StatusPanel/Status
 @onready var touch_controls: Node = $HUD/TouchControls
@@ -27,6 +28,8 @@ func _ready() -> void:
 	crystal_interaction.unfocused.connect(_unfocus_interaction)
 	forest_gate_interaction.focused.connect(_focus_interaction)
 	forest_gate_interaction.unfocused.connect(_unfocus_interaction)
+	creek_gate_interaction.focused.connect(_focus_interaction)
+	creek_gate_interaction.unfocused.connect(_unfocus_interaction)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -62,9 +65,14 @@ func _activate_contextual() -> void:
 		_collect_crystal()
 	elif active_interaction == forest_gate_interaction:
 		_try_enter_mist_forest()
+	elif active_interaction == creek_gate_interaction:
+		_try_enter_mist_bone_creek()
 
 func can_enter_mist_forest() -> bool:
 	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 2
+
+func can_enter_mist_bone_creek() -> bool:
+	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 3
 
 func _talk_to_scout() -> void:
 	if scout_dialogue_stage == 0:
@@ -91,6 +99,12 @@ func _try_enter_mist_forest() -> void:
 		return
 	GameState.selected_dungeon_id = "mist_forest"
 	get_tree().change_scene_to_file("res://scenes/mist_forest_grove.tscn")
+
+func _try_enter_mist_bone_creek() -> void:
+	if not can_enter_mist_bone_creek():
+		status.text = "雾骨溪的灵潮在炼气三层后才会稳定。无需接取任务，你可继续探索、采集、交易或修炼后自行前往。"
+		return
+	get_tree().change_scene_to_file("res://scenes/mist_bone_creek.tscn")
 
 func _return_to_village() -> void:
 	GameState.current_region_id = "starter_village"

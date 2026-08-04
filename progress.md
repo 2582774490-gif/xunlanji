@@ -208,3 +208,11 @@
 - Each successful small-stage breakthrough grants one attribute point. Crossing a major realm is slower and consumes a dedicated material set; the first example is 炼气圆满 → 筑基, requiring 筑基丹 × 1 and 雾潮晶簇 × 3.
 - Daily meditation now has three small sessions rather than an unlimited large button. Exploration, combat, resources and limited medicine remain meaningful sources of cultivation without enabling repeated instant advancement.
 - Alchemy now creates a physical 凝息丹 in the inventory. The player decides when to consume it, and its low-tier medicine effect is limited to early炼气 stages.
+
+## 2026-08-05: Open-world Qi Refining expansion
+
+- Locked the design rule in the live catalog: the main thread remains a light world-and-systems introduction, while region content is discovered through terrain, rumors, sect guidance, resources and chance rather than a mandatory quest chain.
+- Added the full launch-side content map for 炼气一层 through 炼气大圆满. Each layer has a different proposed mixture of dungeon, exploration area, weather opportunity, resource route or preparation space; paths and sects give recommendations without blocking other builds.
+- Added the first actual third-layer space, 雾骨溪: a separate wide 2D creek map with an independent stone-arch gateway, player movement, a free random creek discovery and a return route to Mist Tide Border.
+- The Border now has separate physical gates for 炼气二层 Mist Forest and 炼气三层 Mist Bone Creek. The creek is not a task destination: its interaction text explicitly allows the player to return later through exploration, gathering, trade or cultivation.
+- Mist Forest now always grants one 雾林妖丹 in addition to its random drop. With three repeatable 雾潮晶簇, the village alchemy screen can craft 筑基丹. The actual 炼气大圆满 breakthrough checks only the finished pill, so ingredients are not charged twice.

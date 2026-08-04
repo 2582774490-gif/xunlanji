@@ -94,7 +94,8 @@ func breakthrough_requirements() -> Array:
 		return []
 	match player.realm_index:
 		0:
-			return [{"item": "筑基丹", "count": 1}, {"item": "雾潮晶簇", "count": 3}]
+			# 晶簇已在筑基丹丹方中消耗；冲关本身只检验成丹。
+			return [{"item": "筑基丹", "count": 1}]
 		1:
 			return [{"item": "结丹灵材", "count": 1}, {"item": "雾木灵芯", "count": 3}]
 		2:
@@ -249,6 +250,17 @@ func use_cultivation_item(item_name: String, cultivation_amount: int, max_realm_
 		return false
 	player.inventory.erase(item_name)
 	gain_cultivation(cultivation_amount)
+	return true
+
+func craft_foundation_pill() -> bool:
+	if player.realm_index > 0:
+		notify("筑基丹应在炼气圆满前准备；筑基后不可重复炼制此丹。")
+		return false
+	if not consume_items(["雾林妖丹", "雾潮晶簇", "雾潮晶簇", "雾潮晶簇"]):
+		notify("筑基丹材料不足：需要雾林妖丹 × 1 与雾潮晶簇 × 3。")
+		return false
+	add_item("筑基丹")
+	notify("炼制成功：筑基丹已入囊。待炼气圆满、修为积满后，可在修炼界面冲击筑基。")
 	return true
 
 func equip_weapon(item_name: String) -> void:

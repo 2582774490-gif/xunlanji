@@ -1,0 +1,185 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://src/world/mist_bone_creek.gd" id="1_scene"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/mist_bone_creek/terrain/mist_bone_creek_ground_v01.png" id="2_ground"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/mist_bone_creek/props/processed_alpha/mist_bone_creek_arch_v01_alpha.png" id="3_arch"]
+[ext_resource type="Texture2D" path="res://assets/art/resources/mist_tide_crystal_cluster/processed_alpha/mist_tide_crystal_cluster_v01_alpha.png" id="4_resource"]
+[ext_resource type="Script" path="res://src/world/spatial_test_player.gd" id="5_player"]
+[ext_resource type="Script" path="res://src/animation/frame_animation_controller.gd" id="6_animator"]
+[ext_resource type="Script" path="res://src/world/ground_shadow.gd" id="7_shadow"]
+[ext_resource type="Script" path="res://src/world/world_interaction.gd" id="8_interaction"]
+[ext_resource type="Script" path="res://src/ui/virtual_touch_controls.gd" id="9_touch"]
+
+[sub_resource type="CircleShape2D" id="PlayerShape"]
+radius = 18.0
+
+[sub_resource type="CircleShape2D" id="ArchInteractionShape"]
+radius = 128.0
+
+[sub_resource type="CircleShape2D" id="OpportunityInteractionShape"]
+radius = 88.0
+
+[node name="MistBoneCreek" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_scene")
+
+[node name="Terrain" type="Sprite2D" parent="."]
+texture = ExtResource("2_ground")
+scale = Vector2(1.92, 1.92)
+centered = false
+z_index = -10
+
+[node name="CreekwayArch" type="Node2D" parent="."]
+position = Vector2(1490, 1650)
+
+[node name="Art" type="Sprite2D" parent="CreekwayArch"]
+texture = ExtResource("3_arch")
+scale = Vector2(0.24, 0.24)
+centered = false
+offset = Vector2(-627, -1254)
+
+[node name="Name" type="Label" parent="CreekwayArch"]
+offset_left = -130.0
+offset_top = -280.0
+offset_right = 130.0
+offset_bottom = -252.0
+theme_override_colors/font_color = Color(0.68, 0.92, 0.91, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "雾骨溪口 · 返回边境"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="CreekwayArch"]
+script = ExtResource("8_interaction")
+interaction_id = "return_to_border"
+prompt_text = "沿溪口返回雾潮边境"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CreekwayArch/Interaction"]
+position = Vector2(0, -110)
+shape = SubResource("ArchInteractionShape")
+
+[node name="CreekHeartOpportunity" type="Node2D" parent="."]
+position = Vector2(1500, 870)
+
+[node name="Art" type="Sprite2D" parent="CreekHeartOpportunity"]
+texture = ExtResource("4_resource")
+scale = Vector2(0.18, 0.18)
+centered = false
+offset = Vector2(-627, -1254)
+
+[node name="Name" type="Label" parent="CreekHeartOpportunity"]
+offset_left = -120.0
+offset_top = -240.0
+offset_right = 120.0
+offset_bottom = -214.0
+theme_override_colors/font_color = Color(0.61, 0.96, 0.97, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="CreekHeartOpportunity"]
+script = ExtResource("8_interaction")
+interaction_id = "creek_opportunity"
+prompt_text = "探查溪畔异象"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CreekHeartOpportunity/Interaction"]
+position = Vector2(0, -70)
+shape = SubResource("OpportunityInteractionShape")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+groups = ["player_actor"]
+script = ExtResource("5_player")
+
+[node name="GroundShadow" type="Node2D" parent="Player"]
+z_index = -1
+script = ExtResource("7_shadow")
+
+[node name="Body" type="AnimatedSprite2D" parent="Player"]
+position = Vector2(0, -60)
+scale = Vector2(0.30, 0.30)
+script = ExtResource("6_animator")
+
+[node name="WeaponBackSlot" type="Node2D" parent="Player"]
+position = Vector2(-14, -52)
+z_index = -1
+
+[node name="WeaponFrontSlot" type="Node2D" parent="Player"]
+position = Vector2(18, -42)
+z_index = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(0, -1)
+shape = SubResource("PlayerShape")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+limit_left = 0
+limit_top = 0
+limit_right = 3072
+limit_bottom = 1966
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Title" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 22.0
+offset_right = 700.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.71, 0.91, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 24
+text = "雾骨溪 · 炼气三层自由探索"
+
+[node name="StatusPanel" type="ColorRect" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.025, 0.07, 0.10, 0.90)
+
+[node name="Status" type="Label" parent="HUD/StatusPanel"]
+offset_left = 24.0
+offset_top = 14.0
+offset_right = 1200.0
+offset_bottom = 52.0
+theme_override_colors/font_color = Color(0.83, 0.91, 0.88, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+
+[node name="Help" type="Label" parent="HUD/StatusPanel"]
+offset_left = 24.0
+offset_top = 60.0
+offset_right = 1200.0
+offset_bottom = 86.0
+theme_override_colors/font_color = Color(0.64, 0.78, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "自由探索：溪谷入口、湿石台与雾中空地并行开放。E / Esc：返回雾潮边境"
+
+[node name="Prompt" type="Label" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+offset_bottom = -110.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.88, 0.58, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 19
+horizontal_alignment = 1
+
+[node name="TouchControls" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("9_touch")

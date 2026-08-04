@@ -177,6 +177,16 @@ func _show_home() -> void:
 
 func _show_overworld() -> void:
 	_heading("开放世界 · 三大区")
+	# 这些条目是玩家可自行发现的世界线索，不会生成强制任务链。
+	_text("探索原则：%s" % Catalog.WORLD_EXPLORATION_POLICY.main_thread, 16, Color("a7d5ca"))
+	_text("门派与修行指引：%s" % Catalog.WORLD_EXPLORATION_POLICY.guidance, 16, Color("a7d5ca"))
+	if GameState.player.realm_index == 0:
+		_text("炼气阶段的可发现内容（传闻与自然入口，不是强制任务顺序）：", 18, Color("f2d79c"))
+		for content in Catalog.QI_REFINING_CONTENT:
+			var known: bool = GameState.player.minor_stage >= int(content.layer)
+			var tint: Color = Color.WHITE if known else Color("82908c")
+			var state := "当前可尝试" if known else "尚可从传闻、宗门或探索中得知"
+			_text("炼气%d · %s｜%s｜%s｜%s" % [int(content.layer), content.name, content.kind, state, content.reward], 15, tint)
 	_text("当前区域：%s。大区以短暂切换连接；正式联网目标为单区最多 10 名玩家。" % _current_region().name)
 	var thresholds := [0, 1, 3]
 	for region_index in Catalog.REGIONS.size():
@@ -275,7 +285,8 @@ func _show_alchemy() -> void:
 	_heading("云岚村 · 炼丹工坊")
 	_text("所有修士都能炼丹；丹修将拥有更高成丹率与更深药性控制。高阶修士服用低阶丹药不会获得有效提升。", 17, Color("f2d79c"))
 	_text("初阶配方：雾溪灵草 × 1 + 雾溪药 × 1 → 凝息丹（炼气一至三层有效，使用后 +15 修为）")
-	_buttons([["炼制凝息丹", _craft_condensing_pill, 210], ["返回行囊", func(): GameState.enter_screen(GameState.Screen.INVENTORY), 160]])
+	_text("筑基丹方：雾林妖丹 × 1 + 雾潮晶簇 × 3 → 筑基丹（炼气圆满冲击筑基时使用）", 18, Color("f2d79c"))
+	_buttons([["炼制凝息丹", _craft_condensing_pill, 210], ["炼制筑基丹", _craft_foundation_pill, 210], ["返回行囊", func(): GameState.enter_screen(GameState.Screen.INVENTORY), 160]])
 
 func _craft_condensing_pill() -> void:
 	if GameState.player.realm_index > 0 or GameState.player.minor_stage > 3:
@@ -286,6 +297,10 @@ func _craft_condensing_pill() -> void:
 		return
 	GameState.add_item("凝息丹")
 	GameState.notify("炼制成功：凝息丹已入囊；请自行决定何时服用。")
+	_render()
+
+func _craft_foundation_pill() -> void:
+	GameState.craft_foundation_pill()
 	_render()
 
 func _show_pvp() -> void:
