@@ -9,6 +9,7 @@ const SCOUT_TEXTURE: Texture2D = preload("res://assets/art/npcs/border_scout_liu
 const MERCHANT_TEXTURE: Texture2D = preload("res://assets/art/npcs/marketkeeper_luo/processed_alpha/marketkeeper_luo_idle_v01_alpha.png")
 const GUIDE_TEXTURE: Texture2D = preload("res://assets/art/npcs/guide_shen/processed_alpha/guide_shen_idle_south_v01_alpha.png")
 const BEAST_TEXTURE: Texture2D = preload("res://assets/art/characters/boss_mist_forest_general/processed_alpha/boss_mist_forest_general_v01_alpha.png")
+const MIST_CHANNEL_OTTER_TEXTURE: Texture2D = preload("res://assets/art/characters/mist_channel_otter_spirit/processed_alpha/mist_channel_otter_spirit_v01_alpha.png")
 const HERB_TEXTURE: Texture2D = preload("res://assets/art/resources/mist_stream_spirit_herb/processed_alpha/mist_stream_spirit_herb_v01_alpha.png")
 
 signal focused(interaction: Area2D)
@@ -125,9 +126,11 @@ func _create_population_node(profile: Dictionary, anchor: Vector2) -> void:
 	shadow.color = Color(0.02, 0.04, 0.05, 0.48)
 	root.add_child(shadow)
 	var sprite := Sprite2D.new()
-	sprite.texture = _texture_for(str(profile.get("kind", "wanderer")))
+	sprite.name = "Visual"
+	sprite.texture = _texture_for(profile)
 	sprite.centered = false
-	sprite.offset = Vector2(-512, -768)
+	var texture_size := sprite.texture.get_size()
+	sprite.offset = Vector2(-texture_size.x * 0.5, -texture_size.y * 0.75)
 	sprite.scale = Vector2(0.135, 0.135)
 	sprite.modulate = Color(profile.get("tint", Color.WHITE))
 	root.add_child(sprite)
@@ -157,7 +160,10 @@ func _create_population_node(profile: Dictionary, anchor: Vector2) -> void:
 	interaction.unfocused.connect(func(area: Area2D): unfocused.emit(area))
 	_entries[interaction] = profile
 
-func _texture_for(kind: String) -> Texture2D:
+func _texture_for(profile: Dictionary) -> Texture2D:
+	if str(profile.get("id", "")) == "fog_channel_beast":
+		return MIST_CHANNEL_OTTER_TEXTURE
+	var kind := str(profile.get("kind", "wanderer"))
 	match kind:
 		"resource": return HERB_TEXTURE
 		"merchant": return MERCHANT_TEXTURE

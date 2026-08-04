@@ -30,6 +30,7 @@ func _run() -> void:
 	await _check_red_maple_ancient_road()
 	await _check_world_population_encounter()
 	await _check_world_population_resource()
+	await _check_dedicated_ecology_visual()
 	await _check_local_duel_arena()
 	await _check_thunder_listening_cliff()
 	await _check_return_abyss_mist_port()
@@ -361,6 +362,10 @@ func _check_mist_border_scene() -> void:
 	_expect(border.has_node("HerbWetlandChunk"), "Mist Tide Border is missing the continuous herb wetland terrain chunk.")
 	var ecology_profiles: Array[Dictionary] = border._population_profiles()
 	_expect(ecology_profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "wetland_mist_herb"), "Mist Tide Border is missing its wetland-bound herb ecology profile.")
+	var otter_interaction: Area2D = border.regional_population.interaction_for_profile_id("fog_channel_beast")
+	if otter_interaction != null:
+		var otter_visual: Sprite2D = otter_interaction.get_parent().get_node("Visual")
+		_expect(otter_visual.texture.resource_path.ends_with("mist_channel_otter_spirit_v01_alpha.png"), "Fog-channel otter should use its dedicated runtime art rather than a borrowed boss sprite.")
 	var border_player_start: Vector2 = border.player.position
 	border.player.position = Vector2(11200, 7200)
 	await get_tree().process_frame
@@ -619,6 +624,19 @@ func _check_world_population_resource() -> void:
 	social_population.resolve(rogue_interaction)
 	_expect(rogue_interaction.get_parent().visible and social_population.active_count() == 1, "Social NPCs should remain present after conversation instead of behaving like one-shot loot nodes.")
 	social_population.queue_free()
+	await get_tree().process_frame
+
+func _check_dedicated_ecology_visual() -> void:
+	var population := preload("res://src/world/regional_population_director.gd").new()
+	add_child(population)
+	population.populate(19, [{
+		"id": "fog_channel_beast", "region": "art_smoke", "kind": "beast", "name": "雾渠獭妖",
+		"prompt": "观察雾渠獭妖", "chance": 1.0, "anchors": [Vector2(120, 120)],
+		"health": 10, "damage": 1, "reward": "雾獭灵皮", "cultivation": 0,
+	}])
+	var otter_visual: Sprite2D = population.get_child(0).get_node("Visual")
+	_expect(otter_visual.texture.resource_path.ends_with("mist_channel_otter_spirit_v01_alpha.png"), "Fog-channel otter should retain its dedicated runtime art instead of a borrowed boss sprite.")
+	population.queue_free()
 	await get_tree().process_frame
 
 func _check_local_duel_arena() -> void:
