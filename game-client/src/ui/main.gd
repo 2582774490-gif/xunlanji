@@ -288,7 +288,7 @@ func _show_alchemy() -> void:
 	_heading("云岚村 · 炼丹工坊")
 	_text("所有修士都能炼丹；丹修将拥有更高成丹率与更深药性控制。高阶修士服用低阶丹药不会获得有效提升。", 17, Color("f2d79c"))
 	_text("初阶配方：雾溪灵草 × 1 + 雾溪药 × 1 → 凝息丹（炼气一至三层有效，使用后 +15 修为）")
-	_text("筑基丹方：雾林妖丹 × 1 + 雾潮晶簇 × 3 → 筑基丹（炼气圆满冲击筑基时使用）", 18, Color("f2d79c"))
+	_text("筑基丹方：雾林妖丹 × 1 + 雾潮晶簇 × 3 + 临渊准备材料 × 1（临渊露 / 御崖石屑 / 护脉阵片任选）→ 筑基丹", 18, Color("f2d79c"))
 	_buttons([["炼制凝息丹", _craft_condensing_pill, 210], ["炼制筑基丹", _craft_foundation_pill, 210], ["返回行囊", func(): GameState.enter_screen(GameState.Screen.INVENTORY), 160]])
 
 func _craft_condensing_pill() -> void:

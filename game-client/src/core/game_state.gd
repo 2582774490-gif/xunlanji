@@ -26,6 +26,7 @@ var last_notice := "欢迎来到《寻岚记》首发框架演示。"
 const MARKET_FEE_RATE := 0.05
 const MARKET_MIN_PRICE := 1
 const MARKET_MAX_PRICE := 99999
+const FOUNDATION_PREPARATION_ITEMS := ["临渊露", "御崖石屑", "护脉阵片"]
 var local_market_listings: Array[Dictionary] = [
 	{"id": "npc_ore", "name": "雾潮矿芯", "type": "材料", "price": 32, "seller": "雾港行商"},
 	{"id": "npc_talisman", "name": "雷纹符材", "type": "符材", "price": 45, "seller": "候雷符修"},
@@ -315,9 +316,26 @@ func craft_foundation_pill() -> bool:
 	if not consume_items(["雾林妖丹", "雾潮晶簇", "雾潮晶簇", "雾潮晶簇"]):
 		notify("筑基丹材料不足：需要雾林妖丹 × 1 与雾潮晶簇 × 3。")
 		return false
+	var preparation_item := _first_foundation_preparation_item()
+	if preparation_item.is_empty():
+		# Restore the base materials when the optional-route preparation item is
+		# absent, so a failed crafting attempt never consumes anything.
+		add_item("雾林妖丹")
+		add_item("雾潮晶簇")
+		add_item("雾潮晶簇")
+		add_item("雾潮晶簇")
+		notify("筑基丹还需一份临渊准备材料：临渊露、御崖石屑或护脉阵片。可自行探索或通过交易取得。")
+		return false
+	player.inventory.erase(preparation_item)
 	add_item("筑基丹")
-	notify("炼制成功：筑基丹已入囊。待炼气圆满、修为积满后，可在修炼界面冲击筑基。")
+	notify("炼制成功：以%s调和药性，筑基丹已入囊。待炼气圆满、修为积满后，可在修炼界面自行冲击筑基。" % preparation_item)
 	return true
+
+func _first_foundation_preparation_item() -> String:
+	for item_name in FOUNDATION_PREPARATION_ITEMS:
+		if player.inventory.has(item_name):
+			return item_name
+	return ""
 
 func equip_weapon(item_name: String) -> void:
 	player.equipped_weapon = item_name

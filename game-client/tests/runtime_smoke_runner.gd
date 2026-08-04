@@ -47,6 +47,8 @@ func _check_manual_progression() -> void:
 	GameState.player.inventory.append("雾潮晶簇")
 	GameState.player.inventory.append("雾潮晶簇")
 	GameState.player.inventory.append("雾潮晶簇")
+	_expect(not GameState.craft_foundation_pill(), "Foundation pill should require one preparation item from the ninth-layer route or trade.")
+	GameState.player.inventory.append("临渊露")
 	_expect(GameState.craft_foundation_pill(), "Foundation pill should be craftable from its forest and border materials.")
 	_expect(GameState.player.inventory.has("筑基丹"), "Foundation-pill craft did not add the item to inventory.")
 	_expect(GameState.try_breakthrough(), "Foundation breakthrough should succeed after materials are prepared.")
