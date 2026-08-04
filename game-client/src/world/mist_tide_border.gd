@@ -10,6 +10,7 @@ extends Node2D
 @onready var vessel_gate_interaction: Area2D = $SunkenVesselGate/Interaction
 @onready var grotto_gate_interaction: Area2D = $MistTideGrottoGate/Interaction
 @onready var red_maple_gate_interaction: Area2D = $RedMapleRoadGate/Interaction
+@onready var thunder_cliff_gate_interaction: Area2D = $ThunderCliffGate/Interaction
 @onready var regional_population = $RegionalPopulation
 @onready var chunk_streamer = $ChunkStreamer
 @onready var world_encounter = $WorldCombat
@@ -48,6 +49,8 @@ func _ready() -> void:
 	grotto_gate_interaction.unfocused.connect(_unfocus_interaction)
 	red_maple_gate_interaction.focused.connect(_focus_interaction)
 	red_maple_gate_interaction.unfocused.connect(_unfocus_interaction)
+	thunder_cliff_gate_interaction.focused.connect(_focus_interaction)
+	thunder_cliff_gate_interaction.unfocused.connect(_unfocus_interaction)
 	regional_population.focused.connect(_focus_interaction)
 	regional_population.unfocused.connect(_unfocus_interaction)
 	regional_population.population_resolved.connect(_on_population_resolved)
@@ -98,6 +101,8 @@ func _activate_contextual() -> void:
 		_try_enter_mist_tide_grotto()
 	elif active_interaction == red_maple_gate_interaction:
 		_try_enter_red_maple_road()
+	elif active_interaction == thunder_cliff_gate_interaction:
+		_try_enter_thunder_cliff()
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()
@@ -116,6 +121,9 @@ func can_enter_mist_tide_grotto() -> bool:
 
 func can_enter_red_maple_road() -> bool:
 	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 6
+
+func can_enter_thunder_cliff() -> bool:
+	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 7
 
 func _population_seed() -> int:
 	return int(Time.get_unix_time_from_system() / 180.0) + 6421
@@ -201,6 +209,13 @@ func _try_enter_red_maple_road() -> void:
 		return
 	GameState.selected_dungeon_id = "border_realm"
 	get_tree().change_scene_to_file("res://scenes/red_maple_ancient_road.tscn")
+
+func _try_enter_thunder_cliff() -> void:
+	if not can_enter_thunder_cliff():
+		status.text = "听雷断崖的雷云要到炼气七层后才相对稳定。它没有任务顺序；可先通过任意修行、探索或交易路线准备。"
+		return
+	GameState.selected_dungeon_id = "thunder_cliff"
+	get_tree().change_scene_to_file("res://scenes/thunder_listening_cliff.tscn")
 
 func _close_interaction() -> void:
 	active_interaction = null

@@ -268,9 +268,9 @@
 
 ## Phase 38: Qi Refining seventh-layer weather region (active)
 
-- [ ] Build 听雷断崖 as a 12000x8000 weather-driven exploration region with authored terrain chunks.
-- [ ] Add thunder-window opportunities and ecology that suit cliff weather, rather than generic evenly distributed NPCs.
-- [ ] Add a natural 炼气七层 entrance and runtime coverage without any quest-chain requirement.
+- [x] Build 听雷断崖 as a 12000x8000 weather-driven exploration region with authored terrain chunks.
+- [x] Add thunder-window opportunities and ecology that suit cliff weather, rather than generic evenly distributed NPCs.
+- [x] Add a natural 炼气七层 entrance and runtime coverage without any quest-chain requirement.
 
 ## Phase 36: Qi Refining fifth-layer non-linear cave (active)
 

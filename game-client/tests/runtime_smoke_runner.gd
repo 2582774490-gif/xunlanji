@@ -17,6 +17,7 @@ func _run() -> void:
 	await _check_mist_tide_stone_grotto()
 	await _check_red_maple_ancient_road()
 	await _check_world_population_encounter()
+	await _check_thunder_listening_cliff()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
 		get_tree().quit(0)
@@ -106,6 +107,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.vessel_gate_interaction != null, "Mist Tide Border is missing the Qi Refining fourth-layer vessel entrance.")
 	_expect(border.grotto_gate_interaction != null, "Mist Tide Border is missing the Qi Refining fifth-layer grotto entrance.")
 	_expect(border.red_maple_gate_interaction != null, "Mist Tide Border is missing the Qi Refining sixth-layer Red Maple Road entrance.")
+	_expect(border.thunder_cliff_gate_interaction != null, "Mist Tide Border is missing the Qi Refining seventh-layer Thunder Listening Cliff entrance.")
 	_expect(border.player.map_bounds.size.x >= 11000.0, "Mist Tide Border still behaves like a single small background instead of a large region.")
 	_expect(border.chunk_streamer.loaded_chunk_count() >= 1, "Mist Tide Border did not load its nearby high-detail terrain chunk.")
 	var border_player_start: Vector2 = border.player.position
@@ -133,6 +135,9 @@ func _check_mist_border_scene() -> void:
 	_expect(not border.can_enter_red_maple_road(), "Red Maple Road should wait until sixth-layer Qi Refining.")
 	GameState.player.minor_stage = 6
 	_expect(border.can_enter_red_maple_road(), "Red Maple Road should open at sixth-layer Qi Refining.")
+	_expect(not border.can_enter_thunder_cliff(), "Thunder Listening Cliff should wait until seventh-layer Qi Refining.")
+	GameState.player.minor_stage = 7
+	_expect(border.can_enter_thunder_cliff(), "Thunder Listening Cliff should open at seventh-layer Qi Refining.")
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 	border.active_interaction = border.scout_interaction
@@ -310,6 +315,31 @@ func _check_world_population_encounter() -> void:
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Overworld hostile defeat did not award its ecological material.")
 	road.queue_free()
 	await get_tree().process_frame
+
+func _check_thunder_listening_cliff() -> void:
+	var realm_before: int = GameState.player.realm_index
+	var stage_before: int = GameState.player.minor_stage
+	var inventory_before: int = GameState.player.inventory.size()
+	var log_before: int = GameState.player.opportunity_log.size()
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 7
+	var cliff := preload("res://scenes/thunder_listening_cliff.tscn").instantiate()
+	add_child(cliff)
+	await get_tree().process_frame
+	_expect(cliff.player.map_bounds.size.x >= 11000.0, "Thunder Listening Cliff did not reserve a large weather-exploration region.")
+	_expect(cliff.thunder_window.size() > 0, "Thunder Listening Cliff did not choose a weather opportunity.")
+	_expect(cliff.chunk_streamer.loaded_chunk_count() >= 1, "Thunder Listening Cliff did not load its nearby terrain chunk.")
+	cliff.active_interaction = cliff.pavilion_interaction
+	cliff._activate_contextual()
+	cliff.active_interaction = cliff.thunder_interaction
+	cliff._activate_contextual()
+	_expect(cliff.pavilion_visited and cliff.thunder_resolved, "Thunder Listening Cliff did not resolve its shelter and thunder-window routes.")
+	_expect(GameState.player.inventory.size() == inventory_before + 1, "Thunder Listening Cliff should grant its weather-material outcome.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 2, "Thunder Listening Cliff did not record both free-exploration discoveries.")
+	cliff.queue_free()
+	await get_tree().process_frame
+	GameState.player.realm_index = realm_before
+	GameState.player.minor_stage = stage_before
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:

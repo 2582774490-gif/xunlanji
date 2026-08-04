@@ -21,6 +21,13 @@ func _draw() -> void:
 
 func _palette() -> Dictionary:
 	match region_style:
+		"thunder_cliff":
+			return {
+				"ground": Color("192331"), "water": Color("1c405a"),
+				"road_edge": Color("111827"), "road": Color("5f6c76"),
+				"mountain": Color("111c2d"), "mist": Color("46586d"),
+				"landmark": Color("7e8cff"),
+			}
 		"red_maple":
 			return {
 				"ground": Color("3d241f"), "water": Color("254753"),

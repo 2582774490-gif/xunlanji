@@ -245,6 +245,13 @@
 - Generated and integrated `Red Maple Ancient Road: Broken Bridge and Ember Ridge`, an independently painted eastern trade-corridor chunk with a broken bridge, forked road, maple cliffs, abandoned kiln remains and exits toward future chunks.
 - Red Maple Road now uses the same high-detail terrain streaming path as Mist Tide Border. The project smoke test verifies that its nearby art loads and its far western art unloads when the player crosses the large regional space.
 
+## 2026-08-05: Qi Refining seventh-layer Thunder Listening Cliff
+
+- Added 听雷断崖 as a 12000x8000 weather-driven exploration region, entered from a physical Mist Tide Border gate at 炼气七层. The entrance is a realm safety threshold, not a quest-chain lock.
+- Generated and integrated a first authored storm-cliff terrain chunk with climbable stone routes, an observation platform, thunder crystals, a lightning-ward pavilion and routes off the chunk edges for later expansion.
+- Each visit chooses one independent thunder window: first-lightning rune material, wind-gap movement insight or post-rain crystal. The weather opportunity and pavilion guidance can be ignored or completed in either order.
+- Added ecological populations specific to a storm cliff: 引雷岩貂 around thunder-crystal nests and a rare candidate rune cultivator near the ward pavilion. The shared overworld encounter controller supports the hostile beast without adding unrelated merchants or bandits.
+
 ## 2026-08-05: Qi Refining fifth-layer Mist Tide Stone Grotto
 
 - Added 雾潮石窟 as a separate fifth-layer exploration cave with a three-route layout: left mineral shelf, middle random tide event and right collapsed tunnel. Each is optional and can be resolved in any order.

@@ -1,0 +1,252 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/world/thunder_listening_cliff.gd" id="1_scene"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/thunder_listening_cliff/terrain/thunder_listening_cliff_ground_v01.png" id="2_ground"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/mist_bone_creek/props/processed_alpha/mist_bone_creek_arch_v01_alpha.png" id="3_arch"]
+[ext_resource type="Texture2D" path="res://assets/art/resources/mist_tide_crystal_cluster/processed_alpha/mist_tide_crystal_cluster_v01_alpha.png" id="4_crystal"]
+[ext_resource type="Script" path="res://src/world/spatial_test_player.gd" id="5_player"]
+[ext_resource type="Script" path="res://src/animation/frame_animation_controller.gd" id="6_animator"]
+[ext_resource type="Script" path="res://src/world/ground_shadow.gd" id="7_shadow"]
+[ext_resource type="Script" path="res://src/world/world_interaction.gd" id="8_interaction"]
+[ext_resource type="Script" path="res://src/ui/virtual_touch_controls.gd" id="9_touch"]
+[ext_resource type="Script" path="res://src/world/large_region_backdrop.gd" id="10_backdrop"]
+[ext_resource type="Script" path="res://src/world/regional_population_director.gd" id="11_population"]
+[ext_resource type="Script" path="res://src/world/world_encounter_controller.gd" id="12_encounter"]
+[ext_resource type="Script" path="res://src/world/region_chunk_streamer.gd" id="13_streamer"]
+
+[sub_resource type="CircleShape2D" id="PlayerShape"]
+radius = 18.0
+
+[sub_resource type="CircleShape2D" id="ExitShape"]
+radius = 125.0
+
+[sub_resource type="CircleShape2D" id="PavilionShape"]
+radius = 105.0
+
+[sub_resource type="CircleShape2D" id="ThunderShape"]
+radius = 92.0
+
+[node name="ThunderListeningCliff" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_scene")
+
+[node name="RegionBackdrop" type="Node2D" parent="."]
+z_index = -30
+script = ExtResource("10_backdrop")
+region_size = Vector2(12000, 8000)
+region_style = "thunder_cliff"
+
+[node name="Terrain" type="Sprite2D" parent="."]
+texture = ExtResource("2_ground")
+scale = Vector2(2, 2)
+centered = false
+z_index = -10
+
+[node name="ChunkStreamer" type="Node" parent="."]
+script = ExtResource("13_streamer")
+
+[node name="CliffExit" type="Node2D" parent="."]
+position = Vector2(430, 1740)
+
+[node name="Art" type="Sprite2D" parent="CliffExit"]
+texture = ExtResource("3_arch")
+scale = Vector2(0.18, 0.18)
+centered = false
+offset = Vector2(-627, -1254)
+modulate = Color(0.64, 0.75, 1, 1)
+
+[node name="Name" type="Label" parent="CliffExit"]
+offset_left = -134.0
+offset_top = -212.0
+offset_right = 134.0
+offset_bottom = -186.0
+theme_override_colors/font_color = Color(0.72, 0.82, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "断崖古道 · 返回雾潮边境"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="CliffExit"]
+script = ExtResource("8_interaction")
+interaction_id = "return_to_border"
+prompt_text = "沿断崖古道返回雾潮边境"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CliffExit/Interaction"]
+position = Vector2(0, -100)
+shape = SubResource("ExitShape")
+
+[node name="LightningWardPavilion" type="Node2D" parent="."]
+position = Vector2(1000, 760)
+
+[node name="Name" type="Label" parent="LightningWardPavilion"]
+offset_left = -120.0
+offset_top = -105.0
+offset_right = 120.0
+offset_bottom = -79.0
+theme_override_colors/font_color = Color(0.78, 0.84, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "避雷古亭 · 观天息"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="LightningWardPavilion"]
+script = ExtResource("8_interaction")
+interaction_id = "lightning_ward_pavilion"
+prompt_text = "在避雷古亭观测雷云"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LightningWardPavilion/Interaction"]
+shape = SubResource("PavilionShape")
+
+[node name="ThunderWindow" type="Node2D" parent="."]
+position = Vector2(2020, 820)
+
+[node name="Art" type="Sprite2D" parent="ThunderWindow"]
+texture = ExtResource("4_crystal")
+scale = Vector2(0.19, 0.19)
+centered = false
+offset = Vector2(-627, -1254)
+modulate = Color(0.67, 0.70, 1, 1)
+
+[node name="Name" type="Label" parent="ThunderWindow"]
+offset_left = -116.0
+offset_top = -214.0
+offset_right = 116.0
+offset_bottom = -188.0
+theme_override_colors/font_color = Color(0.76, 0.80, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="ThunderWindow"]
+script = ExtResource("8_interaction")
+interaction_id = "thunder_window"
+prompt_text = "追逐当前雷暴窗口"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ThunderWindow/Interaction"]
+position = Vector2(0, -68)
+shape = SubResource("ThunderShape")
+
+[node name="RegionalPopulation" type="Node2D" parent="."]
+script = ExtResource("11_population")
+
+[node name="WorldCombat" type="Node" parent="."]
+script = ExtResource("12_encounter")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+groups = ["player_actor"]
+script = ExtResource("5_player")
+
+[node name="GroundShadow" type="Node2D" parent="Player"]
+z_index = -1
+script = ExtResource("7_shadow")
+
+[node name="Body" type="AnimatedSprite2D" parent="Player"]
+position = Vector2(0, -60)
+scale = Vector2(0.30, 0.30)
+script = ExtResource("6_animator")
+
+[node name="WeaponBackSlot" type="Node2D" parent="Player"]
+position = Vector2(-14, -52)
+z_index = -1
+
+[node name="WeaponFrontSlot" type="Node2D" parent="Player"]
+position = Vector2(18, -42)
+z_index = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("PlayerShape")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+limit_left = 0
+limit_top = 0
+limit_right = 12000
+limit_bottom = 8000
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Title" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 22.0
+offset_right = 700.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.74, 0.80, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 24
+text = "听雷断崖 · 炼气七层天气探索"
+
+[node name="EncounterTarget" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 70.0
+offset_right = 560.0
+offset_bottom = 98.0
+theme_override_colors/font_color = Color(0.80, 0.73, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+
+[node name="EncounterPlayer" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 102.0
+offset_right = 420.0
+offset_bottom = 128.0
+theme_override_colors/font_color = Color(0.75, 0.90, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 16
+
+[node name="StatusPanel" type="ColorRect" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.025, 0.05, 0.11, 0.92)
+
+[node name="Status" type="Label" parent="HUD/StatusPanel"]
+offset_left = 24.0
+offset_top = 14.0
+offset_right = 1200.0
+offset_bottom = 52.0
+theme_override_colors/font_color = Color(0.83, 0.88, 0.98, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+
+[node name="Help" type="Label" parent="HUD/StatusPanel"]
+offset_left = 24.0
+offset_top = 60.0
+offset_right = 1200.0
+offset_bottom = 86.0
+theme_override_colors/font_color = Color(0.60, 0.70, 0.84, 1)
+theme_override_font_sizes/font_size = 14
+text = "天气机缘不强制：可候雷、绕行、采集或离开。E / Esc：互动或返回。"
+
+[node name="Prompt" type="Label" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+offset_bottom = -110.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.84, 0.89, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 19
+horizontal_alignment = 1
+
+[node name="TouchControls" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("9_touch")
+overworld_attack_enabled = true
