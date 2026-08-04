@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_village.gd" id="1_world"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/terrain/yunlan_village_center_ground_v01.png" id="2_ground"]
@@ -15,6 +15,9 @@ radius = 18.0
 
 [sub_resource type="CircleShape2D" id="MerchantRange"]
 radius = 90.0
+
+[sub_resource type="CircleShape2D" id="AlchemyRange"]
+radius = 100.0
 
 [node name="YunlanVillage" type="Node2D"]
 y_sort_enabled = true
@@ -72,6 +75,15 @@ texture = ExtResource("9_alchemy")
 scale = Vector2(0.32, 0.32)
 centered = false
 offset = Vector2(-627, -1254)
+
+[node name="Interaction" type="Area2D" parent="AlchemyWorkshop"]
+script = ExtResource("8_interaction")
+interaction_id = "alchemy_workshop"
+prompt_text = "进入炼丹工坊"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AlchemyWorkshop/Interaction"]
+position = Vector2(0, -120)
+shape = SubResource("AlchemyRange")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(330, 760)

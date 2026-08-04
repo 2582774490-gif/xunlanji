@@ -13,6 +13,7 @@ enum Screen {
 	INVENTORY,
 	SECT,
 	MARKET,
+	ALCHEMY,
 	PVP,
 	CODEX,
 	SETTINGS,
@@ -95,6 +96,15 @@ func add_item(item_name: String) -> void:
 	if not player.codex.has(item_name):
 		player.codex.append(item_name)
 	profile_changed.emit()
+
+func consume_items(items: Array[String]) -> bool:
+	for item_name in items:
+		if not player.inventory.has(item_name):
+			return false
+	for item_name in items:
+		player.inventory.erase(item_name)
+	profile_changed.emit()
+	return true
 
 func equip_weapon(item_name: String) -> void:
 	player.equipped_weapon = item_name

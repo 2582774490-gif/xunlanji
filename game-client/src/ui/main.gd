@@ -78,6 +78,7 @@ func _render() -> void:
 		GameState.Screen.INVENTORY: _show_inventory()
 		GameState.Screen.SECT: _show_sect()
 		GameState.Screen.MARKET: _show_market()
+		GameState.Screen.ALCHEMY: _show_alchemy()
 		GameState.Screen.PVP: _show_pvp()
 		GameState.Screen.CODEX: _show_codex()
 		GameState.Screen.SETTINGS: _show_settings()
@@ -92,6 +93,7 @@ func _subtitle() -> String:
 		GameState.Screen.INVENTORY: "武器、材料、法宝与时装的统一入口",
 		GameState.Screen.SECT: "自由加入与退出 · 门规、贡献、身份与后果",
 		GameState.Screen.MARKET: "自由交易与拍卖行接口 · 当前为本地演示",
+		GameState.Screen.ALCHEMY: "丹药由材料、境界与药性共同限制；所有玩家可炼，丹修更擅长",
 		GameState.Screen.PVP: "1v1 论剑 · 后续接入房间与服务器权威同步",
 		GameState.Screen.CODEX: "人物、宗门、地区、副本、法宝的收藏与知识库",
 		GameState.Screen.SETTINGS: "原型设置与联网状态说明",
@@ -104,7 +106,7 @@ func _add_navigation() -> void:
 	row.size = Vector2(780, 45)
 	row.add_theme_constant_override("separation", 6)
 	add_child(row)
-	for entry in [["洞府", GameState.Screen.HOME], ["世界", GameState.Screen.OVERWORLD], ["修炼", GameState.Screen.REALM], ["行囊", GameState.Screen.INVENTORY], ["宗门", GameState.Screen.SECT], ["市集", GameState.Screen.MARKET], ["论剑", GameState.Screen.PVP], ["图鉴", GameState.Screen.CODEX]]:
+	for entry in [["洞府", GameState.Screen.HOME], ["世界", GameState.Screen.OVERWORLD], ["修炼", GameState.Screen.REALM], ["行囊", GameState.Screen.INVENTORY], ["炼丹", GameState.Screen.ALCHEMY], ["宗门", GameState.Screen.SECT], ["市集", GameState.Screen.MARKET], ["论剑", GameState.Screen.PVP], ["图鉴", GameState.Screen.CODEX]]:
 		var button := Button.new()
 		button.text = entry[0]
 		button.custom_minimum_size = Vector2(83, 40)
@@ -253,6 +255,24 @@ func _show_market() -> void:
 		_text("%s｜%s｜价格 %d 金" % [listing.name, listing.type, listing.price], 18)
 		_buttons([["购买", func(): _buy(listing), 130, GameState.player.gold < listing.price]])
 	_buttons([["发布自己的物品（接口）", func(): GameState.notify("已记录上架意图，正式版将打开定价和服务器校验。"), 280]])
+
+func _show_alchemy() -> void:
+	_heading("云岚村 · 炼丹工坊")
+	_text("所有修士都能炼丹；丹修将拥有更高成丹率与更深药性控制。高阶修士服用低阶丹药不会获得有效提升。", 17, Color("f2d79c"))
+	_text("初阶配方：雾溪灵草 × 1 + 雾溪药 × 1 → 凝息丹（炼气一至三层有效，+25 修为）")
+	_buttons([["炼制凝息丹", _craft_condensing_pill, 210], ["返回行囊", func(): GameState.enter_screen(GameState.Screen.INVENTORY), 160]])
+
+func _craft_condensing_pill() -> void:
+	if GameState.player.realm_index > 0 or GameState.player.minor_stage > 3:
+		GameState.notify("当前境界已超过凝息丹的有效药性范围。")
+		return
+	if not GameState.consume_items(["雾溪灵草", "雾溪药"]):
+		GameState.notify("材料不足：需要雾溪灵草与雾溪药各一份。")
+		return
+	GameState.add_item("凝息丹")
+	GameState.gain_cultivation(25)
+	GameState.notify("炼制成功：凝息丹入囊，药性已转化为修为。")
+	_render()
 
 func _show_pvp() -> void:
 	_heading("1v1 论剑台")
