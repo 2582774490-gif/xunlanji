@@ -78,6 +78,13 @@ func defeat_hostile(interaction: Area2D) -> void:
 func active_count() -> int:
 	return _entries.size()
 
+func interaction_for_profile_id(profile_id: String) -> Area2D:
+	for interaction in _entries:
+		var profile: Dictionary = _entries[interaction]
+		if str(profile.get("id", "")) == profile_id:
+			return interaction
+	return null
+
 func _create_population_node(profile: Dictionary, anchor: Vector2) -> void:
 	var root := Node2D.new()
 	root.name = "Dynamic_%s" % str(profile.get("id", "population"))

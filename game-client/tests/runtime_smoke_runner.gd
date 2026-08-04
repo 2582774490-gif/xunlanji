@@ -9,6 +9,7 @@ func _run() -> void:
 	await _check_manual_progression()
 	await _check_local_profile_payload()
 	await _check_sect_progression()
+	await _check_wanted_patrol()
 	await _check_weapon_combat_profiles()
 	await _check_weapon_render_slot()
 	await _check_local_market_loop()
@@ -101,6 +102,22 @@ func _check_sect_progression() -> void:
 	_expect(GameState.sect_rank_name() == "内门弟子", "Sect promotion did not reach inner disciple rank.")
 	_expect(GameState.leave_sect(), "Player should be able to freely leave a sect.")
 	_expect(GameState.is_wanted_by_sect("mist_sword"), "Leaving Mist Sword at inner rank should preserve a sect wanted record.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_wanted_patrol() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.sect_wanted_by = ["mist_sword"]
+	var border := preload("res://scenes/mist_tide_border.tscn").instantiate()
+	add_child(border)
+	await get_tree().process_frame
+	var patrol: Area2D = border.regional_population.interaction_for_profile_id("mist_sword_patrol")
+	_expect(patrol != null, "Mist Sword wanted status did not place a patrol at its border jurisdiction.")
+	if patrol != null:
+		border.regional_population.resolve(patrol)
+		_expect(border.world_encounter.is_in_encounter(), "Wanted patrol did not start an overworld encounter when confronted.")
+	border.queue_free()
+	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 	GameState.profile_changed.emit()

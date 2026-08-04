@@ -156,7 +156,7 @@ func _population_profiles() -> Array[Dictionary]:
 	# These are ecological clusters, not a map-wide even distribution:
 	# waterline beasts gather at the fog channel, scouts near the checkpoint,
 	# and rogue cultivators only appear by resource-bearing side paths.
-	return [
+	var profiles: Array[Dictionary] = [
 		{
 			"id": "fog_channel_beast", "region": "mist_border", "kind": "beast", "name": "雾渠獭妖",
 			"prompt": "观察雾渠獭妖的活动范围", "chance": 0.72,
@@ -177,6 +177,17 @@ func _population_profiles() -> Array[Dictionary]:
 			"tint": Color(0.92, 0.86, 0.68), "label_color": Color(1.0, 0.9, 0.66),
 		},
 	]
+	# A sect wanted record is not a map-wide monster switch.  The patrol only
+	# takes the checkpoint and gate-road anchors that belong to its jurisdiction.
+	if GameState.is_wanted_by_sect("mist_sword"):
+		profiles.append({
+			"id": "mist_sword_patrol", "region": "mist_border", "kind": "bandit", "name": "雾隐剑宗巡守",
+			"prompt": "雾隐剑宗巡守正在查验离宗记录", "chance": 1.0,
+			"anchors": [Vector2(760, 980), Vector2(880, 1060), Vector2(1120, 920)],
+			"health": 102, "damage": 13, "reward": "巡守令牌", "cultivation": 8,
+			"tint": Color(0.72, 0.80, 0.96), "label_color": Color(0.80, 0.88, 1.0),
+		})
+	return profiles
 
 func _on_population_resolved(summary: String) -> void:
 	status.text = summary
