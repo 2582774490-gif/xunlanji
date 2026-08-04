@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/mist_stream_water_palace.tscn" id="1_base"]
+[ext_resource type="Script" path="res://src/world/mist_forest_grove.gd" id="2_scene"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/mist_forest_grove/terrain/mist_forest_grove_ground_v01.png" id="3_map"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/boss_mist_forest_general/processed_alpha/boss_mist_forest_general_v01_alpha.png" id="4_boss"]
+
+[node name="MistStreamWaterPalace" instance=ExtResource("1_base")]
+script = ExtResource("2_scene")
+
+[node name="WaterPalaceBaseArt" parent="." index="1"]
+texture = ExtResource("3_map")
+
+[node name="Boss" parent="." index="2"]
+position = Vector2(1910, 420)
+
+[node name="Sprite" parent="Boss" index="0"]
+texture = ExtResource("4_boss")
+scale = Vector2(0.40, 0.40)
+position = Vector2(0, -132)
+
+[node name="Title" parent="HUD" index="0"]
+text = "雾林妖径  |  炼气二层副本"

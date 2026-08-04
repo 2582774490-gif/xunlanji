@@ -221,10 +221,16 @@
 
 - [x] Produce a ground-only terrain plate plus independent ruined-gate and mist-pine props.
 - [x] Build a large Mist Tide Border scene using separate terrain, prop and actor layers.
-- [ ] Gate the route behind the first Water Palace clear and verify regional switching.
+- [x] Gate the route behind the first Water Palace clear and verify regional switching.
 
 ## Phase 31: Border ecology and NPCs (active)
 
 - [x] Add the first border scout with contextual dialogue about the realm-gated next dungeon.
 - [x] Add a distinct border mineral collection node with an inventory and cultivation reward.
-- [ ] Verify the new content through the project-level runtime scene test.
+- [x] Verify the new content through the project-level runtime scene test.
+
+## Phase 32: Qi Refining progression content (active)
+
+- [x] Set the first Mist Forest dungeon requirement to Qi Refining second layer, not Foundation Establishment.
+- [ ] Ensure future Foundation Establishment content remains deeper in the same region rather than replacing the early-game loop.
+- [x] Verify the new Qi Refining dungeon combat and settlement through the project runtime scene test.

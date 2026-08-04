@@ -196,3 +196,8 @@
 
 - Added the independent border-scout NPC 柳朔. Her dialogue points players toward realm-gated northern content instead of pretending the whole next region is immediately safe.
 - Added a collectable `雾潮晶簇`; it is a separate scene node, removes itself after gathering, grants a material and cultivation, and establishes the first local resource ecology hook for later refining and formation systems.
+
+## 2026-08-04: Qi Refining layer expanded
+
+- Corrected the progression gate after design review: the first Mist Forest dungeon opens at 炼气二层, not 筑基.
+- This leaves the early realm with a longer route—水府、边境采集、雾林妖径—while the deeper border content remains a future筑基目标 rather than a shortcut through the starting realm.

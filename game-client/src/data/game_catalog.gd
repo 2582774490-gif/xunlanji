@@ -16,7 +16,7 @@ const REGIONS := [
 		"dungeons": ["training_cave", "abandoned_mine", "mist_stream_palace"],
 	},
 	{
-		"id": "mist_border", "name": "宗门边境与雾原", "realm": "筑基 / 结丹", "unlocked": false,
+		"id": "mist_border", "name": "宗门边境与雾原", "realm": "炼气二层 / 筑基", "unlocked": false,
 		"description": "宗门争端、雾潮资源与中阶秘境。",
 		"dungeons": ["mist_forest", "sunken_boat", "sealed_grotto", "border_realm"],
 	},

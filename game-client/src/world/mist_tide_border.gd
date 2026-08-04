@@ -5,6 +5,7 @@ extends Node2D
 @onready var return_interaction: Area2D = $RuinedCheckpoint/Interaction
 @onready var scout_interaction: Area2D = $BorderScoutLiuShuo/Interaction
 @onready var crystal_interaction: Area2D = $MistTideCrystal/Interaction
+@onready var forest_gate_interaction: Area2D = $MistForestGate/Interaction
 @onready var prompt: Label = $HUD/Prompt
 @onready var status: Label = $HUD/StatusPanel/Status
 @onready var touch_controls: Node = $HUD/TouchControls
@@ -24,6 +25,8 @@ func _ready() -> void:
 	scout_interaction.unfocused.connect(_unfocus_interaction)
 	crystal_interaction.focused.connect(_focus_interaction)
 	crystal_interaction.unfocused.connect(_unfocus_interaction)
+	forest_gate_interaction.focused.connect(_focus_interaction)
+	forest_gate_interaction.unfocused.connect(_unfocus_interaction)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -57,14 +60,19 @@ func _activate_contextual() -> void:
 		_talk_to_scout()
 	elif active_interaction == crystal_interaction and not crystal_collected:
 		_collect_crystal()
+	elif active_interaction == forest_gate_interaction:
+		_try_enter_mist_forest()
+
+func can_enter_mist_forest() -> bool:
+	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 2
 
 func _talk_to_scout() -> void:
 	if scout_dialogue_stage == 0:
 		scout_dialogue_stage = 1
-		status.text = "边境探子·柳朔：雾潮会随着时辰退涨。若想深入北面的雾林，至少要先稳住筑基根基；盲目闯入只会被雾路带偏。"
+		status.text = "边境探子·柳朔：雾潮会随着时辰退涨。北面的雾林从炼气二层起便可试探，但仍需稳住根基；盲目闯入只会被雾路带偏。"
 		prompt.text = "[E] 再问柳朔"
 	else:
-		status.text = "柳朔：晶簇是雾潮留下的稳定锚点。采集能带来材料与修为，但真正的秘境入口会在筑基后才对你显现。"
+		status.text = "柳朔：晶簇是雾潮留下的稳定锚点。炼气二层可先进入雾林妖径；筑基后，边境深处还会显现更危险的秘境。"
 
 func _collect_crystal() -> void:
 	crystal_collected = true
@@ -76,6 +84,13 @@ func _collect_crystal() -> void:
 	active_interaction = null
 	prompt.text = ""
 	touch_controls.set_interaction_available(false)
+
+func _try_enter_mist_forest() -> void:
+	if not can_enter_mist_forest():
+		status.text = "雾林结界只回应炼气二层以上的修士。你可继续水府试炼、采集与修炼来稳固根基。"
+		return
+	GameState.selected_dungeon_id = "mist_forest"
+	get_tree().change_scene_to_file("res://scenes/mist_forest_grove.tscn")
 
 func _return_to_village() -> void:
 	GameState.current_region_id = "starter_village"
