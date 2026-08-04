@@ -118,6 +118,14 @@ func add_item(item_name: String) -> void:
 		player.codex.append(item_name)
 	profile_changed.emit()
 
+func add_spirit_stones(amount: int) -> void:
+	player.spirit_stones += max(amount, 0)
+	profile_changed.emit()
+
+func record_opportunity(entry: Dictionary) -> void:
+	player.opportunity_log.append(entry)
+	profile_changed.emit()
+
 func consume_items(items: Array[String]) -> bool:
 	for item_name in items:
 		if not player.inventory.has(item_name):

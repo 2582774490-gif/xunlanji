@@ -169,3 +169,9 @@
 - South Gate routes both E and the touch button to Shen Yan dialogue, Mist-Stream Spirit Herb gathering, and the northward village transition.
 - Yunlan Village routes both input paths to the market, alchemy workshop and Mist-Stream Water Palace entrance.
 - Added a dedicated touch-interaction smoke test proving a non-combat exploration overlay emits the `interact` action, alongside the existing dungeon skill test.
+
+## 2026-08-04: First random exploration opportunity
+
+- Added one independently rendered Mist-Stream relic prop and attached it to the South Gate as a Y-sorted world object with its own proximity area.
+- Each entry into the scene chooses one of three chance outcomes: a relic cache, a brief `岚息` insight, or a dew-material find. The visual is shared for this prototype, while the title, prompt, reward and log record vary.
+- The same keyboard/touch contextual interaction collects it, removes the scene node, grants item / spirit stones / cultivation as appropriate, and appends a structured entry to the player opportunity log.
