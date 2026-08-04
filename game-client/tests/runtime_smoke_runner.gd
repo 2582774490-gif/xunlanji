@@ -6,6 +6,7 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	await _check_manual_progression()
 	await _check_random_opportunity()
 	await _check_village_routes()
 	await _check_water_palace_loop()
@@ -18,6 +19,28 @@ func _run() -> void:
 	for failure in failures:
 		push_error(failure)
 	get_tree().quit(1)
+
+func _check_manual_progression() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 1
+	GameState.player.cultivation = GameState.cultivation_threshold() - 1
+	GameState.gain_cultivation(20)
+	_expect(GameState.player.minor_stage == 1, "Cultivation should not auto-break through when the pool becomes full.")
+	_expect(GameState.can_attempt_breakthrough(), "Full cultivation should enable manual breakthrough.")
+	_expect(GameState.try_breakthrough(), "Qi Refining small-stage manual breakthrough should succeed without materials.")
+	_expect(GameState.player.minor_stage == 2 and GameState.player.cultivation == 0, "Manual small-stage breakthrough did not advance exactly one stage.")
+	GameState.player.minor_stage = 10
+	GameState.player.cultivation = GameState.cultivation_threshold()
+	_expect(not GameState.try_breakthrough(), "Foundation breakthrough should require its dedicated materials.")
+	GameState.player.inventory.append("筑基丹")
+	GameState.player.inventory.append("雾潮晶簇")
+	GameState.player.inventory.append("雾潮晶簇")
+	GameState.player.inventory.append("雾潮晶簇")
+	_expect(GameState.try_breakthrough(), "Foundation breakthrough should succeed after materials are prepared.")
+	_expect(GameState.player.realm_index == 1 and GameState.player.minor_stage == 1, "Foundation breakthrough did not move to the first Foundation stage.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
 
 func _check_random_opportunity() -> void:
 	var log_before: int = GameState.player.opportunity_log.size()

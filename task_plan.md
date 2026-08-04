@@ -234,3 +234,10 @@
 - [x] Set the first Mist Forest dungeon requirement to Qi Refining second layer, not Foundation Establishment.
 - [ ] Ensure future Foundation Establishment content remains deeper in the same region rather than replacing the early-game loop.
 - [x] Verify the new Qi Refining dungeon combat and settlement through the project runtime scene test.
+
+## Phase 33: Long-form cultivation pacing (active)
+
+- [x] Stop automatic progression when a cultivation pool fills; require an explicit player breakthrough.
+- [x] Add a material gate to the first major-realm breakthrough, while keeping small-stage breakthroughs approachable.
+- [x] Limit static meditation and turn early pills into inventory objects with use conditions.
+- [ ] Build the first 筑基丹 recipe and deeper筑基 border route around the new long-term progression loop.

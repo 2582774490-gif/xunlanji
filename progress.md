@@ -201,3 +201,10 @@
 
 - Corrected the progression gate after design review: the first Mist Forest dungeon opens at 炼气二层, not 筑基.
 - This leaves the early realm with a longer route—水府、边境采集、雾林妖径—while the deeper border content remains a future筑基目标 rather than a shortcut through the starting realm.
+
+## 2026-08-05: Slow-cultivation and manual-breakthrough foundation
+
+- Replaced automatic level jumps with a capped cultivation pool: a reward can fill only the current layer, then the player must explicitly choose to attempt a breakthrough.
+- Each successful small-stage breakthrough grants one attribute point. Crossing a major realm is slower and consumes a dedicated material set; the first example is 炼气圆满 → 筑基, requiring 筑基丹 × 1 and 雾潮晶簇 × 3.
+- Daily meditation now has three small sessions rather than an unlimited large button. Exploration, combat, resources and limited medicine remain meaningful sources of cultivation without enabling repeated instant advancement.
+- Alchemy now creates a physical 凝息丹 in the inventory. The player decides when to consume it, and its low-tier medicine effect is limited to early炼气 stages.

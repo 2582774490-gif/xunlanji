@@ -31,7 +31,7 @@ const DUNGEONS := {
 	"training_cave": {"name": "引气洞府", "realm": "炼气", "enemy": "洞府灵傀", "reward": "凝气符"},
 	"abandoned_mine": {"name": "废弃矿脉", "realm": "炼气", "enemy": "矿脉妖鼠", "reward": "雾溪草"},
 	"mist_stream_palace": {"name": "雾溪水府", "realm": "炼气", "enemy": "水府守卫", "reward": "纳灵玉佩"},
-	"mist_forest": {"name": "雾林妖径", "realm": "筑基", "enemy": "雾林妖将", "reward": "灵木心"},
+	"mist_forest": {"name": "雾林妖径", "realm": "炼气二层", "enemy": "雾林妖将", "reward": "灵木心"},
 	"sunken_boat": {"name": "沉舷遗府", "realm": "结丹", "enemy": "沉舷残灵", "reward": "古舟残片"},
 	"sealed_grotto": {"name": "封印石窟", "realm": "结丹", "enemy": "封印守兽", "reward": "镇石碎片"},
 	"border_realm": {"name": "边境秘境", "realm": "结丹", "enemy": "越界修士", "reward": "雾原令"},

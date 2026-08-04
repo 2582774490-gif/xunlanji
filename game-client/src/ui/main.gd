@@ -206,7 +206,10 @@ func _show_dungeon() -> void:
 
 func _show_realm() -> void:
 	_heading("修炼体系")
-	_text("当前境界：%s｜修为：%d" % [GameState.realm_name(), GameState.player.cultivation], 22, Color("f2d79c"))
+	var threshold := GameState.cultivation_threshold()
+	_text("当前境界：%s｜修为：%d / %d" % [GameState.realm_name(), GameState.player.cultivation, threshold], 22, Color("f2d79c"))
+	_text(GameState.breakthrough_requirement_text(), 17, Color("a7d5ca"))
+	_buttons([["主动冲关", func(): GameState.try_breakthrough(), 180, not GameState.can_attempt_breakthrough()]])
 	var attributes: Dictionary = GameState.player.attributes
 	var stats: Dictionary = GameState.derived_stats()
 	_text("可分配属性点：%d｜体魄 %d · 灵识 %d · 身法 %d · 根骨 %d" % [GameState.player.unspent_points, attributes["体魄"], attributes["灵识"], attributes["身法"], attributes["根骨"]], 18, Color("a7d5ca"))
@@ -222,7 +225,7 @@ func _show_realm() -> void:
 	for school in Catalog.CULTIVATION_SCHOOLS:
 		_text("【%s】%s" % [school.faction, "、".join(school.techniques)], 16)
 		_buttons([["主修 %s" % school.techniques[0], func(): GameState.choose_cultivation_path(school.techniques[0]), 250]])
-	_buttons([["静坐吐纳（+25 修为）", func(): GameState.gain_cultivation(25), 240], ["服用灵泉露（+40 修为）", _use_dew, 240]])
+	_buttons([["每日静坐（剩余 %d / 3，+8 修为）" % GameState.meditation_sessions_left(), GameState.meditate, 280, GameState.meditation_sessions_left() <= 0], ["服用灵泉露（+15 修为）", _use_dew, 240]])
 
 func _allocate_attribute(attribute_name: String) -> void:
 	if not GameState.allocate_attribute(attribute_name):
@@ -243,6 +246,8 @@ func _show_inventory() -> void:
 		if "练气" in item_name:
 			equips.append(["装备 %s" % item_name, func(): GameState.equip_weapon(item_name), 180])
 	if not equips.is_empty(): _buttons(equips)
+	if GameState.player.inventory.has("凝息丹"):
+		_buttons([["服用凝息丹（+15 修为）", _use_condensing_pill, 230]])
 
 func _show_sect() -> void:
 	_heading("宗门与身份")
@@ -269,7 +274,7 @@ func _show_market() -> void:
 func _show_alchemy() -> void:
 	_heading("云岚村 · 炼丹工坊")
 	_text("所有修士都能炼丹；丹修将拥有更高成丹率与更深药性控制。高阶修士服用低阶丹药不会获得有效提升。", 17, Color("f2d79c"))
-	_text("初阶配方：雾溪灵草 × 1 + 雾溪药 × 1 → 凝息丹（炼气一至三层有效，+25 修为）")
+	_text("初阶配方：雾溪灵草 × 1 + 雾溪药 × 1 → 凝息丹（炼气一至三层有效，使用后 +15 修为）")
 	_buttons([["炼制凝息丹", _craft_condensing_pill, 210], ["返回行囊", func(): GameState.enter_screen(GameState.Screen.INVENTORY), 160]])
 
 func _craft_condensing_pill() -> void:
@@ -280,8 +285,7 @@ func _craft_condensing_pill() -> void:
 		GameState.notify("材料不足：需要雾溪灵草与雾溪药各一份。")
 		return
 	GameState.add_item("凝息丹")
-	GameState.gain_cultivation(25)
-	GameState.notify("炼制成功：凝息丹入囊，药性已转化为修为。")
+	GameState.notify("炼制成功：凝息丹已入囊；请自行决定何时服用。")
 	_render()
 
 func _show_pvp() -> void:
@@ -392,11 +396,10 @@ func _claim_reward() -> void:
 	GameState.notify("副本结算：获得 %s、12 灵石与修为。" % dungeon.reward)
 
 func _use_dew() -> void:
-	if GameState.player.inventory.has("灵泉露"):
-		GameState.player.inventory.erase("灵泉露")
-		GameState.gain_cultivation(40)
-	else:
-		GameState.notify("行囊中没有灵泉露，可在探索机缘中获得。")
+	GameState.use_cultivation_item("灵泉露", 15, 0, 9)
+
+func _use_condensing_pill() -> void:
+	GameState.use_cultivation_item("凝息丹", 15, 0, 3)
 
 func _claim_weapon_samples() -> void:
 	for family in Catalog.WEAPON_FAMILIES:
