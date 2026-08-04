@@ -400,6 +400,7 @@ func _playable_scene_for_current_region() -> String:
 		"red_maple_ancient_road": "res://scenes/red_maple_ancient_road.tscn",
 		"thunder_listening_cliff": "res://scenes/thunder_listening_cliff.tscn",
 		"return_abyss_mist_port": "res://scenes/return_abyss_mist_port.tscn",
+		"abysswatch_terrace": "res://scenes/abysswatch_terrace.tscn",
 	}
 	return scene_by_region.get(GameState.current_region_id, "res://scenes/yunlan_south_gate.tscn")
 

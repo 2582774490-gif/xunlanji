@@ -386,6 +386,37 @@ prompt_text = "沿海潮路前往归墟雾港（炼气八层）"
 position = Vector2(0, -94)
 shape = SubResource("MistPortGateInteractionShape")
 
+[node name="AbysswatchGate" type="Node2D" parent="."]
+position = Vector2(2870, 520)
+
+[node name="Art" type="Sprite2D" parent="AbysswatchGate"]
+texture = ExtResource("13_creek_gate")
+scale = Vector2(0.15, 0.15)
+centered = false
+offset = Vector2(-627, -1254)
+modulate = Color(0.76, 0.82, 1, 1)
+
+[node name="Name" type="Label" parent="AbysswatchGate"]
+offset_left = -144.0
+offset_top = -210.0
+offset_right = 144.0
+offset_bottom = -184.0
+theme_override_colors/font_color = Color(0.78, 0.86, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "临渊台 · 炼气九层"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="AbysswatchGate"]
+script = ExtResource("8_interaction")
+interaction_id = "abysswatch_terrace"
+prompt_text = "登上临渊台（炼气九层）"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AbysswatchGate/Interaction"]
+position = Vector2(0, -94)
+shape = SubResource("MistPortGateInteractionShape")
+
 [node name="RegionalPopulation" type="Node2D" parent="."]
 script = ExtResource("15_population")
 

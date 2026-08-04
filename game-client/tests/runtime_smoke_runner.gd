@@ -20,6 +20,7 @@ func _run() -> void:
 	await _check_world_population_encounter()
 	await _check_thunder_listening_cliff()
 	await _check_return_abyss_mist_port()
+	await _check_abysswatch_terrace()
 	await _check_world_menu_region_resume()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
@@ -130,6 +131,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.red_maple_gate_interaction != null, "Mist Tide Border is missing the Qi Refining sixth-layer Red Maple Road entrance.")
 	_expect(border.thunder_cliff_gate_interaction != null, "Mist Tide Border is missing the Qi Refining seventh-layer Thunder Listening Cliff entrance.")
 	_expect(border.mist_port_gate_interaction != null, "Mist Tide Border is missing the Qi Refining eighth-layer Return Abyss Mist Port entrance.")
+	_expect(border.abysswatch_gate_interaction != null, "Mist Tide Border is missing the Qi Refining ninth-layer Abysswatch Terrace entrance.")
 	_expect(border.player.map_bounds.size.x >= 11000.0, "Mist Tide Border still behaves like a single small background instead of a large region.")
 	_expect(border.chunk_streamer.loaded_chunk_count() >= 1, "Mist Tide Border did not load its nearby high-detail terrain chunk.")
 	var border_player_start: Vector2 = border.player.position
@@ -163,6 +165,9 @@ func _check_mist_border_scene() -> void:
 	_expect(not border.can_enter_mist_port(), "Return Abyss Mist Port should wait until eighth-layer Qi Refining.")
 	GameState.player.minor_stage = 8
 	_expect(border.can_enter_mist_port(), "Return Abyss Mist Port should open at eighth-layer Qi Refining.")
+	_expect(not border.can_enter_abysswatch_terrace(), "Abysswatch Terrace should wait until ninth-layer Qi Refining.")
+	GameState.player.minor_stage = 9
+	_expect(border.can_enter_abysswatch_terrace(), "Abysswatch Terrace should open at ninth-layer Qi Refining.")
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 	border.active_interaction = border.scout_interaction
@@ -398,6 +403,31 @@ func _check_return_abyss_mist_port() -> void:
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 
+func _check_abysswatch_terrace() -> void:
+	var realm_before: int = GameState.player.realm_index
+	var stage_before: int = GameState.player.minor_stage
+	var inventory_before: int = GameState.player.inventory.size()
+	var log_before: int = GameState.player.opportunity_log.size()
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 9
+	var terrace := preload("res://scenes/abysswatch_terrace.tscn").instantiate()
+	add_child(terrace)
+	await get_tree().process_frame
+	_expect(terrace.player.map_bounds.size.x >= 11000.0, "Abysswatch Terrace did not reserve a large ninth-layer region.")
+	_expect(terrace.terrace_sign.size() > 0, "Abysswatch Terrace did not choose a preparation opportunity.")
+	_expect(terrace.chunk_streamer.loaded_chunk_count() >= 1, "Abysswatch Terrace did not load its authored terrace chunk.")
+	terrace.active_interaction = terrace.observation_interaction
+	terrace._activate_contextual()
+	terrace.active_interaction = terrace.sign_interaction
+	terrace._activate_contextual()
+	_expect(terrace.observation_complete and terrace.sign_resolved, "Abysswatch Terrace did not resolve its independent preparation routes.")
+	_expect(GameState.player.inventory.size() == inventory_before + 1, "Abysswatch Terrace should grant its selected preparation material.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 2, "Abysswatch Terrace did not record its two optional discoveries.")
+	terrace.queue_free()
+	await get_tree().process_frame
+	GameState.player.realm_index = realm_before
+	GameState.player.minor_stage = stage_before
+
 func _check_world_menu_region_resume() -> void:
 	var region_before: String = GameState.current_region_id
 	var main_script := preload("res://src/ui/main.gd")
@@ -408,6 +438,8 @@ func _check_world_menu_region_resume() -> void:
 	_expect(main._playable_scene_for_current_region() == "res://scenes/return_abyss_mist_port.tscn", "World menu did not resume Return Abyss Mist Port.")
 	GameState.current_region_id = "thunder_listening_cliff"
 	_expect(main._playable_scene_for_current_region() == "res://scenes/thunder_listening_cliff.tscn", "World menu did not resume Thunder Listening Cliff.")
+	GameState.current_region_id = "abysswatch_terrace"
+	_expect(main._playable_scene_for_current_region() == "res://scenes/abysswatch_terrace.tscn", "World menu did not resume Abysswatch Terrace.")
 	GameState.current_region_id = region_before
 	main.queue_free()
 	await get_tree().process_frame

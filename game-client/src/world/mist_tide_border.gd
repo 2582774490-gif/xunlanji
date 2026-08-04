@@ -12,6 +12,7 @@ extends Node2D
 @onready var red_maple_gate_interaction: Area2D = $RedMapleRoadGate/Interaction
 @onready var thunder_cliff_gate_interaction: Area2D = $ThunderCliffGate/Interaction
 @onready var mist_port_gate_interaction: Area2D = $MistPortGate/Interaction
+@onready var abysswatch_gate_interaction: Area2D = $AbysswatchGate/Interaction
 @onready var regional_population = $RegionalPopulation
 @onready var chunk_streamer = $ChunkStreamer
 @onready var world_encounter = $WorldCombat
@@ -54,6 +55,8 @@ func _ready() -> void:
 	thunder_cliff_gate_interaction.unfocused.connect(_unfocus_interaction)
 	mist_port_gate_interaction.focused.connect(_focus_interaction)
 	mist_port_gate_interaction.unfocused.connect(_unfocus_interaction)
+	abysswatch_gate_interaction.focused.connect(_focus_interaction)
+	abysswatch_gate_interaction.unfocused.connect(_unfocus_interaction)
 	regional_population.focused.connect(_focus_interaction)
 	regional_population.unfocused.connect(_unfocus_interaction)
 	regional_population.population_resolved.connect(_on_population_resolved)
@@ -108,6 +111,8 @@ func _activate_contextual() -> void:
 		_try_enter_thunder_cliff()
 	elif active_interaction == mist_port_gate_interaction:
 		_try_enter_mist_port()
+	elif active_interaction == abysswatch_gate_interaction:
+		_try_enter_abysswatch_terrace()
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()
@@ -132,6 +137,9 @@ func can_enter_thunder_cliff() -> bool:
 
 func can_enter_mist_port() -> bool:
 	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 8
+
+func can_enter_abysswatch_terrace() -> bool:
+	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 9
 
 func _population_seed() -> int:
 	return int(Time.get_unix_time_from_system() / 180.0) + 6421
@@ -231,6 +239,13 @@ func _try_enter_mist_port() -> void:
 		return
 	GameState.selected_dungeon_id = "return_abyss_mist_port"
 	get_tree().change_scene_to_file("res://scenes/return_abyss_mist_port.tscn")
+
+func _try_enter_abysswatch_terrace() -> void:
+	if not can_enter_abysswatch_terrace():
+		status.text = "临渊台的崖风要到炼气九层后才适合观想。它不是任务门槛；可用任意自由路线准备后再来。"
+		return
+	GameState.selected_dungeon_id = "abysswatch_terrace"
+	get_tree().change_scene_to_file("res://scenes/abysswatch_terrace.tscn")
 
 func _close_interaction() -> void:
 	active_interaction = null
