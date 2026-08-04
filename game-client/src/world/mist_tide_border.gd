@@ -9,6 +9,8 @@ extends Node2D
 @onready var creek_gate_interaction: Area2D = $MistBoneCreekGate/Interaction
 @onready var vessel_gate_interaction: Area2D = $SunkenVesselGate/Interaction
 @onready var grotto_gate_interaction: Area2D = $MistTideGrottoGate/Interaction
+@onready var red_maple_gate_interaction: Area2D = $RedMapleRoadGate/Interaction
+@onready var regional_population = $RegionalPopulation
 @onready var prompt: Label = $HUD/Prompt
 @onready var status: Label = $HUD/StatusPanel/Status
 @onready var touch_controls: Node = $HUD/TouchControls
@@ -19,7 +21,9 @@ var crystal_collected := false
 
 func _ready() -> void:
 	GameState.current_region_id = "mist_border"
-	player.map_bounds = Rect2(80, 80, 3184, 1722)
+	# The painted border image is one authored chunk inside a much larger
+	# continuous region. Future chunks attach to the same 12 km x 8 km space.
+	player.map_bounds = Rect2(80, 80, 11840, 7840)
 	player.position = Vector2(520, 1570)
 	status.text = "雾潮边境：这是第二个大区的首个空间切片。地表、残关与雾木均为独立层；边境探子可提供筑基区域的线索。"
 	return_interaction.focused.connect(_focus_interaction)
@@ -36,6 +40,12 @@ func _ready() -> void:
 	vessel_gate_interaction.unfocused.connect(_unfocus_interaction)
 	grotto_gate_interaction.focused.connect(_focus_interaction)
 	grotto_gate_interaction.unfocused.connect(_unfocus_interaction)
+	red_maple_gate_interaction.focused.connect(_focus_interaction)
+	red_maple_gate_interaction.unfocused.connect(_unfocus_interaction)
+	regional_population.focused.connect(_focus_interaction)
+	regional_population.unfocused.connect(_unfocus_interaction)
+	regional_population.population_resolved.connect(_on_population_resolved)
+	regional_population.populate(_population_seed(), _population_profiles())
 	touch_controls.action_requested.connect(_on_touch_action_requested)
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -77,6 +87,11 @@ func _activate_contextual() -> void:
 		_try_enter_sunken_vessel()
 	elif active_interaction == grotto_gate_interaction:
 		_try_enter_mist_tide_grotto()
+	elif active_interaction == red_maple_gate_interaction:
+		_try_enter_red_maple_road()
+	elif regional_population.owns(active_interaction):
+		regional_population.resolve(active_interaction)
+		_close_interaction()
 
 func can_enter_mist_forest() -> bool:
 	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 2
@@ -89,6 +104,40 @@ func can_enter_sunken_vessel() -> bool:
 
 func can_enter_mist_tide_grotto() -> bool:
 	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 5
+
+func can_enter_red_maple_road() -> bool:
+	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 6
+
+func _population_seed() -> int:
+	return int(Time.get_unix_time_from_system() / 180.0) + 6421
+
+func _population_profiles() -> Array[Dictionary]:
+	# These are ecological clusters, not a map-wide even distribution:
+	# waterline beasts gather at the fog channel, scouts near the checkpoint,
+	# and rogue cultivators only appear by resource-bearing side paths.
+	return [
+		{
+			"id": "fog_channel_beast", "region": "mist_border", "kind": "beast", "name": "雾渠獭妖",
+			"prompt": "观察雾渠獭妖的活动范围", "chance": 0.72,
+			"anchors": [Vector2(2500, 560), Vector2(2700, 640), Vector2(2860, 470)],
+			"tint": Color(0.72, 0.95, 0.86), "label_color": Color(0.74, 1.0, 0.89),
+		},
+		{
+			"id": "mist_ore_rogue", "region": "mist_border", "kind": "rogue", "name": "采雾散修",
+			"prompt": "向采雾散修打听矿脉", "chance": 0.48,
+			"anchors": [Vector2(1900, 1190), Vector2(2060, 1260), Vector2(2200, 1160)],
+			"tint": Color(0.78, 0.83, 0.94), "label_color": Color(0.81, 0.87, 1.0),
+		},
+		{
+			"id": "checkpoint_watcher", "region": "mist_border", "kind": "rogue", "name": "边关巡修",
+			"prompt": "询问边关巡修的雾潮消息", "chance": 0.35,
+			"anchors": [Vector2(760, 980), Vector2(880, 1060)],
+			"tint": Color(0.92, 0.86, 0.68), "label_color": Color(1.0, 0.9, 0.66),
+		},
+	]
+
+func _on_population_resolved(summary: String) -> void:
+	status.text = summary
 
 func _talk_to_scout() -> void:
 	if scout_dialogue_stage == 0:
@@ -135,6 +184,18 @@ func _try_enter_mist_tide_grotto() -> void:
 		return
 	GameState.selected_dungeon_id = "sealed_grotto"
 	get_tree().change_scene_to_file("res://scenes/mist_tide_stone_grotto.tscn")
+
+func _try_enter_red_maple_road() -> void:
+	if not can_enter_red_maple_road():
+		status.text = "赤枫古道在炼气六层后才适合穿行。它不是任务门槛；修炼、采集、交易或探索都能帮助你抵达此处。"
+		return
+	GameState.selected_dungeon_id = "border_realm"
+	get_tree().change_scene_to_file("res://scenes/red_maple_ancient_road.tscn")
+
+func _close_interaction() -> void:
+	active_interaction = null
+	prompt.text = ""
+	touch_controls.set_interaction_available(false)
 
 func _return_to_village() -> void:
 	GameState.current_region_id = "starter_village"

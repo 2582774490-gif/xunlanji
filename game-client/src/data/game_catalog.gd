@@ -34,7 +34,7 @@ const DUNGEONS := {
 	"mist_forest": {"name": "雾林妖径", "realm": "炼气二层", "enemy": "雾林妖将", "reward": "灵木心"},
 	"sunken_boat": {"name": "沉舷遗府", "realm": "炼气四层", "enemy": "沉舷残灵·鸣濯", "reward": "沉舟航图残页"},
 	"sealed_grotto": {"name": "雾潮石窟", "realm": "炼气五层", "enemy": "灵潮异象", "reward": "雾潮矿芯"},
-	"border_realm": {"name": "边境秘境", "realm": "结丹", "enemy": "越界修士", "reward": "雾原令"},
+	"border_realm": {"name": "赤枫古道", "realm": "炼气六层", "enemy": "商路异闻", "reward": "流火矿"},
 	"earth_fire": {"name": "地火窟", "realm": "元婴", "enemy": "地火灵兽", "reward": "赤焰精金"},
 	"ancient_battlefield": {"name": "古战场", "realm": "元婴", "enemy": "战场残魂", "reward": "古战印"},
 	"sky_rift": {"name": "天隙台", "realm": "化神", "enemy": "裂隙守望者", "reward": "天隙晶"},

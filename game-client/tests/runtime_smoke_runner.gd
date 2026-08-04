@@ -15,6 +15,7 @@ func _run() -> void:
 	await _check_mist_forest_grove()
 	await _check_sunken_vessel_manor()
 	await _check_mist_tide_stone_grotto()
+	await _check_red_maple_ancient_road()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
 		get_tree().quit(0)
@@ -103,6 +104,8 @@ func _check_mist_border_scene() -> void:
 	_expect(border.creek_gate_interaction != null, "Mist Tide Border is missing the Qi Refining third-layer creek entrance.")
 	_expect(border.vessel_gate_interaction != null, "Mist Tide Border is missing the Qi Refining fourth-layer vessel entrance.")
 	_expect(border.grotto_gate_interaction != null, "Mist Tide Border is missing the Qi Refining fifth-layer grotto entrance.")
+	_expect(border.red_maple_gate_interaction != null, "Mist Tide Border is missing the Qi Refining sixth-layer Red Maple Road entrance.")
+	_expect(border.player.map_bounds.size.x >= 11000.0, "Mist Tide Border still behaves like a single small background instead of a large region.")
 	var realm_before: int = GameState.player.realm_index
 	var stage_before: int = GameState.player.minor_stage
 	GameState.player.realm_index = 0
@@ -119,6 +122,9 @@ func _check_mist_border_scene() -> void:
 	_expect(not border.can_enter_mist_tide_grotto(), "Mist Tide Stone Grotto should wait until fifth-layer Qi Refining.")
 	GameState.player.minor_stage = 5
 	_expect(border.can_enter_mist_tide_grotto(), "Mist Tide Stone Grotto should open at fifth-layer Qi Refining.")
+	_expect(not border.can_enter_red_maple_road(), "Red Maple Road should wait until sixth-layer Qi Refining.")
+	GameState.player.minor_stage = 6
+	_expect(border.can_enter_red_maple_road(), "Red Maple Road should open at sixth-layer Qi Refining.")
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 	border.active_interaction = border.scout_interaction
@@ -228,6 +234,36 @@ func _check_mist_tide_stone_grotto() -> void:
 	await get_tree().process_frame
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
+
+func _check_red_maple_ancient_road() -> void:
+	var realm_before: int = GameState.player.realm_index
+	var stage_before: int = GameState.player.minor_stage
+	var inventory_before: int = GameState.player.inventory.size()
+	var log_before: int = GameState.player.opportunity_log.size()
+	var gold_before: int = GameState.player.gold
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 6
+	GameState.player.gold = max(18, gold_before)
+	var road := preload("res://scenes/red_maple_ancient_road.tscn").instantiate()
+	add_child(road)
+	await get_tree().process_frame
+	_expect(road.player.map_bounds.size.x >= 11000.0, "Red Maple Road did not reserve a large regional exploration space.")
+	_expect(road.route_event.size() > 0, "Red Maple Road did not choose a road event.")
+	_expect(road.regional_population != null, "Red Maple Road is missing its ecological dynamic-population director.")
+	road.active_interaction = road.ledger_interaction
+	road._activate_contextual()
+	road.active_interaction = road.escort_interaction
+	road._activate_contextual()
+	road.active_interaction = road.event_interaction
+	road._activate_contextual()
+	_expect(road.escort_resolved and road.event_resolved, "Red Maple Road did not resolve its independent optional routes.")
+	_expect(GameState.player.inventory.size() >= inventory_before + 3, "Red Maple Road should grant a trade item plus two optional-route results.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 2, "Red Maple Road did not record both free-exploration discoveries.")
+	road.queue_free()
+	await get_tree().process_frame
+	GameState.player.realm_index = realm_before
+	GameState.player.minor_stage = stage_before
+	GameState.player.gold = gold_before
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:

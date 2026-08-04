@@ -224,6 +224,14 @@
 - Reused the established five-slot hand-operated combat framework but gave the boss an independent 220 HP balance, 1.95-second anchor-shadow attack loop, separate settlement copy and independent drop table.
 - A clear always grants 沉舟航图残页 in addition to a random material drop, deliberately creating a future open-world navigation/trade clue instead of an automatic next quest.
 
+## 2026-08-05: Large-region foundation and ecological population
+
+- Corrected the world-scale approach: a painted 3072x2048 background is now treated as one authored art chunk, never as a complete map. Mist Tide Border and Red Maple Road reserve continuous 12000x8000 playable regional spaces with a low-detail terrain base, long roads, waterways, distant landmarks and chunk boundaries ready for future high-detail terrain plates.
+- Added `LargeRegionBackdrop`, which keeps the travel space visually coherent while individual painted map chunks, buildings, ruins and vegetation are added over time. Future art work fills named chunks of an existing large region instead of creating isolated small maps.
+- Added `RegionalPopulationDirector`. It spawns a small, changing subset of NPCs only from ecological candidate clusters: water-channel beasts, ore-path rogue cultivators and checkpoint patrols in Mist Tide Border; caravan scouts, bridge-cut bandits and kiln-ridge fire beasts on Red Maple Road. It deliberately does not distribute NPCs evenly or force every region to contain every type.
+- Dynamic entities expose free-exploration interactions and discovery records. Their territory / ambush notes are wired; the next combat pass will turn hostile ecological entries into actual on-map combat encounters rather than fake task markers.
+- Added the visible 炼气六层 Red Maple Road entrance in Mist Tide Border, then verified all existing content plus the large-region and sixth-layer optional-route checks through `RUNTIME_SMOKE_PASS`.
+
 ## 2026-08-05: Qi Refining fifth-layer Mist Tide Stone Grotto
 
 - Added 雾潮石窟 as a separate fifth-layer exploration cave with a three-route layout: left mineral shelf, middle random tide event and right collapsed tunnel. Each is optional and can be resolved in any order.

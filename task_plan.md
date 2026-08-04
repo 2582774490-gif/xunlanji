@@ -257,6 +257,15 @@
 - [x] Add independent boss combat, rewards, settlement and runtime smoke coverage.
 - [ ] Build the 炼气五层雾潮石窟 as a non-linear gathering/event cave with multiple resource exits.
 
+## Phase 37: Large-region streaming and ecological population (active)
+
+- [x] Reframe painted terrain as authored chunks inside a 12000x8000 regional travel space, rather than treating one background image as a whole map.
+- [x] Add an extensible large-region base with roads, waterways, landform clusters and far landmarks behind future art chunks.
+- [x] Add region-specific, non-uniform dynamic population clusters for suitable biomes and travel routes.
+- [x] Add the sixth-layer Red Maple Road entrance, independent trade/escort/event routes and runtime coverage.
+- [ ] Add a streaming controller that loads and unloads high-detail terrain chunks around the player while preserving dynamic population state.
+- [ ] Convert hostile ecological entries into active on-map combat encounters, with safe avoidance and respawn rules.
+
 ## Phase 36: Qi Refining fifth-layer non-linear cave (active)
 
 - [x] Generate and integrate a separate 雾潮石窟 terrain plate.
