@@ -1,8 +1,13 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/abysswatch_terrace.tscn" id="1_base"]
 [ext_resource type="Script" path="res://src/world/ancient_ridge.gd" id="2_scene"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/ancient_ridge/terrain/ancient_ridge_earthfire_ruins_v01.png" id="3_ground"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/ancient_ridge/terrain/ancient_ridge_battlefield_pass_v01.png" id="4_pass"]
+[ext_resource type="Script" path="res://src/world/world_interaction.gd" id="5_interaction"]
+
+[sub_resource type="CircleShape2D" id="EarthfireGateShape"]
+radius = 118.0
 
 [node name="AncientRidge" instance=ExtResource("1_base")]
 script = ExtResource("2_scene")
@@ -12,6 +17,37 @@ region_style = "ancient_ridge"
 
 [node name="Terrain" parent="." index="1"]
 texture = ExtResource("3_ground")
+
+[node name="BattlefieldPassChunk" type="Sprite2D" parent="."]
+texture = ExtResource("4_pass")
+position = Vector2(3072, 0)
+scale = Vector2(2, 2)
+centered = false
+z_index = -10
+
+[node name="EarthfireCave" type="Node2D" parent="."]
+position = Vector2(5750, 430)
+
+[node name="Name" type="Label" parent="EarthfireCave"]
+offset_left = -150.0
+offset_top = -118.0
+offset_right = 150.0
+offset_bottom = -88.0
+theme_override_colors/font_color = Color(1, 0.72, 0.40, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.03, 0.02, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "地火洞 · 固定副本入口"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="EarthfireCave"]
+script = ExtResource("5_interaction")
+interaction_id = "earthfire_cave"
+prompt_text = "踏入地火洞，挑战地火灵兽"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EarthfireCave/Interaction"]
+position = Vector2(0, -42)
+shape = SubResource("EarthfireGateShape")
 
 [node name="Name" parent="TerraceExit" index="1"]
 text = "古脊关道 · 返回雾潮边境"

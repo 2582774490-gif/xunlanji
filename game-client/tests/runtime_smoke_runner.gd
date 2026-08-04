@@ -512,13 +512,19 @@ func _check_ancient_ridge() -> void:
 	_expect(ridge.player.map_bounds.size.x >= 11000.0, "Ancient Ridge did not reserve a large third-region world space.")
 	_expect(ridge.ridge_event.size() > 0, "Ancient Ridge did not choose a terrain-based opportunity.")
 	_expect(ridge.chunk_streamer.loaded_chunk_count() >= 1, "Ancient Ridge did not load its nearby authored earthfire terrain chunk.")
+	_expect(ridge.earthfire_cave_interaction != null, "Ancient Ridge is missing its physical Earthfire Cave fixed-dungeon entrance.")
 	ridge.active_interaction = ridge.relic_interaction
 	ridge._activate_contextual()
 	ridge.active_interaction = ridge.event_interaction
 	ridge._activate_contextual()
-	_expect(ridge.relic_examined and ridge.event_resolved, "Ancient Ridge did not resolve its independent ruin and random-opportunity routes.")
+	ridge.active_interaction = ridge.earthfire_cave_interaction
+	ridge._activate_contextual()
+	_expect(ridge.relic_examined and ridge.event_resolved and ridge.earthfire_cave_discovered, "Ancient Ridge did not resolve its ruin, random-opportunity and fixed-dungeon entrance routes.")
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Ancient Ridge should grant one optional terrain opportunity material.")
-	_expect(GameState.player.opportunity_log.size() == log_before + 2, "Ancient Ridge did not record both optional discoveries.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 3, "Ancient Ridge did not record both optional discoveries and its fixed dungeon entrance.")
+	ridge.player.position = Vector2(6800, 700)
+	await get_tree().process_frame
+	_expect(not ridge.get_node("Terrain").visible and ridge.get_node("BattlefieldPassChunk").visible, "Ancient Ridge did not stream from the first earthfire chunk into its connected battlefield pass chunk.")
 	ridge.queue_free()
 	await get_tree().process_frame
 	GameState.player.realm_index = realm_before
