@@ -13,6 +13,7 @@ const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
 @onready var hit_spark: Node = $CombatEffects/HitSpark
 @onready var ningxi_cast: Node = $CombatEffects/NingxiCast
 @onready var demon_water_blade: Node = $CombatEffects/DemonWaterBlade
+@onready var touch_controls: Node = $HUD/TouchControls
 @onready var skill_labels: Array[Label] = [
 	$HUD/SkillBar/Basic/Label,
 	$HUD/SkillBar/Ningxi/Label,
@@ -42,6 +43,7 @@ func _ready() -> void:
 	player_mana = player_max_mana
 	player.attack_started.connect(_on_player_attack_started)
 	player.attack_impact.connect(_on_player_attack)
+	touch_controls.action_requested.connect(_on_touch_action_requested)
 	boss.body_entered.connect(func(body: Node2D): near_boss = body == player; _refresh_prompt())
 	boss.body_exited.connect(func(body: Node2D): if body == player: near_boss = false; _refresh_prompt())
 	status.text = "雾溪水府：深入内池，击败水妖首领潮妃·兰纱。"
@@ -163,6 +165,15 @@ func _cast_spirit_nourish() -> void:
 	ningxi_cast.play_burst(player.position + Vector2(0, -62), Vector2.UP)
 	_refresh_player_mana()
 	status.text = "润灵诀回转经脉，恢复了灵力。"
+
+
+func _on_touch_action_requested(action_id: String) -> void:
+	match action_id:
+		"attack": player.call("trigger_basic_attack")
+		"ningxi": _cast_ningxi_sword_art()
+		"cloud_step": _cast_cloud_step()
+		"guard": _cast_lan_breath_guard()
+		"nourish": _cast_spirit_nourish()
 
 
 func _try_use_skill(index: int, cooldown: float) -> bool:

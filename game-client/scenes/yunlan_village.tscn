@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_village.gd" id="1_world"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/terrain/yunlan_village_center_ground_v01.png" id="2_ground"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/world/world_interaction.gd" id="8_interaction"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/props/processed_alpha/yunlan_village_alchemy_workshop_v01_alpha.png" id="9_alchemy"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/props/processed_alpha/mist_stream_water_palace_entrance_v01_alpha.png" id="10_water_palace"]
+[ext_resource type="Script" path="res://src/ui/virtual_touch_controls.gd" id="11_touch"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -154,3 +155,12 @@ offset_bottom = -90.0
 theme_override_colors/font_color = Color(1, 0.88, 0.58, 1)
 theme_override_font_sizes/font_size = 19
 horizontal_alignment = 1
+
+[node name="TouchControls" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("11_touch")

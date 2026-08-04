@@ -205,3 +205,5 @@
 - [x] Add skill-slot data and three additional launch-test skills before exposing the five-slot combat HUD.
 - [x] Add a runtime skill smoke test beyond scene-startup validation.
 - [ ] Replace the temporary keyboard test bar with mobile touch skill buttons and a virtual joystick input layer.
+- [x] Replace the temporary keyboard test bar with mobile touch skill buttons and a virtual joystick input layer.
+- [ ] Add touch-friendly interaction buttons for nearby NPCs, resources and scene transitions.

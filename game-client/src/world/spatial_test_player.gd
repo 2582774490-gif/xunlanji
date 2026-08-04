@@ -86,6 +86,11 @@ func _physics_process(delta: float) -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo() or event.keycode != KEY_J:
 		return
+	trigger_basic_attack()
+	get_viewport().set_input_as_handled()
+
+
+func trigger_basic_attack() -> void:
 	if _attack_lock_time_left > 0.0:
 		return
 	if weapon_motion:
@@ -96,7 +101,6 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	_attack_lock_time_left = 0.43
 	attack_started.emit(body.current_direction)
 	_emit_attack_impact(body.current_direction)
-	get_viewport().set_input_as_handled()
 
 
 func perform_dash(facing: Vector2, distance := 116.0) -> void:

@@ -155,3 +155,10 @@
 - Water Palace now presents five launch-test slots: Qinglan Sword basic attack, Ningxi Sword Art, Cloud Step, Lan Breath Guard and Spirit Nourish.
 - Cloud Step moves the player away from the current boss, Lan Breath Guard reduces the next Water Blade hit, and Spirit Nourish restores spirit power. Each uses the shared cost/cooldown path.
 - Added a runtime smoke test that proves the skill cast spends spirit power and damages the boss, Cloud Step moves, Guard activates, and Spirit Nourish restores spirit power.
+
+## 2026-08-04: Mobile touch-control foundation
+
+- Added a reusable virtual touch overlay: a left-hand analog joystick drives the same movement actions as keyboard controls, preserving one character controller for desktop and mobile.
+- Water Palace enables a right-hand radial action cluster for basic attack plus the four cultivation skills; its actions route into the existing skill dispatcher rather than duplicating combat rules.
+- South Gate and Yunlan Village now include the exploration joystick layer, while the dungeon adds the combat cluster.
+- Extended the runtime smoke test to simulate joystick press/release and verify the shared movement action is correctly asserted and cleared.

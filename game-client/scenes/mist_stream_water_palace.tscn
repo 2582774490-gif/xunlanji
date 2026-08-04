@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://src/world/mist_stream_water_palace.gd" id="1_scene"]
 [ext_resource type="Script" path="res://src/world/water_palace_map.gd" id="2_map"]
@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/effects/water_hit_spark/processed_alpha/water_hit_spark_4f_v01_alpha.png" id="12_spark"]
 [ext_resource type="Texture2D" path="res://assets/art/effects/ningxi_sword_art/processed_alpha/ningxi_sword_art_4f_v01_alpha.png" id="13_ningxi"]
 [ext_resource type="Texture2D" path="res://assets/art/effects/water_demon_blade/processed_alpha/water_demon_blade_4f_v01_alpha.png" id="14_water_blade"]
+[ext_resource type="Script" path="res://src/ui/virtual_touch_controls.gd" id="15_touch"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 22.0
@@ -304,3 +305,13 @@ grow_vertical = 0
 theme_override_colors/font_color = Color(1, 0.88, 0.58, 1)
 theme_override_font_sizes/font_size = 19
 horizontal_alignment = 1
+
+[node name="TouchControls" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("15_touch")
+combat_enabled = true
