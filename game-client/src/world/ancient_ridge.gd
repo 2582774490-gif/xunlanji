@@ -1,6 +1,8 @@
 class_name AncientRidge
 extends Node2D
 
+const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
+
 const RIDGE_EVENTS := [
 	{"name": "地火余温", "item": "赤焰精金", "cultivation": 22, "description": "地火裂缝退去后，岩层露出可炼器的精金。"},
 	{"name": "残阵兵魄", "item": "古战印", "cultivation": 19, "description": "古战场残阵还保留着一段行军与布阵之法。"},
@@ -31,6 +33,7 @@ func _ready() -> void:
 	GameState.current_region_id = "ancient_ridge"
 	player.map_bounds = Rect2(70, 70, 11860, 7860)
 	player.position = Vector2(460, 1660)
+	_setup_world_minimap()
 	chunk_streamer.configure(player, [
 		{"id": "ancient_ridge_earthfire", "node": $Terrain, "bounds": Rect2(0, 0, 3072, 2048)},
 		{"id": "ancient_ridge_battlefield_pass", "node": $BattlefieldPassChunk, "bounds": Rect2(3072, 0, 3072, 2048)},
@@ -51,6 +54,21 @@ func _ready() -> void:
 	regional_population.populate(_population_seed(), _population_profiles())
 	world_encounter.configure(player, regional_population, status, $HUD/EncounterTarget, $HUD/EncounterPlayer)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
+
+
+func _setup_world_minimap() -> void:
+	var minimap: WorldMinimap = WorldMinimapScript.new()
+	minimap.name = "WorldMinimap"
+	$HUD.add_child(minimap)
+	minimap.configure_region(player, player.map_bounds, "古脊岭", [
+		{"position": Vector2(460, 1660), "kind": "gate"},
+		{"position": Vector2(5750, 430), "kind": "dungeon"},
+		{"position": Vector2(7320, 350), "kind": "relic"},
+		{"position": Vector2(7480, 960), "kind": "relic"},
+	], [
+		PackedVector2Array([Vector2(460, 1660), Vector2(2600, 1220), Vector2(5750, 430)]),
+		PackedVector2Array([Vector2(5750, 430), Vector2(6800, 620), Vector2(7320, 350), Vector2(7840, 920)]),
+	])
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():

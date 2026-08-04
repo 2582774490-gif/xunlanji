@@ -358,6 +358,9 @@ func _check_mist_border_scene() -> void:
 	_expect(border.abysswatch_gate_interaction != null, "Mist Tide Border is missing the Qi Refining ninth-layer Abysswatch Terrace entrance.")
 	_expect(border.ancient_ridge_gate_interaction != null, "Mist Tide Border is missing the Yuan Infant Ancient Ridge entrance.")
 	_expect(border.player.map_bounds.size.x >= 11000.0, "Mist Tide Border still behaves like a single small background instead of a large region.")
+	_expect(border.has_node("HUD/WorldMinimap"), "Mist Tide Border is missing its regional orientation map.")
+	var border_minimap: WorldMinimap = border.get_node("HUD/WorldMinimap")
+	_expect(border_minimap.world_bounds.size.x >= 11000.0 and border_minimap.landmarks.size() >= 6, "Mist Tide Border minimap does not represent the large region and its fixed landmarks.")
 	_expect(border.chunk_streamer.loaded_chunk_count() >= 1, "Mist Tide Border did not load its nearby high-detail terrain chunk.")
 	_expect(border.has_node("HerbWetlandChunk"), "Mist Tide Border is missing the continuous herb wetland terrain chunk.")
 	var ecology_profiles: Array[Dictionary] = border._population_profiles()
@@ -369,6 +372,7 @@ func _check_mist_border_scene() -> void:
 	var border_player_start: Vector2 = border.player.position
 	border.player.position = Vector2(11200, 7200)
 	await get_tree().process_frame
+	_expect(border_minimap.player_map_position().x > 200.0 and border_minimap.player_map_position().y > 130.0, "Mist Tide Border minimap did not follow the player across the full regional bounds.")
 	_expect(not border.get_node("Terrain").visible, "The terrain chunk streamer did not unload far-away high-detail art.")
 	_expect(not border.get_node("HerbWetlandChunk").visible, "The terrain chunk streamer did not unload distant wetland art.")
 	border.player.position = border_player_start
@@ -771,6 +775,9 @@ func _check_ancient_ridge() -> void:
 	add_child(ridge)
 	await get_tree().process_frame
 	_expect(ridge.player.map_bounds.size.x >= 11000.0, "Ancient Ridge did not reserve a large third-region world space.")
+	_expect(ridge.has_node("HUD/WorldMinimap"), "Ancient Ridge is missing its regional orientation map.")
+	var ridge_minimap: WorldMinimap = ridge.get_node("HUD/WorldMinimap")
+	_expect(ridge_minimap.world_bounds.size.x >= 11000.0 and ridge_minimap.landmarks.size() >= 4, "Ancient Ridge minimap does not represent its large terrain and fixed routes.")
 	_expect(ridge.ridge_event.size() > 0, "Ancient Ridge did not choose a terrain-based opportunity.")
 	_expect(ridge.chunk_streamer.loaded_chunk_count() >= 1, "Ancient Ridge did not load its nearby authored earthfire terrain chunk.")
 	_expect(ridge.earthfire_cave_interaction != null, "Ancient Ridge is missing its physical Earthfire Cave fixed-dungeon entrance.")

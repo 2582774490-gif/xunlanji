@@ -1,6 +1,8 @@
 class_name MistTideBorder
 extends Node2D
 
+const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
+
 @onready var player: CharacterBody2D = $Player
 @onready var return_interaction: Area2D = $RuinedCheckpoint/Interaction
 @onready var scout_interaction: Area2D = $BorderScoutLiuShuo/Interaction
@@ -31,6 +33,7 @@ func _ready() -> void:
 	# continuous region. Future chunks attach to the same 12 km x 8 km space.
 	player.map_bounds = Rect2(80, 80, 11840, 7840)
 	player.position = Vector2(520, 1570)
+	_setup_world_minimap()
 	chunk_streamer.configure(player, [
 		{"id": "border_checkpoint", "node": $Terrain, "bounds": Rect2(0, 0, 3072, 2048)},
 		{"id": "waterway_ore_flats", "node": $WaterwayOreFlatsChunk, "bounds": Rect2(3072, 0, 3072, 2048)},
@@ -67,6 +70,25 @@ func _ready() -> void:
 	regional_population.populate(_population_seed(), _population_profiles())
 	world_encounter.configure(player, regional_population, status, $HUD/EncounterTarget, $HUD/EncounterPlayer)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
+
+
+func _setup_world_minimap() -> void:
+	var minimap: WorldMinimap = WorldMinimapScript.new()
+	minimap.name = "WorldMinimap"
+	$HUD.add_child(minimap)
+	minimap.configure_region(player, player.map_bounds, "雾潮边境", [
+		{"position": Vector2(760, 1100), "kind": "gate"},
+		{"position": Vector2(1600, 460), "kind": "dungeon"},
+		{"position": Vector2(2260, 560), "kind": "water"},
+		{"position": Vector2(2860, 650), "kind": "gate"},
+		{"position": Vector2(6980, 1370), "kind": "resource"},
+		{"position": Vector2(2640, 1370), "kind": "gate"},
+		{"position": Vector2(2940, 900), "kind": "gate"},
+	], [
+		PackedVector2Array([Vector2(520, 1570), Vector2(1380, 1040), Vector2(2260, 560), Vector2(2860, 650)]),
+		PackedVector2Array([Vector2(760, 1100), Vector2(1600, 840), Vector2(2640, 1370), Vector2(2940, 900)]),
+		PackedVector2Array([Vector2(2940, 900), Vector2(5000, 1060), Vector2(6980, 1370), Vector2(8170, 760)]),
+	])
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
