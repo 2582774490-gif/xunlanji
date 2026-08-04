@@ -14,6 +14,7 @@ func _run() -> void:
 	await _check_mist_bone_creek()
 	await _check_mist_forest_grove()
 	await _check_sunken_vessel_manor()
+	await _check_mist_tide_stone_grotto()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
 		get_tree().quit(0)
@@ -101,6 +102,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.scout_interaction != null, "Mist Tide Border is missing its first border-scout NPC route.")
 	_expect(border.creek_gate_interaction != null, "Mist Tide Border is missing the Qi Refining third-layer creek entrance.")
 	_expect(border.vessel_gate_interaction != null, "Mist Tide Border is missing the Qi Refining fourth-layer vessel entrance.")
+	_expect(border.grotto_gate_interaction != null, "Mist Tide Border is missing the Qi Refining fifth-layer grotto entrance.")
 	var realm_before: int = GameState.player.realm_index
 	var stage_before: int = GameState.player.minor_stage
 	GameState.player.realm_index = 0
@@ -114,6 +116,9 @@ func _check_mist_border_scene() -> void:
 	_expect(not border.can_enter_sunken_vessel(), "Sunken Vessel Manor should wait until fourth-layer Qi Refining.")
 	GameState.player.minor_stage = 4
 	_expect(border.can_enter_sunken_vessel(), "Sunken Vessel Manor should open at fourth-layer Qi Refining.")
+	_expect(not border.can_enter_mist_tide_grotto(), "Mist Tide Stone Grotto should wait until fifth-layer Qi Refining.")
+	GameState.player.minor_stage = 5
+	_expect(border.can_enter_mist_tide_grotto(), "Mist Tide Stone Grotto should open at fifth-layer Qi Refining.")
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 	border.active_interaction = border.scout_interaction
@@ -194,6 +199,32 @@ func _check_sunken_vessel_manor() -> void:
 	_expect(GameState.player.inventory.has("沉舟航图残页") and GameState.player.inventory.size() >= inventory_before + 2, "Sunken Vessel clear did not grant a random drop plus the navigation clue.")
 	_expect(GameState.player.dungeon_runs.size() == runs_before + 1, "Sunken Vessel clear did not record its separate dungeon run.")
 	manor.queue_free()
+	await get_tree().process_frame
+	GameState.player.realm_index = realm_before
+	GameState.player.minor_stage = stage_before
+
+func _check_mist_tide_stone_grotto() -> void:
+	var realm_before: int = GameState.player.realm_index
+	var stage_before: int = GameState.player.minor_stage
+	var inventory_before: int = GameState.player.inventory.size()
+	var log_before: int = GameState.player.opportunity_log.size()
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 5
+	var grotto := preload("res://scenes/mist_tide_stone_grotto.tscn").instantiate()
+	add_child(grotto)
+	await get_tree().process_frame
+	_expect(grotto.player.map_bounds.size.x >= 2900.0, "Mist Tide Stone Grotto did not create a broad independent cave map.")
+	_expect(grotto.chosen_tide_event.size() > 0, "Mist Tide Stone Grotto did not select a tide event.")
+	grotto.active_interaction = grotto.mineral_interaction
+	grotto._activate_contextual()
+	grotto.active_interaction = grotto.tide_interaction
+	grotto._activate_contextual()
+	grotto.active_interaction = grotto.tunnel_interaction
+	grotto._activate_contextual()
+	_expect(grotto.mineral_collected and grotto.tide_resolved and grotto.tunnel_searched, "Mist Tide Stone Grotto did not resolve all independent routes.")
+	_expect(GameState.player.inventory.size() == inventory_before + 3, "Mist Tide Stone Grotto should grant one result from each optional route.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 3, "Mist Tide Stone Grotto did not record all three open-world discoveries.")
+	grotto.queue_free()
 	await get_tree().process_frame
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before

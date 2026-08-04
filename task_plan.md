@@ -256,3 +256,10 @@
 - [x] Add a natural visible gate in Mist Tide Border, locked only by 炼气四层 rather than a quest state.
 - [x] Add independent boss combat, rewards, settlement and runtime smoke coverage.
 - [ ] Build the 炼气五层雾潮石窟 as a non-linear gathering/event cave with multiple resource exits.
+
+## Phase 36: Qi Refining fifth-layer non-linear cave (active)
+
+- [x] Generate and integrate a separate 雾潮石窟 terrain plate.
+- [x] Create three independent optional routes: mineral gathering, a random tide event and collapsed-tunnel discovery.
+- [x] Add a visible 炼气五层 gate in Mist Tide Border and runtime checks for entry and all routes.
+- [ ] Build 炼气六层赤枫古道 as a regional event / trading-route encounter space.

@@ -223,3 +223,9 @@
 - Generated and integrated a separate submerged-vessel combat terrain plate plus an alpha-cleaned boss asset, 沉舷残灵·鸣濯. The player, boss, weapon and effects remain layered runtime nodes rather than being painted into the map.
 - Reused the established five-slot hand-operated combat framework but gave the boss an independent 220 HP balance, 1.95-second anchor-shadow attack loop, separate settlement copy and independent drop table.
 - A clear always grants 沉舟航图残页 in addition to a random material drop, deliberately creating a future open-world navigation/trade clue instead of an automatic next quest.
+
+## 2026-08-05: Qi Refining fifth-layer Mist Tide Stone Grotto
+
+- Added 雾潮石窟 as a separate fifth-layer exploration cave with a three-route layout: left mineral shelf, middle random tide event and right collapsed tunnel. Each is optional and can be resolved in any order.
+- The cave has an independent terrain plate, player movement space, contextual mobile/keyboard interactions and a physical entrance in Mist Tide Border that becomes accessible at 炼气五层 without any task flag.
+- The three routes grant different material/event outcomes and separately record discoveries, establishing a repeatable non-linear gathering/event loop distinct from the boss-focused Mist Forest and Sunken Vessel Manor.

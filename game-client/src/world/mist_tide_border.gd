@@ -8,6 +8,7 @@ extends Node2D
 @onready var forest_gate_interaction: Area2D = $MistForestGate/Interaction
 @onready var creek_gate_interaction: Area2D = $MistBoneCreekGate/Interaction
 @onready var vessel_gate_interaction: Area2D = $SunkenVesselGate/Interaction
+@onready var grotto_gate_interaction: Area2D = $MistTideGrottoGate/Interaction
 @onready var prompt: Label = $HUD/Prompt
 @onready var status: Label = $HUD/StatusPanel/Status
 @onready var touch_controls: Node = $HUD/TouchControls
@@ -33,6 +34,8 @@ func _ready() -> void:
 	creek_gate_interaction.unfocused.connect(_unfocus_interaction)
 	vessel_gate_interaction.focused.connect(_focus_interaction)
 	vessel_gate_interaction.unfocused.connect(_unfocus_interaction)
+	grotto_gate_interaction.focused.connect(_focus_interaction)
+	grotto_gate_interaction.unfocused.connect(_unfocus_interaction)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -72,6 +75,8 @@ func _activate_contextual() -> void:
 		_try_enter_mist_bone_creek()
 	elif active_interaction == vessel_gate_interaction:
 		_try_enter_sunken_vessel()
+	elif active_interaction == grotto_gate_interaction:
+		_try_enter_mist_tide_grotto()
 
 func can_enter_mist_forest() -> bool:
 	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 2
@@ -81,6 +86,9 @@ func can_enter_mist_bone_creek() -> bool:
 
 func can_enter_sunken_vessel() -> bool:
 	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 4
+
+func can_enter_mist_tide_grotto() -> bool:
+	return GameState.player.realm_index >= 1 or GameState.player.minor_stage >= 5
 
 func _talk_to_scout() -> void:
 	if scout_dialogue_stage == 0:
@@ -120,6 +128,13 @@ func _try_enter_sunken_vessel() -> void:
 		return
 	GameState.selected_dungeon_id = "sunken_boat"
 	get_tree().change_scene_to_file("res://scenes/sunken_vessel_manor.tscn")
+
+func _try_enter_mist_tide_grotto() -> void:
+	if not can_enter_mist_tide_grotto():
+		status.text = "雾潮石窟的三条支路要到炼气五层才会稳定。它没有任务门槛；你可用任意修行、交易或探索方式准备后再来。"
+		return
+	GameState.selected_dungeon_id = "sealed_grotto"
+	get_tree().change_scene_to_file("res://scenes/mist_tide_stone_grotto.tscn")
 
 func _return_to_village() -> void:
 	GameState.current_region_id = "starter_village"

@@ -35,6 +35,9 @@ radius = 120.0
 [sub_resource type="CircleShape2D" id="VesselGateInteractionShape"]
 radius = 120.0
 
+[sub_resource type="CircleShape2D" id="GrottoGateInteractionShape"]
+radius = 120.0
+
 [node name="MistTideBorder" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_scene")
@@ -225,6 +228,37 @@ prompt_text = "进入沉舷遗府（炼气四层）"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SunkenVesselGate/Interaction"]
 position = Vector2(0, -98)
 shape = SubResource("VesselGateInteractionShape")
+
+[node name="MistTideGrottoGate" type="Node2D" parent="."]
+position = Vector2(980, 490)
+
+[node name="Art" type="Sprite2D" parent="MistTideGrottoGate"]
+texture = ExtResource("13_creek_gate")
+scale = Vector2(0.15, 0.15)
+centered = false
+offset = Vector2(-627, -1254)
+modulate = Color(0.69, 0.94, 0.83, 1)
+
+[node name="Name" type="Label" parent="MistTideGrottoGate"]
+offset_left = -136.0
+offset_top = -210.0
+offset_right = 136.0
+offset_bottom = -184.0
+theme_override_colors/font_color = Color(0.72, 0.96, 0.84, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "雾潮石窟 · 炼气五层"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="MistTideGrottoGate"]
+script = ExtResource("8_interaction")
+interaction_id = "mist_tide_grotto"
+prompt_text = "踏入雾潮石窟（炼气五层）"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MistTideGrottoGate/Interaction"]
+position = Vector2(0, -94)
+shape = SubResource("GrottoGateInteractionShape")
 
 [node name="MistPinesWest" type="Node2D" parent="."]
 position = Vector2(400, 760)
