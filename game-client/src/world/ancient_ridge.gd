@@ -103,10 +103,14 @@ func _resolve_event() -> void:
 
 func _enter_earthfire_cave() -> void:
 	GameState.selected_dungeon_id = "earth_fire"
+	_discover_earthfire_cave()
+	get_tree().change_scene_to_file("res://scenes/earthfire_cave.tscn")
+
+func _discover_earthfire_cave() -> void:
 	if not earthfire_cave_discovered:
 		earthfire_cave_discovered = true
 		GameState.record_opportunity({"region": "ancient_ridge", "name": "地火洞", "kind": "fixed_dungeon_entrance"})
-		status.text = "地火洞已被记录为固定副本入口。当前原型会转入副本战斗面板；后续将把洞内多区块、首领与掉落结算放在这条真实入口之后。"
+		status.text = "地火洞已被记录为固定副本入口，正在进入地火灵兽的洞外战场。"
 	else:
 		status.text = "地火洞仍在前方。它是古脊岭内的固定副本入口，不会因随机机缘刷新而消失。"
 	_close_interaction()

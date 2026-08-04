@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/mist_forest_grove.tscn" id="1_base"]
+[ext_resource type="Script" path="res://src/world/earthfire_cave.gd" id="2_scene"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/ancient_ridge/terrain/ancient_ridge_battlefield_pass_v01.png" id="3_map"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/earthfire_spirit_beast/processed_alpha/earthfire_spirit_beast_v01_alpha.png" id="4_boss"]
+
+[node name="EarthfireCave" instance=ExtResource("1_base")]
+script = ExtResource("2_scene")
+
+[node name="WaterPalaceBaseArt" parent="." index="1"]
+texture = ExtResource("3_map")
+
+[node name="Boss" parent="." index="2"]
+position = Vector2(1900, 450)
+
+[node name="Sprite" parent="Boss" index="0"]
+texture = ExtResource("4_boss")
+scale = Vector2(0.32, 0.32)
+position = Vector2(0, -170)
+
+[node name="Title" parent="HUD" index="0"]
+text = "地火洞 · 元婴固定副本"
+
+[node name="BossHP" parent="HUD/BossPanel" index="0"]
+theme_override_colors/font_color = Color(1, 0.68, 0.40, 1)

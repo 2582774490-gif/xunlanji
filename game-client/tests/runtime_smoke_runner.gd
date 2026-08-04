@@ -25,6 +25,7 @@ func _run() -> void:
 	await _check_return_abyss_mist_port()
 	await _check_abysswatch_terrace()
 	await _check_ancient_ridge()
+	await _check_earthfire_cave()
 	await _check_world_menu_region_resume()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
@@ -517,8 +518,7 @@ func _check_ancient_ridge() -> void:
 	ridge._activate_contextual()
 	ridge.active_interaction = ridge.event_interaction
 	ridge._activate_contextual()
-	ridge.active_interaction = ridge.earthfire_cave_interaction
-	ridge._activate_contextual()
+	ridge._discover_earthfire_cave()
 	_expect(ridge.relic_examined and ridge.event_resolved and ridge.earthfire_cave_discovered, "Ancient Ridge did not resolve its ruin, random-opportunity and fixed-dungeon entrance routes.")
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Ancient Ridge should grant one optional terrain opportunity material.")
 	_expect(GameState.player.opportunity_log.size() == log_before + 3, "Ancient Ridge did not record both optional discoveries and its fixed dungeon entrance.")
@@ -526,6 +526,32 @@ func _check_ancient_ridge() -> void:
 	await get_tree().process_frame
 	_expect(not ridge.get_node("Terrain").visible and ridge.get_node("BattlefieldPassChunk").visible, "Ancient Ridge did not stream from the first earthfire chunk into its connected battlefield pass chunk.")
 	ridge.queue_free()
+	await get_tree().process_frame
+	GameState.player.realm_index = realm_before
+	GameState.player.minor_stage = stage_before
+
+func _check_earthfire_cave() -> void:
+	var realm_before: int = GameState.player.realm_index
+	var stage_before: int = GameState.player.minor_stage
+	var inventory_before: int = GameState.player.inventory.size()
+	var runs_before: int = GameState.player.dungeon_runs.size()
+	GameState.player.realm_index = 3
+	GameState.player.minor_stage = 1
+	var cave := preload("res://scenes/earthfire_cave.tscn").instantiate()
+	add_child(cave)
+	await get_tree().process_frame
+	_expect(cave.boss_health == 260, "Earthfire Cave did not configure the Earthfire Spirit Beast as its fixed boss.")
+	_expect(cave.get_node("Boss/Sprite").texture != null, "Earthfire Cave did not render a dedicated boss asset.")
+	cave.near_boss = true
+	cave._cast_ningxi_sword_art()
+	await get_tree().create_timer(0.35).timeout
+	_expect(cave.boss_health < 260, "Earthfire Cave skill cast did not damage its boss.")
+	cave._defeat_boss()
+	await get_tree().process_frame
+	_expect(cave.clear_panel.visible, "Earthfire Cave clear did not show a settlement panel.")
+	_expect(GameState.player.inventory.size() == inventory_before + 1, "Earthfire Cave clear did not grant one fixed-dungeon reward.")
+	_expect(GameState.player.dungeon_runs.size() == runs_before + 1, "Earthfire Cave clear did not record a dungeon run.")
+	cave.queue_free()
 	await get_tree().process_frame
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
