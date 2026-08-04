@@ -175,3 +175,9 @@
 - Added one independently rendered Mist-Stream relic prop and attached it to the South Gate as a Y-sorted world object with its own proximity area.
 - Each entry into the scene chooses one of three chance outcomes: a relic cache, a brief `岚息` insight, or a dew-material find. The visual is shared for this prototype, while the title, prompt, reward and log record vary.
 - The same keyboard/touch contextual interaction collects it, removes the scene node, grants item / spirit stones / cultivation as appropriate, and appends a structured entry to the player opportunity log.
+
+## 2026-08-04: Village sect route made physical
+
+- Generated and alpha-cleaned the independent NPC `宗门接引使·宁远`, then placed him as a feet-sorted scene actor rather than a UI-only entry.
+- The village now has four physical service/destination routes: 洛清的市集、炼丹工坊、宁远的宗门接引、水府入口；all use the same proximity prompt and mobile interaction button.
+- Talking to 宁远 opens the existing sect screen and records the freedom / consequences principle behind joining or leaving a sect.

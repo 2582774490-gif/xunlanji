@@ -2,16 +2,20 @@ extends Node2D
 
 @onready var merchant: Area2D = $MarketkeeperLuo/Interaction
 @onready var alchemy: Area2D = $AlchemyWorkshop/Interaction
+@onready var sect_envoy: Area2D = $SectEnvoyNingYuan/Interaction
 @onready var water_palace: Area2D = $WaterPalaceEntrance/Interaction
 @onready var prompt: Label = $HUD/Prompt
 @onready var touch_controls: Node = $HUD/TouchControls
+
 var active_interaction_id := ""
 
 func _ready() -> void:
-	merchant.focused.connect(func(_interaction): _set_context("merchant", "与云市掌柜 · 洛晴交易"))
+	merchant.focused.connect(func(_interaction): _set_context("merchant", "与云市掌柜·洛清交易"))
 	merchant.unfocused.connect(func(_interaction): _clear_context("merchant"))
 	alchemy.focused.connect(func(_interaction): _set_context("alchemy", "进入炼丹工坊"))
 	alchemy.unfocused.connect(func(_interaction): _clear_context("alchemy"))
+	sect_envoy.focused.connect(func(_interaction): _set_context("sect", "与宗门接引使·宁远交谈"))
+	sect_envoy.unfocused.connect(func(_interaction): _clear_context("sect"))
 	water_palace.focused.connect(func(_interaction): _set_context("water_palace", "进入雾溪水府（炼气副本）"))
 	water_palace.unfocused.connect(func(_interaction): _clear_context("water_palace"))
 	touch_controls.action_requested.connect(_on_touch_action_requested)
@@ -22,12 +26,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	elif event.is_pressed() and not event.is_echo() and event.keycode == KEY_E:
 		_activate_contextual()
 
-
 func _set_context(interaction_id: String, description: String) -> void:
 	active_interaction_id = interaction_id
 	prompt.text = "[E / 交互] %s" % description
 	touch_controls.set_interaction_available(true)
-
 
 func _clear_context(interaction_id: String) -> void:
 	if active_interaction_id != interaction_id:
@@ -36,11 +38,9 @@ func _clear_context(interaction_id: String) -> void:
 	prompt.text = ""
 	touch_controls.set_interaction_available(false)
 
-
 func _on_touch_action_requested(action_id: String) -> void:
 	if action_id == "interact":
 		_activate_contextual()
-
 
 func _activate_contextual() -> void:
 	match active_interaction_id:
@@ -49,6 +49,10 @@ func _activate_contextual() -> void:
 			get_tree().change_scene_to_file("res://scenes/main.tscn")
 		"alchemy":
 			GameState.enter_screen(GameState.Screen.ALCHEMY)
+			get_tree().change_scene_to_file("res://scenes/main.tscn")
+		"sect":
+			GameState.enter_screen(GameState.Screen.SECT)
+			GameState.notify("宁远：可自由选择宗门，但门规、贡献与离宗后果也会随选择而来。")
 			get_tree().change_scene_to_file("res://scenes/main.tscn")
 		"water_palace":
 			GameState.selected_dungeon_id = "mist_stream_palace"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_village.gd" id="1_world"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/terrain/yunlan_village_center_ground_v01.png" id="2_ground"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/props/processed_alpha/yunlan_village_alchemy_workshop_v01_alpha.png" id="9_alchemy"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/props/processed_alpha/mist_stream_water_palace_entrance_v01_alpha.png" id="10_water_palace"]
 [ext_resource type="Script" path="res://src/ui/virtual_touch_controls.gd" id="11_touch"]
+[ext_resource type="Texture2D" path="res://assets/art/npcs/sect_envoy_ningyuan/processed_alpha/sect_envoy_ningyuan_idle_v01_alpha.png" id="12_sect_envoy"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -23,6 +24,9 @@ radius = 100.0
 
 [sub_resource type="CircleShape2D" id="WaterPalaceRange"]
 radius = 110.0
+
+[sub_resource type="CircleShape2D" id="SectEnvoyRange"]
+radius = 92.0
 
 [node name="YunlanVillage" type="Node2D"]
 y_sort_enabled = true
@@ -89,6 +93,36 @@ prompt_text = "进入炼丹工坊"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AlchemyWorkshop/Interaction"]
 position = Vector2(0, -120)
 shape = SubResource("AlchemyRange")
+
+[node name="SectEnvoyNingYuan" type="Node2D" parent="."]
+position = Vector2(1060, 730)
+
+[node name="Art" type="Sprite2D" parent="SectEnvoyNingYuan"]
+texture = ExtResource("12_sect_envoy")
+scale = Vector2(0.19, 0.19)
+centered = false
+offset = Vector2(-512, -768)
+
+[node name="Name" type="Label" parent="SectEnvoyNingYuan"]
+offset_left = -104.0
+offset_top = -264.0
+offset_right = 104.0
+offset_bottom = -238.0
+theme_override_colors/font_color = Color(0.72, 0.92, 0.84, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "宗门接引使 · 宁远"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="SectEnvoyNingYuan"]
+script = ExtResource("8_interaction")
+interaction_id = "sect_envoy"
+prompt_text = "与宗门接引使 · 宁远交谈"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SectEnvoyNingYuan/Interaction"]
+position = Vector2(0, -88)
+shape = SubResource("SectEnvoyRange")
 
 [node name="WaterPalaceEntrance" type="Node2D" parent="."]
 position = Vector2(1530, 460)
