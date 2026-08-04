@@ -280,6 +280,8 @@ func _show_market() -> void:
 		var listing: Dictionary = GameState.local_market_listings[index]
 		_text("%s｜%s｜价格 %d 金" % [listing.name, listing.type, listing.price], 18)
 		_buttons([["购买", func(): _buy_market_listing(index), 130, GameState.player.gold < listing.price]])
+		if str(listing.seller) == "本地修士":
+			_buttons([["撤回上架", func(): _cancel_market_listing(index), 130]])
 	_buttons([["上架行囊首件物品（20 金）", _list_first_inventory_item, 280]])
 
 func _show_alchemy() -> void:
@@ -444,6 +446,10 @@ func _list_first_inventory_item() -> void:
 		GameState.notify("行囊为空，无法上架。")
 		return
 	GameState.list_item_for_market(str(GameState.player.inventory[0]), 20)
+	_render()
+
+func _cancel_market_listing(index: int) -> void:
+	GameState.cancel_market_listing(index)
 	_render()
 
 func _restart_pvp() -> void:

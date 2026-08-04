@@ -96,6 +96,19 @@ func buy_market_listing(index: int) -> bool:
 	profile_changed.emit()
 	return true
 
+func cancel_market_listing(index: int) -> bool:
+	if index < 0 or index >= local_market_listings.size():
+		return false
+	var listing: Dictionary = local_market_listings[index]
+	if str(listing.seller) != "本地修士":
+		notify("只能撤回自己上架的物品。")
+		return false
+	local_market_listings.remove_at(index)
+	add_item(str(listing.name))
+	notify("已撤回 %s；已收取的上架手续费不返还。" % listing.name)
+	profile_changed.emit()
+	return true
+
 func update_character(gender: String, face: int, hair: int) -> void:
 	player.gender = gender
 	player.face = face
