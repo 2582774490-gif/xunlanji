@@ -441,6 +441,24 @@ func equip_weapon(item_name: String) -> void:
 	notify("已装备：%s｜战斗倾向：%s。专属动作与特效仍按武器卡逐把制作。" % [item_name, profile.trait])
 	profile_changed.emit()
 
+func equip_next_runtime_weapon() -> bool:
+	# The quick switch only cycles weapons that have an approved runtime profile.
+	# Other launch families stay in the bag until their own art and controller
+	# exist, instead of receiving a misleading sword or umbrella substitution.
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var available: Array[String] = []
+	for item_name in player.inventory:
+		if not catalog.weapon_runtime_profile_for_item(str(item_name)).is_empty() and not available.has(str(item_name)):
+			available.append(str(item_name))
+	if available.size() < 2:
+		notify("可即时切换的专属武器不足两把；未制作运行时素材的器型不会被替代显示。")
+		return false
+	var current_index := available.find(str(player.equipped_weapon))
+	var next_index := (current_index + 1) % available.size() if current_index >= 0 else 0
+	equip_weapon(available[next_index])
+	notify("无冷却切换：%s。" % available[next_index])
+	return true
+
 func equip_artifact(item_name: String) -> void:
 	if not player.inventory.has(item_name):
 		notify("行囊中没有 %s，不能装备。" % item_name)

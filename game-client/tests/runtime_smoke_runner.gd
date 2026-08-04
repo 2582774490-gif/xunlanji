@@ -14,6 +14,7 @@ func _run() -> void:
 	await _check_weapon_combat_profiles()
 	await _check_weapon_render_slot()
 	await _check_umbrella_render_slot()
+	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
@@ -190,6 +191,23 @@ func _check_umbrella_render_slot() -> void:
 	_expect(port.player.weapon_motion is UmbrellaMotionController, "Huiyun Umbrella did not use its dedicated defensive motion controller.")
 	var umbrella_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
 	_expect(umbrella_sprite.texture != null, "Equipped Huiyun Umbrella render slot has no umbrella texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_runtime_weapon_quick_switch() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["青篁练气剑", "回云练气伞"]
+	GameState.equip_weapon("青篁练气剑")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.weapon_motion is WeaponMotionController and not (port.player.weapon_motion is UmbrellaMotionController), "Quick-switch setup did not render the sword motion layer.")
+	_expect(GameState.equip_next_runtime_weapon(), "Runtime weapon switch should succeed when two approved weapon assets are carried.")
+	await get_tree().process_frame
+	_expect(GameState.player.equipped_weapon == "回云练气伞", "Runtime weapon switch did not select the next carried weapon.")
+	_expect(port.player.weapon_motion is UmbrellaMotionController, "Runtime weapon switch did not replace the sword motion layer with the umbrella controller.")
 	port.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

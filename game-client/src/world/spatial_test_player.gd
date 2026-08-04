@@ -33,6 +33,8 @@ var _moving := false
 var _elapsed := 0.0
 var _attack_visual_time_left := 0.0
 var _attack_lock_time_left := 0.0
+var _rendered_weapon_name := ""
+var _rendered_artifact_name := ""
 
 func _ready() -> void:
 	var idle_sheet := FEMALE_IDLE_SHEET if GameState.player.gender == "女" else IDLE_SHEET
@@ -64,8 +66,33 @@ func _ready() -> void:
 		"attack_south": {"frames": [0, 1, 2, 3, 4, 5], "fps": 14.0, "loop": false},
 	})
 	body.play_action("idle", "south")
-	_configure_equipped_weapon_visual()
-	_configure_equipped_artifact_visual()
+	GameState.profile_changed.connect(_sync_equipment_layers)
+	_sync_equipment_layers()
+
+func _exit_tree() -> void:
+	if GameState.profile_changed.is_connected(_sync_equipment_layers):
+		GameState.profile_changed.disconnect(_sync_equipment_layers)
+
+func _sync_equipment_layers() -> void:
+	var desired_weapon := str(GameState.player.get("equipped_weapon", ""))
+	if desired_weapon != _rendered_weapon_name:
+		_remove_runtime_layer("WeaponPivot")
+		weapon_motion = null
+		_rendered_weapon_name = desired_weapon
+		_configure_equipped_weapon_visual()
+	var desired_artifact := str(GameState.player.get("equipped_artifact", ""))
+	if desired_artifact != _rendered_artifact_name:
+		_remove_runtime_layer("ArtifactPivot")
+		artifact_motion = null
+		_rendered_artifact_name = desired_artifact
+		_configure_equipped_artifact_visual()
+
+func _remove_runtime_layer(node_name: String) -> void:
+	var layer := get_node_or_null(NodePath(node_name))
+	if layer == null:
+		return
+	remove_child(layer)
+	layer.queue_free()
 
 func _configure_equipped_weapon_visual() -> void:
 	# Each equipped weapon is a runtime child of the player, never part of the
@@ -138,7 +165,13 @@ func _physics_process(delta: float) -> void:
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
-	if not event.is_pressed() or event.is_echo() or event.keycode != KEY_J:
+	if not event.is_pressed() or event.is_echo():
+		return
+	if event.keycode == KEY_Q:
+		GameState.equip_next_runtime_weapon()
+		get_viewport().set_input_as_handled()
+		return
+	if event.keycode != KEY_J:
 		return
 	trigger_basic_attack()
 	get_viewport().set_input_as_handled()

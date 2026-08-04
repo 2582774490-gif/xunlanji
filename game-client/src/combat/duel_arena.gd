@@ -26,7 +26,7 @@ func _ready() -> void:
 	opponent.attack_landed.connect(_on_opponent_attack)
 	opponent.defeated.connect(_on_opponent_defeated)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
-	status.text = "本地论剑原型：左侧摇杆/方向键移动，右侧攻击键或 J 出招。胜负只在本地结算；联网房间与服务端权威尚未接入。"
+	status.text = "本地论剑原型：左侧摇杆/方向键移动，右侧攻击键或 J 出招；Q 可无冷却切换已制作专属素材的武器。胜负只在本地结算；联网房间与服务端权威尚未接入。"
 	_refresh_hud()
 
 
