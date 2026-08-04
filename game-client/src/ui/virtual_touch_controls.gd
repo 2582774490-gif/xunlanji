@@ -8,6 +8,7 @@ extends Control
 signal action_requested(action_id: String)
 
 @export var combat_enabled := false
+@export var interaction_enabled := true
 
 const JOYSTICK_RADIUS := 78.0
 const JOYSTICK_DEAD_ZONE := 0.18
@@ -17,6 +18,7 @@ const MOVEMENT_ACTIONS := ["ui_left", "ui_right", "ui_up", "ui_down"]
 var _move_touch_id := -999
 var _joystick_knob := Vector2.ZERO
 var _mouse_dragging := false
+var _interaction_available := false
 
 
 func _ready() -> void:
@@ -52,7 +54,7 @@ func _handle_touch(touch_id: int, touch_position: Vector2, pressed: bool) -> voi
 			_move_touch_id = touch_id
 			_update_joystick(touch_position)
 			return
-		if combat_enabled:
+		if combat_enabled or _interaction_available:
 			var action_id := _action_at(touch_position)
 			if not action_id.is_empty():
 				action_requested.emit(action_id)
@@ -93,20 +95,27 @@ func _joystick_center() -> Vector2:
 
 
 func _button_data() -> Array[Dictionary]:
-	if not combat_enabled:
-		return []
 	var x := size.x - 100.0
 	var y := size.y - 114.0
-	var buttons: Array[Dictionary] = [
-		{"id": "attack", "label": "攻", "position": Vector2(x, y)},
-	]
-	buttons.append_array([
-		{"id": "ningxi", "label": "诀", "position": Vector2(x - 88.0, y + 7.0)},
-		{"id": "cloud_step", "label": "步", "position": Vector2(x - 34.0, y - 82.0)},
-		{"id": "guard", "label": "护", "position": Vector2(x - 120.0, y - 84.0)},
-		{"id": "nourish", "label": "灵", "position": Vector2(x - 192.0, y - 18.0)},
-	])
+	var buttons: Array[Dictionary] = []
+	if combat_enabled:
+		buttons.append_array([
+			{"id": "attack", "label": "攻", "position": Vector2(x, y)},
+			{"id": "ningxi", "label": "诀", "position": Vector2(x - 88.0, y + 7.0)},
+			{"id": "cloud_step", "label": "步", "position": Vector2(x - 34.0, y - 82.0)},
+			{"id": "guard", "label": "护", "position": Vector2(x - 120.0, y - 84.0)},
+			{"id": "nourish", "label": "灵", "position": Vector2(x - 192.0, y - 18.0)},
+		])
+	if interaction_enabled and _interaction_available:
+		buttons.append({"id": "interact", "label": "交", "position": Vector2(x, y - 4.0)})
 	return buttons
+
+
+func set_interaction_available(available: bool) -> void:
+	if _interaction_available == available:
+		return
+	_interaction_available = available
+	queue_redraw()
 
 
 func _action_at(touch_position: Vector2) -> String:

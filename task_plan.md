@@ -207,3 +207,5 @@
 - [ ] Replace the temporary keyboard test bar with mobile touch skill buttons and a virtual joystick input layer.
 - [x] Replace the temporary keyboard test bar with mobile touch skill buttons and a virtual joystick input layer.
 - [ ] Add touch-friendly interaction buttons for nearby NPCs, resources and scene transitions.
+- [x] Add touch-friendly interaction buttons for nearby NPCs, resources and scene transitions.
+- [ ] Add the first map-level random opportunity event that uses the same contextual interaction path.

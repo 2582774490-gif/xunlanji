@@ -162,3 +162,10 @@
 - Water Palace enables a right-hand radial action cluster for basic attack plus the four cultivation skills; its actions route into the existing skill dispatcher rather than duplicating combat rules.
 - South Gate and Yunlan Village now include the exploration joystick layer, while the dungeon adds the combat cluster.
 - Extended the runtime smoke test to simulate joystick press/release and verify the shared movement action is correctly asserted and cleared.
+
+## 2026-08-04: Mobile exploration interaction loop
+
+- Added a contextual interaction button to the reusable touch overlay. It is hidden by default and appears only when an exploration scene reports an available target.
+- South Gate routes both E and the touch button to Shen Yan dialogue, Mist-Stream Spirit Herb gathering, and the northward village transition.
+- Yunlan Village routes both input paths to the market, alchemy workshop and Mist-Stream Water Palace entrance.
+- Added a dedicated touch-interaction smoke test proving a non-combat exploration overlay emits the `interact` action, alongside the existing dungeon skill test.

@@ -6,6 +6,7 @@ extends Node2D
 @onready var guide_interaction: Area2D = $GuideShen/Interaction
 @onready var herb_interaction: Area2D = $MistHerb/Interaction
 @onready var player: CharacterBody2D = $Player
+@onready var touch_controls: Node = $HUD/TouchControls
 
 var active_interaction: Area2D
 var guide_dialogue_stage := 0
@@ -17,6 +18,16 @@ func _ready() -> void:
 	guide_interaction.unfocused.connect(_unfocus_interaction)
 	herb_interaction.focused.connect(_focus_interaction)
 	herb_interaction.unfocused.connect(_unfocus_interaction)
+	touch_controls.action_requested.connect(_on_touch_action_requested)
+
+
+func _process(_delta: float) -> void:
+	if active_interaction == null and player.position.y < 430.0:
+		prompt.text = "[E / 交互] 进入云岚村心"
+		touch_controls.set_interaction_available(true)
+	elif active_interaction == null:
+		prompt.text = ""
+		touch_controls.set_interaction_available(false)
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
@@ -25,20 +36,31 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		GameState.enter_screen(GameState.Screen.OVERWORLD)
 		get_tree().change_scene_to_file("res://scenes/main.tscn")
 	elif event.keycode == KEY_E:
-		if active_interaction == null and player.position.y < 430.0:
-			get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
-			return
-		_activate_interaction()
+		_activate_contextual()
 
 func _focus_interaction(interaction: Area2D) -> void:
 	active_interaction = interaction
-	prompt.text = "[E] " + str(interaction.get("prompt_text"))
+	prompt.text = "[E / 交互] " + str(interaction.get("prompt_text"))
+	touch_controls.set_interaction_available(true)
 
 func _unfocus_interaction(interaction: Area2D) -> void:
 	if active_interaction != interaction:
 		return
 	active_interaction = null
 	prompt.text = ""
+	touch_controls.set_interaction_available(false)
+
+
+func _on_touch_action_requested(action_id: String) -> void:
+	if action_id == "interact":
+		_activate_contextual()
+
+
+func _activate_contextual() -> void:
+	if active_interaction == null and player.position.y < 430.0:
+		get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
+		return
+	_activate_interaction()
 
 func _activate_interaction() -> void:
 	if active_interaction == null:
@@ -58,3 +80,4 @@ func _activate_interaction() -> void:
 		status.text = "获得雾溪灵草：这是第一个可采集资源点。未来资源会在不同区域按生态、境界、天气与随机机缘刷新。"
 		active_interaction = null
 		prompt.text = ""
+		touch_controls.set_interaction_available(false)
