@@ -13,6 +13,7 @@ func _run() -> void:
 	await _check_wanted_patrol()
 	await _check_weapon_combat_profiles()
 	await _check_weapon_render_slot()
+	await _check_artifact_render_slot()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
 	await _check_village_routes()
@@ -169,6 +170,22 @@ func _check_weapon_render_slot() -> void:
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Equipped Qinghuang Sword did not create an independent player weapon render slot.")
 	var weapon_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
 	_expect(weapon_sprite.texture != null, "Equipped Qinghuang Sword render slot has no sword texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_artifact_render_slot() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("纳灵玉佩"):
+		GameState.player.inventory.append("纳灵玉佩")
+	GameState.equip_artifact("纳灵玉佩")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("ArtifactPivot/ArtifactSprite"), "Equipped Naling Jade Pendant did not create an independent player artifact render slot.")
+	var artifact_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
+	_expect(artifact_sprite.texture != null, "Equipped Naling Jade Pendant render slot has no pendant texture.")
 	port.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

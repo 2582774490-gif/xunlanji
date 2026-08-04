@@ -259,6 +259,11 @@ func _show_inventory() -> void:
 		if "练气" in item_name:
 			equips.append(["装备 %s" % item_name, func(): GameState.equip_weapon(item_name), 180])
 	if not equips.is_empty(): _buttons(equips)
+	var artifact_equips: Array = []
+	for item_name in GameState.player.inventory:
+		if not Catalog.artifact_profile_for_item(item_name).is_empty():
+			artifact_equips.append(["装备法宝 %s" % item_name, func(): GameState.equip_artifact(item_name), 220])
+	if not artifact_equips.is_empty(): _buttons(artifact_equips)
 	if GameState.player.inventory.has("凝息丹"):
 		_buttons([["服用凝息丹（+15 修为）", _use_condensing_pill, 230]])
 

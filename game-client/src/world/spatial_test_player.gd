@@ -13,7 +13,9 @@ const FEMALE_WALK_KEY_SHEET: Texture2D = preload("res://assets/art/characters/yu
 const FEMALE_WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_walk_south_6f_v01_alpha.png")
 const FEMALE_ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_attack_south_6f_v01_alpha.png")
 const QINGHUANG_SWORD_TEXTURE: Texture2D = preload("res://assets/art/weapons/qinghuang_qi_sword/processed_alpha/qinghuang_qi_sword_v01_alpha.png")
+const NALING_JADE_PENDANT_TEXTURE: Texture2D = preload("res://assets/art/artifacts/naling_jade_pendant/processed_alpha/naling_jade_pendant_v01_alpha.png")
 const WeaponMotionScript = preload("res://src/animation/weapon_motion_controller.gd")
+const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
 signal attack_impact(direction: String)
@@ -23,6 +25,7 @@ signal attack_impact(direction: String)
 
 @onready var body: FrameAnimationController = $Body
 @onready var weapon_motion: WeaponMotionController = get_node_or_null("WeaponPivot")
+@onready var artifact_motion: ArtifactMotionController = get_node_or_null("ArtifactPivot")
 
 var _moving := false
 var _elapsed := 0.0
@@ -60,6 +63,7 @@ func _ready() -> void:
 	})
 	body.play_action("idle", "south")
 	_configure_equipped_weapon_visual()
+	_configure_equipped_artifact_visual()
 
 func _configure_equipped_weapon_visual() -> void:
 	# Each equipped weapon is a runtime child of the player, never part of the
@@ -82,6 +86,23 @@ func _configure_equipped_weapon_visual() -> void:
 	sprite.position = Vector2(50, -50)
 	pivot.add_child(sprite)
 
+func _configure_equipped_artifact_visual() -> void:
+	# A defensive artifact is its own child layer and can be removed/replaced
+	# independently.  We render only the approved Naling pendant; no other
+	# artifact is silently substituted with this image.
+	if GameState.player.equipped_artifact != "纳灵玉佩":
+		return
+	var pivot: ArtifactMotionController = ArtifactMotionScript.new()
+	pivot.name = "ArtifactPivot"
+	pivot.z_index = 2
+	add_child(pivot)
+	artifact_motion = pivot
+	var sprite := Sprite2D.new()
+	sprite.name = "ArtifactSprite"
+	sprite.texture = NALING_JADE_PENDANT_TEXTURE
+	sprite.scale = Vector2(0.075, 0.075)
+	pivot.add_child(sprite)
+
 func _physics_process(delta: float) -> void:
 	var movement := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	velocity = movement * move_speed
@@ -90,6 +111,8 @@ func _physics_process(delta: float) -> void:
 	_moving = movement.length_squared() > 0.001
 	if weapon_motion:
 		weapon_motion.update_from_movement(movement, body.direction_from_vector(movement))
+	if artifact_motion:
+		artifact_motion.update_from_movement(movement, body.direction_from_vector(movement))
 	if body.current_action == "attack" and body.is_playing():
 		pass
 	elif _moving:

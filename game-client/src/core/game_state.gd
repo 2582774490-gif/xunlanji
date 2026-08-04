@@ -441,6 +441,19 @@ func equip_weapon(item_name: String) -> void:
 	notify("已装备：%s｜战斗倾向：%s。专属动作与特效仍按武器卡逐把制作。" % [item_name, profile.trait])
 	profile_changed.emit()
 
+func equip_artifact(item_name: String) -> void:
+	if not player.inventory.has(item_name):
+		notify("行囊中没有 %s，不能装备。" % item_name)
+		return
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var profile: Dictionary = catalog.artifact_profile_for_item(item_name)
+	if profile.is_empty():
+		notify("%s 尚未建立法宝卡与运行时素材，暂不能装备。" % item_name)
+		return
+	player.equipped_artifact = item_name
+	notify("已装备法宝：%s｜%s" % [item_name, str(profile.trait)])
+	profile_changed.emit()
+
 func join_sect(sect_id: String) -> bool:
 	if not str(player.get("sect_id", "")).is_empty():
 		notify("请先退出当前宗门，再自由选择新的去处。")

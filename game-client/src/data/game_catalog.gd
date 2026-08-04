@@ -226,3 +226,17 @@ const MARKET_LISTINGS := [
 	{"name": "纳灵玉佩", "type": "法宝", "price": 60},
 	{"name": "练气羽扇", "type": "武器", "price": 45},
 ]
+
+# Artifacts have their own runtime slot.  Their later active skills, cooldowns
+# and upgrade trees are authored per artifact; this initial profile establishes
+# the data boundary so an equipped pendant is never baked into the body art.
+const ARTIFACT_PROFILES := {
+	"纳灵玉佩": {
+		"slot": "护身法宝",
+		"trait": "缓慢聚拢游离岚息，适合炼气期稳定吐纳。",
+		"runtime_asset": "res://assets/art/artifacts/naling_jade_pendant/processed_alpha/naling_jade_pendant_v01_alpha.png",
+	},
+}
+
+static func artifact_profile_for_item(item_name: String) -> Dictionary:
+	return ARTIFACT_PROFILES.get(item_name, {}).duplicate(true)
