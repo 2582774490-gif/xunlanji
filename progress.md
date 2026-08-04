@@ -120,3 +120,10 @@
 - Replaced the Water Palace's legacy male-only player scene with the modular eight-direction avatar used in South Gate and Yunlan Village.
 - The selected gender, feet-based sorting, independent ground shadow and separately animated Qinglan Sword now persist from world exploration into the first dungeon.
 - Ran clean headless startup validation for South Gate, Village Center, Water Palace and the client entry scene.
+
+## 2026-08-04: First full walk-cycle pass
+
+- Generated, chroma-key cleaned and connected six-frame south-facing walk sheets for both current Yunlan starter templates.
+- The spatial controller now selects the correct full walk sheet by gender and replaces the old two-key-pose south loop with a true six-frame cycle.
+- All directions retain a light foot-anchor bob; the independent weapon trails movement and swings on attack, while the body receives a restrained attack lunge until dedicated directional attack sheets are ready.
+- This is intentionally an intermediate animation package: the seven remaining directions still retain their distinct directional poses and are not mirrored or falsely substituted.

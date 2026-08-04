@@ -6,8 +6,10 @@ extends CharacterBody2D
 ## Y-sort, collision and future weapon/costume child slots.
 const IDLE_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_idle_8dir_v01_alpha.png")
 const WALK_KEY_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_walk_keypose_8dir_v01_alpha.png")
+const WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_walk_south_6f_v01_alpha.png")
 const FEMALE_IDLE_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_idle_8dir_v01_alpha.png")
 const FEMALE_WALK_KEY_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_walk_keypose_8dir_v01_alpha.png")
+const FEMALE_WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_walk_south_6f_v01_alpha.png")
 
 signal attack_started(direction: String)
 
@@ -19,10 +21,12 @@ signal attack_started(direction: String)
 
 var _moving := false
 var _elapsed := 0.0
+var _attack_visual_time_left := 0.0
 
 func _ready() -> void:
 	var idle_sheet := FEMALE_IDLE_SHEET if GameState.player.gender == "女" else IDLE_SHEET
 	var walk_sheet := FEMALE_WALK_KEY_SHEET if GameState.player.gender == "女" else WALK_KEY_SHEET
+	var south_walk_sheet := FEMALE_WALK_SOUTH_SHEET if GameState.player.gender == "女" else WALK_SOUTH_SHEET
 	body.configure_from_grid(idle_sheet, 4, 2, {
 		"idle_south": {"frames": [0], "fps": 1.0, "loop": true},
 		"idle_south_west": {"frames": [1], "fps": 1.0, "loop": true},
@@ -39,6 +43,11 @@ func _ready() -> void:
 			{"sheet": idle_sheet, "columns": 4, "rows": 2, "frame": direction_index},
 			{"sheet": walk_sheet, "columns": 4, "rows": 2, "frame": direction_index},
 		], 8.0, true)
+	# The back-facing route has a real six-frame cycle. The other seven routes
+	# keep their own directional key art while their full sheets are produced.
+	body.append_grid_clips(south_walk_sheet, 6, 1, {
+		"walk_south": {"frames": [0, 1, 2, 3, 4, 5], "fps": 10.0, "loop": true},
+	})
 	body.play_action("idle", "south")
 
 func _physics_process(delta: float) -> void:
@@ -54,7 +63,13 @@ func _physics_process(delta: float) -> void:
 	else:
 		body.play_action("idle", body.current_direction)
 	_elapsed += delta
-	body.position.y = -60.0
+	_attack_visual_time_left = maxf(0.0, _attack_visual_time_left - delta)
+	var walk_bob := sin(_elapsed * (18.0 if _moving else 2.0)) * (1.4 if _moving else 0.35)
+	var attack_progress := 1.0 - _attack_visual_time_left / 0.16 if _attack_visual_time_left > 0.0 else 0.0
+	var attack_lunge := sin(attack_progress * PI) * 4.0
+	body.position = Vector2(0.0, -60.0 + walk_bob - attack_lunge)
+	var attack_scale := sin(attack_progress * PI) if _attack_visual_time_left > 0.0 else 0.0
+	body.scale = Vector2(0.30 * (1.0 + attack_scale * 0.04), 0.30 * (1.0 - attack_scale * 0.03))
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -62,5 +77,6 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	if weapon_motion:
 		weapon_motion.trigger_attack(body.current_direction)
+	_attack_visual_time_left = 0.16
 	attack_started.emit(body.current_direction)
 	get_viewport().set_input_as_handled()

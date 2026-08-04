@@ -179,5 +179,6 @@
 - [x] Give the female starter template a matching eight-direction walking-key-pose atlas.
 - [x] Make the gender choice use the same modular avatar in South Gate, Yunlan Village and Mist-Stream Water Palace.
 - [x] Keep the weapon as a separate motion-controlled child node inside the first dungeon.
-- [ ] Replace the current two-key-pose walk blend with full frame sequences for the approved starter template.
+- [x] Replace the south-facing two-key-pose blend with full six-frame sequences for both approved starter templates.
+- [ ] Produce matching full walk frame sequences for the remaining seven directions, in verified four-direction batches.
 - [ ] Add direction-specific body attack sheets and first skill-effect layers after the base movement has been visually accepted.
