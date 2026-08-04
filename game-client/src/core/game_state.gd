@@ -33,6 +33,8 @@ var player := {
 	"realm_index": 0,
 	"minor_stage": 1,
 	"cultivation": 0,
+	"unspent_points": 4,
+	"attributes": {"体魄": 5, "灵识": 5, "身法": 5, "根骨": 5},
 	"spirit_stones": 120,
 	"gold": 80,
 	"sect_id": "",
@@ -77,6 +79,7 @@ func gain_cultivation(amount: int) -> String:
 	var result := "修为 +%d" % amount
 	if player.cultivation >= threshold:
 		player.cultivation = 0
+		player.unspent_points += 2
 		if player.realm_index == 0 and player.minor_stage < 9:
 			player.minor_stage += 1
 			result = "突破成功：%s" % realm_name()
@@ -90,6 +93,24 @@ func gain_cultivation(amount: int) -> String:
 	notify(result)
 	profile_changed.emit()
 	return result
+
+func allocate_attribute(attribute_name: String) -> bool:
+	if player.unspent_points <= 0 or not player.attributes.has(attribute_name):
+		return false
+	player.unspent_points -= 1
+	player.attributes[attribute_name] += 1
+	notify("%s +1，剩余属性点 %d" % [attribute_name, player.unspent_points])
+	profile_changed.emit()
+	return true
+
+func derived_stats() -> Dictionary:
+	var a: Dictionary = player.attributes
+	return {
+		"气血": 100 + int(a["体魄"]) * 15 + int(a["根骨"]) * 5,
+		"灵力": 60 + int(a["灵识"]) * 12 + int(a["根骨"]) * 6,
+		"攻击": 8 + int(a["体魄"]) * 2 + int(a["灵识"]),
+		"移速": 100 + int(a["身法"]) * 3,
+	}
 
 func add_item(item_name: String) -> void:
 	player.inventory.append(item_name)

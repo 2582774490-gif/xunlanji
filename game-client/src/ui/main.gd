@@ -207,6 +207,11 @@ func _show_dungeon() -> void:
 func _show_realm() -> void:
 	_heading("修炼体系")
 	_text("当前境界：%s｜修为：%d" % [GameState.realm_name(), GameState.player.cultivation], 22, Color("f2d79c"))
+	var attributes: Dictionary = GameState.player.attributes
+	var stats: Dictionary = GameState.derived_stats()
+	_text("可分配属性点：%d｜体魄 %d · 灵识 %d · 身法 %d · 根骨 %d" % [GameState.player.unspent_points, attributes["体魄"], attributes["灵识"], attributes["身法"], attributes["根骨"]], 18, Color("a7d5ca"))
+	_text("派生：气血 %d · 灵力 %d · 攻击 %d · 移速 %d" % [stats["气血"], stats["灵力"], stats["攻击"], stats["移速"]], 16)
+	_buttons([["体魄 +1", func(): _allocate_attribute("体魄"), 120], ["灵识 +1", func(): _allocate_attribute("灵识"), 120], ["身法 +1", func(): _allocate_attribute("身法"), 120], ["根骨 +1", func(): _allocate_attribute("根骨"), 120]])
 	_text("炼气使用一至九层与圆满；筑基、结丹、元婴、化神使用初期至后期圆满；首发上限为化神圆满。")
 	for realm_index in Catalog.REALMS.size():
 		var realm: Dictionary = Catalog.REALMS[realm_index]
@@ -218,6 +223,11 @@ func _show_realm() -> void:
 		_text("【%s】%s" % [school.faction, "、".join(school.techniques)], 16)
 		_buttons([["主修 %s" % school.techniques[0], func(): GameState.choose_cultivation_path(school.techniques[0]), 250]])
 	_buttons([["静坐吐纳（+25 修为）", func(): GameState.gain_cultivation(25), 240], ["服用灵泉露（+40 修为）", _use_dew, 240]])
+
+func _allocate_attribute(attribute_name: String) -> void:
+	if not GameState.allocate_attribute(attribute_name):
+		GameState.notify("没有剩余属性点可分配。")
+	_render()
 
 func _show_inventory() -> void:
 	_heading("行囊 · 装备与法宝")
