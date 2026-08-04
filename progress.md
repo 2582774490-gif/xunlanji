@@ -148,3 +148,10 @@
 - Its damage uses player attack and spirit power, so the existing cultivation attributes now affect both basic and skill attacks in the playable dungeon.
 - Replaced the boss's invisible periodic damage with a four-frame water-blade cast followed by a short impact delay; the demon still remains elegant and water-themed rather than horror-oriented.
 - The Water Palace HUD now exposes HP, spirit power and the first skill's availability. The first effect component remains asset-agnostic and is reused for player and boss VFX.
+
+## 2026-08-04: Five-slot hand-operated dungeon test bar
+
+- Added a data-driven five-skill starter catalog instead of binding individual labels directly to dungeon code.
+- Water Palace now presents five launch-test slots: Qinglan Sword basic attack, Ningxi Sword Art, Cloud Step, Lan Breath Guard and Spirit Nourish.
+- Cloud Step moves the player away from the current boss, Lan Breath Guard reduces the next Water Blade hit, and Spirit Nourish restores spirit power. Each uses the shared cost/cooldown path.
+- Added a runtime smoke test that proves the skill cast spends spirit power and damages the boss, Cloud Step moves, Guard activates, and Spirit Nourish restores spirit power.

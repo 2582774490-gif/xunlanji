@@ -202,4 +202,6 @@
 
 - [x] Add the first manually cast cultivation skill with visible VFX, spirit-power cost, cooldown and stat-based damage.
 - [x] Replace the first boss's invisible damage tick with a readable water-blade cast and delayed hit.
-- [ ] Add skill-slot data and three additional launch-test skills before exposing the five-slot combat HUD.
+- [x] Add skill-slot data and three additional launch-test skills before exposing the five-slot combat HUD.
+- [x] Add a runtime skill smoke test beyond scene-startup validation.
+- [ ] Replace the temporary keyboard test bar with mobile touch skill buttons and a virtual joystick input layer.

@@ -99,6 +99,12 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 
+func perform_dash(facing: Vector2, distance := 116.0) -> void:
+	var direction := facing.normalized() if facing.length_squared() > 0.001 else Vector2.DOWN
+	position = (position + direction * distance).clamp(map_bounds.position, map_bounds.end)
+	velocity = direction * move_speed
+
+
 func _emit_attack_impact(direction: String) -> void:
 	# The sword strike lands near the animated follow-through, so damage feels
 	# connected to the visible body and weapon motion instead of to the keypress.

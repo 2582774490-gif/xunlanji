@@ -197,7 +197,101 @@ offset_left = 24.0
 offset_top = 58.0
 theme_override_colors/font_color = Color(0.64, 0.78, 0.76, 1)
 theme_override_font_sizes/font_size = 14
-text = "方向键：移动  |  J：普攻  |  K：凝息剑诀  |  H / Esc：返回云岚村"
+text = "方向键：移动  |  J：普攻  |  K：剑诀  |  L：云步  |  I：护体  |  O：润灵  |  H / Esc：返回云岚村"
+
+[node name="SkillBar" type="HBoxContainer" parent="HUD"]
+anchors_preset = 12
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -365.0
+offset_top = -188.0
+offset_right = 365.0
+offset_bottom = -124.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 10
+
+[node name="Basic" type="ColorRect" parent="HUD/SkillBar"]
+custom_minimum_size = Vector2(136, 64)
+layout_mode = 2
+color = Color(0.08, 0.18, 0.22, 0.93)
+
+[node name="Label" type="Label" parent="HUD/SkillBar/Basic"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.82, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Ningxi" type="ColorRect" parent="HUD/SkillBar"]
+custom_minimum_size = Vector2(136, 64)
+layout_mode = 2
+color = Color(0.08, 0.18, 0.22, 0.93)
+
+[node name="Label" type="Label" parent="HUD/SkillBar/Ningxi"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.82, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CloudStep" type="ColorRect" parent="HUD/SkillBar"]
+custom_minimum_size = Vector2(136, 64)
+layout_mode = 2
+color = Color(0.08, 0.18, 0.22, 0.93)
+
+[node name="Label" type="Label" parent="HUD/SkillBar/CloudStep"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.82, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Guard" type="ColorRect" parent="HUD/SkillBar"]
+custom_minimum_size = Vector2(136, 64)
+layout_mode = 2
+color = Color(0.08, 0.18, 0.22, 0.93)
+
+[node name="Label" type="Label" parent="HUD/SkillBar/Guard"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.82, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Nourish" type="ColorRect" parent="HUD/SkillBar"]
+custom_minimum_size = Vector2(136, 64)
+layout_mode = 2
+color = Color(0.08, 0.18, 0.22, 0.93)
+
+[node name="Label" type="Label" parent="HUD/SkillBar/Nourish"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.82, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Prompt" type="Label" parent="HUD"]
 anchors_preset = 10

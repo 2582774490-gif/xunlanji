@@ -1,5 +1,7 @@
 extends Node2D
 
+const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
+
 @onready var player: CharacterBody2D = $Player
 @onready var boss: Area2D = $Boss
 @onready var boss_hp: Label = $HUD/BossPanel/BossHP
@@ -11,6 +13,13 @@ extends Node2D
 @onready var hit_spark: Node = $CombatEffects/HitSpark
 @onready var ningxi_cast: Node = $CombatEffects/NingxiCast
 @onready var demon_water_blade: Node = $CombatEffects/DemonWaterBlade
+@onready var skill_labels: Array[Label] = [
+	$HUD/SkillBar/Basic/Label,
+	$HUD/SkillBar/Ningxi/Label,
+	$HUD/SkillBar/CloudStep/Label,
+	$HUD/SkillBar/Guard/Label,
+	$HUD/SkillBar/Nourish/Label,
+]
 
 var boss_health := 100
 var near_boss := false
@@ -18,6 +27,10 @@ var player_health := 100
 var player_mana := 0.0
 var player_max_mana := 0.0
 var ningxi_cooldown := 0.0
+var cloud_step_cooldown := 0.0
+var guard_cooldown := 0.0
+var nourish_cooldown := 0.0
+var guard_time_left := 0.0
 var boss_attack_cooldown := 2.4
 var defeated := false
 
@@ -35,11 +48,17 @@ func _ready() -> void:
 	_refresh_boss_hp()
 	_refresh_player_hp()
 	_refresh_player_mana()
+	_refresh_skill_bar()
 
 func _process(delta: float) -> void:
 	ningxi_cooldown = maxf(0.0, ningxi_cooldown - delta)
+	cloud_step_cooldown = maxf(0.0, cloud_step_cooldown - delta)
+	guard_cooldown = maxf(0.0, guard_cooldown - delta)
+	nourish_cooldown = maxf(0.0, nourish_cooldown - delta)
+	guard_time_left = maxf(0.0, guard_time_left - delta)
 	player_mana = minf(player_max_mana, player_mana + delta * 2.0)
 	_refresh_player_mana()
+	_refresh_skill_bar()
 	if defeated or not near_boss or boss_health <= 0:
 		return
 	boss_attack_cooldown -= delta
@@ -56,6 +75,10 @@ func _perform_boss_water_blade() -> void:
 	if defeated or not near_boss or boss_health <= 0:
 		return
 	var damage := 9
+	if guard_time_left > 0.0:
+		damage = ceili(float(damage) * 0.45)
+		guard_time_left = 0.0
+		status.text = "岚息护体抵去了大半水刃。"
 	player_health = max(0, player_health - damage)
 	status.text = "潮妃·兰纱掀起水刃，造成 %d 点伤害。" % damage
 	_refresh_player_hp()
@@ -113,6 +136,53 @@ func _cast_ningxi_sword_art() -> void:
 		_defeat_boss()
 
 
+func _cast_cloud_step() -> void:
+	if not _try_use_skill(2, cloud_step_cooldown):
+		return
+	cloud_step_cooldown = float(_skill(2)["cooldown"])
+	var escape := (player.position - boss.position).normalized() if near_boss else Vector2.DOWN
+	player.call("perform_dash", escape)
+	ningxi_cast.play_burst(player.position + Vector2(0, -62), escape)
+	status.text = "云步踏岚而行，迅速拉开了距离。"
+
+
+func _cast_lan_breath_guard() -> void:
+	if not _try_use_skill(3, guard_cooldown):
+		return
+	guard_cooldown = float(_skill(3)["cooldown"])
+	guard_time_left = 4.0
+	ningxi_cast.play_burst(player.position + Vector2(0, -62), Vector2.UP)
+	status.text = "岚息护体已展开：下一次受击将大幅减伤。"
+
+
+func _cast_spirit_nourish() -> void:
+	if not _try_use_skill(4, nourish_cooldown):
+		return
+	nourish_cooldown = float(_skill(4)["cooldown"])
+	player_mana = minf(player_max_mana, player_mana + 46.0)
+	ningxi_cast.play_burst(player.position + Vector2(0, -62), Vector2.UP)
+	_refresh_player_mana()
+	status.text = "润灵诀回转经脉，恢复了灵力。"
+
+
+func _try_use_skill(index: int, cooldown: float) -> bool:
+	var skill := _skill(index)
+	if cooldown > 0.0:
+		status.text = "%s还需冷却 %.1f 秒。" % [skill["name"], cooldown]
+		return false
+	var cost := float(skill["spirit_cost"])
+	if player_mana < cost:
+		status.text = "灵力不足，无法施放%s。" % skill["name"]
+		return false
+	player_mana -= cost
+	_refresh_player_mana()
+	return true
+
+
+func _skill(index: int) -> Dictionary:
+	return SKILL_CATALOG.STARTER_TEST_SKILLS[index]
+
+
 func _defeat_boss() -> void:
 	boss.visible = false
 	GameState.add_item("水府初阶法器匣")
@@ -141,8 +211,18 @@ func _refresh_player_hp() -> void:
 
 
 func _refresh_player_mana() -> void:
-	var availability := "可用" if ningxi_cooldown <= 0.0 else "%.1fs" % ningxi_cooldown
-	player_mana_label.text = "灵力 %d / %d  |  凝息剑诀 %s" % [int(player_mana), int(player_max_mana), availability]
+	player_mana_label.text = "灵力 %d / %d" % [int(player_mana), int(player_max_mana)]
+
+
+func _refresh_skill_bar() -> void:
+	var cooldowns := [0.0, ningxi_cooldown, cloud_step_cooldown, guard_cooldown, nourish_cooldown]
+	for index in skill_labels.size():
+		var skill := _skill(index)
+		var state := "可用" if cooldowns[index] <= 0.0 else "%.1fs" % cooldowns[index]
+		if index == 0:
+			state = "普攻"
+		skill_labels[index].text = "[%s] %s\n%s" % [skill["key"], skill["name"], state]
+		skill_labels[index].modulate = Color(0.52, 0.63, 0.67, 1) if cooldowns[index] > 0.0 else Color.WHITE
 
 func _refresh_prompt() -> void:
 	prompt.text = "[J] 普攻  [K] 凝息剑诀" if near_boss and boss_health > 0 else ""
@@ -150,6 +230,18 @@ func _refresh_prompt() -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.is_pressed() and not event.is_echo() and event.keycode == KEY_K:
 		_cast_ningxi_sword_art()
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_pressed() and not event.is_echo() and event.keycode == KEY_L:
+		_cast_cloud_step()
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_pressed() and not event.is_echo() and event.keycode == KEY_I:
+		_cast_lan_breath_guard()
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_pressed() and not event.is_echo() and event.keycode == KEY_O:
+		_cast_spirit_nourish()
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_pressed() and not event.is_echo() and (event.keycode == KEY_H or event.keycode == KEY_ESCAPE):
