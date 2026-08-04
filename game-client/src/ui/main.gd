@@ -263,16 +263,29 @@ func _show_inventory() -> void:
 func _show_sect() -> void:
 	_heading("宗门与身份")
 	if GameState.player.sect_id == "":
-		_text("当前为散修。可自由加入宗门；初始身份为外门弟子，后续通过贡献与实力晋升。")
+		_text("当前为散修。可自由加入宗门；初始身份为外门弟子。副本结算与资源进献可获得贡献，达到境界与贡献要求后可申请晋升。")
 		for sect in Catalog.SECTS:
-			_text("【%s】%s｜门规：%s" % [sect.name, sect.trait, sect.rule])
+			var wanted_note := "｜你正被该宗门通缉" if GameState.is_wanted_by_sect(str(sect.id)) else ""
+			_text("【%s】%s｜门规：%s%s" % [sect.name, sect.trait, sect.rule, wanted_note])
 			_buttons([["加入 %s" % sect.name, func(): GameState.join_sect(sect.id), 230]])
 	else:
 		var sect: Dictionary = _find_sect(GameState.player.sect_id)
-		_text("当前宗门：%s｜身份：外门弟子（本地演示）" % sect.name, 21, Color("f2d79c"))
+		_text("当前宗门：%s｜身份：%s｜贡献：%d" % [sect.name, GameState.sect_rank_name(), int(GameState.player.sect_contribution)], 21, Color("f2d79c"))
 		_text("%s\n门规：%s" % [sect.trait, sect.rule])
-		_text("正式版将由服务器结算升迁、任职、通缉、赎罪和关系修复。", 15, Color("a7d5ca"))
-		_buttons([["退出宗门（演示）", GameState.leave_sect, 220]])
+		var promotion := GameState.sect_promotion_requirement()
+		if not promotion.is_empty():
+			_text("下一身份：%s｜需要贡献 %d、%s" % [promotion.name, int(promotion.contribution), GameState._realm_requirement_text(promotion)], 16, Color("a7d5ca"))
+			_buttons([["申请身份晋升", GameState.try_promote_sect_rank, 220]])
+		var contribution_items: Array[String] = []
+		for item_name in GameState.player.inventory:
+			if item_name != GameState.player.equipped_weapon and not contribution_items.has(item_name):
+				contribution_items.append(item_name)
+			if contribution_items.size() >= 3:
+				break
+		for item_name in contribution_items:
+			_buttons([["进献 %s" % item_name, func(): GameState.contribute_item_to_sect(item_name), 210]])
+		_text("离宗后仍可选择其他道路；部分门规会保留追查或通缉记录。真实多人追捕、赎罪和关系修复将由服务器权威结算。", 15, Color("a7d5ca"))
+		_buttons([["退出宗门", GameState.leave_sect, 220]])
 
 func _show_market() -> void:
 	_heading("云市 · 自由交易与拍卖行")

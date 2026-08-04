@@ -162,9 +162,17 @@ const CULTIVATION_SCHOOLS := [
 ]
 
 const SECTS := [
-	{"id": "mist_sword", "name": "雾隐剑宗", "trait": "重视守序、剑阵与护山", "rule": "擅离驻守任务将扣除功勋；背叛山门可能触发限时通缉。", "technique": "三折剑经"},
-	{"id": "cloud_market", "name": "云市会", "trait": "重视商路、鉴宝与契约", "rule": "恶意毁约将失去交易权限，并可能被悬赏追讨。", "technique": "镜心守识篇"},
-	{"id": "wild_herb", "name": "百草谷", "trait": "重视丹药、采集与救治", "rule": "私占宗门药圃会降低声望；可用贡献修复关系。", "technique": "百草调息录"},
+	{"id": "mist_sword", "name": "雾隐剑宗", "trait": "重视守序、剑阵与护山", "rule": "擅离驻守任务将扣除功勋；内门后叛离山门会触发通缉。", "technique": "三折剑经", "exit_wanted_rank": 1, "exit_penalty": "雾隐剑宗已记录你的离宗，山道与驻地附近可能出现追查。"},
+	{"id": "cloud_market", "name": "云市会", "trait": "重视商路、鉴宝与契约", "rule": "恶意毁约将失去交易权限，并可能被悬赏追讨。", "technique": "镜心守识篇", "exit_wanted_rank": 3, "exit_penalty": "云市会冻结了你的会内契约信用；正常离会不构成通缉。"},
+	{"id": "wild_herb", "name": "百草谷", "trait": "重视丹药、采集与救治", "rule": "私占宗门药圃会降低声望；可用贡献修复关系。", "technique": "百草调息录", "exit_wanted_rank": 99, "exit_penalty": "百草谷保留了离谷记录，但不会因正常离开而通缉。"},
+]
+
+const SECT_RANKS := [
+	{"name": "外门弟子", "contribution": 0, "realm_index": 0, "minor_stage": 1},
+	{"name": "内门弟子", "contribution": 80, "realm_index": 0, "minor_stage": 6},
+	{"name": "执事", "contribution": 320, "realm_index": 1, "minor_stage": 3},
+	{"name": "长老", "contribution": 900, "realm_index": 2, "minor_stage": 3},
+	{"name": "副宗主", "contribution": 2400, "realm_index": 3, "minor_stage": 3},
 ]
 
 const NPCS := [

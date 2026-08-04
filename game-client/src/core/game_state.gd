@@ -50,6 +50,9 @@ var player := {
 	"spirit_stones": 120,
 	"gold": 80,
 	"sect_id": "",
+	"sect_rank": 0,
+	"sect_contribution": 0,
+	"sect_wanted_by": [],
 	"equipped_weapon": "练气木剑",
 	"equipped_artifact": "纳灵玉佩",
 	"inventory": ["练气木剑", "凝气符", "雾溪草", "纳灵玉佩"],
@@ -83,6 +86,7 @@ func apply_local_profile(payload: Dictionary) -> bool:
 	if not stored_player.has("inventory") or not stored_player.has("attributes"):
 		return false
 	player = stored_player.duplicate(true)
+	_normalize_player_schema()
 	current_region_id = str(payload.get("current_region_id", "starter_village"))
 	selected_dungeon_id = str(payload.get("selected_dungeon_id", "mist_stream_palace"))
 	local_market_listings.clear()
@@ -336,6 +340,8 @@ func record_opportunity(entry: Dictionary) -> void:
 
 func record_dungeon_run(entry: Dictionary) -> void:
 	player.dungeon_runs.append(entry)
+	if not str(player.get("sect_id", "")).is_empty():
+		add_sect_contribution(12, "完成宗门认可的副本探索")
 	profile_changed.emit()
 
 func is_region_unlocked(region_id: String) -> bool:
@@ -407,15 +413,127 @@ func equip_weapon(item_name: String) -> void:
 	notify("已装备：%s｜战斗倾向：%s。专属动作与特效仍按武器卡逐把制作。" % [item_name, profile.trait])
 	profile_changed.emit()
 
-func join_sect(sect_id: String) -> void:
+func join_sect(sect_id: String) -> bool:
+	if not str(player.get("sect_id", "")).is_empty():
+		notify("请先退出当前宗门，再自由选择新的去处。")
+		return false
+	var sect := _sect_by_id(sect_id)
+	if sect.is_empty():
+		notify("目标宗门不存在。")
+		return false
 	player.sect_id = sect_id
-	notify("已加入宗门。身份从外门弟子开始。")
+	player.sect_rank = 0
+	player.sect_contribution = 0
+	notify("已加入%s，身份从外门弟子开始。" % str(sect.name))
+	profile_changed.emit()
+	return true
+
+func leave_sect() -> bool:
+	var sect := current_sect()
+	if sect.is_empty():
+		notify("当前是散修，无需退出宗门。")
+		return false
+	var rank := int(player.get("sect_rank", 0))
+	var wanted_rank := int(sect.get("exit_wanted_rank", 99))
+	if rank >= wanted_rank:
+		var wanted_by: Array = player.get("sect_wanted_by", [])
+		if not wanted_by.has(str(sect.id)):
+			wanted_by.append(str(sect.id))
+		player.sect_wanted_by = wanted_by
+	player.sect_id = ""
+	player.sect_rank = 0
+	player.sect_contribution = 0
+	notify("已退出%s。%s" % [str(sect.name), str(sect.exit_penalty)])
+	profile_changed.emit()
+	return true
+
+func current_sect() -> Dictionary:
+	return _sect_by_id(str(player.get("sect_id", "")))
+
+func sect_rank_name() -> String:
+	if str(player.get("sect_id", "")).is_empty():
+		return "散修"
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var rank_index := clampi(int(player.get("sect_rank", 0)), 0, catalog.SECT_RANKS.size() - 1)
+	return str(catalog.SECT_RANKS[rank_index].name)
+
+func sect_promotion_requirement() -> Dictionary:
+	if str(player.get("sect_id", "")).is_empty():
+		return {}
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var next_rank := int(player.get("sect_rank", 0)) + 1
+	if next_rank >= catalog.SECT_RANKS.size():
+		return {}
+	return catalog.SECT_RANKS[next_rank]
+
+func try_promote_sect_rank() -> bool:
+	var requirement := sect_promotion_requirement()
+	if requirement.is_empty():
+		notify("当前没有可申请的下一宗门身份。")
+		return false
+	if int(player.get("sect_contribution", 0)) < int(requirement.contribution):
+		notify("贡献不足：晋升%s需要贡献 %d。" % [str(requirement.name), int(requirement.contribution)])
+		return false
+	if not _meets_realm_requirement(requirement):
+		notify("境界不足：晋升%s需要%s。" % [str(requirement.name), _realm_requirement_text(requirement)])
+		return false
+	player.sect_rank = int(player.get("sect_rank", 0)) + 1
+	notify("身份晋升：%s。" % sect_rank_name())
+	profile_changed.emit()
+	return true
+
+func contribute_item_to_sect(item_name: String) -> bool:
+	if str(player.get("sect_id", "")).is_empty():
+		notify("散修可自由持有资源；加入宗门后才能进献。")
+		return false
+	if item_name == str(player.get("equipped_weapon", "")) or not player.inventory.has(item_name):
+		notify("该物品不能作为当前宗门进献。")
+		return false
+	player.inventory.erase(item_name)
+	var values := {"雾溪草": 10, "雾潮晶簇": 18, "赤焰精金": 32, "古战印": 24, "地火兽核": 20}
+	var gained := int(values.get(item_name, 6))
+	add_sect_contribution(gained, "进献%s" % item_name)
+	return true
+
+func add_sect_contribution(amount: int, source: String) -> void:
+	if str(player.get("sect_id", "")).is_empty() or amount <= 0:
+		return
+	player.sect_contribution = int(player.get("sect_contribution", 0)) + amount
+	notify("%s：宗门贡献 +%d（当前 %d）。" % [source, amount, int(player.sect_contribution)])
 	profile_changed.emit()
 
-func leave_sect() -> void:
-	player.sect_id = ""
-	notify("已退出宗门。正式版将按门规判定是否进入通缉状态。")
-	profile_changed.emit()
+func is_wanted_by_sect(sect_id: String) -> bool:
+	var wanted_by: Array = player.get("sect_wanted_by", [])
+	return wanted_by.has(sect_id)
+
+func _sect_by_id(sect_id: String) -> Dictionary:
+	if sect_id.is_empty():
+		return {}
+	var catalog := preload("res://src/data/game_catalog.gd")
+	for sect in catalog.SECTS:
+		if str(sect.id) == sect_id:
+			return sect
+	return {}
+
+func _meets_realm_requirement(requirement: Dictionary) -> bool:
+	var realm_requirement := int(requirement.realm_index)
+	var stage_requirement := int(requirement.minor_stage)
+	return player.realm_index > realm_requirement or (player.realm_index == realm_requirement and player.minor_stage >= stage_requirement)
+
+func _realm_requirement_text(requirement: Dictionary) -> String:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var realm: Dictionary = catalog.REALMS[int(requirement.realm_index)]
+	if int(requirement.realm_index) == 0:
+		return "%s%d层" % [str(realm.name), int(requirement.minor_stage)]
+	return "%s·%s" % [str(realm.name), str(realm.minor_stages[int(requirement.minor_stage) - 1])]
+
+func _normalize_player_schema() -> void:
+	if not player.has("sect_rank"):
+		player.sect_rank = 0
+	if not player.has("sect_contribution"):
+		player.sect_contribution = 0
+	if not player.has("sect_wanted_by"):
+		player.sect_wanted_by = []
 
 func notify(text: String) -> void:
 	last_notice = text

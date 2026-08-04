@@ -8,6 +8,7 @@ func _ready() -> void:
 func _run() -> void:
 	await _check_manual_progression()
 	await _check_local_profile_payload()
+	await _check_sect_progression()
 	await _check_weapon_combat_profiles()
 	await _check_weapon_render_slot()
 	await _check_local_market_loop()
@@ -81,6 +82,27 @@ func _check_local_profile_payload() -> void:
 	GameState.local_market_listings = listings_before
 	GameState.current_region_id = region_before
 	GameState.selected_dungeon_id = dungeon_before
+
+func _check_sect_progression() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.sect_id = ""
+	GameState.player.sect_rank = 0
+	GameState.player.sect_contribution = 0
+	GameState.player.sect_wanted_by = []
+	GameState.player.inventory.append("宗门测试贡品")
+	_expect(GameState.join_sect("mist_sword"), "Player should freely join an available sect.")
+	_expect(GameState.sect_rank_name() == "外门弟子", "Sect join should begin at outer disciple rank.")
+	_expect(GameState.contribute_item_to_sect("宗门测试贡品"), "Sect contribution should accept a carried material.")
+	_expect(int(GameState.player.sect_contribution) >= 6 and not GameState.player.inventory.has("宗门测试贡品"), "Sect contribution did not consume the offered material and award contribution.")
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 6
+	GameState.player.sect_contribution = 80
+	_expect(GameState.try_promote_sect_rank(), "Outer disciple with sufficient realm and contribution should promote.")
+	_expect(GameState.sect_rank_name() == "内门弟子", "Sect promotion did not reach inner disciple rank.")
+	_expect(GameState.leave_sect(), "Player should be able to freely leave a sect.")
+	_expect(GameState.is_wanted_by_sect("mist_sword"), "Leaving Mist Sword at inner rank should preserve a sect wanted record.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
 	GameState.profile_changed.emit()
 
 func _check_weapon_combat_profiles() -> void:
