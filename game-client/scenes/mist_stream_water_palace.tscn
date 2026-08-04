@@ -80,7 +80,7 @@ offset_right = 650.0
 offset_bottom = 62.0
 theme_override_colors/font_color = Color(0.75, 0.94, 0.96, 1)
 theme_override_font_sizes/font_size = 25
-text = "Mist-Stream Water Palace  |  dungeon prototype"
+text = "雾溪水府  |  炼气副本"
 
 [node name="BossPanel" type="ColorRect" parent="HUD"]
 anchors_preset = 10
@@ -126,7 +126,7 @@ offset_left = 24.0
 offset_top = 58.0
 theme_override_colors/font_color = Color(0.64, 0.78, 0.76, 1)
 theme_override_font_sizes/font_size = 14
-text = "Arrow keys: move  |  J: attack  |  H / Esc: exit to the open world"
+text = "方向键：移动  |  J：攻击  |  H / Esc：返回云岚村"
 
 [node name="Prompt" type="Label" parent="HUD"]
 anchors_preset = 10

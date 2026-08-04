@@ -15,29 +15,29 @@ func _ready() -> void:
 	player.attack_started.connect(_on_player_attack)
 	boss.body_entered.connect(func(body: Node2D): near_boss = body == player; _refresh_prompt())
 	boss.body_exited.connect(func(body: Node2D): if body == player: near_boss = false; _refresh_prompt())
-	status.text = "Mist-Stream Water Palace: reach the inner pool and test the boss encounter loop."
+	status.text = "雾溪水府：深入内池，击败水妖首领潮妃·兰纱。"
 	_refresh_boss_hp()
 
 func _on_player_attack(_direction: String) -> void:
 	if not near_boss or boss_health <= 0:
 		return
 	boss_health = max(0, boss_health - 12)
-	status.text = "Qiao Tide Demoness Lansa is struck. The combat hook is now connected to the same player controller."
+	status.text = "潮妃·兰纱受击。当前攻击已与开放世界同一角色控制器相连。"
 	_refresh_boss_hp()
 	if boss_health == 0:
 		boss.visible = false
-		GameState.add_item("Water Palace Initiate Token")
+		GameState.add_item("水府初阶法器匣")
 		GameState.gain_cultivation(20)
-		status.text = "Encounter cleared. Received initial equipment token and cultivation reward."
+		status.text = "水府试炼完成：获得水府初阶法器匣与 20 修为。"
 		prompt.text = ""
 
 func _refresh_boss_hp() -> void:
-	boss_hp.text = "Qiao Tide Demoness Lansa  |  HP %d / 100" % boss_health
+	boss_hp.text = "潮妃 · 兰纱  |  气血 %d / 100" % boss_health
 
 func _refresh_prompt() -> void:
-	prompt.text = "[J] Attack the Water Demon" if near_boss and boss_health > 0 else ""
+	prompt.text = "[J] 攻击水妖首领" if near_boss and boss_health > 0 else ""
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.is_pressed() and not event.is_echo() and (event.keycode == KEY_H or event.keycode == KEY_ESCAPE):
 		GameState.enter_screen(GameState.Screen.OVERWORLD)
-		get_tree().change_scene_to_file("res://scenes/playable_world.tscn")
+		get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
