@@ -216,3 +216,10 @@
 - Added the first actual third-layer space, 雾骨溪: a separate wide 2D creek map with an independent stone-arch gateway, player movement, a free random creek discovery and a return route to Mist Tide Border.
 - The Border now has separate physical gates for 炼气二层 Mist Forest and 炼气三层 Mist Bone Creek. The creek is not a task destination: its interaction text explicitly allows the player to return later through exploration, gathering, trade or cultivation.
 - Mist Forest now always grants one 雾林妖丹 in addition to its random drop. With three repeatable 雾潮晶簇, the village alchemy screen can craft 筑基丹. The actual 炼气大圆满 breakthrough checks only the finished pill, so ingredients are not charged twice.
+
+## 2026-08-05: Qi Refining fourth-layer Sunken Vessel Manor
+
+- Added the playable fourth-layer dungeon 沉舷遗府 as an independently entered border relic, not a forced quest objective. The entrance is visible in Mist Tide Border but only activates once the player reaches 炼气四层.
+- Generated and integrated a separate submerged-vessel combat terrain plate plus an alpha-cleaned boss asset, 沉舷残灵·鸣濯. The player, boss, weapon and effects remain layered runtime nodes rather than being painted into the map.
+- Reused the established five-slot hand-operated combat framework but gave the boss an independent 220 HP balance, 1.95-second anchor-shadow attack loop, separate settlement copy and independent drop table.
+- A clear always grants 沉舟航图残页 in addition to a random material drop, deliberately creating a future open-world navigation/trade clue instead of an automatic next quest.

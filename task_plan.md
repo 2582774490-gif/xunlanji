@@ -249,3 +249,10 @@
 - [x] Build 雾骨溪 as the first actual 炼气三层 independent open exploration map and random opportunity.
 - [x] Make the 筑基丹 material loop playable: 雾林妖丹 + 3 雾潮晶簇 -> 筑基丹 -> 炼气圆满冲关.
 - [ ] Build the 炼气四层沉舟遗府 as the next independent dungeon with its own terrain, boss and resource loop.
+
+## Phase 35: Qi Refining fourth-layer dungeon (active)
+
+- [x] Generate and integrate separate terrain and boss layers for 沉舷遗府.
+- [x] Add a natural visible gate in Mist Tide Border, locked only by 炼气四层 rather than a quest state.
+- [x] Add independent boss combat, rewards, settlement and runtime smoke coverage.
+- [ ] Build the 炼气五层雾潮石窟 as a non-linear gathering/event cave with multiple resource exits.

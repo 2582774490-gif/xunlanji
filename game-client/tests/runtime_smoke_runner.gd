@@ -13,6 +13,7 @@ func _run() -> void:
 	await _check_mist_border_scene()
 	await _check_mist_bone_creek()
 	await _check_mist_forest_grove()
+	await _check_sunken_vessel_manor()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
 		get_tree().quit(0)
@@ -99,6 +100,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.return_interaction != null, "Mist Tide Border is missing the return route interaction.")
 	_expect(border.scout_interaction != null, "Mist Tide Border is missing its first border-scout NPC route.")
 	_expect(border.creek_gate_interaction != null, "Mist Tide Border is missing the Qi Refining third-layer creek entrance.")
+	_expect(border.vessel_gate_interaction != null, "Mist Tide Border is missing the Qi Refining fourth-layer vessel entrance.")
 	var realm_before: int = GameState.player.realm_index
 	var stage_before: int = GameState.player.minor_stage
 	GameState.player.realm_index = 0
@@ -109,6 +111,9 @@ func _check_mist_border_scene() -> void:
 	_expect(not border.can_enter_mist_bone_creek(), "Mist Bone Creek should wait until third-layer Qi Refining.")
 	GameState.player.minor_stage = 3
 	_expect(border.can_enter_mist_bone_creek(), "Mist Bone Creek should open at third-layer Qi Refining.")
+	_expect(not border.can_enter_sunken_vessel(), "Sunken Vessel Manor should wait until fourth-layer Qi Refining.")
+	GameState.player.minor_stage = 4
+	_expect(border.can_enter_sunken_vessel(), "Sunken Vessel Manor should open at fourth-layer Qi Refining.")
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 	border.active_interaction = border.scout_interaction
@@ -164,6 +169,31 @@ func _check_mist_forest_grove() -> void:
 	_expect(GameState.player.dungeon_runs.size() == runs_before + 1, "Mist Forest clear did not record a separate dungeon run.")
 	_expect(GameState.player.inventory.has("雾林妖丹") and GameState.player.inventory.size() >= inventory_before + 2, "Mist Forest clear should grant an always-available foundation-pill core plus one random reward.")
 	forest.queue_free()
+	await get_tree().process_frame
+	GameState.player.realm_index = realm_before
+	GameState.player.minor_stage = stage_before
+
+func _check_sunken_vessel_manor() -> void:
+	var realm_before: int = GameState.player.realm_index
+	var stage_before: int = GameState.player.minor_stage
+	var runs_before: int = GameState.player.dungeon_runs.size()
+	var inventory_before: int = GameState.player.inventory.size()
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 4
+	var manor := preload("res://scenes/sunken_vessel_manor.tscn").instantiate()
+	add_child(manor)
+	await get_tree().process_frame
+	_expect(manor.boss_health == 220, "Sunken Vessel Manor should use its independent fourth-layer boss configuration.")
+	manor.near_boss = true
+	manor._cast_ningxi_sword_art()
+	await get_tree().create_timer(0.35).timeout
+	_expect(manor.boss_health < 220, "Sunken Vessel Ningxi cast did not damage its boss.")
+	manor._defeat_boss()
+	await get_tree().process_frame
+	_expect(manor.clear_panel.visible, "Sunken Vessel clear did not show the settlement panel.")
+	_expect(GameState.player.inventory.has("沉舟航图残页") and GameState.player.inventory.size() >= inventory_before + 2, "Sunken Vessel clear did not grant a random drop plus the navigation clue.")
+	_expect(GameState.player.dungeon_runs.size() == runs_before + 1, "Sunken Vessel clear did not record its separate dungeon run.")
+	manor.queue_free()
 	await get_tree().process_frame
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
