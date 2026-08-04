@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_village.gd" id="1_world"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/terrain/yunlan_village_center_ground_v01.png" id="2_ground"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://src/world/ground_shadow.gd" id="6_shadow"]
 [ext_resource type="Texture2D" path="res://assets/art/npcs/marketkeeper_luo/processed_alpha/marketkeeper_luo_idle_v01_alpha.png" id="7_luo"]
 [ext_resource type="Script" path="res://src/world/world_interaction.gd" id="8_interaction"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/props/processed_alpha/yunlan_village_alchemy_workshop_v01_alpha.png" id="9_alchemy"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -62,6 +63,15 @@ prompt_text = "与云市掌柜 · 洛晴交易"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MarketkeeperLuo/Interaction"]
 position = Vector2(0, -84)
 shape = SubResource("MerchantRange")
+
+[node name="AlchemyWorkshop" type="Node2D" parent="."]
+position = Vector2(1360, 760)
+
+[node name="Art" type="Sprite2D" parent="AlchemyWorkshop"]
+texture = ExtResource("9_alchemy")
+scale = Vector2(0.32, 0.32)
+centered = false
+offset = Vector2(-627, -1254)
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(330, 760)
