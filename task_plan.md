@@ -173,3 +173,11 @@
 - [x] Keep the market hall and merchant as separate Y-sorted scene nodes rather than baking them into terrain.
 - [ ] Add first workshop and sect-route nodes, then connect them to their respective gameplay screens.
 - [ ] Add the Water Palace route node from the village road after the first village loop is visually accepted.
+
+## Phase 25: Unify the player presentation across maps and dungeons (active)
+
+- [x] Give the female starter template a matching eight-direction walking-key-pose atlas.
+- [x] Make the gender choice use the same modular avatar in South Gate, Yunlan Village and Mist-Stream Water Palace.
+- [x] Keep the weapon as a separate motion-controlled child node inside the first dungeon.
+- [ ] Replace the current two-key-pose walk blend with full frame sequences for the approved starter template.
+- [ ] Add direction-specific body attack sheets and first skill-effect layers after the base movement has been visually accepted.

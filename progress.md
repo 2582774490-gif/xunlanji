@@ -113,3 +113,10 @@
 - Generated, alpha-cleaned and placed marketkeeper Luo Qing as an independent village NPC.
 - Her E interaction opens the existing market UI, linking a physical world location to the trading system.
 - Validated the village scene after asset import and launched it locally for review.
+
+## 2026-08-04: Unified player templates across the first playable loop
+
+- Generated and alpha-cleaned the female Yunlan avatar's eight-direction walking key-pose atlas; she now has the same readable moving silhouette as the male map template.
+- Replaced the Water Palace's legacy male-only player scene with the modular eight-direction avatar used in South Gate and Yunlan Village.
+- The selected gender, feet-based sorting, independent ground shadow and separately animated Qinglan Sword now persist from world exploration into the first dungeon.
+- Ran clean headless startup validation for South Gate, Village Center, Water Palace and the client entry scene.
