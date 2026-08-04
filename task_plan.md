@@ -266,6 +266,12 @@
 - [x] Add a streaming controller that loads and unloads high-detail terrain chunks around the player while preserving dynamic population state.
 - [x] Convert hostile ecological entries into active on-map combat encounters, with safe avoidance and no-drop retreat rules.
 
+## Phase 38: Qi Refining seventh-layer weather region (active)
+
+- [ ] Build 听雷断崖 as a 12000x8000 weather-driven exploration region with authored terrain chunks.
+- [ ] Add thunder-window opportunities and ecology that suit cliff weather, rather than generic evenly distributed NPCs.
+- [ ] Add a natural 炼气七层 entrance and runtime coverage without any quest-chain requirement.
+
 ## Phase 36: Qi Refining fifth-layer non-linear cave (active)
 
 - [x] Generate and integrate a separate 雾潮石窟 terrain plate.

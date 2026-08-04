@@ -12,6 +12,7 @@ extends Node2D
 @onready var touch_controls: Node = $HUD/TouchControls
 @onready var regional_population = $RegionalPopulation
 @onready var world_encounter = $WorldCombat
+@onready var chunk_streamer = $ChunkStreamer
 
 var active_interaction: Area2D
 var event_resolved := false
@@ -30,6 +31,10 @@ func _ready() -> void:
 	# the western entrance; the playable regional space continues eastward.
 	player.map_bounds = Rect2(70, 70, 11860, 7860)
 	player.position = Vector2(1490, 1710)
+	chunk_streamer.configure(player, [
+		{"id": "red_maple_western_road", "node": $Terrain, "bounds": Rect2(0, 0, 3072, 2048)},
+		{"id": "red_maple_broken_bridge", "node": $BrokenBridgeEmberRidgeChunk, "bounds": Rect2(3072, 0, 3072, 2048)},
+	])
 	route_event = ROAD_EVENTS.pick_random().duplicate()
 	$RoadEvent/Name.text = str(route_event.name)
 	status.text = "赤枫古道（炼气六层）：商路、岔道与偶遇互相独立。你可交易、帮商队护路、寻找机缘，或只当作通往远方的道路。"

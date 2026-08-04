@@ -240,6 +240,11 @@
 - Added a single mobile overworld attack button alongside the existing joystick and interaction button, so the open-world encounter loop is not keyboard-only. Full five-skill combat remains in dungeon scenes until those skills are separately tuned for roaming encounters.
 - Extended runtime verification with a deterministic hostile ecology entry, proving encounter activation, hand-operated attack, target removal and reward delivery.
 
+## 2026-08-05: Red Maple Road eastern art chunk
+
+- Generated and integrated `Red Maple Ancient Road: Broken Bridge and Ember Ridge`, an independently painted eastern trade-corridor chunk with a broken bridge, forked road, maple cliffs, abandoned kiln remains and exits toward future chunks.
+- Red Maple Road now uses the same high-detail terrain streaming path as Mist Tide Border. The project smoke test verifies that its nearby art loads and its far western art unloads when the player crosses the large regional space.
+
 ## 2026-08-05: Qi Refining fifth-layer Mist Tide Stone Grotto
 
 - Added 雾潮石窟 as a separate fifth-layer exploration cave with a three-route layout: left mineral shelf, middle random tide event and right collapsed tunnel. Each is optional and can be resolved in any order.

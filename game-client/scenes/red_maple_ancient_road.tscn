@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://src/world/red_maple_ancient_road.gd" id="1_scene"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/red_maple_ancient_road/terrain/red_maple_ancient_road_ground_v01.png" id="2_ground"]
@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://src/world/large_region_backdrop.gd" id="11_backdrop"]
 [ext_resource type="Script" path="res://src/world/regional_population_director.gd" id="12_population"]
 [ext_resource type="Script" path="res://src/world/world_encounter_controller.gd" id="13_encounter"]
+[ext_resource type="Script" path="res://src/world/region_chunk_streamer.gd" id="14_streamer"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/red_maple_ancient_road/terrain/red_maple_broken_bridge_ember_ridge_v01.png" id="15_bridge"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -47,6 +49,16 @@ texture = ExtResource("2_ground")
 scale = Vector2(2, 2)
 centered = false
 z_index = -10
+
+[node name="BrokenBridgeEmberRidgeChunk" type="Sprite2D" parent="."]
+position = Vector2(3072, 0)
+texture = ExtResource("15_bridge")
+scale = Vector2(2, 2)
+centered = false
+z_index = -10
+
+[node name="ChunkStreamer" type="Node" parent="."]
+script = ExtResource("14_streamer")
 
 [node name="RoadExit" type="Node2D" parent="."]
 position = Vector2(1480, 1785)

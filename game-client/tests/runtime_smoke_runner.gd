@@ -258,6 +258,13 @@ func _check_red_maple_ancient_road() -> void:
 	_expect(road.player.map_bounds.size.x >= 11000.0, "Red Maple Road did not reserve a large regional exploration space.")
 	_expect(road.route_event.size() > 0, "Red Maple Road did not choose a road event.")
 	_expect(road.regional_population != null, "Red Maple Road is missing its ecological dynamic-population director.")
+	_expect(road.chunk_streamer.loaded_chunk_count() >= 1, "Red Maple Road did not load its nearby western terrain chunk.")
+	var road_player_start: Vector2 = road.player.position
+	road.player.position = Vector2(11200, 7200)
+	await get_tree().process_frame
+	_expect(not road.get_node("Terrain").visible, "Red Maple Road did not unload far western terrain art.")
+	road.player.position = road_player_start
+	await get_tree().process_frame
 	road.active_interaction = road.ledger_interaction
 	road._activate_contextual()
 	road.active_interaction = road.escort_interaction
