@@ -223,6 +223,7 @@ func _defeat_boss() -> void:
 		"spirit_stones": last_drop.stones,
 		"cultivation": last_drop.cultivation,
 	})
+	GameState.unlock_region("mist_border")
 	status.text = "水府试炼完成：已获得掉落，可从结算面板返回云岚村。"
 	prompt.text = ""
 	clear_summary.text = "潮妃·兰纱已退入水雾。\n\n获得：%s\n灵石 +%d　修为 +%d\n\n本次掉落已进入行囊，并记入水府试炼记录。" % [str(last_drop.item), int(last_drop.stones), int(last_drop.cultivation)]

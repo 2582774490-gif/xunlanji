@@ -186,3 +186,8 @@
 
 - The first water-demon boss now chooses one starter equipment drop per clear, adds spirit stones and cultivation, and records the run in the player state.
 - A touch-friendly settlement panel appears on victory instead of leaving the player in a cleared arena with no next action.
+
+## 2026-08-04: Mist Tide Border first spatial region
+
+- Created a second region from a ground-only terrain layer at a larger 3344×1882 playable extent, then placed its ruined checkpoint and three mist-pine groups as separate Y-sorted objects.
+- The village’s west-side old road now becomes a physical route once the Water Palace is cleared; the boss clear unlocks `mist_border` in persistent player state.

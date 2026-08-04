@@ -216,3 +216,9 @@
 - [x] Define random initial-equipment drops for the Water Palace boss.
 - [x] Add a post-victory settlement panel that works with mobile touch.
 - [x] Verify boss defeat records rewards and returns to the village without a death-drop penalty.
+
+## Phase 30: Second open-world region (active)
+
+- [x] Produce a ground-only terrain plate plus independent ruined-gate and mist-pine props.
+- [x] Build a large Mist Tide Border scene using separate terrain, prop and actor layers.
+- [ ] Gate the route behind the first Water Palace clear and verify regional switching.

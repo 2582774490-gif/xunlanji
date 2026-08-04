@@ -3,6 +3,7 @@ extends Node2D
 @onready var merchant: Area2D = $MarketkeeperLuo/Interaction
 @onready var alchemy: Area2D = $AlchemyWorkshop/Interaction
 @onready var sect_envoy: Area2D = $SectEnvoyNingYuan/Interaction
+@onready var mist_border: Area2D = $MistBorderPassage/Interaction
 @onready var water_palace: Area2D = $WaterPalaceEntrance/Interaction
 @onready var prompt: Label = $HUD/Prompt
 @onready var touch_controls: Node = $HUD/TouchControls
@@ -10,12 +11,15 @@ extends Node2D
 var active_interaction_id := ""
 
 func _ready() -> void:
+	GameState.current_region_id = "starter_village"
 	merchant.focused.connect(func(_interaction): _set_context("merchant", "与云市掌柜·洛清交易"))
 	merchant.unfocused.connect(func(_interaction): _clear_context("merchant"))
 	alchemy.focused.connect(func(_interaction): _set_context("alchemy", "进入炼丹工坊"))
 	alchemy.unfocused.connect(func(_interaction): _clear_context("alchemy"))
 	sect_envoy.focused.connect(func(_interaction): _set_context("sect", "与宗门接引使·宁远交谈"))
 	sect_envoy.unfocused.connect(func(_interaction): _clear_context("sect"))
+	mist_border.focused.connect(func(_interaction): _set_context("mist_border", "前往雾潮边境" if GameState.is_region_unlocked("mist_border") else "雾潮边境尚待水府试炼开启"))
+	mist_border.unfocused.connect(func(_interaction): _clear_context("mist_border"))
 	water_palace.focused.connect(func(_interaction): _set_context("water_palace", "进入雾溪水府（炼气副本）"))
 	water_palace.unfocused.connect(func(_interaction): _clear_context("water_palace"))
 	touch_controls.action_requested.connect(_on_touch_action_requested)
@@ -54,6 +58,11 @@ func _activate_contextual() -> void:
 			GameState.enter_screen(GameState.Screen.SECT)
 			GameState.notify("宁远：可自由选择宗门，但门规、贡献与离宗后果也会随选择而来。")
 			get_tree().change_scene_to_file("res://scenes/main.tscn")
+		"mist_border":
+			if GameState.is_region_unlocked("mist_border"):
+				get_tree().change_scene_to_file("res://scenes/mist_tide_border.tscn")
+			else:
+				GameState.notify("雾潮边境被水雾封锁。完成雾溪水府试炼后可沿旧道前往。")
 		"water_palace":
 			GameState.selected_dungeon_id = "mist_stream_palace"
 			get_tree().change_scene_to_file("res://scenes/mist_stream_water_palace.tscn")

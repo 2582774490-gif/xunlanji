@@ -9,6 +9,7 @@ func _run() -> void:
 	await _check_random_opportunity()
 	await _check_village_routes()
 	await _check_water_palace_loop()
+	await _check_mist_border_scene()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
 		get_tree().quit(0)
@@ -57,7 +58,18 @@ func _check_water_palace_loop() -> void:
 	_expect(palace.clear_panel.visible, "Boss clear did not show a settlement panel.")
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Boss clear did not grant one initial-equipment drop.")
 	_expect(GameState.player.dungeon_runs.size() == runs_before + 1, "Boss clear did not record the dungeon run.")
+	_expect(GameState.is_region_unlocked("mist_border"), "Water Palace clear did not unlock Mist Tide Border.")
 	palace.queue_free()
+	await get_tree().process_frame
+
+func _check_mist_border_scene() -> void:
+	var border := preload("res://scenes/mist_tide_border.tscn").instantiate()
+	add_child(border)
+	await get_tree().process_frame
+	_expect(GameState.current_region_id == "mist_border", "Mist Tide Border scene did not set the active region.")
+	_expect(border.player.map_bounds.size.x >= 3000.0, "Mist Tide Border did not create a larger regional movement space.")
+	_expect(border.return_interaction != null, "Mist Tide Border is missing the return route interaction.")
+	border.queue_free()
 	await get_tree().process_frame
 
 func _expect(condition: bool, message: String) -> void:

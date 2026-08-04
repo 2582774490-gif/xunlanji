@@ -44,6 +44,7 @@ var player := {
 	"codex": ["云岚村", "雾溪水府"],
 	"opportunity_log": [],
 	"dungeon_runs": [],
+	"unlocked_regions": ["starter_village"],
 }
 
 func enter_screen(next_screen: Screen) -> void:
@@ -130,6 +131,17 @@ func record_opportunity(entry: Dictionary) -> void:
 func record_dungeon_run(entry: Dictionary) -> void:
 	player.dungeon_runs.append(entry)
 	profile_changed.emit()
+
+func is_region_unlocked(region_id: String) -> bool:
+	return player.unlocked_regions.has(region_id)
+
+func unlock_region(region_id: String) -> bool:
+	if is_region_unlocked(region_id):
+		return false
+	player.unlocked_regions.append(region_id)
+	notify("新区域已开启：雾潮边境")
+	profile_changed.emit()
+	return true
 
 func consume_items(items: Array[String]) -> bool:
 	for item_name in items:
