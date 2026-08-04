@@ -61,6 +61,10 @@ func _check_local_market_loop() -> void:
 	var listing_index := GameState.local_market_listings.size() - 1
 	_expect(GameState.buy_market_listing(listing_index), "Local market should complete a listed-item purchase.")
 	_expect(GameState.player.inventory.has("烟测交易材") and GameState.player.gold == 79, "Market purchase should deliver the item and charge the listing price.")
+	_expect(GameState.list_item_for_market("烟测交易材", 20), "Local market should allow a purchased item to be listed again.")
+	var cancel_index := GameState.local_market_listings.size() - 1
+	_expect(GameState.cancel_market_listing(cancel_index), "Local market should allow the seller to withdraw their own listing.")
+	_expect(GameState.player.inventory.has("烟测交易材") and GameState.player.gold == 78, "Listing cancellation should return the item but retain the listing fee.")
 	GameState.player = profile_before
 	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()
