@@ -17,7 +17,7 @@ func _ready() -> void:
 	player.map_bounds = Rect2(64, 64, 2432, 1408)
 	player.position = Vector2(240, 1250)
 	player_health = int(GameState.derived_stats()["气血"])
-	player.attack_started.connect(_on_player_attack)
+	player.attack_impact.connect(_on_player_attack)
 	boss.body_entered.connect(func(body: Node2D): near_boss = body == player; _refresh_prompt())
 	boss.body_exited.connect(func(body: Node2D): if body == player: near_boss = false; _refresh_prompt())
 	status.text = "雾溪水府：深入内池，击败水妖首领潮妃·兰纱。"

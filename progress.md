@@ -127,3 +127,10 @@
 - The spatial controller now selects the correct full walk sheet by gender and replaces the old two-key-pose south loop with a true six-frame cycle.
 - All directions retain a light foot-anchor bob; the independent weapon trails movement and swings on attack, while the body receives a restrained attack lunge until dedicated directional attack sheets are ready.
 - This is intentionally an intermediate animation package: the seven remaining directions still retain their distinct directional poses and are not mirrored or falsely substituted.
+
+## 2026-08-04: First body-and-weapon combat pass
+
+- Generated and alpha-cleaned independent six-frame south-facing sword-strike body sheets for both starter templates.
+- The body sheet deliberately has no painted weapon: `WeaponPivot` remains its own reusable layer, so future weapon families and cosmetic outfits do not require a separate full character animation export.
+- In the Water Palace, player damage now lands at the attack impact moment rather than immediately at keypress. A short anti-spam animation lock keeps one visible strike and one damage event aligned.
+- Only the exact south-facing body attack is played at present; other directions keep the existing procedural lunge and weapon swing until their true directional body sheets exist.

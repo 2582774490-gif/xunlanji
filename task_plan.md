@@ -182,3 +182,11 @@
 - [x] Replace the south-facing two-key-pose blend with full six-frame sequences for both approved starter templates.
 - [ ] Produce matching full walk frame sequences for the remaining seven directions, in verified four-direction batches.
 - [ ] Add direction-specific body attack sheets and first skill-effect layers after the base movement has been visually accepted.
+
+## Phase 26: Establish the first hand-operated combat package (active)
+
+- [x] Produce independent body-only six-frame south-facing sword-strike sheets for both launch templates.
+- [x] Synchronize the attack impact and Water Palace damage event with the visible swing rather than the keypress.
+- [x] Keep weapon transform animation independent from body art for future weapon and costume replacement.
+- [ ] Produce true directional body attack sheets for the remaining seven directions.
+- [ ] Add the first independently rendered sword-trail and hit-spark effect layers.
