@@ -1,0 +1,286 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/world/return_abyss_mist_port.gd" id="1_scene"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/return_abyss_mist_port/terrain/return_abyss_mist_port_ground_v01.png" id="2_ground"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/mist_bone_creek/props/processed_alpha/mist_bone_creek_arch_v01_alpha.png" id="3_arch"]
+[ext_resource type="Texture2D" path="res://assets/art/resources/mist_tide_crystal_cluster/processed_alpha/mist_tide_crystal_cluster_v01_alpha.png" id="4_crystal"]
+[ext_resource type="Script" path="res://src/world/spatial_test_player.gd" id="5_player"]
+[ext_resource type="Script" path="res://src/animation/frame_animation_controller.gd" id="6_animator"]
+[ext_resource type="Script" path="res://src/world/ground_shadow.gd" id="7_shadow"]
+[ext_resource type="Script" path="res://src/world/world_interaction.gd" id="8_interaction"]
+[ext_resource type="Script" path="res://src/ui/virtual_touch_controls.gd" id="9_touch"]
+[ext_resource type="Script" path="res://src/world/large_region_backdrop.gd" id="10_backdrop"]
+[ext_resource type="Script" path="res://src/world/regional_population_director.gd" id="11_population"]
+[ext_resource type="Script" path="res://src/world/world_encounter_controller.gd" id="12_encounter"]
+[ext_resource type="Script" path="res://src/world/region_chunk_streamer.gd" id="13_streamer"]
+
+[sub_resource type="CircleShape2D" id="PlayerShape"]
+radius = 18.0
+
+[sub_resource type="CircleShape2D" id="ExitShape"]
+radius = 125.0
+
+[sub_resource type="CircleShape2D" id="AuctionShape"]
+radius = 125.0
+
+[sub_resource type="CircleShape2D" id="LedgerShape"]
+radius = 94.0
+
+[sub_resource type="CircleShape2D" id="WreckShape"]
+radius = 102.0
+
+[node name="ReturnAbyssMistPort" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_scene")
+
+[node name="RegionBackdrop" type="Node2D" parent="."]
+z_index = -30
+script = ExtResource("10_backdrop")
+region_size = Vector2(12000, 8000)
+region_style = "mist_port"
+
+[node name="Terrain" type="Sprite2D" parent="."]
+texture = ExtResource("2_ground")
+scale = Vector2(2, 2)
+centered = false
+z_index = -10
+
+[node name="ChunkStreamer" type="Node" parent="."]
+script = ExtResource("13_streamer")
+
+[node name="PortExit" type="Node2D" parent="."]
+position = Vector2(430, 1680)
+
+[node name="Art" type="Sprite2D" parent="PortExit"]
+texture = ExtResource("3_arch")
+scale = Vector2(0.18, 0.18)
+centered = false
+offset = Vector2(-627, -1254)
+modulate = Color(0.56, 0.90, 0.88, 1)
+
+[node name="Name" type="Label" parent="PortExit"]
+offset_left = -140.0
+offset_top = -212.0
+offset_right = 140.0
+offset_bottom = -186.0
+theme_override_colors/font_color = Color(0.67, 0.94, 0.90, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "雾港陆路 · 返回雾潮边境"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="PortExit"]
+script = ExtResource("8_interaction")
+interaction_id = "return_to_border"
+prompt_text = "沿陆路返回雾潮边境"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PortExit/Interaction"]
+position = Vector2(0, -100)
+shape = SubResource("ExitShape")
+
+[node name="AuctionHall" type="Node2D" parent="."]
+position = Vector2(1010, 720)
+
+[node name="Name" type="Label" parent="AuctionHall"]
+offset_left = -135.0
+offset_top = -98.0
+offset_right = 135.0
+offset_bottom = -70.0
+theme_override_colors/font_color = Color(1, 0.84, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "归墟拍卖堂 · 本地演示"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="AuctionHall"]
+script = ExtResource("8_interaction")
+interaction_id = "port_auction_hall"
+prompt_text = "进入拍卖堂，查看自由市集"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AuctionHall/Interaction"]
+shape = SubResource("AuctionShape")
+
+[node name="TideLedger" type="Node2D" parent="."]
+position = Vector2(1590, 980)
+
+[node name="Art" type="Sprite2D" parent="TideLedger"]
+texture = ExtResource("4_crystal")
+scale = Vector2(0.15, 0.15)
+centered = false
+offset = Vector2(-627, -1254)
+modulate = Color(0.67, 0.85, 0.9, 1)
+
+[node name="Name" type="Label" parent="TideLedger"]
+offset_left = -120.0
+offset_top = -170.0
+offset_right = 120.0
+offset_bottom = -144.0
+theme_override_colors/font_color = Color(0.75, 0.94, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "潮路公告板 · 外海流言"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="TideLedger"]
+script = ExtResource("8_interaction")
+interaction_id = "tide_ledger"
+prompt_text = "查看潮路公告板"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TideLedger/Interaction"]
+position = Vector2(0, -58)
+shape = SubResource("LedgerShape")
+
+[node name="WreckedPier" type="Node2D" parent="."]
+position = Vector2(2500, 910)
+
+[node name="Art" type="Sprite2D" parent="WreckedPier"]
+texture = ExtResource("4_crystal")
+scale = Vector2(0.20, 0.20)
+centered = false
+offset = Vector2(-627, -1254)
+modulate = Color(0.50, 0.88, 0.84, 1)
+
+[node name="Name" type="Label" parent="WreckedPier"]
+offset_left = -135.0
+offset_top = -192.0
+offset_right = 135.0
+offset_bottom = -164.0
+theme_override_colors/font_color = Color(0.64, 1, 0.88, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="WreckedPier"]
+script = ExtResource("8_interaction")
+interaction_id = "wrecked_pier"
+prompt_text = "靠近沉船浅滩搜寻机缘"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WreckedPier/Interaction"]
+position = Vector2(0, -70)
+shape = SubResource("WreckShape")
+
+[node name="RegionalPopulation" type="Node2D" parent="."]
+script = ExtResource("11_population")
+
+[node name="WorldCombat" type="Node" parent="."]
+script = ExtResource("12_encounter")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+groups = ["player_actor"]
+script = ExtResource("5_player")
+
+[node name="GroundShadow" type="Node2D" parent="Player"]
+z_index = -1
+script = ExtResource("7_shadow")
+
+[node name="Body" type="AnimatedSprite2D" parent="Player"]
+position = Vector2(0, -60)
+scale = Vector2(0.30, 0.30)
+script = ExtResource("6_animator")
+
+[node name="WeaponBackSlot" type="Node2D" parent="Player"]
+position = Vector2(-14, -52)
+z_index = -1
+
+[node name="WeaponFrontSlot" type="Node2D" parent="Player"]
+position = Vector2(18, -42)
+z_index = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("PlayerShape")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+limit_left = 0
+limit_top = 0
+limit_right = 12000
+limit_bottom = 8000
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Title" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 22.0
+offset_right = 760.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.67, 0.94, 0.90, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 24
+text = "归墟雾港 · 炼气八层海路探索"
+
+[node name="EncounterTarget" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 70.0
+offset_right = 560.0
+offset_bottom = 98.0
+theme_override_colors/font_color = Color(0.80, 0.73, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+
+[node name="EncounterPlayer" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 102.0
+offset_right = 420.0
+offset_bottom = 128.0
+theme_override_colors/font_color = Color(0.75, 0.90, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 16
+
+[node name="StatusPanel" type="ColorRect" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.025, 0.05, 0.11, 0.92)
+
+[node name="Status" type="Label" parent="HUD/StatusPanel"]
+offset_left = 24.0
+offset_top = 14.0
+offset_right = 1200.0
+offset_bottom = 52.0
+theme_override_colors/font_color = Color(0.83, 0.88, 0.98, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+
+[node name="Help" type="Label" parent="HUD/StatusPanel"]
+offset_left = 24.0
+offset_top = 60.0
+offset_right = 1200.0
+offset_bottom = 86.0
+theme_override_colors/font_color = Color(0.60, 0.70, 0.84, 1)
+theme_override_font_sizes/font_size = 14
+text = "港口线索均为自选：交易、读公告、探沉船或离开皆可。E / Esc：互动或返回。"
+
+[node name="Prompt" type="Label" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+offset_bottom = -110.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.84, 0.89, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 19
+horizontal_alignment = 1
+
+[node name="TouchControls" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("9_touch")
+overworld_attack_enabled = true

@@ -36,6 +36,7 @@ const DUNGEONS := {
 	"sealed_grotto": {"name": "雾潮石窟", "realm": "炼气五层", "enemy": "灵潮异象", "reward": "雾潮矿芯"},
 	"border_realm": {"name": "赤枫古道", "realm": "炼气六层", "enemy": "商路异闻", "reward": "流火矿"},
 	"thunder_cliff": {"name": "听雷断崖", "realm": "炼气七层", "enemy": "引雷岩貂", "reward": "雷纹符材"},
+	"return_abyss_mist_port": {"name": "归墟雾港", "realm": "炼气八层", "enemy": "沉桩水魇", "reward": "归墟潮砂"},
 	"earth_fire": {"name": "地火窟", "realm": "元婴", "enemy": "地火灵兽", "reward": "赤焰精金"},
 	"ancient_battlefield": {"name": "古战场", "realm": "元婴", "enemy": "战场残魂", "reward": "古战印"},
 	"sky_rift": {"name": "天隙台", "realm": "化神", "enemy": "裂隙守望者", "reward": "天隙晶"},

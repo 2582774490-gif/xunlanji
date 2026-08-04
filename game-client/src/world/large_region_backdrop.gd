@@ -35,6 +35,13 @@ func _palette() -> Dictionary:
 				"mountain": Color("291d25"), "mist": Color("6f483e"),
 				"landmark": Color("f4a24b"),
 			}
+		"mist_port":
+			return {
+				"ground": Color("173f4a"), "water": Color("236f78"),
+				"road_edge": Color("163039"), "road": Color("789092"),
+				"mountain": Color("17333b"), "mist": Color("4c8583"),
+				"landmark": Color("e2b46c"),
+			}
 		_:
 			return {
 				"ground": Color("173c3c"), "water": Color("245e67"),

@@ -19,6 +19,7 @@ func _run() -> void:
 	await _check_red_maple_ancient_road()
 	await _check_world_population_encounter()
 	await _check_thunder_listening_cliff()
+	await _check_return_abyss_mist_port()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
 		get_tree().quit(0)
@@ -127,6 +128,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.grotto_gate_interaction != null, "Mist Tide Border is missing the Qi Refining fifth-layer grotto entrance.")
 	_expect(border.red_maple_gate_interaction != null, "Mist Tide Border is missing the Qi Refining sixth-layer Red Maple Road entrance.")
 	_expect(border.thunder_cliff_gate_interaction != null, "Mist Tide Border is missing the Qi Refining seventh-layer Thunder Listening Cliff entrance.")
+	_expect(border.mist_port_gate_interaction != null, "Mist Tide Border is missing the Qi Refining eighth-layer Return Abyss Mist Port entrance.")
 	_expect(border.player.map_bounds.size.x >= 11000.0, "Mist Tide Border still behaves like a single small background instead of a large region.")
 	_expect(border.chunk_streamer.loaded_chunk_count() >= 1, "Mist Tide Border did not load its nearby high-detail terrain chunk.")
 	var border_player_start: Vector2 = border.player.position
@@ -157,6 +159,9 @@ func _check_mist_border_scene() -> void:
 	_expect(not border.can_enter_thunder_cliff(), "Thunder Listening Cliff should wait until seventh-layer Qi Refining.")
 	GameState.player.minor_stage = 7
 	_expect(border.can_enter_thunder_cliff(), "Thunder Listening Cliff should open at seventh-layer Qi Refining.")
+	_expect(not border.can_enter_mist_port(), "Return Abyss Mist Port should wait until eighth-layer Qi Refining.")
+	GameState.player.minor_stage = 8
+	_expect(border.can_enter_mist_port(), "Return Abyss Mist Port should open at eighth-layer Qi Refining.")
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 	border.active_interaction = border.scout_interaction
@@ -356,6 +361,32 @@ func _check_thunder_listening_cliff() -> void:
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Thunder Listening Cliff should grant its weather-material outcome.")
 	_expect(GameState.player.opportunity_log.size() == log_before + 2, "Thunder Listening Cliff did not record both free-exploration discoveries.")
 	cliff.queue_free()
+	await get_tree().process_frame
+	GameState.player.realm_index = realm_before
+	GameState.player.minor_stage = stage_before
+
+func _check_return_abyss_mist_port() -> void:
+	var realm_before: int = GameState.player.realm_index
+	var stage_before: int = GameState.player.minor_stage
+	var inventory_before: int = GameState.player.inventory.size()
+	var log_before: int = GameState.player.opportunity_log.size()
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 8
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.map_bounds.size.x >= 11000.0, "Return Abyss Mist Port did not reserve a large port exploration region.")
+	_expect(port.port_event.size() > 0, "Return Abyss Mist Port did not choose a free-exploration port event.")
+	_expect(port.chunk_streamer.loaded_chunk_count() >= 1, "Return Abyss Mist Port did not load its nearby authored quay terrain.")
+	_expect(port.auction_interaction != null, "Return Abyss Mist Port is missing its physical auction-hall entry.")
+	port.active_interaction = port.ledger_interaction
+	port._activate_contextual()
+	port.active_interaction = port.wreck_interaction
+	port._activate_contextual()
+	_expect(port.ledger_read and port.wreck_resolved, "Return Abyss Mist Port did not resolve its independent rumour and wreck routes.")
+	_expect(GameState.player.inventory.size() == inventory_before + 1, "Return Abyss Mist Port should grant one selected wreck-event material.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 2, "Return Abyss Mist Port did not record both optional discoveries.")
+	port.queue_free()
 	await get_tree().process_frame
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
