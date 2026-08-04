@@ -63,12 +63,21 @@ func _check_water_palace_loop() -> void:
 	await get_tree().process_frame
 
 func _check_mist_border_scene() -> void:
+	var inventory_before: int = GameState.player.inventory.size()
 	var border := preload("res://scenes/mist_tide_border.tscn").instantiate()
 	add_child(border)
 	await get_tree().process_frame
 	_expect(GameState.current_region_id == "mist_border", "Mist Tide Border scene did not set the active region.")
 	_expect(border.player.map_bounds.size.x >= 3000.0, "Mist Tide Border did not create a larger regional movement space.")
 	_expect(border.return_interaction != null, "Mist Tide Border is missing the return route interaction.")
+	_expect(border.scout_interaction != null, "Mist Tide Border is missing its first border-scout NPC route.")
+	border.active_interaction = border.scout_interaction
+	border._activate_contextual()
+	_expect(border.scout_dialogue_stage == 1, "Border scout dialogue did not advance.")
+	border.active_interaction = border.crystal_interaction
+	border._activate_contextual()
+	_expect(border.crystal_collected and not border.get_node("MistTideCrystal").visible, "Border crystal gathering did not remove the resource node.")
+	_expect(GameState.player.inventory.size() == inventory_before + 1, "Border crystal gathering did not add its material to inventory.")
 	border.queue_free()
 	await get_tree().process_frame
 

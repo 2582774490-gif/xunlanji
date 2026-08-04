@@ -191,3 +191,8 @@
 
 - Created a second region from a ground-only terrain layer at a larger 3344×1882 playable extent, then placed its ruined checkpoint and three mist-pine groups as separate Y-sorted objects.
 - The village’s west-side old road now becomes a physical route once the Water Palace is cleared; the boss clear unlocks `mist_border` in persistent player state.
+
+## 2026-08-04: Border ecology and NPC starter pass
+
+- Added the independent border-scout NPC 柳朔. Her dialogue points players toward realm-gated northern content instead of pretending the whole next region is immediately safe.
+- Added a collectable `雾潮晶簇`; it is a separate scene node, removes itself after gathering, grants a material and cultivation, and establishes the first local resource ecology hook for later refining and formation systems.
