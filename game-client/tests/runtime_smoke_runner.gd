@@ -13,6 +13,7 @@ func _run() -> void:
 	await _check_wanted_patrol()
 	await _check_weapon_combat_profiles()
 	await _check_weapon_render_slot()
+	await _check_umbrella_render_slot()
 	await _check_artifact_render_slot()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
@@ -171,6 +172,23 @@ func _check_weapon_render_slot() -> void:
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Equipped Qinghuang Sword did not create an independent player weapon render slot.")
 	var weapon_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
 	_expect(weapon_sprite.texture != null, "Equipped Qinghuang Sword render slot has no sword texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_umbrella_render_slot() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("回云练气伞"):
+		GameState.player.inventory.append("回云练气伞")
+	GameState.equip_weapon("回云练气伞")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Equipped Huiyun Umbrella did not create an independent player weapon render slot.")
+	_expect(port.player.weapon_motion is UmbrellaMotionController, "Huiyun Umbrella did not use its dedicated defensive motion controller.")
+	var umbrella_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(umbrella_sprite.texture != null, "Equipped Huiyun Umbrella render slot has no umbrella texture.")
 	port.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

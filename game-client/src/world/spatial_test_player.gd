@@ -13,8 +13,10 @@ const FEMALE_WALK_KEY_SHEET: Texture2D = preload("res://assets/art/characters/yu
 const FEMALE_WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_walk_south_6f_v01_alpha.png")
 const FEMALE_ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_attack_south_6f_v01_alpha.png")
 const QINGHUANG_SWORD_TEXTURE: Texture2D = preload("res://assets/art/weapons/qinghuang_qi_sword/processed_alpha/qinghuang_qi_sword_v01_alpha.png")
+const HUIYUN_UMBRELLA_TEXTURE: Texture2D = preload("res://assets/art/weapons/huiyun_qi_umbrella/processed_alpha/huiyun_qi_umbrella_v01_alpha.png")
 const NALING_JADE_PENDANT_TEXTURE: Texture2D = preload("res://assets/art/artifacts/naling_jade_pendant/processed_alpha/naling_jade_pendant_v01_alpha.png")
 const WeaponMotionScript = preload("res://src/animation/weapon_motion_controller.gd")
+const UmbrellaMotionScript = preload("res://src/animation/umbrella_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -67,23 +69,28 @@ func _ready() -> void:
 
 func _configure_equipped_weapon_visual() -> void:
 	# Each equipped weapon is a runtime child of the player, never part of the
-	# terrain art.  Only the first approved sword asset is rendered for now;
-	# other weapon families intentionally stay asset-pending rather than sharing
-	# a misleading placeholder graphic.
-	if GameState.player.equipped_weapon != "青篁练气剑":
+	# terrain art.  Its presentation profile decides which motion controller it
+	# owns; unfinished families intentionally stay asset-pending.
+	var runtime_profile := GameCatalog.weapon_runtime_profile_for_item(GameState.player.equipped_weapon)
+	var motion := str(runtime_profile.get("motion", ""))
+	if motion.is_empty():
 		return
-	var pivot: WeaponMotionController = WeaponMotionScript.new()
+	var pivot: WeaponMotionController = UmbrellaMotionScript.new() if motion == "defense_umbrella" else WeaponMotionScript.new()
 	pivot.name = "WeaponPivot"
-	pivot.z_index = 3
+	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
 	weapon_motion = pivot
 	var sprite := Sprite2D.new()
 	sprite.name = "WeaponSprite"
-	sprite.texture = QINGHUANG_SWORD_TEXTURE
-	sprite.scale = Vector2(0.13, 0.13)
-	# The source image holds the hilt in its lower-left quadrant.  This offset
-	# pins that hilt near the moving hand pivot instead of rotating around image center.
-	sprite.position = Vector2(50, -50)
+	if motion == "defense_umbrella":
+		sprite.texture = HUIYUN_UMBRELLA_TEXTURE
+		sprite.scale = Vector2(0.092, 0.092)
+	else:
+		sprite.texture = QINGHUANG_SWORD_TEXTURE
+		sprite.scale = Vector2(0.13, 0.13)
+		# The source image holds the hilt in its lower-left quadrant. This pins
+		# that hilt near the moving hand pivot instead of rotating around center.
+		sprite.position = Vector2(50, -50)
 	pivot.add_child(sprite)
 
 func _configure_equipped_artifact_visual() -> void:

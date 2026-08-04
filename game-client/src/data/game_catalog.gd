@@ -128,6 +128,17 @@ static func weapon_profile_for_item(item_name: String) -> Dictionary:
 			return WEAPON_COMBAT_PROFILES.get(str(family.name), {}).duplicate(true)
 	return {"bonus": 0, "counter_reduction": 0, "skill_bonus": 0, "cooldown_delta": 0.0, "trait": "未定器型"}
 
+# A combat profile describes balance; a runtime profile describes presentation.
+# Keeping these separate prevents a defensive weapon from inheriting sword art
+# simply because both happen to be equippable.
+const WEAPON_RUNTIME_PROFILES := {
+	"青篁练气剑": {"motion": "hand_swing", "asset": "res://assets/art/weapons/qinghuang_qi_sword/processed_alpha/qinghuang_qi_sword_v01_alpha.png"},
+	"回云练气伞": {"motion": "defense_umbrella", "asset": "res://assets/art/weapons/huiyun_qi_umbrella/processed_alpha/huiyun_qi_umbrella_v01_alpha.png"},
+}
+
+static func weapon_runtime_profile_for_item(item_name: String) -> Dictionary:
+	return WEAPON_RUNTIME_PROFILES.get(item_name, {}).duplicate(true)
+
 const SPIRIT_ROOTS := [
 	{"name": "金灵根", "affinity": "锋锐、破甲、器炼"},
 	{"name": "木灵根", "affinity": "生长、疗愈、灵植"},
