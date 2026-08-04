@@ -28,6 +28,7 @@ const MARKET_MIN_PRICE := 1
 const MARKET_MAX_PRICE := 99999
 const FOUNDATION_PREPARATION_ITEMS := ["临渊露", "御崖石屑", "护脉阵片"]
 const WORLD_GUIDANCE_STEPS := ["lan_breath", "resource_ecology", "path_choice"]
+const ECOLOGY_RESPAWN_SECONDS := {"resource": 420, "beast": 540, "bandit": 600}
 const LOCAL_SAVE_PATH := "user://xunlanji_local_profile.json"
 const LOCAL_SAVE_VERSION := 1
 var local_market_listings: Array[Dictionary] = [
@@ -56,6 +57,7 @@ var player := {
 	"sect_contribution": 0,
 	"sect_wanted_by": [],
 	"world_guidance": {"steps": [], "skipped": false},
+	"ecology_cooldowns": {},
 	"equipped_weapon": "练气木剑",
 	"equipped_artifact": "纳灵玉佩",
 	"inventory": ["练气木剑", "凝气符", "雾溪草", "纳灵玉佩"],
@@ -606,6 +608,30 @@ func _normalize_player_schema() -> void:
 		if not guidance.has("skipped"):
 			guidance.skipped = false
 		player.world_guidance = guidance
+	if not player.has("ecology_cooldowns") or not player.ecology_cooldowns is Dictionary:
+		player.ecology_cooldowns = {}
+
+func is_ecology_profile_available(region_id: String, profile_id: String, now_unix: int = -1) -> bool:
+	_normalize_player_schema()
+	var key := "%s::%s" % [region_id, profile_id]
+	var now := int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
+	var available_at := int(player.ecology_cooldowns.get(key, 0))
+	return available_at <= now
+
+func mark_ecology_profile_resolved(region_id: String, profile_id: String, respawn_seconds: int, now_unix: int = -1) -> void:
+	if region_id.is_empty() or profile_id.is_empty() or respawn_seconds <= 0:
+		return
+	_normalize_player_schema()
+	var now := int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
+	var cooldowns: Dictionary = player.ecology_cooldowns
+	cooldowns["%s::%s" % [region_id, profile_id]] = now + respawn_seconds
+	player.ecology_cooldowns = cooldowns
+	profile_changed.emit()
+
+func ecology_respawn_seconds(profile: Dictionary) -> int:
+	if profile.has("respawn_seconds"):
+		return max(0, int(profile.respawn_seconds))
+	return int(ECOLOGY_RESPAWN_SECONDS.get(str(profile.get("kind", "")), 0))
 
 func complete_world_guidance_step(step_id: String) -> bool:
 	if not WORLD_GUIDANCE_STEPS.has(step_id):

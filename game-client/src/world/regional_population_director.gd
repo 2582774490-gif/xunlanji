@@ -20,9 +20,12 @@ var _entries: Dictionary = {}
 var _resolved: Dictionary = {}
 
 func populate(seed_value: int, profiles: Array[Dictionary]) -> void:
+	_clear_population()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	for profile in profiles:
+		if not GameState.is_ecology_profile_available(str(profile.get("region", "")), str(profile.get("id", ""))):
+			continue
 		if rng.randf() > float(profile.get("chance", 1.0)):
 			continue
 		var anchors: Array = profile.get("anchors", [])
@@ -43,13 +46,16 @@ func resolve(interaction: Area2D) -> void:
 	if kind == "bandit" or kind == "beast":
 		hostile_encounter_requested.emit(interaction)
 		return
-	_resolved[interaction] = true
 	var summary := ""
 	match kind:
 		"resource":
+			_resolved[interaction] = true
 			var reward := str(profile.get("reward", "野生灵材"))
 			GameState.add_item(reward)
 			GameState.gain_cultivation(int(profile.get("cultivation", 0)))
+			_apply_ecology_cooldown(profile)
+			interaction.set_deferred("monitoring", false)
+			interaction.get_parent().visible = false
 			summary = "在%s采得%s。此处位于对应生态带，下一次刷新仍只会回到湿地、矿脉或山涧等合适地点。" % [name, reward]
 		"merchant":
 			summary = "%s 分享了一段商路传闻：附近的资源与路口会随时令和人流改变。" % name
@@ -61,7 +67,8 @@ func resolve(interaction: Area2D) -> void:
 			summary = "%s 在自己的生态领地活动。暂时可观察或绕开；动态战斗接入后将按领地触发。" % name
 		_:
 			summary = "%s 的出现为这片区域增加了一条可自由追踪的线索。" % name
-	GameState.record_opportunity({"region": str(profile.get("region", "")), "name": name, "kind": kind, "cultivation": 0})
+	if kind == "resource":
+		GameState.record_opportunity({"region": str(profile.get("region", "")), "name": name, "kind": kind, "cultivation": 0})
 	population_resolved.emit(summary)
 
 func profile_for(interaction: Area2D) -> Dictionary:
@@ -76,6 +83,7 @@ func defeat_hostile(interaction: Area2D) -> void:
 	var reward := str(profile.get("reward", "异兽残材"))
 	interaction.set_deferred("monitoring", false)
 	interaction.get_parent().visible = false
+	_apply_ecology_cooldown(profile)
 	GameState.add_item(reward)
 	GameState.gain_cultivation(int(profile.get("cultivation", 4)))
 	GameState.record_opportunity({"region": str(profile.get("region", "")), "name": name, "kind": "hostile_defeated", "item": reward})
@@ -90,6 +98,21 @@ func interaction_for_profile_id(profile_id: String) -> Area2D:
 		if str(profile.get("id", "")) == profile_id:
 			return interaction
 	return null
+
+func _clear_population() -> void:
+	for interaction in _entries.keys():
+		if is_instance_valid(interaction):
+			var root := interaction.get_parent()
+			if is_instance_valid(root):
+				root.queue_free()
+	_entries.clear()
+	_resolved.clear()
+
+func _apply_ecology_cooldown(profile: Dictionary) -> void:
+	var seconds := GameState.ecology_respawn_seconds(profile)
+	if seconds <= 0:
+		return
+	GameState.mark_ecology_profile_resolved(str(profile.get("region", "")), str(profile.get("id", "")), seconds)
 
 func _create_population_node(profile: Dictionary, anchor: Vector2) -> void:
 	var root := Node2D.new()

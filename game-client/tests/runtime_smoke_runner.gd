@@ -548,6 +548,7 @@ func _check_world_population_encounter() -> void:
 	await get_tree().process_frame
 
 func _check_world_population_resource() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
 	var inventory_before: int = GameState.player.inventory.size()
 	var cultivation_before: int = GameState.player.cultivation
 	var population := preload("res://src/world/regional_population_director.gd").new()
@@ -563,7 +564,30 @@ func _check_world_population_resource() -> void:
 	population.resolve(herb_interaction)
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Ecological resource interaction did not grant its bound material.")
 	_expect(GameState.player.cultivation >= cultivation_before + 2, "Ecological resource interaction did not grant its cultivation value.")
+	_expect(not GameState.is_ecology_profile_available("test", "smoke_test_wetland_herb"), "Collected ecological resources should not return immediately after leaving the scene.")
 	population.queue_free()
+	await get_tree().process_frame
+	var reload_population := preload("res://src/world/regional_population_director.gd").new()
+	add_child(reload_population)
+	reload_population.populate(11, [{
+		"id": "smoke_test_wetland_herb", "region": "test", "kind": "resource", "name": "烟测湿地灵草",
+		"prompt": "采集烟测湿地灵草", "chance": 1.0, "anchors": [Vector2(120, 120)],
+		"reward": "烟测雾泽灵草", "cultivation": 2,
+	}])
+	_expect(reload_population.active_count() == 0, "Reloading a region should respect an active resource cooldown instead of instantly farming it again.")
+	reload_population.queue_free()
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+	var social_population := preload("res://src/world/regional_population_director.gd").new()
+	add_child(social_population)
+	social_population.populate(12, [{
+		"id": "smoke_test_road_rogue", "region": "test", "kind": "rogue", "name": "烟测路旁散修",
+		"prompt": "询问路旁散修", "chance": 1.0, "anchors": [Vector2(180, 120)],
+	}])
+	var rogue_interaction: Area2D = social_population.get_child(0).get_node("Interaction")
+	social_population.resolve(rogue_interaction)
+	_expect(rogue_interaction.get_parent().visible and social_population.active_count() == 1, "Social NPCs should remain present after conversation instead of behaving like one-shot loot nodes.")
+	social_population.queue_free()
 	await get_tree().process_frame
 
 func _check_local_duel_arena() -> void:
