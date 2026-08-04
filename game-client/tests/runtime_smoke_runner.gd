@@ -8,6 +8,7 @@ func _ready() -> void:
 func _run() -> void:
 	await _check_manual_progression()
 	await _check_weapon_combat_profiles()
+	await _check_weapon_render_slot()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
 	await _check_village_routes()
@@ -77,6 +78,21 @@ func _check_weapon_combat_profiles() -> void:
 	umbrella_combat.begin("测试", "木桩")
 	umbrella_combat.normal_attack()
 	_expect(umbrella_combat.player_hp > axe_combat.player_hp, "Defensive umbrella profile should reduce counter damage.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_weapon_render_slot() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory.append("青篁练气剑")
+	GameState.equip_weapon("青篁练气剑")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Equipped Qinghuang Sword did not create an independent player weapon render slot.")
+	var weapon_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(weapon_sprite.texture != null, "Equipped Qinghuang Sword render slot has no sword texture.")
+	port.queue_free()
+	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 

@@ -12,6 +12,8 @@ const FEMALE_IDLE_SHEET: Texture2D = preload("res://assets/art/characters/yunlan
 const FEMALE_WALK_KEY_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_walk_keypose_8dir_v01_alpha.png")
 const FEMALE_WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_walk_south_6f_v01_alpha.png")
 const FEMALE_ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_attack_south_6f_v01_alpha.png")
+const QINGHUANG_SWORD_TEXTURE: Texture2D = preload("res://assets/art/weapons/qinghuang_qi_sword/processed_alpha/qinghuang_qi_sword_v01_alpha.png")
+const WeaponMotionScript = preload("res://src/animation/weapon_motion_controller.gd")
 
 signal attack_started(direction: String)
 signal attack_impact(direction: String)
@@ -57,6 +59,28 @@ func _ready() -> void:
 		"attack_south": {"frames": [0, 1, 2, 3, 4, 5], "fps": 14.0, "loop": false},
 	})
 	body.play_action("idle", "south")
+	_configure_equipped_weapon_visual()
+
+func _configure_equipped_weapon_visual() -> void:
+	# Each equipped weapon is a runtime child of the player, never part of the
+	# terrain art.  Only the first approved sword asset is rendered for now;
+	# other weapon families intentionally stay asset-pending rather than sharing
+	# a misleading placeholder graphic.
+	if GameState.player.equipped_weapon != "青篁练气剑":
+		return
+	var pivot: WeaponMotionController = WeaponMotionScript.new()
+	pivot.name = "WeaponPivot"
+	pivot.z_index = 3
+	add_child(pivot)
+	weapon_motion = pivot
+	var sprite := Sprite2D.new()
+	sprite.name = "WeaponSprite"
+	sprite.texture = QINGHUANG_SWORD_TEXTURE
+	sprite.scale = Vector2(0.13, 0.13)
+	# The source image holds the hilt in its lower-left quadrant.  This offset
+	# pins that hilt near the moving hand pivot instead of rotating around image center.
+	sprite.position = Vector2(50, -50)
+	pivot.add_child(sprite)
 
 func _physics_process(delta: float) -> void:
 	var movement := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
