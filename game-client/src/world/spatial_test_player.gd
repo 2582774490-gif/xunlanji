@@ -6,6 +6,7 @@ extends CharacterBody2D
 ## Y-sort, collision and future weapon/costume child slots.
 const IDLE_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_idle_8dir_v01_alpha.png")
 const WALK_KEY_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_walk_keypose_8dir_v01_alpha.png")
+const FEMALE_IDLE_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_idle_8dir_v01_alpha.png")
 
 @export var move_speed := 250.0
 @export var map_bounds := Rect2(48.0, 48.0, 1576.0, 844.0)
@@ -16,7 +17,9 @@ var _moving := false
 var _elapsed := 0.0
 
 func _ready() -> void:
-	body.configure_from_grid(IDLE_SHEET, 4, 2, {
+	var idle_sheet := FEMALE_IDLE_SHEET if GameState.player.gender == "女" else IDLE_SHEET
+	var walk_sheet := FEMALE_IDLE_SHEET if GameState.player.gender == "女" else WALK_KEY_SHEET
+	body.configure_from_grid(idle_sheet, 4, 2, {
 		"idle_south": {"frames": [0], "fps": 1.0, "loop": true},
 		"idle_south_west": {"frames": [1], "fps": 1.0, "loop": true},
 		"idle_west": {"frames": [2], "fps": 1.0, "loop": true},
@@ -29,8 +32,8 @@ func _ready() -> void:
 	for direction_index in FrameAnimationController.DIRECTIONS.size():
 		var direction: String = FrameAnimationController.DIRECTIONS[direction_index]
 		body.append_mixed_grid_clip("walk_%s" % direction, [
-			{"sheet": IDLE_SHEET, "columns": 4, "rows": 2, "frame": direction_index},
-			{"sheet": WALK_KEY_SHEET, "columns": 4, "rows": 2, "frame": direction_index},
+			{"sheet": idle_sheet, "columns": 4, "rows": 2, "frame": direction_index},
+			{"sheet": walk_sheet, "columns": 4, "rows": 2, "frame": direction_index},
 		], 8.0, true)
 	body.play_action("idle", "south")
 
