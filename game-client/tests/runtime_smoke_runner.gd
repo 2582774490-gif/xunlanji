@@ -27,6 +27,7 @@ func _run() -> void:
 	await _check_red_maple_ancient_road()
 	await _check_world_population_encounter()
 	await _check_world_population_resource()
+	await _check_local_duel_arena()
 	await _check_thunder_listening_cliff()
 	await _check_return_abyss_mist_port()
 	await _check_abysswatch_terrace()
@@ -529,6 +530,31 @@ func _check_world_population_resource() -> void:
 	_expect(GameState.player.cultivation >= cultivation_before + 2, "Ecological resource interaction did not grant its cultivation value.")
 	population.queue_free()
 	await get_tree().process_frame
+
+func _check_local_duel_arena() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var log_before: Array = GameState.player.opportunity_log.duplicate(true)
+	if not GameState.player.inventory.has("青篁练气剑"):
+		GameState.player.inventory.append("青篁练气剑")
+	GameState.equip_weapon("青篁练气剑")
+	var arena := preload("res://scenes/duel_arena.tscn").instantiate()
+	add_child(arena)
+	await get_tree().process_frame
+	_expect(arena.player != null and arena.opponent != null, "Local duel arena did not create both duel participants.")
+	_expect(arena.get_node("Terrain").texture != null, "Local duel arena has no authored arena terrain.")
+	arena.player.position = arena.opponent.position + Vector2(110.0, 0.0)
+	arena.player.trigger_basic_attack()
+	await get_tree().create_timer(0.20).timeout
+	_expect(arena.opponent.hp < arena.opponent.max_hp, "Manual player attack did not damage the nearby local-duel opponent.")
+	arena._on_opponent_attack(12)
+	_expect(arena.player_hp < 100, "Local-duel opponent attack did not damage the player.")
+	arena.opponent.take_damage(999)
+	_expect(arena.finished, "Local duel arena did not resolve when one participant reached zero HP.")
+	arena.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.player.opportunity_log = log_before
+	GameState.profile_changed.emit()
 
 func _check_thunder_listening_cliff() -> void:
 	var realm_before: int = GameState.player.realm_index

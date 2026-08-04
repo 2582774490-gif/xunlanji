@@ -334,6 +334,7 @@ func _show_pvp() -> void:
 	_text("玩家 HP：%d / 100｜对手 HP：%d / 100" % [combat.player_hp, combat.enemy_hp], 22, Color.WHITE)
 	_text(combat.battle_log)
 	_buttons(_combat_entries(true))
+	_buttons([["进入可操作论剑场", _open_duel_arena, 220]])
 	_text("联网清单：房间匹配、同步、断线处理、服务器权威结算、战绩与反作弊。", 15, Color("a7d5ca"))
 
 func _show_codex() -> void:
@@ -495,6 +496,11 @@ func _save_local_profile() -> void:
 func _load_local_profile() -> void:
 	GameState.load_local_profile()
 	_render()
+
+func _open_duel_arena() -> void:
+	# This launches the playable local prototype.  It is intentionally separate
+	# from the menu combat simulation and makes no claim of online synchrony.
+	get_tree().change_scene_to_file("res://scenes/duel_arena.tscn")
 
 func _restart_pvp() -> void:
 	combat.begin("论剑", "山门试剑使")
