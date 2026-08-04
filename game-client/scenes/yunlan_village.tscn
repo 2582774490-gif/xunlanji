@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_village.gd" id="1_world"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/terrain/yunlan_village_center_ground_v01.png" id="2_ground"]
@@ -6,9 +6,14 @@
 [ext_resource type="Script" path="res://src/world/spatial_test_player.gd" id="4_player"]
 [ext_resource type="Script" path="res://src/animation/frame_animation_controller.gd" id="5_anim"]
 [ext_resource type="Script" path="res://src/world/ground_shadow.gd" id="6_shadow"]
+[ext_resource type="Texture2D" path="res://assets/art/npcs/marketkeeper_luo/processed_alpha/marketkeeper_luo_idle_v01_alpha.png" id="7_luo"]
+[ext_resource type="Script" path="res://src/world/world_interaction.gd" id="8_interaction"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
+
+[sub_resource type="CircleShape2D" id="MerchantRange"]
+radius = 90.0
 
 [node name="YunlanVillage" type="Node2D"]
 y_sort_enabled = true
@@ -27,6 +32,36 @@ texture = ExtResource("3_hall")
 scale = Vector2(0.5, 0.5)
 centered = false
 offset = Vector2(-627, -1254)
+
+[node name="MarketkeeperLuo" type="Node2D" parent="."]
+position = Vector2(615, 690)
+
+[node name="Art" type="Sprite2D" parent="MarketkeeperLuo"]
+texture = ExtResource("7_luo")
+scale = Vector2(0.18, 0.18)
+centered = false
+offset = Vector2(-512, -1536)
+
+[node name="Name" type="Label" parent="MarketkeeperLuo"]
+offset_left = -84.0
+offset_top = -280.0
+offset_right = 84.0
+offset_bottom = -255.0
+theme_override_colors/font_color = Color(0.96, 0.82, 0.56, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.1, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "云市掌柜 · 洛晴"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="MarketkeeperLuo"]
+script = ExtResource("8_interaction")
+interaction_id = "market_luo"
+prompt_text = "与云市掌柜 · 洛晴交易"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MarketkeeperLuo/Interaction"]
+position = Vector2(0, -84)
+shape = SubResource("MerchantRange")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(330, 760)
@@ -65,3 +100,13 @@ offset_top = 58.0
 theme_override_colors/font_color = Color(0.78, 0.9, 0.86, 1)
 theme_override_font_sizes/font_size = 15
 text = "方向键：探索村心  |  H / Esc：返回云岚南门"
+
+[node name="Prompt" type="Label" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -130.0
+offset_bottom = -90.0
+theme_override_colors/font_color = Color(1, 0.88, 0.58, 1)
+theme_override_font_sizes/font_size = 19
+horizontal_alignment = 1

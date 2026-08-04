@@ -107,3 +107,9 @@
 - Built a second spatial scene from a ground-only village-center plate and an independent, alpha-cut market hall.
 - Connected the northern South Gate route to the village center with E; H/Esc returns to South Gate.
 - Validated both scenes in Godot headless runtime and relaunched the South Gate entry scene.
+
+## 2026-08-04: Village market hub started
+
+- Generated, alpha-cleaned and placed marketkeeper Luo Qing as an independent village NPC.
+- Her E interaction opens the existing market UI, linking a physical world location to the trading system.
+- Validated the village scene after asset import and launched it locally for review.

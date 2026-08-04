@@ -166,3 +166,10 @@
 - [x] Add an independently placed gathering resource that removes itself on collection and updates player inventory/cultivation.
 - [x] Add the first short travel route from South Gate into the expanded Yunlan Village scene.
 - [ ] Upgrade the current two-frame movement loop into a fuller eight-direction frame package after visual review.
+
+## Phase 24: Turn Yunlan Village into the launch service hub (active)
+
+- [x] Add an independently placed marketkeeper NPC and connect her interaction to the client-side market entry.
+- [x] Keep the market hall and merchant as separate Y-sorted scene nodes rather than baking them into terrain.
+- [ ] Add first workshop and sect-route nodes, then connect them to their respective gameplay screens.
+- [ ] Add the Water Palace route node from the village road after the first village loop is visually accepted.
