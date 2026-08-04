@@ -5,15 +5,25 @@ extends Node2D
 ## movement, attack timing, weapon defense and resolution in the same 2D world
 ## presentation. It intentionally does not claim networked multiplayer.
 
+const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
+
 @onready var player: SpatialTestPlayer = $Player
 @onready var opponent: DuelOpponent = $Opponent
 @onready var player_hp_label: Label = $HUD/PlayerHP
 @onready var opponent_hp_label: Label = $HUD/OpponentHP
+@onready var skill_label: Label = $HUD/Skills
 @onready var status: Label = $HUD/StatusPanel/Status
 @onready var touch_controls: Node = $HUD/TouchControls
 
 var player_hp := 100
 var finished := false
+var player_mana := 0.0
+var player_max_mana := 0.0
+var ningxi_cooldown := 0.0
+var cloud_step_cooldown := 0.0
+var guard_cooldown := 0.0
+var nourish_cooldown := 0.0
+var guard_time_left := 0.0
 
 
 func _ready() -> void:
@@ -26,7 +36,19 @@ func _ready() -> void:
 	opponent.attack_landed.connect(_on_opponent_attack)
 	opponent.defeated.connect(_on_opponent_defeated)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
-	status.text = "本地论剑原型：左侧摇杆/方向键移动，右侧攻击键或 J 出招；Q 可无冷却切换已制作专属素材的武器。胜负只在本地结算；联网房间与服务端权威尚未接入。"
+	player_max_mana = float(GameState.derived_stats()["灵力"])
+	player_mana = player_max_mana
+	status.text = "本地论剑原型：左侧摇杆/方向键移动；右侧五技能或 J、1–5 手操出招；Q 可无冷却切换已制作专属素材的武器。胜负只在本地结算；联网房间与服务端权威尚未接入。"
+	_refresh_hud()
+
+
+func _process(delta: float) -> void:
+	ningxi_cooldown = maxf(0.0, ningxi_cooldown - delta)
+	cloud_step_cooldown = maxf(0.0, cloud_step_cooldown - delta)
+	guard_cooldown = maxf(0.0, guard_cooldown - delta)
+	nourish_cooldown = maxf(0.0, nourish_cooldown - delta)
+	guard_time_left = maxf(0.0, guard_time_left - delta)
+	player_mana = minf(player_max_mana, player_mana + delta * 2.0)
 	_refresh_hud()
 
 
@@ -35,11 +57,25 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	if event.keycode == KEY_ESCAPE or event.keycode == KEY_H:
 		_return_to_menu()
+		return
+	if event.keycode >= KEY_1 and event.keycode <= KEY_5:
+		_use_action(["attack", "ningxi", "cloud_step", "guard", "nourish"][event.keycode - KEY_1])
+		get_viewport().set_input_as_handled()
 
 
 func _on_touch_action_requested(action_id: String) -> void:
-	if action_id == "attack" and not finished:
-		player.trigger_basic_attack()
+	_use_action(action_id)
+
+
+func _use_action(action_id: String) -> void:
+	if finished:
+		return
+	match action_id:
+		"attack": player.trigger_basic_attack()
+		"ningxi": _cast_ningxi_sword_art()
+		"cloud_step": _cast_cloud_step()
+		"guard": _cast_lan_breath_guard()
+		"nourish": _cast_spirit_nourish()
 
 
 func _on_player_attack_impact(_direction: String) -> void:
@@ -60,8 +96,14 @@ func _on_opponent_attack(raw_damage: int) -> void:
 		return
 	var profile := GameCatalog.weapon_profile_for_item(GameState.player.equipped_weapon)
 	var damage := maxi(2, raw_damage - int(profile.get("counter_reduction", 0)))
+	var was_guarding := guard_time_left > 0.0
+	if was_guarding:
+		damage = ceili(float(damage) * 0.45)
+		guard_time_left = 0.0
+		status.text = "岚息护体抵去了大半反击。"
 	player_hp = maxi(0, player_hp - damage)
-	status.text = "试剑使反击命中：%d 点伤害。" % damage
+	if not was_guarding:
+		status.text = "试剑使反击命中：%d 点伤害。" % damage
 	if player_hp <= 0:
 		_finish(false)
 	_refresh_hud()
@@ -86,6 +128,107 @@ func _finish(player_won: bool) -> void:
 func _refresh_hud() -> void:
 	player_hp_label.text = "你 · %s　HP %d / 100" % [GameState.player.equipped_weapon, player_hp]
 	opponent_hp_label.text = "山门试剑使　HP %d / %d" % [opponent.hp, opponent.max_hp]
+	var skills := SKILL_CATALOG.STARTER_TEST_SKILLS
+	skill_label.text = "灵力 %.0f / %.0f　%s%s　%s%s　%s%s　%s%s" % [
+		player_mana, player_max_mana,
+		str(skills[1].name), _cooldown_text(ningxi_cooldown),
+		str(skills[2].name), _cooldown_text(cloud_step_cooldown),
+		str(skills[3].name), _cooldown_text(guard_cooldown),
+		str(skills[4].name), _cooldown_text(nourish_cooldown),
+	]
+
+
+func _cast_ningxi_sword_art() -> void:
+	if player.global_position.distance_to(opponent.global_position) > 300.0:
+		status.text = "凝息剑诀需要在岚刃可及的距离内锁定对手。"
+		return
+	if not _try_use_skill(1, ningxi_cooldown):
+		return
+	ningxi_cooldown = float(_skill(1)["cooldown"])
+	var facing := (opponent.global_position - player.global_position).normalized()
+	_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
+	await get_tree().create_timer(0.22).timeout
+	if finished or opponent.hp <= 0 or player.global_position.distance_to(opponent.global_position) > 330.0:
+		return
+	var stats: Dictionary = GameState.derived_stats()
+	var damage := 20 + int(int(stats["攻击"]) / 2.0) + int(player_max_mana / 30.0)
+	opponent.take_damage(damage)
+	status.text = "凝息剑诀命中试剑使，造成 %d 点灵力伤害。" % damage
+	_refresh_hud()
+
+
+func _cast_cloud_step() -> void:
+	if not _try_use_skill(2, cloud_step_cooldown):
+		return
+	cloud_step_cooldown = float(_skill(2)["cooldown"])
+	var escape := (player.global_position - opponent.global_position).normalized()
+	if escape.length_squared() < 0.001:
+		escape = Vector2.DOWN
+	player.perform_dash(escape, 176.0)
+	_spawn_skill_ripple(player.global_position + Vector2(0, -58), Color(0.70, 0.92, 1.0), 24.0, escape)
+	status.text = "云步踏岚而行，迅速拉开距离。"
+	_refresh_hud()
+
+
+func _cast_lan_breath_guard() -> void:
+	if not _try_use_skill(3, guard_cooldown):
+		return
+	guard_cooldown = float(_skill(3)["cooldown"])
+	guard_time_left = 4.0
+	_spawn_skill_ripple(player.global_position + Vector2(0, -52), Color(0.50, 1.0, 0.82), 46.0, Vector2.UP)
+	status.text = "岚息护体展开：下一次受击将大幅减伤。"
+	_refresh_hud()
+
+
+func _cast_spirit_nourish() -> void:
+	if not _try_use_skill(4, nourish_cooldown):
+		return
+	nourish_cooldown = float(_skill(4)["cooldown"])
+	player_mana = minf(player_max_mana, player_mana + 46.0)
+	_spawn_skill_ripple(player.global_position + Vector2(0, -54), Color(0.82, 0.88, 1.0), 30.0, Vector2.UP)
+	status.text = "润灵诀回转经脉，恢复部分灵力。"
+	_refresh_hud()
+
+
+func _try_use_skill(index: int, cooldown: float) -> bool:
+	var skill := _skill(index)
+	if cooldown > 0.0:
+		status.text = "%s 还需冷却 %.1f 秒。" % [skill["name"], cooldown]
+		return false
+	var cost := float(skill["spirit_cost"])
+	if player_mana < cost:
+		status.text = "灵力不足，无法施放 %s。" % skill["name"]
+		return false
+	player_mana -= cost
+	return true
+
+
+func _skill(index: int) -> Dictionary:
+	return SKILL_CATALOG.STARTER_TEST_SKILLS[index]
+
+
+func _cooldown_text(cooldown: float) -> String:
+	return " (%.1fs)" % cooldown if cooldown > 0.0 else ""
+
+
+func _spawn_skill_ripple(origin: Vector2, tint: Color, radius: float, direction: Vector2) -> void:
+	# A procedural ring is intentionally generic: it communicates casting now
+	# without borrowing a sword VFX for every weapon family.
+	var ring := Line2D.new()
+	ring.width = 4.0
+	ring.default_color = tint
+	ring.z_index = 18
+	var points := PackedVector2Array()
+	for index in 17:
+		var angle := TAU * float(index) / 16.0
+		points.append(Vector2(cos(angle), sin(angle) * 0.56) * radius)
+	ring.points = points
+	ring.position = origin + direction.normalized() * 18.0
+	add_child(ring)
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(ring, "scale", Vector2(2.1, 2.1), 0.34)
+	tween.tween_property(ring, "modulate:a", 0.0, 0.34)
+	tween.chain().tween_callback(ring.queue_free)
 
 
 func _return_to_menu() -> void:

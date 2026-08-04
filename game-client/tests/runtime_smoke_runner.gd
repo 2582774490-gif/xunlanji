@@ -564,6 +564,20 @@ func _check_local_duel_arena() -> void:
 	arena.player.trigger_basic_attack()
 	await get_tree().create_timer(0.20).timeout
 	_expect(arena.opponent.hp < arena.opponent.max_hp, "Manual player attack did not damage the nearby local-duel opponent.")
+	var hp_before_ningxi: int = arena.opponent.hp
+	arena._cast_ningxi_sword_art()
+	await get_tree().create_timer(0.26).timeout
+	_expect(arena.opponent.hp < hp_before_ningxi and arena.ningxi_cooldown > 0.0, "Local-duel Ningxi skill did not deal damage and start its cooldown.")
+	var position_before_step := arena.player.position
+	arena._cast_cloud_step()
+	_expect(arena.player.position.distance_to(position_before_step) > 20.0 and arena.cloud_step_cooldown > 0.0, "Local-duel Cloud Step did not move the player and start its cooldown.")
+	arena._cast_lan_breath_guard()
+	var hp_before_guard: int = arena.player_hp
+	arena._on_opponent_attack(12)
+	_expect(hp_before_guard - arena.player_hp <= 6, "Local-duel guard did not reduce the next opponent attack.")
+	arena.player_mana = 0.0
+	arena._on_touch_action_requested("nourish")
+	_expect(arena.player_mana > 0.0 and arena.nourish_cooldown > 0.0, "Local-duel touch skill path did not restore spirit power and start Nourish cooldown.")
 	arena._on_opponent_attack(12)
 	_expect(arena.player_hp < 100, "Local-duel opponent attack did not damage the player.")
 	arena.opponent.take_damage(999)
