@@ -1,7 +1,8 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://src/world/return_abyss_mist_port.gd" id="1_scene"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/return_abyss_mist_port/terrain/return_abyss_mist_port_ground_v01.png" id="2_ground"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/return_abyss_mist_port/terrain/return_abyss_outer_harbor_sea_cave_v01.png" id="14_outer_harbor"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_bone_creek/props/processed_alpha/mist_bone_creek_arch_v01_alpha.png" id="3_arch"]
 [ext_resource type="Texture2D" path="res://assets/art/resources/mist_tide_crystal_cluster/processed_alpha/mist_tide_crystal_cluster_v01_alpha.png" id="4_crystal"]
 [ext_resource type="Script" path="res://src/world/spatial_test_player.gd" id="5_player"]
@@ -29,6 +30,9 @@ radius = 94.0
 [sub_resource type="CircleShape2D" id="WreckShape"]
 radius = 102.0
 
+[sub_resource type="CircleShape2D" id="SeaCaveShape"]
+radius = 110.0
+
 [node name="ReturnAbyssMistPort" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_scene")
@@ -41,6 +45,13 @@ region_style = "mist_port"
 
 [node name="Terrain" type="Sprite2D" parent="."]
 texture = ExtResource("2_ground")
+scale = Vector2(2, 2)
+centered = false
+z_index = -10
+
+[node name="OuterHarborChunk" type="Sprite2D" parent="."]
+texture = ExtResource("14_outer_harbor")
+position = Vector2(3072, 0)
 scale = Vector2(2, 2)
 centered = false
 z_index = -10
@@ -162,6 +173,37 @@ prompt_text = "靠近沉船浅滩搜寻机缘"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WreckedPier/Interaction"]
 position = Vector2(0, -70)
 shape = SubResource("WreckShape")
+
+[node name="SeaCaveApproach" type="Node2D" parent="."]
+position = Vector2(4890, 1060)
+
+[node name="Art" type="Sprite2D" parent="SeaCaveApproach"]
+texture = ExtResource("4_crystal")
+scale = Vector2(0.18, 0.18)
+centered = false
+offset = Vector2(-627, -1254)
+modulate = Color(0.48, 0.80, 0.89, 1)
+
+[node name="Name" type="Label" parent="SeaCaveApproach"]
+offset_left = -138.0
+offset_top = -186.0
+offset_right = 138.0
+offset_bottom = -158.0
+theme_override_colors/font_color = Color(0.62, 0.90, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.11, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "海蚀洞潮池 · 可选采集"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="SeaCaveApproach"]
+script = ExtResource("8_interaction")
+interaction_id = "sea_cave_approach"
+prompt_text = "搜索海蚀洞外的潮池"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeaCaveApproach/Interaction"]
+position = Vector2(0, -65)
+shape = SubResource("SeaCaveShape")
 
 [node name="RegionalPopulation" type="Node2D" parent="."]
 script = ExtResource("11_population")

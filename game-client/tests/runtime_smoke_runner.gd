@@ -378,14 +378,20 @@ func _check_return_abyss_mist_port() -> void:
 	_expect(port.player.map_bounds.size.x >= 11000.0, "Return Abyss Mist Port did not reserve a large port exploration region.")
 	_expect(port.port_event.size() > 0, "Return Abyss Mist Port did not choose a free-exploration port event.")
 	_expect(port.chunk_streamer.loaded_chunk_count() >= 1, "Return Abyss Mist Port did not load its nearby authored quay terrain.")
+	_expect(port.get_node("OuterHarborChunk").visible, "Return Abyss Mist Port did not load its connected outer-harbor terrain chunk.")
 	_expect(port.auction_interaction != null, "Return Abyss Mist Port is missing its physical auction-hall entry.")
 	port.active_interaction = port.ledger_interaction
 	port._activate_contextual()
 	port.active_interaction = port.wreck_interaction
 	port._activate_contextual()
-	_expect(port.ledger_read and port.wreck_resolved, "Return Abyss Mist Port did not resolve its independent rumour and wreck routes.")
-	_expect(GameState.player.inventory.size() == inventory_before + 1, "Return Abyss Mist Port should grant one selected wreck-event material.")
-	_expect(GameState.player.opportunity_log.size() == log_before + 2, "Return Abyss Mist Port did not record both optional discoveries.")
+	port.active_interaction = port.sea_cave_interaction
+	port._activate_contextual()
+	_expect(port.ledger_read and port.wreck_resolved and port.sea_cave_searched, "Return Abyss Mist Port did not resolve its independent rumour, wreck and sea-cave routes.")
+	_expect(GameState.player.inventory.size() == inventory_before + 2, "Return Abyss Mist Port should grant both selected optional resource materials.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 3, "Return Abyss Mist Port did not record all three optional discoveries.")
+	port.player.position = Vector2(6600, 700)
+	await get_tree().process_frame
+	_expect(not port.get_node("Terrain").visible and port.get_node("OuterHarborChunk").visible, "Return Abyss Mist Port did not hand off from its first quay chunk to the connected outer-harbor chunk.")
 	port.queue_free()
 	await get_tree().process_frame
 	GameState.player.realm_index = realm_before

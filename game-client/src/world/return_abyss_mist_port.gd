@@ -12,6 +12,7 @@ const PORT_EVENTS := [
 @onready var auction_interaction: Area2D = $AuctionHall/Interaction
 @onready var ledger_interaction: Area2D = $TideLedger/Interaction
 @onready var wreck_interaction: Area2D = $WreckedPier/Interaction
+@onready var sea_cave_interaction: Area2D = $SeaCaveApproach/Interaction
 @onready var regional_population = $RegionalPopulation
 @onready var world_encounter = $WorldCombat
 @onready var chunk_streamer = $ChunkStreamer
@@ -23,6 +24,7 @@ var active_interaction: Area2D
 var port_event: Dictionary = {}
 var ledger_read := false
 var wreck_resolved := false
+var sea_cave_searched := false
 
 func _ready() -> void:
 	GameState.current_region_id = "return_abyss_mist_port"
@@ -30,11 +32,12 @@ func _ready() -> void:
 	player.position = Vector2(560, 1640)
 	chunk_streamer.configure(player, [
 		{"id": "mist_port_quays", "node": $Terrain, "bounds": Rect2(0, 0, 3072, 2048)},
+		{"id": "mist_port_outer_harbor", "node": $OuterHarborChunk, "bounds": Rect2(3072, 0, 3072, 2048)},
 	])
 	port_event = PORT_EVENTS.pick_random().duplicate()
 	$WreckedPier/Name.text = str(port_event.name)
 	status.text = "归墟雾港（炼气八层）：这是大区的第一处港口切片。交易、人流、浅滩水妖与残舟遗物各有自己的活动位置；港外仍可继续扩展。"
-	for interaction in [return_interaction, auction_interaction, ledger_interaction, wreck_interaction]:
+	for interaction in [return_interaction, auction_interaction, ledger_interaction, wreck_interaction, sea_cave_interaction]:
 		interaction.focused.connect(_focus_interaction)
 		interaction.unfocused.connect(_unfocus_interaction)
 	regional_population.focused.connect(_focus_interaction)
@@ -76,6 +79,8 @@ func _activate_contextual() -> void:
 		_read_tide_ledger()
 	elif active_interaction == wreck_interaction and not wreck_resolved:
 		_resolve_wreck()
+	elif active_interaction == sea_cave_interaction and not sea_cave_searched:
+		_search_sea_cave()
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()
@@ -100,6 +105,16 @@ func _resolve_wreck() -> void:
 	GameState.gain_cultivation(int(port_event.cultivation))
 	GameState.record_opportunity({"region": "return_abyss_mist_port", "name": port_event.name, "item": port_event.item, "cultivation": port_event.cultivation})
 	status.text = "你在%s中找到%s。%s 修为 +%d。" % [port_event.name, port_event.item, port_event.description, port_event.cultivation]
+	_close_interaction()
+
+func _search_sea_cave() -> void:
+	sea_cave_searched = true
+	$SeaCaveApproach.visible = false
+	sea_cave_interaction.set_deferred("monitoring", false)
+	GameState.add_item("潮洞灵藻")
+	GameState.gain_cultivation(16)
+	GameState.record_opportunity({"region": "return_abyss_mist_port", "name": "海蚀洞潮池", "item": "潮洞灵藻", "cultivation": 16})
+	status.text = "你在海蚀洞外的潮池采到潮洞灵藻。这里暂时是可选采集点；未来会向更深处的外海遗迹副本延展。修为 +16。"
 	_close_interaction()
 
 func _population_seed() -> int:
@@ -127,6 +142,19 @@ func _population_profiles() -> Array[Dictionary]:
 			"anchors": [Vector2(2380, 900), Vector2(2550, 1020), Vector2(2710, 820)],
 			"health": 108, "damage": 13, "reward": "水魇鳞片", "cultivation": 12,
 			"tint": Color(0.55, 0.88, 0.86), "label_color": Color(0.65, 1.0, 0.91),
+		},
+		{
+			"id": "shipyard_rogue", "region": "return_abyss_mist_port", "kind": "rogue", "name": "修舟散修",
+			"prompt": "询问修舟散修的外海传闻", "chance": 0.38,
+			"anchors": [Vector2(3540, 900), Vector2(3710, 1020)],
+			"tint": Color(0.82, 0.70, 0.55), "label_color": Color(0.98, 0.82, 0.60),
+		},
+		{
+			"id": "sea_cave_beast", "region": "return_abyss_mist_port", "kind": "beast", "name": "潮穴鳞獭",
+			"prompt": "观察潮穴鳞獭的洞口领地", "chance": 0.52,
+			"anchors": [Vector2(4750, 980), Vector2(4920, 1100), Vector2(5100, 920)],
+			"health": 116, "damage": 14, "reward": "潮穴鳞皮", "cultivation": 14,
+			"tint": Color(0.60, 0.82, 0.90), "label_color": Color(0.70, 0.91, 1.0),
 		},
 	]
 
