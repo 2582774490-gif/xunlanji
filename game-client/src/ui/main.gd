@@ -249,7 +249,8 @@ func _show_inventory() -> void:
 	_line()
 	_text("首发正式基础器型：每种大类先做一把正式武器，再逐步补大分支、小分支、品级、武器卡、动作和特效。")
 	for family in Catalog.WEAPON_FAMILIES:
-		_text("%s｜%s｜基础器：%s｜派系：%s" % [family.name, family.branches, family.starter, family.school], 16)
+		var profile: Dictionary = Catalog.weapon_profile_for_item(str(family.starter))
+		_text("%s｜%s｜基础器：%s｜派系：%s｜战斗倾向：%s" % [family.name, family.branches, family.starter, family.school, profile.trait], 16)
 	_buttons([["录入全部基础器型（本地演示）", _claim_weapon_samples, 300]])
 	var equips: Array = []
 	for item_name in GameState.player.inventory:

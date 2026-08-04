@@ -92,6 +92,42 @@ const WEAPON_FAMILIES := [
 	{"name": "轮", "branches": "风轮、刃轮、御空轮", "starter": "逐岚练气轮", "school": "风修"},
 ]
 
+# First-launch combat tendencies for every broad weapon family.  These are
+# deliberately modest, because detailed movesets, hit effects and weapon-card
+# animation will be authored weapon by weapon instead of hidden in huge stats.
+const WEAPON_COMBAT_PROFILES := {
+	"剑": {"bonus": 2, "counter_reduction": 0, "skill_bonus": 1, "cooldown_delta": -0.2, "trait": "均衡剑势"},
+	"刀": {"bonus": 4, "counter_reduction": 0, "skill_bonus": 1, "cooldown_delta": 0.0, "trait": "斩击蓄势"},
+	"枪": {"bonus": 3, "counter_reduction": 1, "skill_bonus": 1, "cooldown_delta": 0.0, "trait": "长兵守距"},
+	"戟": {"bonus": 4, "counter_reduction": 1, "skill_bonus": 1, "cooldown_delta": 0.1, "trait": "钩斩压制"},
+	"斧": {"bonus": 5, "counter_reduction": 0, "skill_bonus": 0, "cooldown_delta": 0.3, "trait": "重劈破势"},
+	"锤": {"bonus": 5, "counter_reduction": 1, "skill_bonus": 0, "cooldown_delta": 0.3, "trait": "震击厚重"},
+	"棍": {"bonus": 2, "counter_reduction": 2, "skill_bonus": 1, "cooldown_delta": -0.1, "trait": "架势连转"},
+	"鞭": {"bonus": 2, "counter_reduction": 0, "skill_bonus": 3, "cooldown_delta": 0.0, "trait": "牵制连击"},
+	"弓": {"bonus": 3, "counter_reduction": 2, "skill_bonus": 1, "cooldown_delta": 0.0, "trait": "远射游走"},
+	"弩": {"bonus": 5, "counter_reduction": 1, "skill_bonus": 0, "cooldown_delta": 0.4, "trait": "机括爆发"},
+	"扇": {"bonus": 1, "counter_reduction": 0, "skill_bonus": 2, "cooldown_delta": -0.4, "trait": "风息回转"},
+	"伞": {"bonus": 0, "counter_reduction": 4, "skill_bonus": 1, "cooldown_delta": 0.0, "trait": "护阵卸力"},
+	"琴": {"bonus": 1, "counter_reduction": 1, "skill_bonus": 4, "cooldown_delta": 0.0, "trait": "音律共鸣"},
+	"箫": {"bonus": 1, "counter_reduction": 1, "skill_bonus": 3, "cooldown_delta": -0.1, "trait": "清心御灵"},
+	"铃": {"bonus": 1, "counter_reduction": 2, "skill_bonus": 2, "cooldown_delta": 0.0, "trait": "御灵警阵"},
+	"符笔": {"bonus": 2, "counter_reduction": 0, "skill_bonus": 3, "cooldown_delta": -0.1, "trait": "符法连引"},
+	"阵盘": {"bonus": 0, "counter_reduction": 3, "skill_bonus": 4, "cooldown_delta": 0.2, "trait": "阵势控场"},
+	"傀儡": {"bonus": 3, "counter_reduction": 1, "skill_bonus": 2, "cooldown_delta": 0.1, "trait": "机偶协击"},
+	"鼎": {"bonus": 1, "counter_reduction": 2, "skill_bonus": 2, "cooldown_delta": 0.1, "trait": "丹器镇守"},
+	"珠": {"bonus": 1, "counter_reduction": 3, "skill_bonus": 2, "cooldown_delta": -0.1, "trait": "御水护身"},
+	"印": {"bonus": 4, "counter_reduction": 1, "skill_bonus": 1, "cooldown_delta": 0.1, "trait": "镇压封禁"},
+	"镜": {"bonus": 2, "counter_reduction": 2, "skill_bonus": 2, "cooldown_delta": 0.0, "trait": "映照破妄"},
+	"塔": {"bonus": 1, "counter_reduction": 4, "skill_bonus": 1, "cooldown_delta": 0.2, "trait": "镇守收纳"},
+	"轮": {"bonus": 3, "counter_reduction": 1, "skill_bonus": 2, "cooldown_delta": -0.3, "trait": "御风回旋"},
+}
+
+static func weapon_profile_for_item(item_name: String) -> Dictionary:
+	for family in WEAPON_FAMILIES:
+		if item_name == str(family.starter):
+			return WEAPON_COMBAT_PROFILES.get(str(family.name), {}).duplicate(true)
+	return {"bonus": 0, "counter_reduction": 0, "skill_bonus": 0, "cooldown_delta": 0.0, "trait": "未定器型"}
+
 const SPIRIT_ROOTS := [
 	{"name": "金灵根", "affinity": "锋锐、破甲、器炼"},
 	{"name": "木灵根", "affinity": "生长、疗愈、灵植"},

@@ -25,10 +25,11 @@ func normal_attack() -> void:
 	if enemy_hp <= 0:
 		battle_log = "本场已结束，请返回选择下一场挑战。"
 		return
-	var damage := _player_attack_damage(8)
+	var profile := _weapon_profile()
+	var damage := _player_attack_damage(8 + int(profile.bonus))
 	enemy_hp = maxi(0, enemy_hp - damage)
-	_counter_attack(3)
-	battle_log = "普攻命中，造成 %d 点伤害。%s" % [damage, _result_suffix()]
+	_counter_attack(maxi(0, 3 - int(profile.counter_reduction)))
+	battle_log = "%s·%s 普攻命中，造成 %d 点伤害。%s" % [GameState.player.equipped_weapon, profile.trait, damage, _result_suffix()]
 
 func use_skill(index: int) -> void:
 	if index < 0 or index >= skill_cooldowns.size() or enemy_hp <= 0:
@@ -36,11 +37,12 @@ func use_skill(index: int) -> void:
 	if skill_cooldowns[index] > 0.0:
 		battle_log = "%s 冷却中：%.1f 秒" % [skill_names[index], skill_cooldowns[index]]
 		return
-	var damage := _player_attack_damage(12 + index * 4)
+	var profile := _weapon_profile()
+	var damage := _player_attack_damage(12 + index * 4 + int(profile.bonus) + int(profile.skill_bonus))
 	enemy_hp = maxi(0, enemy_hp - damage)
-	skill_cooldowns[index] = 3.0 + index
-	_counter_attack(2 + index)
-	battle_log = "%s 施放成功，造成 %d 点伤害。%s" % [skill_names[index], damage, _result_suffix()]
+	skill_cooldowns[index] = maxf(1.0, 3.0 + index + float(profile.cooldown_delta))
+	_counter_attack(maxi(0, 2 + index - int(profile.counter_reduction)))
+	battle_log = "%s·%s 施放成功，造成 %d 点伤害。%s" % [GameState.player.equipped_weapon, skill_names[index], damage, _result_suffix()]
 
 func _counter_attack(damage: int) -> void:
 	if enemy_hp > 0:
@@ -49,6 +51,10 @@ func _counter_attack(damage: int) -> void:
 func _player_attack_damage(base_damage: int) -> int:
 	var stats: Dictionary = GameState.derived_stats()
 	return base_damage + int(int(stats["攻击"]) / 3.0)
+
+func _weapon_profile() -> Dictionary:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	return catalog.weapon_profile_for_item(GameState.player.equipped_weapon)
 
 func _result_suffix() -> String:
 	if enemy_hp <= 0:

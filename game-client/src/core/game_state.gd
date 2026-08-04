@@ -338,8 +338,13 @@ func _first_foundation_preparation_item() -> String:
 	return ""
 
 func equip_weapon(item_name: String) -> void:
+	if not player.inventory.has(item_name):
+		notify("行囊中没有%s，不能装备。" % item_name)
+		return
 	player.equipped_weapon = item_name
-	notify("已装备：%s（仅外观/类型占位，不绑定特效）" % item_name)
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var profile: Dictionary = catalog.weapon_profile_for_item(item_name)
+	notify("已装备：%s｜战斗倾向：%s。专属动作与特效仍按武器卡逐把制作。" % [item_name, profile.trait])
 	profile_changed.emit()
 
 func join_sect(sect_id: String) -> void:

@@ -7,6 +7,7 @@ func _ready() -> void:
 
 func _run() -> void:
 	await _check_manual_progression()
+	await _check_weapon_combat_profiles()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
 	await _check_village_routes()
@@ -53,6 +54,29 @@ func _check_manual_progression() -> void:
 	_expect(GameState.player.inventory.has("筑基丹"), "Foundation-pill craft did not add the item to inventory.")
 	_expect(GameState.try_breakthrough(), "Foundation breakthrough should succeed after materials are prepared.")
 	_expect(GameState.player.realm_index == 1 and GameState.player.minor_stage == 1, "Foundation breakthrough did not move to the first Foundation stage.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_weapon_combat_profiles() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	_expect(GameCatalog.WEAPON_COMBAT_PROFILES.size() == GameCatalog.WEAPON_FAMILIES.size(), "Every launch weapon family needs a combat profile.")
+	GameState.player.inventory = ["青篁练气剑", "开山练气斧", "回云练气伞"]
+	GameState.equip_weapon("青篁练气剑")
+	var sword_combat := CombatState.new()
+	sword_combat.begin("测试", "木桩")
+	sword_combat.normal_attack()
+	var sword_damage := 100 - sword_combat.enemy_hp
+	GameState.equip_weapon("开山练气斧")
+	var axe_combat := CombatState.new()
+	axe_combat.begin("测试", "木桩")
+	axe_combat.normal_attack()
+	var axe_damage := 100 - axe_combat.enemy_hp
+	_expect(axe_damage > sword_damage, "Heavy axe profile should deal more opening damage than sword profile.")
+	GameState.equip_weapon("回云练气伞")
+	var umbrella_combat := CombatState.new()
+	umbrella_combat.begin("测试", "木桩")
+	umbrella_combat.normal_attack()
+	_expect(umbrella_combat.player_hp > axe_combat.player_hp, "Defensive umbrella profile should reduce counter damage.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
