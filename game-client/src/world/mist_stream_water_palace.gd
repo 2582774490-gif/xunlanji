@@ -21,8 +21,9 @@ func _ready() -> void:
 func _on_player_attack(_direction: String) -> void:
 	if not near_boss or boss_health <= 0:
 		return
-	boss_health = max(0, boss_health - 12)
-	status.text = "潮妃·兰纱受击。当前攻击已与开放世界同一角色控制器相连。"
+	var damage := 8 + int(int(GameState.derived_stats()["攻击"]) / 3.0)
+	boss_health = max(0, boss_health - damage)
+	status.text = "潮妃·兰纱受击，造成 %d 点伤害。属性分配已影响本次攻击。" % damage
 	_refresh_boss_hp()
 	if boss_health == 0:
 		boss.visible = false

@@ -25,9 +25,10 @@ func normal_attack() -> void:
 	if enemy_hp <= 0:
 		battle_log = "本场已结束，请返回选择下一场挑战。"
 		return
-	enemy_hp = maxi(0, enemy_hp - 8)
+	var damage := _player_attack_damage(8)
+	enemy_hp = maxi(0, enemy_hp - damage)
 	_counter_attack(3)
-	battle_log = "普攻命中，造成 8 点伤害。%s" % _result_suffix()
+	battle_log = "普攻命中，造成 %d 点伤害。%s" % [damage, _result_suffix()]
 
 func use_skill(index: int) -> void:
 	if index < 0 or index >= skill_cooldowns.size() or enemy_hp <= 0:
@@ -35,7 +36,7 @@ func use_skill(index: int) -> void:
 	if skill_cooldowns[index] > 0.0:
 		battle_log = "%s 冷却中：%.1f 秒" % [skill_names[index], skill_cooldowns[index]]
 		return
-	var damage := 12 + index * 4
+	var damage := _player_attack_damage(12 + index * 4)
 	enemy_hp = maxi(0, enemy_hp - damage)
 	skill_cooldowns[index] = 3.0 + index
 	_counter_attack(2 + index)
@@ -44,6 +45,10 @@ func use_skill(index: int) -> void:
 func _counter_attack(damage: int) -> void:
 	if enemy_hp > 0:
 		player_hp = maxi(0, player_hp - damage)
+
+func _player_attack_damage(base_damage: int) -> int:
+	var stats: Dictionary = GameState.derived_stats()
+	return base_damage + int(int(stats["攻击"]) / 3.0)
 
 func _result_suffix() -> String:
 	if enemy_hp <= 0:
