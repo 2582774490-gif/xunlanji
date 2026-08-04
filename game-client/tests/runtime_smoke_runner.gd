@@ -24,6 +24,7 @@ func _run() -> void:
 	await _check_thunder_listening_cliff()
 	await _check_return_abyss_mist_port()
 	await _check_abysswatch_terrace()
+	await _check_ancient_ridge()
 	await _check_world_menu_region_resume()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
@@ -197,6 +198,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.thunder_cliff_gate_interaction != null, "Mist Tide Border is missing the Qi Refining seventh-layer Thunder Listening Cliff entrance.")
 	_expect(border.mist_port_gate_interaction != null, "Mist Tide Border is missing the Qi Refining eighth-layer Return Abyss Mist Port entrance.")
 	_expect(border.abysswatch_gate_interaction != null, "Mist Tide Border is missing the Qi Refining ninth-layer Abysswatch Terrace entrance.")
+	_expect(border.ancient_ridge_gate_interaction != null, "Mist Tide Border is missing the Yuan Infant Ancient Ridge entrance.")
 	_expect(border.player.map_bounds.size.x >= 11000.0, "Mist Tide Border still behaves like a single small background instead of a large region.")
 	_expect(border.chunk_streamer.loaded_chunk_count() >= 1, "Mist Tide Border did not load its nearby high-detail terrain chunk.")
 	var border_player_start: Vector2 = border.player.position
@@ -233,6 +235,10 @@ func _check_mist_border_scene() -> void:
 	_expect(not border.can_enter_abysswatch_terrace(), "Abysswatch Terrace should wait until ninth-layer Qi Refining.")
 	GameState.player.minor_stage = 9
 	_expect(border.can_enter_abysswatch_terrace(), "Abysswatch Terrace should open at ninth-layer Qi Refining.")
+	GameState.player.realm_index = 2
+	_expect(not border.can_enter_ancient_ridge(), "Ancient Ridge should remain closed below Yuan Infant.")
+	GameState.player.realm_index = 3
+	_expect(border.can_enter_ancient_ridge(), "Ancient Ridge should open at Yuan Infant.")
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 	border.active_interaction = border.scout_interaction
@@ -493,6 +499,31 @@ func _check_abysswatch_terrace() -> void:
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 
+func _check_ancient_ridge() -> void:
+	var realm_before: int = GameState.player.realm_index
+	var stage_before: int = GameState.player.minor_stage
+	var inventory_before: int = GameState.player.inventory.size()
+	var log_before: int = GameState.player.opportunity_log.size()
+	GameState.player.realm_index = 3
+	GameState.player.minor_stage = 1
+	var ridge := preload("res://scenes/ancient_ridge.tscn").instantiate()
+	add_child(ridge)
+	await get_tree().process_frame
+	_expect(ridge.player.map_bounds.size.x >= 11000.0, "Ancient Ridge did not reserve a large third-region world space.")
+	_expect(ridge.ridge_event.size() > 0, "Ancient Ridge did not choose a terrain-based opportunity.")
+	_expect(ridge.chunk_streamer.loaded_chunk_count() >= 1, "Ancient Ridge did not load its nearby authored earthfire terrain chunk.")
+	ridge.active_interaction = ridge.relic_interaction
+	ridge._activate_contextual()
+	ridge.active_interaction = ridge.event_interaction
+	ridge._activate_contextual()
+	_expect(ridge.relic_examined and ridge.event_resolved, "Ancient Ridge did not resolve its independent ruin and random-opportunity routes.")
+	_expect(GameState.player.inventory.size() == inventory_before + 1, "Ancient Ridge should grant one optional terrain opportunity material.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 2, "Ancient Ridge did not record both optional discoveries.")
+	ridge.queue_free()
+	await get_tree().process_frame
+	GameState.player.realm_index = realm_before
+	GameState.player.minor_stage = stage_before
+
 func _check_world_menu_region_resume() -> void:
 	var region_before: String = GameState.current_region_id
 	var main_script := preload("res://src/ui/main.gd")
@@ -505,6 +536,8 @@ func _check_world_menu_region_resume() -> void:
 	_expect(main._playable_scene_for_current_region() == "res://scenes/thunder_listening_cliff.tscn", "World menu did not resume Thunder Listening Cliff.")
 	GameState.current_region_id = "abysswatch_terrace"
 	_expect(main._playable_scene_for_current_region() == "res://scenes/abysswatch_terrace.tscn", "World menu did not resume Abysswatch Terrace.")
+	GameState.current_region_id = "ancient_ridge"
+	_expect(main._playable_scene_for_current_region() == "res://scenes/ancient_ridge.tscn", "World menu did not resume Ancient Ridge.")
 	GameState.current_region_id = region_before
 	main.queue_free()
 	await get_tree().process_frame

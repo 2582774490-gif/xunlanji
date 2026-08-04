@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/abysswatch_terrace.tscn" id="1_base"]
+[ext_resource type="Script" path="res://src/world/ancient_ridge.gd" id="2_scene"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/ancient_ridge/terrain/ancient_ridge_earthfire_ruins_v01.png" id="3_ground"]
+
+[node name="AncientRidge" instance=ExtResource("1_base")]
+script = ExtResource("2_scene")
+
+[node name="RegionBackdrop" parent="." index="0"]
+region_style = "ancient_ridge"
+
+[node name="Terrain" parent="." index="1"]
+texture = ExtResource("3_ground")
+
+[node name="Name" parent="TerraceExit" index="1"]
+text = "古脊关道 · 返回雾潮边境"
+
+[node name="Interaction" parent="TerraceExit" index="2"]
+prompt_text = "沿古脊关道返回雾潮边境"
+
+[node name="Name" parent="ObservationPlinth" index="0"]
+text = "古战遗址 · 高阶探索"
+
+[node name="Interaction" parent="ObservationPlinth" index="1"]
+prompt_text = "查看古脊战场遗址"
+
+[node name="Name" parent="AbyssSign" index="1"]
+text = "古脊随机机缘"
+
+[node name="Interaction" parent="AbyssSign" index="2"]
+prompt_text = "追寻古脊岭当前机缘"
