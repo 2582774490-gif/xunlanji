@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://src/world/mist_stream_water_palace.gd" id="1_scene"]
 [ext_resource type="Script" path="res://src/world/water_palace_map.gd" id="2_map"]
@@ -12,6 +12,8 @@
 [ext_resource type="Script" path="res://src/combat/sprite_sheet_burst.gd" id="10_effect"]
 [ext_resource type="Texture2D" path="res://assets/art/effects/qinglan_sword_trail/processed_alpha/qinglan_sword_trail_5f_v01_alpha.png" id="11_trail"]
 [ext_resource type="Texture2D" path="res://assets/art/effects/water_hit_spark/processed_alpha/water_hit_spark_4f_v01_alpha.png" id="12_spark"]
+[ext_resource type="Texture2D" path="res://assets/art/effects/ningxi_sword_art/processed_alpha/ningxi_sword_art_4f_v01_alpha.png" id="13_ningxi"]
+[ext_resource type="Texture2D" path="res://assets/art/effects/water_demon_blade/processed_alpha/water_demon_blade_4f_v01_alpha.png" id="14_water_blade"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 22.0
@@ -100,6 +102,26 @@ animation_fps = 17.0
 start_scale = Vector2(0.25, 0.25)
 end_scale = Vector2(0.42, 0.42)
 
+[node name="NingxiCast" type="Sprite2D" parent="CombatEffects"]
+texture = ExtResource("13_ningxi")
+script = ExtResource("10_effect")
+columns = 4
+frame_count = 4
+animation_fps = 15.0
+motion_distance = 12.0
+start_scale = Vector2(0.20, 0.20)
+end_scale = Vector2(0.30, 0.30)
+
+[node name="DemonWaterBlade" type="Sprite2D" parent="CombatEffects"]
+texture = ExtResource("14_water_blade")
+script = ExtResource("10_effect")
+columns = 4
+frame_count = 4
+animation_fps = 16.0
+motion_distance = 56.0
+start_scale = Vector2(0.22, 0.22)
+end_scale = Vector2(0.34, 0.34)
+
 [node name="HUD" type="CanvasLayer" parent="."]
 
 [node name="Title" type="Label" parent="HUD"]
@@ -142,6 +164,16 @@ theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 18
 
+[node name="PlayerMana" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 88.0
+offset_right = 350.0
+offset_bottom = 114.0
+theme_override_colors/font_color = Color(0.59, 0.84, 1, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+
 [node name="StatusPanel" type="ColorRect" parent="HUD"]
 anchors_preset = 10
 anchor_right = 1.0
@@ -165,7 +197,7 @@ offset_left = 24.0
 offset_top = 58.0
 theme_override_colors/font_color = Color(0.64, 0.78, 0.76, 1)
 theme_override_font_sizes/font_size = 14
-text = "方向键：移动  |  J：攻击  |  H / Esc：返回云岚村"
+text = "方向键：移动  |  J：普攻  |  K：凝息剑诀  |  H / Esc：返回云岚村"
 
 [node name="Prompt" type="Label" parent="HUD"]
 anchors_preset = 10

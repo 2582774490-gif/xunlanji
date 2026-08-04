@@ -141,3 +141,10 @@
 - Added `SpriteSheetBurst`, a reusable effect component that plays a supplied sheet with directional rotation, movement, scaling and fade; it does not belong to a character, weapon or boss asset.
 - Water Palace now emits the sword trail when a strike starts and the water hit spark at the delayed impact event, completing the first visual combat chain.
 - A Godot global-class registration order issue was avoided by binding the scene nodes as `Node` references instead of depending on a parse-time type registration.
+
+## 2026-08-04: First cultivation skill versus boss-skill loop
+
+- Added `凝息剑诀` to Mist-Stream Water Palace: K casts an independent four-frame jade-cyan rune effect, costs 18 spirit power, regenerates naturally at 2 per second, and has a four-second cooldown.
+- Its damage uses player attack and spirit power, so the existing cultivation attributes now affect both basic and skill attacks in the playable dungeon.
+- Replaced the boss's invisible periodic damage with a four-frame water-blade cast followed by a short impact delay; the demon still remains elegant and water-themed rather than horror-oriented.
+- The Water Palace HUD now exposes HP, spirit power and the first skill's availability. The first effect component remains asset-agnostic and is reused for player and boss VFX.

@@ -196,4 +196,10 @@
 - [x] Produce and alpha-clean the first Qinglan Sword trail and water-element hit-spark frame packages.
 - [x] Add a reusable sprite-sheet burst player with direction, travel, scale and fade controls.
 - [x] Connect attack-start trail and delayed-impact spark to the Water Palace boss encounter.
-- [ ] Produce a first player cast effect and a water-demon attack effect using the same component.
+- [x] Produce a first player cast effect and a water-demon attack effect using the same component.
+
+## Phase 28: First playable cultivation skill loop (active)
+
+- [x] Add the first manually cast cultivation skill with visible VFX, spirit-power cost, cooldown and stat-based damage.
+- [x] Replace the first boss's invisible damage tick with a readable water-blade cast and delayed hit.
+- [ ] Add skill-slot data and three additional launch-test skills before exposing the five-slot combat HUD.
