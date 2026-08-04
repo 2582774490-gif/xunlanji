@@ -7,6 +7,7 @@ func _ready() -> void:
 
 func _run() -> void:
 	await _check_manual_progression()
+	await _check_local_profile_payload()
 	await _check_weapon_combat_profiles()
 	await _check_weapon_render_slot()
 	await _check_local_market_loop()
@@ -56,6 +57,28 @@ func _check_manual_progression() -> void:
 	_expect(GameState.try_breakthrough(), "Foundation breakthrough should succeed after materials are prepared.")
 	_expect(GameState.player.realm_index == 1 and GameState.player.minor_stage == 1, "Foundation breakthrough did not move to the first Foundation stage.")
 	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_local_profile_payload() -> void:
+	var player_before: Dictionary = GameState.player.duplicate(true)
+	var listings_before: Array = GameState.local_market_listings.duplicate(true)
+	var region_before: String = GameState.current_region_id
+	var dungeon_before: String = GameState.selected_dungeon_id
+	GameState.player.gold = 177
+	GameState.player.inventory.append("存档烟测材料")
+	GameState.current_region_id = "return_abyss_mist_port"
+	GameState.selected_dungeon_id = "abysswatch_terrace"
+	var payload := GameState.export_local_profile()
+	GameState.player.gold = 1
+	GameState.player.inventory.clear()
+	GameState.current_region_id = "starter_village"
+	_expect(GameState.apply_local_profile(payload), "Local profile payload should restore valid saved state.")
+	_expect(GameState.player.gold == 177 and GameState.player.inventory.has("存档烟测材料"), "Local profile payload did not restore player inventory and currency.")
+	_expect(GameState.current_region_id == "return_abyss_mist_port" and GameState.selected_dungeon_id == "abysswatch_terrace", "Local profile payload did not restore world resume state.")
+	GameState.player = player_before
+	GameState.local_market_listings = listings_before
+	GameState.current_region_id = region_before
+	GameState.selected_dungeon_id = dungeon_before
 	GameState.profile_changed.emit()
 
 func _check_weapon_combat_profiles() -> void:

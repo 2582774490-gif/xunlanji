@@ -328,8 +328,9 @@ func _show_codex() -> void:
 func _show_settings() -> void:
 	_heading("设置与开发状态")
 	_text("引擎：Godot 4.7｜目标：微信小游戏优先｜当前：Windows 本地原型。")
-	_text("已具备：首发内容数据、完整模块入口、本地修炼/机缘/副本/交易/PVP 演示、首批立绘。")
-	_text("后续尚需：微信导出验证、服务器、账号、真实多人同步、去背切图和完整动作帧、数值平衡、音频、存档与测试。")
+	_text("已具备：首发内容数据、完整模块入口、本地修炼/机缘/副本/交易/PVP 演示、本地存档、首批立绘。")
+	_text("后续尚需：微信导出验证、服务器、账号、真实多人同步、完整动作帧、数值平衡、音频与云端存档。")
+	_buttons([["保存本地进度", _save_local_profile, 190], ["读取本地进度", _load_local_profile, 190]])
 	_buttons([["返回洞府", func(): GameState.enter_screen(GameState.Screen.HOME), 160], ["重新创建角色", func(): GameState.enter_screen(GameState.Screen.CHARACTER_SELECT), 180]])
 
 func _combat_entries(include_reset := false) -> Array:
@@ -464,6 +465,14 @@ func _list_first_inventory_item() -> void:
 
 func _cancel_market_listing(index: int) -> void:
 	GameState.cancel_market_listing(index)
+	_render()
+
+func _save_local_profile() -> void:
+	GameState.save_local_profile()
+	_render()
+
+func _load_local_profile() -> void:
+	GameState.load_local_profile()
 	_render()
 
 func _restart_pvp() -> void:

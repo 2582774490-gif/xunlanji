@@ -27,6 +27,8 @@ const MARKET_FEE_RATE := 0.05
 const MARKET_MIN_PRICE := 1
 const MARKET_MAX_PRICE := 99999
 const FOUNDATION_PREPARATION_ITEMS := ["临渊露", "御崖石屑", "护脉阵片"]
+const LOCAL_SAVE_PATH := "user://xunlanji_local_profile.json"
+const LOCAL_SAVE_VERSION := 1
 var local_market_listings: Array[Dictionary] = [
 	{"id": "npc_ore", "name": "雾潮矿芯", "type": "材料", "price": 32, "seller": "雾港行商"},
 	{"id": "npc_talisman", "name": "雷纹符材", "type": "符材", "price": 45, "seller": "候雷符修"},
@@ -60,6 +62,64 @@ var player := {
 func enter_screen(next_screen: Screen) -> void:
 	current_screen = next_screen
 	screen_changed.emit(current_screen)
+
+func export_local_profile() -> Dictionary:
+	# This payload is deliberately local-only.  Currency, listings and player
+	# state become server-authoritative after account/multiplayer services exist.
+	return {
+		"version": LOCAL_SAVE_VERSION,
+		"player": player.duplicate(true),
+		"market_listings": local_market_listings.duplicate(true),
+		"current_region_id": current_region_id,
+		"selected_dungeon_id": selected_dungeon_id,
+	}
+
+func apply_local_profile(payload: Dictionary) -> bool:
+	if int(payload.get("version", 0)) != LOCAL_SAVE_VERSION:
+		return false
+	var stored_player: Variant = payload.get("player", {})
+	if not stored_player is Dictionary:
+		return false
+	if not stored_player.has("inventory") or not stored_player.has("attributes"):
+		return false
+	player = stored_player.duplicate(true)
+	current_region_id = str(payload.get("current_region_id", "starter_village"))
+	selected_dungeon_id = str(payload.get("selected_dungeon_id", "mist_stream_palace"))
+	local_market_listings.clear()
+	var stored_listings: Variant = payload.get("market_listings", [])
+	if stored_listings is Array:
+		for entry in stored_listings:
+			if entry is Dictionary:
+				local_market_listings.append(entry.duplicate(true))
+	profile_changed.emit()
+	return true
+
+func save_local_profile() -> bool:
+	var file := FileAccess.open(LOCAL_SAVE_PATH, FileAccess.WRITE)
+	if file == null:
+		notify("本地存档写入失败。")
+		return false
+	file.store_string(JSON.stringify(export_local_profile()))
+	file.close()
+	notify("本地进度已保存。此存档仅在当前设备有效；尚未接入账号云端。")
+	return true
+
+func load_local_profile() -> bool:
+	if not FileAccess.file_exists(LOCAL_SAVE_PATH):
+		notify("当前设备没有可读取的本地存档。")
+		return false
+	var file := FileAccess.open(LOCAL_SAVE_PATH, FileAccess.READ)
+	if file == null:
+		notify("本地存档读取失败。")
+		return false
+	var decoder := JSON.new()
+	var parse_result := decoder.parse(file.get_as_text())
+	file.close()
+	if parse_result != OK or not decoder.data is Dictionary or not apply_local_profile(decoder.data):
+		notify("本地存档格式无效或版本不兼容。")
+		return false
+	notify("已恢复本地进度。账号云端与多人数据仍需服务器接入。")
+	return true
 
 func market_fee(price: int) -> int:
 	return max(1, ceili(float(price) * MARKET_FEE_RATE))
