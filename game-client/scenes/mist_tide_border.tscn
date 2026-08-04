@@ -18,6 +18,7 @@
 [ext_resource type="Script" path="res://src/world/region_chunk_streamer.gd" id="16_streamer"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/terrain/mist_tide_waterway_ore_flats_v01.png" id="17_waterway"]
 [ext_resource type="Script" path="res://src/world/world_encounter_controller.gd" id="18_encounter"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/terrain/mist_tide_herb_wetland_v01.png" id="19_wetland"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -71,6 +72,13 @@ z_index = -10
 [node name="WaterwayOreFlatsChunk" type="Sprite2D" parent="."]
 position = Vector2(3072, 0)
 texture = ExtResource("17_waterway")
+scale = Vector2(2, 2)
+centered = false
+z_index = -10
+
+[node name="HerbWetlandChunk" type="Sprite2D" parent="."]
+position = Vector2(6144, 0)
+texture = ExtResource("19_wetland")
 scale = Vector2(2, 2)
 centered = false
 z_index = -10

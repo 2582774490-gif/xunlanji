@@ -34,6 +34,7 @@ func _ready() -> void:
 	chunk_streamer.configure(player, [
 		{"id": "border_checkpoint", "node": $Terrain, "bounds": Rect2(0, 0, 3072, 2048)},
 		{"id": "waterway_ore_flats", "node": $WaterwayOreFlatsChunk, "bounds": Rect2(3072, 0, 3072, 2048)},
+		{"id": "herb_wetland", "node": $HerbWetlandChunk, "bounds": Rect2(6144, 0, 3072, 2048)},
 	])
 	status.text = "雾潮边境：这是第二个大区的首个空间切片。地表、残关与雾木均为独立层；边境探子可提供筑基区域的线索。"
 	return_interaction.focused.connect(_focus_interaction)
@@ -175,6 +176,21 @@ func _population_profiles() -> Array[Dictionary]:
 			"prompt": "询问边关巡修的雾潮消息", "chance": 0.35,
 			"anchors": [Vector2(760, 980), Vector2(880, 1060)],
 			"tint": Color(0.92, 0.86, 0.68), "label_color": Color(1.0, 0.9, 0.66),
+		},
+		# The wetland is intentionally quiet: herbs sit only on shallow-water
+		# stone banks, while the herbalist stays beside the drying rack.
+		{
+			"id": "wetland_mist_herb", "region": "mist_border", "kind": "resource", "name": "雾泽灵草丛",
+			"prompt": "在石滩与浅水交界采集雾泽灵草", "chance": 0.66,
+			"anchors": [Vector2(6980, 1370), Vector2(7380, 1510), Vector2(7740, 1290)],
+			"reward": "雾泽灵草", "cultivation": 3,
+			"tint": Color(0.76, 1.0, 0.86), "label_color": Color(0.78, 1.0, 0.90),
+		},
+		{
+			"id": "wetland_herbalist", "region": "mist_border", "kind": "rogue", "name": "晾药散修",
+			"prompt": "向晾药散修询问湿地药性", "chance": 0.42,
+			"anchors": [Vector2(7900, 700), Vector2(8170, 760)],
+			"tint": Color(0.76, 0.90, 0.74), "label_color": Color(0.82, 0.96, 0.78),
 		},
 	]
 	# A sect wanted record is not a map-wide monster switch.  The patrol only

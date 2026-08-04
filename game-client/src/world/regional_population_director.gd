@@ -9,6 +9,7 @@ const SCOUT_TEXTURE: Texture2D = preload("res://assets/art/npcs/border_scout_liu
 const MERCHANT_TEXTURE: Texture2D = preload("res://assets/art/npcs/marketkeeper_luo/processed_alpha/marketkeeper_luo_idle_v01_alpha.png")
 const GUIDE_TEXTURE: Texture2D = preload("res://assets/art/npcs/guide_shen/processed_alpha/guide_shen_idle_south_v01_alpha.png")
 const BEAST_TEXTURE: Texture2D = preload("res://assets/art/characters/boss_mist_forest_general/processed_alpha/boss_mist_forest_general_v01_alpha.png")
+const HERB_TEXTURE: Texture2D = preload("res://assets/art/resources/mist_stream_spirit_herb/processed_alpha/mist_stream_spirit_herb_v01_alpha.png")
 
 signal focused(interaction: Area2D)
 signal unfocused(interaction: Area2D)
@@ -45,6 +46,11 @@ func resolve(interaction: Area2D) -> void:
 	_resolved[interaction] = true
 	var summary := ""
 	match kind:
+		"resource":
+			var reward := str(profile.get("reward", "野生灵材"))
+			GameState.add_item(reward)
+			GameState.gain_cultivation(int(profile.get("cultivation", 0)))
+			summary = "在%s采得%s。此处位于对应生态带，下一次刷新仍只会回到湿地、矿脉或山涧等合适地点。" % [name, reward]
 		"merchant":
 			summary = "%s 分享了一段商路传闻：附近的资源与路口会随时令和人流改变。" % name
 		"rogue":
@@ -130,6 +136,7 @@ func _create_population_node(profile: Dictionary, anchor: Vector2) -> void:
 
 func _texture_for(kind: String) -> Texture2D:
 	match kind:
+		"resource": return HERB_TEXTURE
 		"merchant": return MERCHANT_TEXTURE
 		"rogue": return SCOUT_TEXTURE
 		"bandit": return GUIDE_TEXTURE

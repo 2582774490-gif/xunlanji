@@ -25,6 +25,7 @@ func _run() -> void:
 	await _check_mist_tide_stone_grotto()
 	await _check_red_maple_ancient_road()
 	await _check_world_population_encounter()
+	await _check_world_population_resource()
 	await _check_thunder_listening_cliff()
 	await _check_return_abyss_mist_port()
 	await _check_abysswatch_terrace()
@@ -272,10 +273,14 @@ func _check_mist_border_scene() -> void:
 	_expect(border.ancient_ridge_gate_interaction != null, "Mist Tide Border is missing the Yuan Infant Ancient Ridge entrance.")
 	_expect(border.player.map_bounds.size.x >= 11000.0, "Mist Tide Border still behaves like a single small background instead of a large region.")
 	_expect(border.chunk_streamer.loaded_chunk_count() >= 1, "Mist Tide Border did not load its nearby high-detail terrain chunk.")
+	_expect(border.has_node("HerbWetlandChunk"), "Mist Tide Border is missing the continuous herb wetland terrain chunk.")
+	var ecology_profiles: Array[Dictionary] = border._population_profiles()
+	_expect(ecology_profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "wetland_mist_herb"), "Mist Tide Border is missing its wetland-bound herb ecology profile.")
 	var border_player_start: Vector2 = border.player.position
 	border.player.position = Vector2(11200, 7200)
 	await get_tree().process_frame
 	_expect(not border.get_node("Terrain").visible, "The terrain chunk streamer did not unload far-away high-detail art.")
+	_expect(not border.get_node("HerbWetlandChunk").visible, "The terrain chunk streamer did not unload distant wetland art.")
 	border.player.position = border_player_start
 	await get_tree().process_frame
 	var realm_before: int = GameState.player.realm_index
@@ -486,6 +491,25 @@ func _check_world_population_encounter() -> void:
 	_expect(not encounter.is_in_encounter() and not enemy_root.visible, "Overworld basic attack did not defeat the low-health hostile entry.")
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Overworld hostile defeat did not award its ecological material.")
 	road.queue_free()
+	await get_tree().process_frame
+
+func _check_world_population_resource() -> void:
+	var inventory_before: int = GameState.player.inventory.size()
+	var cultivation_before: int = GameState.player.cultivation
+	var population := preload("res://src/world/regional_population_director.gd").new()
+	add_child(population)
+	population.populate(11, [{
+		"id": "smoke_test_wetland_herb", "region": "test", "kind": "resource", "name": "烟测湿地灵草",
+		"prompt": "采集烟测湿地灵草", "chance": 1.0, "anchors": [Vector2(120, 120)],
+		"reward": "烟测雾泽灵草", "cultivation": 2,
+	}])
+	await get_tree().process_frame
+	var herb_root: Node2D = population.get_child(0)
+	var herb_interaction: Area2D = herb_root.get_node("Interaction")
+	population.resolve(herb_interaction)
+	_expect(GameState.player.inventory.size() == inventory_before + 1, "Ecological resource interaction did not grant its bound material.")
+	_expect(GameState.player.cultivation >= cultivation_before + 2, "Ecological resource interaction did not grant its cultivation value.")
+	population.queue_free()
 	await get_tree().process_frame
 
 func _check_thunder_listening_cliff() -> void:
