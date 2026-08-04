@@ -263,8 +263,8 @@
 - [x] Add an extensible large-region base with roads, waterways, landform clusters and far landmarks behind future art chunks.
 - [x] Add region-specific, non-uniform dynamic population clusters for suitable biomes and travel routes.
 - [x] Add the sixth-layer Red Maple Road entrance, independent trade/escort/event routes and runtime coverage.
-- [ ] Add a streaming controller that loads and unloads high-detail terrain chunks around the player while preserving dynamic population state.
-- [ ] Convert hostile ecological entries into active on-map combat encounters, with safe avoidance and respawn rules.
+- [x] Add a streaming controller that loads and unloads high-detail terrain chunks around the player while preserving dynamic population state.
+- [x] Convert hostile ecological entries into active on-map combat encounters, with safe avoidance and no-drop retreat rules.
 
 ## Phase 36: Qi Refining fifth-layer non-linear cave (active)
 

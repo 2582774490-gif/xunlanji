@@ -16,6 +16,7 @@ func _run() -> void:
 	await _check_sunken_vessel_manor()
 	await _check_mist_tide_stone_grotto()
 	await _check_red_maple_ancient_road()
+	await _check_world_population_encounter()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
 		get_tree().quit(0)
@@ -106,6 +107,13 @@ func _check_mist_border_scene() -> void:
 	_expect(border.grotto_gate_interaction != null, "Mist Tide Border is missing the Qi Refining fifth-layer grotto entrance.")
 	_expect(border.red_maple_gate_interaction != null, "Mist Tide Border is missing the Qi Refining sixth-layer Red Maple Road entrance.")
 	_expect(border.player.map_bounds.size.x >= 11000.0, "Mist Tide Border still behaves like a single small background instead of a large region.")
+	_expect(border.chunk_streamer.loaded_chunk_count() >= 1, "Mist Tide Border did not load its nearby high-detail terrain chunk.")
+	var border_player_start: Vector2 = border.player.position
+	border.player.position = Vector2(11200, 7200)
+	await get_tree().process_frame
+	_expect(not border.get_node("Terrain").visible, "The terrain chunk streamer did not unload far-away high-detail art.")
+	border.player.position = border_player_start
+	await get_tree().process_frame
 	var realm_before: int = GameState.player.realm_index
 	var stage_before: int = GameState.player.minor_stage
 	GameState.player.realm_index = 0
@@ -264,6 +272,37 @@ func _check_red_maple_ancient_road() -> void:
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
 	GameState.player.gold = gold_before
+
+func _check_world_population_encounter() -> void:
+	var inventory_before: int = GameState.player.inventory.size()
+	var road := preload("res://scenes/red_maple_ancient_road.tscn").instantiate()
+	add_child(road)
+	await get_tree().process_frame
+	var population := preload("res://src/world/regional_population_director.gd").new()
+	var encounter := preload("res://src/world/world_encounter_controller.gd").new()
+	var target_label := Label.new()
+	var player_label := Label.new()
+	road.add_child(population)
+	road.add_child(encounter)
+	road.add_child(target_label)
+	road.add_child(player_label)
+	population.populate(7, [{
+		"id": "smoke_test_beast", "region": "test", "kind": "beast", "name": "烟测灵獭",
+		"prompt": "接近烟测灵獭", "chance": 1.0, "anchors": [road.player.position + Vector2(54, 0)],
+		"health": 10, "damage": 1, "reward": "烟测灵皮", "cultivation": 0,
+	}])
+	encounter.configure(road.player, population, road.status, target_label, player_label)
+	await get_tree().process_frame
+	var enemy_root: Node2D = population.get_child(0)
+	var enemy_interaction: Area2D = enemy_root.get_node("Interaction")
+	population.resolve(enemy_interaction)
+	_expect(encounter.is_in_encounter(), "A hostile ecological population entry did not begin an overworld encounter.")
+	road.player.position = enemy_root.global_position
+	encounter._on_player_attack_impact("south")
+	_expect(not encounter.is_in_encounter() and not enemy_root.visible, "Overworld basic attack did not defeat the low-health hostile entry.")
+	_expect(GameState.player.inventory.size() == inventory_before + 1, "Overworld hostile defeat did not award its ecological material.")
+	road.queue_free()
+	await get_tree().process_frame
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:

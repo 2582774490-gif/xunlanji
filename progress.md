@@ -232,6 +232,14 @@
 - Dynamic entities expose free-exploration interactions and discovery records. Their territory / ambush notes are wired; the next combat pass will turn hostile ecological entries into actual on-map combat encounters rather than fake task markers.
 - Added the visible 炼气六层 Red Maple Road entrance in Mist Tide Border, then verified all existing content plus the large-region and sixth-layer optional-route checks through `RUNTIME_SMOKE_PASS`.
 
+## 2026-08-05: Terrain chunk streaming and overworld encounters
+
+- Generated and integrated the second authored Mist Tide Border terrain chunk: `Mist Tide Waterway and Ore Flats`. It is a separate high-detail waterway / mineral-flat plate placed east of the original checkpoint chunk, not a scaled copy of the same small background.
+- Added `RegionChunkStreamer`: nearby authored terrain plates load around the player and far plates unload, while the continuous regional coordinate space and all exploration state remain intact. The smoke runner moves the player to the far side of the 12000x8000 border and verifies the original terrain chunk unloads.
+- Added an actual overworld encounter controller for ecological hostile entries. Bandits and beasts can be approached to engage, avoided by leaving attack range, or fought with the same manual basic attack used in dungeon testing. Defeat grants a material and cultivation; defeat by enemies causes a no-drop retreat from the territory.
+- Added a single mobile overworld attack button alongside the existing joystick and interaction button, so the open-world encounter loop is not keyboard-only. Full five-skill combat remains in dungeon scenes until those skills are separately tuned for roaming encounters.
+- Extended runtime verification with a deterministic hostile ecology entry, proving encounter activation, hand-operated attack, target removal and reward delivery.
+
 ## 2026-08-05: Qi Refining fifth-layer Mist Tide Stone Grotto
 
 - Added 雾潮石窟 as a separate fifth-layer exploration cave with a three-route layout: left mineral shelf, middle random tide event and right collapsed tunnel. Each is optional and can be resolved in any order.

@@ -8,6 +8,7 @@ extends Control
 signal action_requested(action_id: String)
 
 @export var combat_enabled := false
+@export var overworld_attack_enabled := false
 @export var interaction_enabled := true
 
 const JOYSTICK_RADIUS := 78.0
@@ -54,7 +55,7 @@ func _handle_touch(touch_id: int, touch_position: Vector2, pressed: bool) -> voi
 			_move_touch_id = touch_id
 			_update_joystick(touch_position)
 			return
-		if combat_enabled or _interaction_available:
+		if combat_enabled or overworld_attack_enabled or _interaction_available:
 			var action_id := _action_at(touch_position)
 			if not action_id.is_empty():
 				action_requested.emit(action_id)
@@ -106,6 +107,8 @@ func _button_data() -> Array[Dictionary]:
 			{"id": "guard", "label": "护", "position": Vector2(x - 120.0, y - 84.0)},
 			{"id": "nourish", "label": "灵", "position": Vector2(x - 192.0, y - 18.0)},
 		])
+	elif overworld_attack_enabled:
+		buttons.append({"id": "attack", "label": "攻", "position": Vector2(x, y)})
 	if interaction_enabled and _interaction_available:
 		buttons.append({"id": "interact", "label": "交", "position": Vector2(x, y - 4.0)})
 	return buttons

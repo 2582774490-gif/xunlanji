@@ -11,6 +11,8 @@ extends Node2D
 @onready var grotto_gate_interaction: Area2D = $MistTideGrottoGate/Interaction
 @onready var red_maple_gate_interaction: Area2D = $RedMapleRoadGate/Interaction
 @onready var regional_population = $RegionalPopulation
+@onready var chunk_streamer = $ChunkStreamer
+@onready var world_encounter = $WorldCombat
 @onready var prompt: Label = $HUD/Prompt
 @onready var status: Label = $HUD/StatusPanel/Status
 @onready var touch_controls: Node = $HUD/TouchControls
@@ -25,6 +27,10 @@ func _ready() -> void:
 	# continuous region. Future chunks attach to the same 12 km x 8 km space.
 	player.map_bounds = Rect2(80, 80, 11840, 7840)
 	player.position = Vector2(520, 1570)
+	chunk_streamer.configure(player, [
+		{"id": "border_checkpoint", "node": $Terrain, "bounds": Rect2(0, 0, 3072, 2048)},
+		{"id": "waterway_ore_flats", "node": $WaterwayOreFlatsChunk, "bounds": Rect2(3072, 0, 3072, 2048)},
+	])
 	status.text = "雾潮边境：这是第二个大区的首个空间切片。地表、残关与雾木均为独立层；边境探子可提供筑基区域的线索。"
 	return_interaction.focused.connect(_focus_interaction)
 	return_interaction.unfocused.connect(_unfocus_interaction)
@@ -46,6 +52,7 @@ func _ready() -> void:
 	regional_population.unfocused.connect(_unfocus_interaction)
 	regional_population.population_resolved.connect(_on_population_resolved)
 	regional_population.populate(_population_seed(), _population_profiles())
+	world_encounter.configure(player, regional_population, status, $HUD/EncounterTarget, $HUD/EncounterPlayer)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -71,6 +78,8 @@ func _unfocus_interaction(interaction: Area2D) -> void:
 func _on_touch_action_requested(action_id: String) -> void:
 	if action_id == "interact":
 		_activate_contextual()
+	elif action_id == "attack":
+		player.trigger_basic_attack()
 
 func _activate_contextual() -> void:
 	if active_interaction == return_interaction:
@@ -120,6 +129,7 @@ func _population_profiles() -> Array[Dictionary]:
 			"id": "fog_channel_beast", "region": "mist_border", "kind": "beast", "name": "雾渠獭妖",
 			"prompt": "观察雾渠獭妖的活动范围", "chance": 0.72,
 			"anchors": [Vector2(2500, 560), Vector2(2700, 640), Vector2(2860, 470)],
+			"health": 66, "damage": 7, "reward": "雾獭灵皮", "cultivation": 5,
 			"tint": Color(0.72, 0.95, 0.86), "label_color": Color(0.74, 1.0, 0.89),
 		},
 		{

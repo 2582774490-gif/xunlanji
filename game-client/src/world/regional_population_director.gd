@@ -13,6 +13,7 @@ const BEAST_TEXTURE: Texture2D = preload("res://assets/art/characters/boss_mist_
 signal focused(interaction: Area2D)
 signal unfocused(interaction: Area2D)
 signal population_resolved(summary: String)
+signal hostile_encounter_requested(interaction: Area2D)
 
 var _entries: Dictionary = {}
 var _resolved: Dictionary = {}
@@ -35,10 +36,13 @@ func owns(interaction: Area2D) -> bool:
 func resolve(interaction: Area2D) -> void:
 	if not _entries.has(interaction) or _resolved.has(interaction):
 		return
-	_resolved[interaction] = true
 	var profile: Dictionary = _entries[interaction]
 	var kind := str(profile.get("kind", "wanderer"))
 	var name := str(profile.get("name", "陌生修士"))
+	if kind == "bandit" or kind == "beast":
+		hostile_encounter_requested.emit(interaction)
+		return
+	_resolved[interaction] = true
 	var summary := ""
 	match kind:
 		"merchant":
@@ -53,6 +57,23 @@ func resolve(interaction: Area2D) -> void:
 			summary = "%s 的出现为这片区域增加了一条可自由追踪的线索。" % name
 	GameState.record_opportunity({"region": str(profile.get("region", "")), "name": name, "kind": kind, "cultivation": 0})
 	population_resolved.emit(summary)
+
+func profile_for(interaction: Area2D) -> Dictionary:
+	return _entries.get(interaction, {})
+
+func defeat_hostile(interaction: Area2D) -> void:
+	if not _entries.has(interaction) or _resolved.has(interaction):
+		return
+	_resolved[interaction] = true
+	var profile: Dictionary = _entries[interaction]
+	var name := str(profile.get("name", "游荡妖物"))
+	var reward := str(profile.get("reward", "异兽残材"))
+	interaction.set_deferred("monitoring", false)
+	interaction.get_parent().visible = false
+	GameState.add_item(reward)
+	GameState.gain_cultivation(int(profile.get("cultivation", 4)))
+	GameState.record_opportunity({"region": str(profile.get("region", "")), "name": name, "kind": "hostile_defeated", "item": reward})
+	population_resolved.emit("击退 %s，获得 %s。这里的生态位会在后续时段重新出现。" % [name, reward])
 
 func active_count() -> int:
 	return _entries.size()
@@ -85,6 +106,7 @@ func _create_population_node(profile: Dictionary, anchor: Vector2) -> void:
 	label.text = str(profile.get("name", "游历者"))
 	root.add_child(label)
 	var interaction := Area2D.new()
+	interaction.name = "Interaction"
 	interaction.set_script(WorldInteractionScript)
 	interaction.interaction_id = str(profile.get("id", "dynamic_population"))
 	interaction.prompt_text = str(profile.get("prompt", "观察此处动静"))

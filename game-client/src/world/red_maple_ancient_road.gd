@@ -11,6 +11,7 @@ extends Node2D
 @onready var status: Label = $HUD/StatusPanel/Status
 @onready var touch_controls: Node = $HUD/TouchControls
 @onready var regional_population = $RegionalPopulation
+@onready var world_encounter = $WorldCombat
 
 var active_interaction: Area2D
 var event_resolved := false
@@ -46,6 +47,7 @@ func _ready() -> void:
 	regional_population.unfocused.connect(_unfocus_interaction)
 	regional_population.population_resolved.connect(_on_population_resolved)
 	regional_population.populate(_population_seed(), _population_profiles())
+	world_encounter.configure(player, regional_population, status, $HUD/EncounterTarget, $HUD/EncounterPlayer)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -71,6 +73,8 @@ func _unfocus_interaction(interaction: Area2D) -> void:
 func _on_touch_action_requested(action_id: String) -> void:
 	if action_id == "interact":
 		_activate_contextual()
+	elif action_id == "attack":
+		player.trigger_basic_attack()
 
 func _activate_contextual() -> void:
 	if active_interaction == return_interaction:
@@ -105,12 +109,14 @@ func _population_profiles() -> Array[Dictionary]:
 			"id": "maple_cut_bandits", "region": "red_maple_ancient_road", "kind": "bandit", "name": "赤枫盗修",
 			"prompt": "查看断桥伏击留下的痕迹", "chance": 0.58,
 			"anchors": [Vector2(2810, 1380), Vector2(3000, 1460), Vector2(3150, 1360)],
+			"health": 74, "damage": 9, "reward": "盗修符囊", "cultivation": 7,
 			"tint": Color(0.79, 0.55, 0.64), "label_color": Color(1.0, 0.65, 0.69),
 		},
 		{
 			"id": "kiln_fire_beast", "region": "red_maple_ancient_road", "kind": "beast", "name": "火鬃岩獾",
 			"prompt": "观察火鬃岩獾的领地", "chance": 0.62,
 			"anchors": [Vector2(4500, 2730), Vector2(4680, 2840), Vector2(4800, 2640)],
+			"health": 82, "damage": 10, "reward": "火鬃硬毛", "cultivation": 8,
 			"tint": Color(1.0, 0.54, 0.30), "label_color": Color(1.0, 0.68, 0.38),
 		},
 	]
