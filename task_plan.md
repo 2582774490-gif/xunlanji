@@ -164,5 +164,5 @@
 - [x] Add a second eight-direction walking-key-pose atlas and blend it with the idle atlas for an actual movement cycle.
 - [x] Add an independently placed NPC with proximity prompt and dialogue interaction.
 - [x] Add an independently placed gathering resource that removes itself on collection and updates player inventory/cultivation.
-- [ ] Add the first short travel route from South Gate into the expanded Yunlan Village scene.
+- [x] Add the first short travel route from South Gate into the expanded Yunlan Village scene.
 - [ ] Upgrade the current two-frame movement loop into a fuller eight-direction frame package after visual review.

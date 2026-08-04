@@ -5,6 +5,7 @@ extends Node2D
 @onready var prompt: Label = $HUD/Prompt
 @onready var guide_interaction: Area2D = $GuideShen/Interaction
 @onready var herb_interaction: Area2D = $MistHerb/Interaction
+@onready var player: CharacterBody2D = $Player
 
 var active_interaction: Area2D
 var guide_dialogue_stage := 0
@@ -24,6 +25,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		GameState.enter_screen(GameState.Screen.OVERWORLD)
 		get_tree().change_scene_to_file("res://scenes/main.tscn")
 	elif event.keycode == KEY_E:
+		if active_interaction == null and player.position.y < 430.0:
+			get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
+			return
 		_activate_interaction()
 
 func _focus_interaction(interaction: Area2D) -> void:

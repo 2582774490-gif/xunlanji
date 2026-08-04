@@ -101,3 +101,9 @@
 - Added a two-frame eight-direction movement baseline for the newly generated player map actor.
 - Added Shen Yan NPC dialogue and an interactive Mist-Stream Spirit Herb resource node.
 - Validated the updated South Gate scene after Godot asset import and relaunched the local test window.
+
+## 2026-08-04: Yunlan Village center connected
+
+- Built a second spatial scene from a ground-only village-center plate and an independent, alpha-cut market hall.
+- Connected the northern South Gate route to the village center with E; H/Esc returns to South Gate.
+- Validated both scenes in Godot headless runtime and relaunched the South Gate entry scene.
