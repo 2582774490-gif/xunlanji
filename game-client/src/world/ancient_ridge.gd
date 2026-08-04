@@ -12,6 +12,7 @@ const RIDGE_EVENTS := [
 @onready var relic_interaction: Area2D = $ObservationPlinth/Interaction
 @onready var event_interaction: Area2D = $AbyssSign/Interaction
 @onready var earthfire_cave_interaction: Area2D = $EarthfireCave/Interaction
+@onready var battlefield_memorial_interaction: Area2D = $BattlefieldMemorial/Interaction
 @onready var regional_population = $RegionalPopulation
 @onready var world_encounter = $WorldCombat
 @onready var chunk_streamer = $ChunkStreamer
@@ -24,6 +25,7 @@ var ridge_event: Dictionary = {}
 var relic_examined := false
 var event_resolved := false
 var earthfire_cave_discovered := false
+var battlefield_memorial_examined := false
 
 func _ready() -> void:
 	GameState.current_region_id = "ancient_ridge"
@@ -32,6 +34,7 @@ func _ready() -> void:
 	chunk_streamer.configure(player, [
 		{"id": "ancient_ridge_earthfire", "node": $Terrain, "bounds": Rect2(0, 0, 3072, 2048)},
 		{"id": "ancient_ridge_battlefield_pass", "node": $BattlefieldPassChunk, "bounds": Rect2(3072, 0, 3072, 2048)},
+		{"id": "ancient_ridge_battlefield", "node": $AncientBattlefieldChunk, "bounds": Rect2(6144, 0, 3072, 2048)},
 	])
 	ridge_event = RIDGE_EVENTS.pick_random().duplicate()
 	$AbyssSign/Name.text = str(ridge_event.name)
@@ -39,7 +42,7 @@ func _ready() -> void:
 	$ObservationPlinth/Name.text = "古战遗址 · 高阶探索"
 	$HUD/Title.text = "古脊岭 · 元婴以上山脉探索"
 	status.text = "古脊岭是首发第三大区的起始地火裂谷。高阶资源、遗迹与势力冲突会在同一张大地图继续向山脉深处延展。"
-	for interaction in [return_interaction, relic_interaction, event_interaction, earthfire_cave_interaction]:
+	for interaction in [return_interaction, relic_interaction, event_interaction, earthfire_cave_interaction, battlefield_memorial_interaction]:
 		interaction.focused.connect(_focus_interaction)
 		interaction.unfocused.connect(_unfocus_interaction)
 	regional_population.focused.connect(_focus_interaction)
@@ -77,6 +80,8 @@ func _activate_contextual() -> void:
 		_return_to_border()
 	elif active_interaction == earthfire_cave_interaction:
 		_enter_earthfire_cave()
+	elif active_interaction == battlefield_memorial_interaction and not battlefield_memorial_examined:
+		_examine_battlefield_memorial()
 	elif active_interaction == relic_interaction and not relic_examined:
 		_examine_relic()
 	elif active_interaction == event_interaction and not event_resolved:
@@ -115,14 +120,22 @@ func _discover_earthfire_cave() -> void:
 		status.text = "地火洞仍在前方。它是古脊岭内的固定副本入口，不会因随机机缘刷新而消失。"
 	_close_interaction()
 
+func _examine_battlefield_memorial() -> void:
+	battlefield_memorial_examined = true
+	GameState.add_item("残阵军策")
+	GameState.gain_cultivation(26)
+	GameState.record_opportunity({"region": "ancient_ridge", "name": "古战纪念台", "item": "残阵军策", "kind": "fixed_relic", "cultivation": 26})
+	status.text = "纪念台碑文记录了古脊战场的阵势更迭。获得残阵军策，修为 +26；这是固定遗迹，不会随着随机生态消失。"
+	_close_interaction()
+
 func _population_seed() -> int:
 	return int(Time.get_unix_time_from_system() / 180.0) + 114513
 
 func _population_profiles() -> Array[Dictionary]:
 	return [
 		{"id": "earthfire_hound", "region": "ancient_ridge", "kind": "beast", "name": "地火岩獒", "prompt": "观察地火岩獒的裂谷领地", "chance": 0.60, "anchors": [Vector2(2480, 780), Vector2(2680, 890)], "health": 175, "damage": 22, "reward": "地火兽核", "cultivation": 24, "tint": Color(1.0, 0.65, 0.42), "label_color": Color(1.0, 0.75, 0.48)},
-		{"id": "battlefield_remnant", "region": "ancient_ridge", "kind": "beast", "name": "战场残魂", "prompt": "感知古战场残魂的游荡范围", "chance": 0.46, "anchors": [Vector2(4180, 1050), Vector2(4520, 880)], "health": 190, "damage": 24, "reward": "残魂兵符", "cultivation": 25, "tint": Color(0.84, 0.63, 0.48), "label_color": Color(1.0, 0.78, 0.58)},
-		{"id": "relic_seeker", "region": "ancient_ridge", "kind": "rogue", "name": "寻古散修", "prompt": "询问寻古散修的遗址判断", "chance": 0.36, "anchors": [Vector2(4220, 650), Vector2(4440, 790)], "tint": Color(0.76, 0.72, 0.90), "label_color": Color(0.84, 0.80, 1.0)},
+		{"id": "battlefield_remnant", "region": "ancient_ridge", "kind": "beast", "name": "战场残魂", "prompt": "感知古战场残魂的游荡范围", "chance": 0.46, "anchors": [Vector2(7400, 1080), Vector2(7840, 900)], "health": 190, "damage": 24, "reward": "残魂兵符", "cultivation": 25, "tint": Color(0.84, 0.63, 0.48), "label_color": Color(1.0, 0.78, 0.58)},
+		{"id": "relic_seeker", "region": "ancient_ridge", "kind": "rogue", "name": "守碑散修", "prompt": "询问守碑散修的古战场判断", "chance": 0.36, "anchors": [Vector2(7200, 700), Vector2(7520, 770)], "tint": Color(0.76, 0.72, 0.90), "label_color": Color(0.84, 0.80, 1.0)},
 	]
 
 func _on_population_resolved(summary: String) -> void:

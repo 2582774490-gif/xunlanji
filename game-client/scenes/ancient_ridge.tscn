@@ -1,13 +1,17 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/abysswatch_terrace.tscn" id="1_base"]
 [ext_resource type="Script" path="res://src/world/ancient_ridge.gd" id="2_scene"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/ancient_ridge/terrain/ancient_ridge_earthfire_ruins_v01.png" id="3_ground"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/ancient_ridge/terrain/ancient_ridge_battlefield_pass_v01.png" id="4_pass"]
 [ext_resource type="Script" path="res://src/world/world_interaction.gd" id="5_interaction"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/ancient_ridge/terrain/ancient_ridge_ancient_battlefield_v01.png" id="6_battlefield"]
 
 [sub_resource type="CircleShape2D" id="EarthfireGateShape"]
 radius = 118.0
+
+[sub_resource type="CircleShape2D" id="BattlefieldMemorialShape"]
+radius = 112.0
 
 [node name="AncientRidge" instance=ExtResource("1_base")]
 script = ExtResource("2_scene")
@@ -24,6 +28,37 @@ position = Vector2(3072, 0)
 scale = Vector2(2, 2)
 centered = false
 z_index = -10
+
+[node name="AncientBattlefieldChunk" type="Sprite2D" parent="."]
+texture = ExtResource("6_battlefield")
+position = Vector2(6144, 0)
+scale = Vector2(2, 2)
+centered = false
+z_index = -10
+
+[node name="BattlefieldMemorial" type="Node2D" parent="."]
+position = Vector2(7320, 350)
+
+[node name="Name" type="Label" parent="BattlefieldMemorial"]
+offset_left = -146.0
+offset_top = -122.0
+offset_right = 146.0
+offset_bottom = -92.0
+theme_override_colors/font_color = Color(0.92, 0.80, 0.60, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "古战纪念台 · 固定遗迹"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="BattlefieldMemorial"]
+script = ExtResource("5_interaction")
+interaction_id = "battlefield_memorial"
+prompt_text = "查看古战纪念台的残缺碑文"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BattlefieldMemorial/Interaction"]
+position = Vector2(0, -42)
+shape = SubResource("BattlefieldMemorialShape")
 
 [node name="EarthfireCave" type="Node2D" parent="."]
 position = Vector2(5750, 430)
