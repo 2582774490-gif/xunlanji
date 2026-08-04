@@ -8,6 +8,7 @@ func _ready() -> void:
 func _run() -> void:
 	await _check_manual_progression()
 	await _check_local_profile_payload()
+	await _check_cultivation_affinity()
 	await _check_sect_progression()
 	await _check_wanted_patrol()
 	await _check_weapon_combat_profiles()
@@ -102,6 +103,19 @@ func _check_sect_progression() -> void:
 	_expect(GameState.sect_rank_name() == "内门弟子", "Sect promotion did not reach inner disciple rank.")
 	_expect(GameState.leave_sect(), "Player should be able to freely leave a sect.")
 	_expect(GameState.is_wanted_by_sect("mist_sword"), "Leaving Mist Sword at inner rank should preserve a sect wanted record.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_cultivation_affinity() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.spirit_root = "火灵根"
+	GameState.player.physique = "赤阳髓"
+	GameState.player.cultivation_path = "赤焰炼息法"
+	GameState.player.learned_techniques = ["赤焰炼息法"]
+	_expect(GameState.cultivation_efficiency_multiplier() >= 1.16, "Matching spirit root and physique should improve cultivation efficiency.")
+	GameState.choose_cultivation_path("三折剑经")
+	_expect(GameState.player.learned_techniques.has("三折剑经") and GameState.player.cultivation_path == "三折剑经", "Player should be able to learn and switch to another cultivation path.")
+	_expect(GameState.cultivation_efficiency_multiplier() >= 1.0, "Mismatched paths must remain playable rather than being blocked.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 

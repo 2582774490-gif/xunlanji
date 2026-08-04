@@ -223,7 +223,7 @@ func _show_realm() -> void:
 	var attributes: Dictionary = GameState.player.attributes
 	var stats: Dictionary = GameState.derived_stats()
 	_text("可分配属性点：%d｜体魄 %d · 灵识 %d · 身法 %d · 根骨 %d" % [GameState.player.unspent_points, attributes["体魄"], attributes["灵识"], attributes["身法"], attributes["根骨"]], 18, Color("a7d5ca"))
-	_text("派生：气血 %d · 灵力 %d · 攻击 %d · 移速 %d" % [stats["气血"], stats["灵力"], stats["攻击"], stats["移速"]], 16)
+	_text("派生：气血 %d · 灵力 %d · 攻击 %d · 移速 %d · 修行效率 %d%%" % [stats["气血"], stats["灵力"], stats["攻击"], stats["移速"], stats["修行效率"]], 16)
 	_buttons([["体魄 +1", func(): _allocate_attribute("体魄"), 120], ["灵识 +1", func(): _allocate_attribute("灵识"), 120], ["身法 +1", func(): _allocate_attribute("身法"), 120], ["根骨 +1", func(): _allocate_attribute("根骨"), 120]])
 	_text("炼气使用一至九层与圆满；筑基、结丹、元婴、化神使用初期至后期圆满；首发上限为化神圆满。")
 	for realm_index in Catalog.REALMS.size():
@@ -231,10 +231,12 @@ func _show_realm() -> void:
 		var status := "已到达" if realm_index < GameState.player.realm_index else ("当前" if realm_index == GameState.player.realm_index else "未解锁")
 		_text("%s · %s · %s" % [realm.name, "、".join(realm.minor_stages), status], 16, Color.WHITE if realm_index <= GameState.player.realm_index else Color("82908c"))
 	_line()
-	_text("功法派系：可选择一部主修功法；不同灵根和体质将影响后续的实际数值与技能树。", 17, Color("f2d79c"))
+	_text("功法派系：已学功法可自由切换。所有线路都能玩；适配灵根与体质只提供温和的修行效率加成，不封死其他玩法。", 17, Color("f2d79c"))
+	_text(GameState.cultivation_efficiency_text(), 16, Color("a7d5ca"))
 	for school in Catalog.CULTIVATION_SCHOOLS:
 		_text("【%s】%s" % [school.faction, "、".join(school.techniques)], 16)
-		_buttons([["主修 %s" % school.techniques[0], func(): GameState.choose_cultivation_path(school.techniques[0]), 250]])
+		for technique_name in school.techniques:
+			_buttons([["切换主修 %s" % technique_name, func(): GameState.choose_cultivation_path(technique_name), 270]])
 	_buttons([["每日静坐（剩余 %d / 3，+8 修为）" % GameState.meditation_sessions_left(), GameState.meditate, 280, GameState.meditation_sessions_left() <= 0], ["服用灵泉露（+15 修为）", _use_dew, 240]])
 
 func _allocate_attribute(attribute_name: String) -> void:

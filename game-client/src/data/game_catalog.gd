@@ -161,6 +161,37 @@ const CULTIVATION_SCHOOLS := [
 	{"faction": "雷冰异修", "techniques": ["惊雷转息法", "寒照凝形诀", "镜心守识篇"]},
 ]
 
+# Every line is playable by every spirit root. Matching a root/physique gives
+# a modest efficiency bonus rather than closing the other routes.
+const TECHNIQUE_AFFINITIES := {
+	"金阙破锋诀": {"root": "金灵根", "physique": "玄岳髓", "label": "金系破锋"},
+	"青木回生篇": {"root": "木灵根", "physique": "青木灵胎", "label": "木系回生"},
+	"玄水引潮经": {"root": "水灵根", "physique": "流泉脉", "label": "水系引潮"},
+	"赤焰炼息法": {"root": "火灵根", "physique": "赤阳髓", "label": "火系炼息"},
+	"厚土镇元诀": {"root": "土灵根", "physique": "玄岳髓", "label": "土系镇元"},
+	"云岚吐纳诀": {"root": "雾灵根", "physique": "岚息体", "label": "岚潮吐纳"},
+	"雾行隐踪篇": {"root": "雾灵根", "physique": "岚息体", "label": "雾行身法"},
+	"听潮观息法": {"root": "水灵根", "physique": "岚息体", "label": "潮息感知"},
+	"三折剑经": {"root": "金灵根", "physique": "玄岳髓", "label": "剑修养势"},
+	"沉锋养势诀": {"root": "土灵根", "physique": "玄岳髓", "label": "兵修蓄势"},
+	"百兵淬体法": {"root": "金灵根", "physique": "玄岳髓", "label": "百兵淬体"},
+	"朱砂引灵书": {"root": "火灵根", "physique": "镜心魂", "label": "符法引灵"},
+	"四隅阵解": {"root": "土灵根", "physique": "镜心魂", "label": "阵法推演"},
+	"机枢御偶篇": {"root": "金灵根", "physique": "御灵纹", "label": "机关御偶"},
+	"百草调息录": {"root": "木灵根", "physique": "青木灵胎", "label": "丹修调息"},
+	"炉火化元法": {"root": "火灵根", "physique": "赤阳髓", "label": "炉火化元"},
+	"器纹初解": {"root": "金灵根", "physique": "御灵纹", "label": "器纹炼器"},
+	"灵契共鸣篇": {"root": "风灵根", "physique": "御灵纹", "label": "御兽灵契"},
+	"清商安魂曲": {"root": "水灵根", "physique": "镜心魂", "label": "音律安魂"},
+	"驭风游身诀": {"root": "风灵根", "physique": "御灵纹", "label": "驭风游身"},
+	"惊雷转息法": {"root": "雷灵根", "physique": "听雷窍", "label": "雷法转息"},
+	"寒照凝形诀": {"root": "冰灵根", "physique": "流泉脉", "label": "冰法凝形"},
+	"镜心守识篇": {"root": "冰灵根", "physique": "镜心魂", "label": "心神守识"},
+}
+
+static func technique_affinity_for(path_name: String) -> Dictionary:
+	return TECHNIQUE_AFFINITIES.get(path_name, {"root": "", "physique": "", "label": "自由修行"}).duplicate(true)
+
 const SECTS := [
 	{"id": "mist_sword", "name": "雾隐剑宗", "trait": "重视守序、剑阵与护山", "rule": "擅离驻守任务将扣除功勋；内门后叛离山门会触发通缉。", "technique": "三折剑经", "exit_wanted_rank": 1, "exit_penalty": "雾隐剑宗已记录你的离宗，山道与驻地附近可能出现追查。"},
 	{"id": "cloud_market", "name": "云市会", "trait": "重视商路、鉴宝与契约", "rule": "恶意毁约将失去交易权限，并可能被悬赏追讨。", "technique": "镜心守识篇", "exit_wanted_rank": 3, "exit_penalty": "云市会冻结了你的会内契约信用；正常离会不构成通缉。"},

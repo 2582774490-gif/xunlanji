@@ -40,6 +40,7 @@ var player := {
 	"spirit_root": "水灵根",
 	"physique": "岚息体",
 	"cultivation_path": "云岚吐纳诀",
+	"learned_techniques": ["云岚吐纳诀"],
 	"realm_index": 0,
 	"minor_stage": 1,
 	"cultivation": 0,
@@ -186,8 +187,12 @@ func update_innate(spirit_root: String, physique: String) -> void:
 	profile_changed.emit()
 
 func choose_cultivation_path(path_name: String) -> void:
+	if not player.get("learned_techniques", []).has(path_name):
+		var learned: Array = player.get("learned_techniques", [])
+		learned.append(path_name)
+		player.learned_techniques = learned
 	player.cultivation_path = path_name
-	notify("已选定主修功法：%s" % path_name)
+	notify("已切换主修功法：%s。功法可随时转换，灵根与体质只影响效率。" % path_name)
 	profile_changed.emit()
 
 func realm_name() -> String:
@@ -251,8 +256,9 @@ func gain_cultivation(amount: int) -> String:
 		notify("修为感悟已积淀，但首发境界上限为化神圆满。")
 		return last_notice
 	var threshold := cultivation_threshold()
+	var adjusted_amount := maxi(1, floori(float(max(amount, 0)) * cultivation_efficiency_multiplier())) if amount > 0 else 0
 	var before: int = player.cultivation
-	player.cultivation = min(player.cultivation + max(amount, 0), threshold)
+	player.cultivation = min(player.cultivation + adjusted_amount, threshold)
 	var gained: int = player.cultivation - before
 	var result := "修为 +%d（%d / %d）" % [gained, player.cultivation, threshold]
 	if can_attempt_breakthrough():
@@ -317,12 +323,34 @@ func allocate_attribute(attribute_name: String) -> bool:
 
 func derived_stats() -> Dictionary:
 	var a: Dictionary = player.attributes
+	var physique := str(player.get("physique", ""))
+	var vitality_bonus := 12 if physique == "玄岳髓" else 0
+	var mana_bonus := 12 if physique == "流泉脉" else 0
+	var attack_bonus := 2 if physique == "赤阳髓" else 0
 	return {
-		"气血": 100 + int(a["体魄"]) * 15 + int(a["根骨"]) * 5,
-		"灵力": 60 + int(a["灵识"]) * 12 + int(a["根骨"]) * 6,
-		"攻击": 8 + int(a["体魄"]) * 2 + int(a["灵识"]),
+		"气血": 100 + int(a["体魄"]) * 15 + int(a["根骨"]) * 5 + vitality_bonus,
+		"灵力": 60 + int(a["灵识"]) * 12 + int(a["根骨"]) * 6 + mana_bonus,
+		"攻击": 8 + int(a["体魄"]) * 2 + int(a["灵识"]) + attack_bonus,
 		"移速": 100 + int(a["身法"]) * 3,
+		"修行效率": roundi(cultivation_efficiency_multiplier() * 100.0),
 	}
+
+func cultivation_affinity() -> Dictionary:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	return catalog.technique_affinity_for(str(player.get("cultivation_path", "")))
+
+func cultivation_efficiency_multiplier() -> float:
+	var affinity := cultivation_affinity()
+	var multiplier := 1.0
+	if str(player.get("spirit_root", "")) == str(affinity.get("root", "")):
+		multiplier += 0.10
+	if str(player.get("physique", "")) == str(affinity.get("physique", "")):
+		multiplier += 0.06
+	return multiplier
+
+func cultivation_efficiency_text() -> String:
+	var affinity := cultivation_affinity()
+	return "%s｜适配灵根：%s｜适配体质：%s｜当前效率 %d%%" % [str(affinity.label), str(affinity.root), str(affinity.physique), roundi(cultivation_efficiency_multiplier() * 100.0)]
 
 func add_item(item_name: String) -> void:
 	player.inventory.append(item_name)
@@ -534,6 +562,8 @@ func _normalize_player_schema() -> void:
 		player.sect_contribution = 0
 	if not player.has("sect_wanted_by"):
 		player.sect_wanted_by = []
+	if not player.has("learned_techniques"):
+		player.learned_techniques = [str(player.get("cultivation_path", "云岚吐纳诀"))]
 
 func notify(text: String) -> void:
 	last_notice = text
