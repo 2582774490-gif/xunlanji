@@ -27,6 +27,7 @@ const MARKET_FEE_RATE := 0.05
 const MARKET_MIN_PRICE := 1
 const MARKET_MAX_PRICE := 99999
 const FOUNDATION_PREPARATION_ITEMS := ["临渊露", "御崖石屑", "护脉阵片"]
+const WORLD_GUIDANCE_STEPS := ["lan_breath", "resource_ecology", "path_choice"]
 const LOCAL_SAVE_PATH := "user://xunlanji_local_profile.json"
 const LOCAL_SAVE_VERSION := 1
 var local_market_listings: Array[Dictionary] = [
@@ -54,6 +55,7 @@ var player := {
 	"sect_rank": 0,
 	"sect_contribution": 0,
 	"sect_wanted_by": [],
+	"world_guidance": {"steps": [], "skipped": false},
 	"equipped_weapon": "练气木剑",
 	"equipped_artifact": "纳灵玉佩",
 	"inventory": ["练气木剑", "凝气符", "雾溪草", "纳灵玉佩"],
@@ -595,6 +597,66 @@ func _normalize_player_schema() -> void:
 		player.sect_wanted_by = []
 	if not player.has("learned_techniques"):
 		player.learned_techniques = [str(player.get("cultivation_path", "云岚吐纳诀"))]
+	if not player.has("world_guidance") or not player.world_guidance is Dictionary:
+		player.world_guidance = {"steps": [], "skipped": false}
+	else:
+		var guidance: Dictionary = player.world_guidance
+		if not guidance.get("steps", []) is Array:
+			guidance.steps = []
+		if not guidance.has("skipped"):
+			guidance.skipped = false
+		player.world_guidance = guidance
+
+func complete_world_guidance_step(step_id: String) -> bool:
+	if not WORLD_GUIDANCE_STEPS.has(step_id):
+		return false
+	_normalize_player_schema()
+	var guidance: Dictionary = player.world_guidance
+	var steps: Array = guidance.steps
+	if steps.has(step_id):
+		return false
+	steps.append(step_id)
+	guidance.steps = steps
+	player.world_guidance = guidance
+	profile_changed.emit()
+	return true
+
+func has_world_guidance_step(step_id: String) -> bool:
+	_normalize_player_schema()
+	return (player.world_guidance.get("steps", []) as Array).has(step_id)
+
+func is_world_guidance_complete() -> bool:
+	_normalize_player_schema()
+	if bool(player.world_guidance.get("skipped", false)):
+		return true
+	var steps: Array = player.world_guidance.get("steps", [])
+	for step_id in WORLD_GUIDANCE_STEPS:
+		if not steps.has(step_id):
+			return false
+	return true
+
+func skip_world_guidance() -> bool:
+	_normalize_player_schema()
+	if is_world_guidance_complete():
+		return false
+	var guidance: Dictionary = player.world_guidance
+	guidance.skipped = true
+	player.world_guidance = guidance
+	notify("已跳过世界引导。所有地图、修行与宗门选择仍可自由探索。")
+	profile_changed.emit()
+	return true
+
+func world_guidance_text() -> String:
+	_normalize_player_schema()
+	if bool(player.world_guidance.get("skipped", false)):
+		return "已跳过；可随时按自己的路径探索。"
+	var steps: Array = player.world_guidance.get("steps", [])
+	var labels := {"lan_breath": "认识岚息", "resource_ecology": "认识资源", "path_choice": "认识道途"}
+	var pending: Array[String] = []
+	for step_id in WORLD_GUIDANCE_STEPS:
+		if not steps.has(step_id):
+			pending.append(str(labels[step_id]))
+	return "已完成" if pending.is_empty() else "可选：%s" % "、".join(pending)
 
 func notify(text: String) -> void:
 	last_notice = text

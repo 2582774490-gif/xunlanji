@@ -105,7 +105,8 @@ func _activate_interaction() -> void:
 	if interaction_id == "guide_shen":
 		if guide_dialogue_stage == 0:
 			guide_dialogue_stage = 1
-			status.text = "沈衍：南门之外，雾潮近来常有异动。先沿溪路找一株雾溪灵草；你不必急于选定唯一的道途。"
+			GameState.complete_world_guidance_step("lan_breath")
+			status.text = "沈衍：岚息是山风、水汽与灵机交汇的可感之息。南门之外雾潮有异动；沿溪路找一株雾溪灵草即可。你不必急于选定唯一的道途。"
 			prompt.text = "[E] 再问沈衍"
 		else:
 			status.text = "沈衍：往南门东侧的溪路走。资源与机缘都在世界里，不在一张固定的任务清单里。"
@@ -114,7 +115,8 @@ func _activate_interaction() -> void:
 		$MistHerb.visible = false
 		GameState.add_item("雾溪灵草")
 		GameState.gain_cultivation(5)
-		status.text = "获得雾溪灵草：这是第一个可采集资源点。未来资源会在不同区域按生态、境界、天气与随机机缘刷新。"
+		GameState.complete_world_guidance_step("resource_ecology")
+		status.text = "获得雾溪灵草：这是第一个可采集资源点。未来资源会在不同区域按生态、境界、天气与随机机缘刷新；不需要接取固定任务才可采集。"
 		active_interaction = null
 		prompt.text = ""
 		touch_controls.set_interaction_available(false)

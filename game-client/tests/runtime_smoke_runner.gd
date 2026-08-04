@@ -8,6 +8,7 @@ func _ready() -> void:
 func _run() -> void:
 	await _check_manual_progression()
 	await _check_local_profile_payload()
+	await _check_optional_world_guidance()
 	await _check_cultivation_affinity()
 	await _check_sect_progression()
 	await _check_wanted_patrol()
@@ -89,6 +90,22 @@ func _check_local_profile_payload() -> void:
 	GameState.local_market_listings = listings_before
 	GameState.current_region_id = region_before
 	GameState.selected_dungeon_id = dungeon_before
+
+func _check_optional_world_guidance() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.world_guidance = {"steps": [], "skipped": false}
+	_expect(not GameState.is_world_guidance_complete(), "Fresh world orientation should be optional but initially incomplete.")
+	_expect(GameState.complete_world_guidance_step("lan_breath"), "South Gate guidance should persist the Lan-breath introduction.")
+	_expect(GameState.complete_world_guidance_step("resource_ecology"), "Resource guidance should persist after a first gather.")
+	_expect(GameState.complete_world_guidance_step("path_choice"), "Sect-path guidance should persist after speaking to the envoy.")
+	_expect(GameState.is_world_guidance_complete(), "All three orientation notes should complete without a forced quest chain.")
+	var exported: Dictionary = GameState.export_local_profile()
+	_expect((exported.player.get("world_guidance", {}) as Dictionary).get("steps", []).size() == 3, "World orientation progress did not enter the local save payload.")
+	GameState.player.world_guidance = {"steps": [], "skipped": false}
+	_expect(GameState.skip_world_guidance(), "Players should be able to skip the optional world orientation.")
+	_expect(GameState.is_world_guidance_complete() and GameState.player.realm_index == int(profile_before.realm_index), "Skipping orientation must not grant realm progress or block world access.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
 
 func _check_sect_progression() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)

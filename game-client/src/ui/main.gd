@@ -180,6 +180,10 @@ func _show_overworld() -> void:
 	# 这些条目是玩家可自行发现的世界线索，不会生成强制任务链。
 	_text("探索原则：%s" % Catalog.WORLD_EXPLORATION_POLICY.main_thread, 16, Color("a7d5ca"))
 	_text("门派与修行指引：%s" % Catalog.WORLD_EXPLORATION_POLICY.guidance, 16, Color("a7d5ca"))
+	_text("世界引导：%s" % GameState.world_guidance_text(), 16, Color("f2d79c"))
+	if not GameState.is_world_guidance_complete():
+		_text("提示：南门沈衍、溪路灵草与村中宗门接引使会依次说明基础规则；也可直接跳过，不会封锁任何自由内容。", 15, Color("a7d5ca"))
+		_buttons([["跳过世界引导", func(): GameState.skip_world_guidance(), 190]])
 	if GameState.player.realm_index == 0:
 		_text("炼气阶段的可发现内容（传闻与自然入口，不是强制任务顺序）：", 18, Color("f2d79c"))
 		for content in Catalog.QI_REFINING_CONTENT:

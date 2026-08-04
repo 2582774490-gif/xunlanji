@@ -55,6 +55,7 @@ func _activate_contextual() -> void:
 			GameState.enter_screen(GameState.Screen.ALCHEMY)
 			get_tree().change_scene_to_file("res://scenes/main.tscn")
 		"sect":
+			GameState.complete_world_guidance_step("path_choice")
 			GameState.enter_screen(GameState.Screen.SECT)
 			GameState.notify("宁远：可自由选择宗门，但门规、贡献与离宗后果也会随选择而来。")
 			get_tree().change_scene_to_file("res://scenes/main.tscn")
