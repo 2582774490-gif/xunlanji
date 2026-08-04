@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_village.gd" id="1_world"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/terrain/yunlan_village_center_ground_v01.png" id="2_ground"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/npcs/marketkeeper_luo/processed_alpha/marketkeeper_luo_idle_v01_alpha.png" id="7_luo"]
 [ext_resource type="Script" path="res://src/world/world_interaction.gd" id="8_interaction"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/props/processed_alpha/yunlan_village_alchemy_workshop_v01_alpha.png" id="9_alchemy"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/props/processed_alpha/mist_stream_water_palace_entrance_v01_alpha.png" id="10_water_palace"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -18,6 +19,9 @@ radius = 90.0
 
 [sub_resource type="CircleShape2D" id="AlchemyRange"]
 radius = 100.0
+
+[sub_resource type="CircleShape2D" id="WaterPalaceRange"]
+radius = 110.0
 
 [node name="YunlanVillage" type="Node2D"]
 y_sort_enabled = true
@@ -84,6 +88,24 @@ prompt_text = "进入炼丹工坊"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AlchemyWorkshop/Interaction"]
 position = Vector2(0, -120)
 shape = SubResource("AlchemyRange")
+
+[node name="WaterPalaceEntrance" type="Node2D" parent="."]
+position = Vector2(1530, 460)
+
+[node name="Art" type="Sprite2D" parent="WaterPalaceEntrance"]
+texture = ExtResource("10_water_palace")
+scale = Vector2(0.30, 0.30)
+centered = false
+offset = Vector2(-627, -1254)
+
+[node name="Interaction" type="Area2D" parent="WaterPalaceEntrance"]
+script = ExtResource("8_interaction")
+interaction_id = "mist_stream_palace"
+prompt_text = "进入雾溪水府（炼气副本）"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WaterPalaceEntrance/Interaction"]
+position = Vector2(0, -105)
+shape = SubResource("WaterPalaceRange")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(330, 760)
