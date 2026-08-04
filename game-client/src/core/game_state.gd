@@ -43,6 +43,7 @@ var player := {
 	"inventory": ["练气木剑", "凝气符", "雾溪草", "纳灵玉佩"],
 	"codex": ["云岚村", "雾溪水府"],
 	"opportunity_log": [],
+	"dungeon_runs": [],
 }
 
 func enter_screen(next_screen: Screen) -> void:
@@ -124,6 +125,10 @@ func add_spirit_stones(amount: int) -> void:
 
 func record_opportunity(entry: Dictionary) -> void:
 	player.opportunity_log.append(entry)
+	profile_changed.emit()
+
+func record_dungeon_run(entry: Dictionary) -> void:
+	player.dungeon_runs.append(entry)
 	profile_changed.emit()
 
 func consume_items(items: Array[String]) -> bool:

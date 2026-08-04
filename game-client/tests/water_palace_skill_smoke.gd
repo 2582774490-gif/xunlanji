@@ -55,4 +55,21 @@ func _run() -> void:
 		quit(1)
 		return
 
+	var runs_before: int = GameState.player.dungeon_runs.size()
+	var inventory_before: int = GameState.player.inventory.size()
+	palace.call("_defeat_boss")
+	await process_frame
+	if not palace.defeated or palace.boss.visible:
+		push_error("Defeating the boss did not end the encounter and hide the world actor.")
+		quit(1)
+		return
+	if not palace.clear_panel.visible:
+		push_error("Defeating the boss did not show the mobile-friendly settlement panel.")
+		quit(1)
+		return
+	if GameState.player.inventory.size() != inventory_before + 1 or GameState.player.dungeon_runs.size() != runs_before + 1:
+		push_error("Dungeon clear did not grant exactly one drop and record the run.")
+		quit(1)
+		return
+
 	quit(0)

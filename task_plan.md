@@ -210,3 +210,9 @@
 - [ ] Add touch-friendly interaction buttons for nearby NPCs, resources and scene transitions.
 - [x] Add touch-friendly interaction buttons for nearby NPCs, resources and scene transitions.
 - [x] Add the first map-level random opportunity event that uses the same contextual interaction path.
+
+## Phase 29: First repeatable dungeon loop (active)
+
+- [x] Define random initial-equipment drops for the Water Palace boss.
+- [x] Add a post-victory settlement panel that works with mobile touch.
+- [x] Verify boss defeat records rewards and returns to the village without a death-drop penalty.

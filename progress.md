@@ -181,3 +181,8 @@
 - Generated and alpha-cleaned the independent NPC `宗门接引使·宁远`, then placed him as a feet-sorted scene actor rather than a UI-only entry.
 - The village now has four physical service/destination routes: 洛清的市集、炼丹工坊、宁远的宗门接引、水府入口；all use the same proximity prompt and mobile interaction button.
 - Talking to 宁远 opens the existing sect screen and records the freedom / consequences principle behind joining or leaving a sect.
+
+## 2026-08-04: Water Palace trial closure in progress
+
+- The first water-demon boss now chooses one starter equipment drop per clear, adds spirit stones and cultivation, and records the run in the player state.
+- A touch-friendly settlement panel appears on victory instead of leaving the player in a cleared arena with no next action.

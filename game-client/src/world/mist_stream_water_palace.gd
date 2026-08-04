@@ -14,6 +14,9 @@ const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
 @onready var ningxi_cast: Node = $CombatEffects/NingxiCast
 @onready var demon_water_blade: Node = $CombatEffects/DemonWaterBlade
 @onready var touch_controls: Node = $HUD/TouchControls
+@onready var clear_panel: Control = $HUD/ClearPanel
+@onready var clear_summary: Label = $HUD/ClearPanel/Summary
+@onready var clear_return: Button = $HUD/ClearPanel/ReturnButton
 @onready var skill_labels: Array[Label] = [
 	$HUD/SkillBar/Basic/Label,
 	$HUD/SkillBar/Ningxi/Label,
@@ -34,6 +37,13 @@ var nourish_cooldown := 0.0
 var guard_time_left := 0.0
 var boss_attack_cooldown := 2.4
 var defeated := false
+var last_drop: Dictionary = {}
+
+const WATER_PALACE_DROPS := [
+	{"item": "雾纹护腕", "stones": 10, "cultivation": 20},
+	{"item": "潮息玉佩", "stones": 14, "cultivation": 18},
+	{"item": "水府灵靴", "stones": 8, "cultivation": 24},
+]
 
 func _ready() -> void:
 	player.map_bounds = Rect2(64, 64, 2432, 1408)
@@ -44,6 +54,8 @@ func _ready() -> void:
 	player.attack_started.connect(_on_player_attack_started)
 	player.attack_impact.connect(_on_player_attack)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
+	clear_panel.visible = false
+	clear_return.pressed.connect(_return_to_village)
 	boss.body_entered.connect(func(body: Node2D): near_boss = body == player; _refresh_prompt())
 	boss.body_exited.connect(func(body: Node2D): if body == player: near_boss = false; _refresh_prompt())
 	status.text = "雾溪水府：深入内池，击败水妖首领潮妃·兰纱。"
@@ -195,11 +207,30 @@ func _skill(index: int) -> Dictionary:
 
 
 func _defeat_boss() -> void:
+	if defeated:
+		return
+	defeated = true
 	boss.visible = false
-	GameState.add_item("水府初阶法器匣")
-	GameState.gain_cultivation(20)
-	status.text = "水府试炼完成：获得水府初阶法器匣与 20 修为。"
+	boss.set_deferred("monitoring", false)
+	last_drop = WATER_PALACE_DROPS.pick_random().duplicate()
+	GameState.add_item(str(last_drop.item))
+	GameState.add_spirit_stones(int(last_drop.stones))
+	GameState.gain_cultivation(int(last_drop.cultivation))
+	GameState.record_dungeon_run({
+		"dungeon_id": "mist_stream_palace",
+		"boss": "潮妃·兰纱",
+		"drop": last_drop.item,
+		"spirit_stones": last_drop.stones,
+		"cultivation": last_drop.cultivation,
+	})
+	status.text = "水府试炼完成：已获得掉落，可从结算面板返回云岚村。"
 	prompt.text = ""
+	clear_summary.text = "潮妃·兰纱已退入水雾。\n\n获得：%s\n灵石 +%d　修为 +%d\n\n本次掉落已进入行囊，并记入水府试炼记录。" % [str(last_drop.item), int(last_drop.stones), int(last_drop.cultivation)]
+	clear_panel.visible = true
+
+func _return_to_village() -> void:
+	GameState.enter_screen(GameState.Screen.OVERWORLD)
+	get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
 
 
 func _direction_vector(direction: String) -> Vector2:
