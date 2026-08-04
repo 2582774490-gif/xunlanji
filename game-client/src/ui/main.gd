@@ -275,11 +275,12 @@ func _show_sect() -> void:
 
 func _show_market() -> void:
 	_heading("云市 · 自由交易与拍卖行")
-	_text("当前金钱：%d。正式版将由服务器校验所有权、上架、成交、税率与反作弊；本页仅演示客户端交互。" % GameState.player.gold, 17, Color("f2d79c"))
-	for listing in Catalog.MARKET_LISTINGS:
+	_text("当前金钱：%d｜手续费：5%%（最低 1 金）。当前为本地模拟；真实玩家交易将由服务器校验所有权、上架、成交和反作弊。" % GameState.player.gold, 17, Color("f2d79c"))
+	for index in GameState.local_market_listings.size():
+		var listing: Dictionary = GameState.local_market_listings[index]
 		_text("%s｜%s｜价格 %d 金" % [listing.name, listing.type, listing.price], 18)
-		_buttons([["购买", func(): _buy(listing), 130, GameState.player.gold < listing.price]])
-	_buttons([["发布自己的物品（接口）", func(): GameState.notify("已记录上架意图，正式版将打开定价和服务器校验。"), 280]])
+		_buttons([["购买", func(): _buy_market_listing(index), 130, GameState.player.gold < listing.price]])
+	_buttons([["上架行囊首件物品（20 金）", _list_first_inventory_item, 280]])
 
 func _show_alchemy() -> void:
 	_heading("云岚村 · 炼丹工坊")
@@ -433,6 +434,17 @@ func _buy(listing: Dictionary) -> void:
 	GameState.player.gold -= listing.price
 	GameState.add_item(listing.name)
 	GameState.notify("已完成本地演示购买：%s。" % listing.name)
+
+func _buy_market_listing(index: int) -> void:
+	GameState.buy_market_listing(index)
+	_render()
+
+func _list_first_inventory_item() -> void:
+	if GameState.player.inventory.is_empty():
+		GameState.notify("行囊为空，无法上架。")
+		return
+	GameState.list_item_for_market(str(GameState.player.inventory[0]), 20)
+	_render()
 
 func _restart_pvp() -> void:
 	combat.begin("论剑", "山门试剑使")

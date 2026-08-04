@@ -23,6 +23,13 @@ var current_screen: Screen = Screen.CHARACTER_SELECT
 var current_region_id := "starter_village"
 var selected_dungeon_id := "mist_stream_palace"
 var last_notice := "欢迎来到《寻岚记》首发框架演示。"
+const MARKET_FEE_RATE := 0.05
+const MARKET_MIN_PRICE := 1
+const MARKET_MAX_PRICE := 99999
+var local_market_listings: Array[Dictionary] = [
+	{"id": "npc_ore", "name": "雾潮矿芯", "type": "材料", "price": 32, "seller": "雾港行商"},
+	{"id": "npc_talisman", "name": "雷纹符材", "type": "符材", "price": 45, "seller": "候雷符修"},
+]
 var player := {
 	"gender": "男",
 	"face": 1,
@@ -52,6 +59,42 @@ var player := {
 func enter_screen(next_screen: Screen) -> void:
 	current_screen = next_screen
 	screen_changed.emit(current_screen)
+
+func market_fee(price: int) -> int:
+	return max(1, ceili(float(price) * MARKET_FEE_RATE))
+
+func list_item_for_market(item_name: String, price: int) -> bool:
+	if price < MARKET_MIN_PRICE or price > MARKET_MAX_PRICE:
+		notify("上架价格超出雾港保护范围。")
+		return false
+	if not player.inventory.has(item_name):
+		notify("行囊中没有可上架的 %s。" % item_name)
+		return false
+	var fee := market_fee(price)
+	if player.gold < fee:
+		notify("上架手续费不足：需要 %d 金钱。" % fee)
+		return false
+	player.inventory.erase(item_name)
+	player.gold -= fee
+	local_market_listings.append({"id": "player_%d" % Time.get_ticks_msec(), "name": item_name, "type": "玩家寄售", "price": price, "seller": "本地修士"})
+	notify("已上架 %s，标价 %d，手续费 %d。真实玩家交易将改由服务器结算。" % [item_name, price, fee])
+	profile_changed.emit()
+	return true
+
+func buy_market_listing(index: int) -> bool:
+	if index < 0 or index >= local_market_listings.size():
+		return false
+	var listing: Dictionary = local_market_listings[index]
+	var price := int(listing.price)
+	if player.gold < price:
+		notify("金钱不足。")
+		return false
+	player.gold -= price
+	add_item(str(listing.name))
+	local_market_listings.remove_at(index)
+	notify("成交：获得 %s，支付 %d 金钱。" % [listing.name, price])
+	profile_changed.emit()
+	return true
 
 func update_character(gender: String, face: int, hair: int) -> void:
 	player.gender = gender

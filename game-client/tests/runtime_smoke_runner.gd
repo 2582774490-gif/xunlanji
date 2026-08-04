@@ -7,6 +7,7 @@ func _ready() -> void:
 
 func _run() -> void:
 	await _check_manual_progression()
+	await _check_local_market_loop()
 	await _check_random_opportunity()
 	await _check_village_routes()
 	await _check_water_palace_loop()
@@ -48,6 +49,20 @@ func _check_manual_progression() -> void:
 	_expect(GameState.try_breakthrough(), "Foundation breakthrough should succeed after materials are prepared.")
 	_expect(GameState.player.realm_index == 1 and GameState.player.minor_stage == 1, "Foundation breakthrough did not move to the first Foundation stage.")
 	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_local_market_loop() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var listings_before: Array = GameState.local_market_listings.duplicate(true)
+	GameState.player.inventory = ["烟测交易材"]
+	GameState.player.gold = 100
+	_expect(GameState.list_item_for_market("烟测交易材", 20), "Local market should accept an owned item within its protected price range.")
+	_expect(not GameState.player.inventory.has("烟测交易材") and GameState.player.gold == 99, "Market listing should remove the item and charge its minimum fee.")
+	var listing_index := GameState.local_market_listings.size() - 1
+	_expect(GameState.buy_market_listing(listing_index), "Local market should complete a listed-item purchase.")
+	_expect(GameState.player.inventory.has("烟测交易材") and GameState.player.gold == 79, "Market purchase should deliver the item and charge the listing price.")
+	GameState.player = profile_before
+	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()
 
 func _check_random_opportunity() -> void:
