@@ -6,6 +6,8 @@ extends Node2D
 @onready var player_hp_label: Label = $HUD/PlayerHP
 @onready var status: Label = $HUD/StatusPanel/Status
 @onready var prompt: Label = $HUD/Prompt
+@onready var slash_trail: Node = $CombatEffects/SlashTrail
+@onready var hit_spark: Node = $CombatEffects/HitSpark
 
 var boss_health := 100
 var near_boss := false
@@ -17,6 +19,7 @@ func _ready() -> void:
 	player.map_bounds = Rect2(64, 64, 2432, 1408)
 	player.position = Vector2(240, 1250)
 	player_health = int(GameState.derived_stats()["气血"])
+	player.attack_started.connect(_on_player_attack_started)
 	player.attack_impact.connect(_on_player_attack)
 	boss.body_entered.connect(func(body: Node2D): near_boss = body == player; _refresh_prompt())
 	boss.body_exited.connect(func(body: Node2D): if body == player: near_boss = false; _refresh_prompt())
@@ -44,6 +47,7 @@ func _process(delta: float) -> void:
 func _on_player_attack(_direction: String) -> void:
 	if not near_boss or boss_health <= 0:
 		return
+	hit_spark.play_burst(boss.position + Vector2(0, -90), Vector2.UP)
 	var damage := 8 + int(int(GameState.derived_stats()["攻击"]) / 3.0)
 	boss_health = max(0, boss_health - damage)
 	status.text = "潮妃·兰纱受击，造成 %d 点伤害。属性分配已影响本次攻击。" % damage
@@ -54,6 +58,26 @@ func _on_player_attack(_direction: String) -> void:
 		GameState.gain_cultivation(20)
 		status.text = "水府试炼完成：获得水府初阶法器匣与 20 修为。"
 		prompt.text = ""
+
+
+func _on_player_attack_started(direction: String) -> void:
+	if not near_boss or boss_health <= 0:
+		return
+	var facing := _direction_vector(direction)
+	slash_trail.play_burst(player.position + facing * 46.0 + Vector2(0, -34), facing)
+
+
+func _direction_vector(direction: String) -> Vector2:
+	match direction:
+		"south": return Vector2.DOWN
+		"south_west": return Vector2(-1, 1).normalized()
+		"west": return Vector2.LEFT
+		"north_west": return Vector2(-1, -1).normalized()
+		"north": return Vector2.UP
+		"north_east": return Vector2(1, -1).normalized()
+		"east": return Vector2.RIGHT
+		"south_east": return Vector2(1, 1).normalized()
+	return Vector2.DOWN
 
 func _refresh_boss_hp() -> void:
 	boss_hp.text = "潮妃 · 兰纱  |  气血 %d / 100" % boss_health

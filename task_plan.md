@@ -190,3 +190,10 @@
 - [x] Keep weapon transform animation independent from body art for future weapon and costume replacement.
 - [ ] Produce true directional body attack sheets for the remaining seven directions.
 - [ ] Add the first independently rendered sword-trail and hit-spark effect layers.
+
+## Phase 27: Establish reusable cultivation-combat VFX (active)
+
+- [x] Produce and alpha-clean the first Qinglan Sword trail and water-element hit-spark frame packages.
+- [x] Add a reusable sprite-sheet burst player with direction, travel, scale and fade controls.
+- [x] Connect attack-start trail and delayed-impact spark to the Water Palace boss encounter.
+- [ ] Produce a first player cast effect and a water-demon attack effect using the same component.

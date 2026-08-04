@@ -134,3 +134,10 @@
 - The body sheet deliberately has no painted weapon: `WeaponPivot` remains its own reusable layer, so future weapon families and cosmetic outfits do not require a separate full character animation export.
 - In the Water Palace, player damage now lands at the attack impact moment rather than immediately at keypress. A short anti-spam animation lock keeps one visible strike and one damage event aligned.
 - Only the exact south-facing body attack is played at present; other directions keep the existing procedural lunge and weapon swing until their true directional body sheets exist.
+
+## 2026-08-04: First independent VFX pass
+
+- Generated and alpha-cleaned a five-frame Qinglan Sword spirit-trail atlas and a four-frame water-element hit-spark atlas.
+- Added `SpriteSheetBurst`, a reusable effect component that plays a supplied sheet with directional rotation, movement, scaling and fade; it does not belong to a character, weapon or boss asset.
+- Water Palace now emits the sword trail when a strike starts and the water hit spark at the delayed impact event, completing the first visual combat chain.
+- A Godot global-class registration order issue was avoided by binding the scene nodes as `Node` references instead of depending on a parse-time type registration.

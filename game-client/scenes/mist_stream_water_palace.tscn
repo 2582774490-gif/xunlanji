@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://src/world/mist_stream_water_palace.gd" id="1_scene"]
 [ext_resource type="Script" path="res://src/world/water_palace_map.gd" id="2_map"]
@@ -9,6 +9,9 @@
 [ext_resource type="Texture2D" path="res://assets/art/characters/boss_xiaochao_lansha/slices/boss_xiaochao_lansha_front_v01.png" id="7_boss"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_stream_water_palace/mist_stream_water_palace_base_map_v01.png" id="8_map_art"]
 [ext_resource type="Texture2D" path="res://assets/art/weapons/qinglan_sword/processed_alpha/qinglan_sword_idle_v01_alpha.png" id="9_qinglan_sword"]
+[ext_resource type="Script" path="res://src/combat/sprite_sheet_burst.gd" id="10_effect"]
+[ext_resource type="Texture2D" path="res://assets/art/effects/qinglan_sword_trail/processed_alpha/qinglan_sword_trail_5f_v01_alpha.png" id="11_trail"]
+[ext_resource type="Texture2D" path="res://assets/art/effects/water_hit_spark/processed_alpha/water_hit_spark_4f_v01_alpha.png" id="12_spark"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 22.0
@@ -74,6 +77,28 @@ limit_left = 0
 limit_top = 0
 limit_right = 2560
 limit_bottom = 1536
+
+[node name="CombatEffects" type="Node2D" parent="."]
+z_index = 6
+
+[node name="SlashTrail" type="Sprite2D" parent="CombatEffects"]
+texture = ExtResource("11_trail")
+script = ExtResource("10_effect")
+columns = 5
+frame_count = 5
+animation_fps = 16.0
+motion_distance = 22.0
+start_scale = Vector2(0.28, 0.28)
+end_scale = Vector2(0.38, 0.38)
+
+[node name="HitSpark" type="Sprite2D" parent="CombatEffects"]
+texture = ExtResource("12_spark")
+script = ExtResource("10_effect")
+columns = 4
+frame_count = 4
+animation_fps = 17.0
+start_scale = Vector2(0.25, 0.25)
+end_scale = Vector2(0.42, 0.42)
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
