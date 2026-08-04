@@ -106,7 +106,8 @@ func _on_player_attack(_direction: String) -> void:
 	if not near_boss or boss_health <= 0:
 		return
 	hit_spark.play_burst(boss.position + Vector2(0, -90), Vector2.UP)
-	var damage := 8 + int(int(GameState.derived_stats()["攻击"]) / 3.0)
+	var weapon_profile := GameCatalog.weapon_profile_for_item(GameState.player.equipped_weapon)
+	var damage := 8 + int(int(GameState.derived_stats()["攻击"]) / 3.0) + int(weapon_profile.get("bonus", 0))
 	boss_health = max(0, boss_health - damage)
 	status.text = "潮妃·兰纱受击，造成 %d 点伤害。属性分配已影响本次攻击。" % damage
 	_refresh_boss_hp()
@@ -118,33 +119,46 @@ func _on_player_attack_started(direction: String) -> void:
 	if not near_boss or boss_health <= 0:
 		return
 	var facing := _direction_vector(direction)
-	slash_trail.play_burst(player.position + facing * 46.0 + Vector2(0, -34), facing)
+	if SKILL_CATALOG.is_umbrella_skill_set(GameState.player.equipped_weapon):
+		_spawn_umbrella_ward(player.position + facing * 34.0 + Vector2(0, -34), facing)
+	else:
+		slash_trail.play_burst(player.position + facing * 46.0 + Vector2(0, -34), facing)
 
 
 func _cast_ningxi_sword_art() -> void:
+	_cast_dungeon_weapon_primary(20, "潮妃·兰纱", Vector2(0, -90))
+
+func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_offset: Vector2) -> void:
+	var primary := _skill(1)
 	if not near_boss or boss_health <= 0:
-		status.text = "凝息剑诀需要锁定近处目标。"
+		status.text = "%s需要锁定近处目标。" % str(primary["name"])
 		return
 	if ningxi_cooldown > 0.0:
-		status.text = "凝息剑诀还需冷却 %.1f 秒。" % ningxi_cooldown
+		status.text = "%s还需冷却 %.1f 秒。" % [str(primary["name"]), ningxi_cooldown]
 		return
-	if player_mana < 18.0:
-		status.text = "灵力不足，无法施放凝息剑诀。"
+	if player_mana < float(primary["spirit_cost"]):
+		status.text = "灵力不足，无法施放%s。" % str(primary["name"])
 		return
 	var facing := (boss.position - player.position).normalized()
-	player_mana -= 18.0
-	ningxi_cooldown = 4.0
+	var umbrella := SKILL_CATALOG.is_umbrella_skill_set(GameState.player.equipped_weapon)
+	player_mana -= float(primary["spirit_cost"])
+	ningxi_cooldown = float(primary["cooldown"])
 	_refresh_player_mana()
-	ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
-	status.text = "凝息剑诀结印中……灵力 -18。"
+	if umbrella:
+		_spawn_umbrella_ward(player.position + Vector2(0, -58), facing)
+		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
+	else:
+		ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
+	status.text = "%s结印中……灵力 -%d。" % [str(primary["name"]), int(primary["spirit_cost"])]
 	await get_tree().create_timer(0.24).timeout
 	if defeated or not near_boss or boss_health <= 0:
 		return
 	var stats: Dictionary = GameState.derived_stats()
-	var damage := 20 + int(int(stats["攻击"]) / 2.0) + int(int(stats["灵力"]) / 30.0)
+	var tuned_base := int(primary.get("damage_base", 20)) + (base_damage - 20)
+	var damage := tuned_base + int(float(stats["攻击"]) * float(primary.get("attack_ratio", 0.5))) + int(float(stats["灵力"]) / float(primary.get("mana_ratio", 30.0)))
 	boss_health = max(0, boss_health - damage)
-	hit_spark.play_burst(boss.position + Vector2(0, -90), Vector2.UP)
-	status.text = "凝息剑诀命中潮妃·兰纱，造成 %d 点伤害。" % damage
+	hit_spark.play_burst(boss.position + hit_offset, Vector2.UP)
+	status.text = "%s命中%s，造成 %d 点伤害。%s" % [str(primary["name"]), target_name, damage, "伞阵保留了一层短暂护持。" if umbrella else ""]
 	_refresh_boss_hp()
 	if boss_health == 0:
 		_defeat_boss()
@@ -203,7 +217,7 @@ func _try_use_skill(index: int, cooldown: float) -> bool:
 
 
 func _skill(index: int) -> Dictionary:
-	return SKILL_CATALOG.STARTER_TEST_SKILLS[index]
+	return SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)[index]
 
 
 func _defeat_boss() -> void:
@@ -246,6 +260,25 @@ func _direction_vector(direction: String) -> Vector2:
 		"south_east": return Vector2(1, 1).normalized()
 	return Vector2.DOWN
 
+func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
+	for index in 2:
+		var arc := Line2D.new()
+		arc.width = 5.0 - index
+		arc.default_color = Color(0.62, 0.84, 1.0, 0.92 - index * 0.22)
+		arc.z_index = 18
+		var points := PackedVector2Array()
+		for point_index in 13:
+			var angle := lerpf(-2.52, -0.62, float(point_index) / 12.0)
+			points.append(Vector2(cos(angle) * (62.0 + index * 13.0), sin(angle) * 30.0))
+		arc.points = points
+		arc.position = origin + direction * 16.0
+		arc.rotation = direction.angle() + PI * 0.5
+		add_child(arc)
+		var tween := create_tween().set_parallel(true)
+		tween.tween_property(arc, "scale", Vector2(1.45, 1.45), 0.34)
+		tween.tween_property(arc, "modulate:a", 0.0, 0.34)
+		tween.chain().tween_callback(arc.queue_free)
+
 func _refresh_boss_hp() -> void:
 	boss_hp.text = "潮妃 · 兰纱  |  气血 %d / 100" % boss_health
 
@@ -268,7 +301,7 @@ func _refresh_skill_bar() -> void:
 		skill_labels[index].modulate = Color(0.52, 0.63, 0.67, 1) if cooldowns[index] > 0.0 else Color.WHITE
 
 func _refresh_prompt() -> void:
-	prompt.text = "[J] 普攻  [K] 凝息剑诀" if near_boss and boss_health > 0 else ""
+	prompt.text = "[J] %s  [K] %s" % [str(_skill(0)["name"]), str(_skill(1)["name"])] if near_boss and boss_health > 0 else ""
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.is_pressed() and not event.is_echo() and event.keycode == KEY_K:

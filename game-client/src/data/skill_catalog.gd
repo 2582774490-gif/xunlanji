@@ -1,26 +1,10 @@
 class_name SkillCatalog
 extends RefCounted
 
-## Launch-test skill data.  Combat scenes read this catalog rather than
-## hard-coding labels, costs and cooldowns into the UI, so sect and weapon
-## branches can later replace or extend each slot without replacing the HUD.
-const STARTER_TEST_SKILLS := [
-	{
-		"id": "qinglan_sword",
-		"name": "青岚剑",
-		"key": "J",
-		"spirit_cost": 0,
-		"cooldown": 0.43,
-		"description": "基础剑击，消耗最低。",
-	},
-	{
-		"id": "ningxi_sword_art",
-		"name": "凝息剑诀",
-		"key": "K",
-		"spirit_cost": 18,
-		"cooldown": 4.0,
-		"description": "凝灵成诀，造成较高灵力伤害。",
-	},
+## Combat scenes read this catalog rather than hard-coding labels, costs and
+## cooldowns into the UI.  Only weapons with actual runtime assets receive a
+## distinct live moveset; unfinished families stay asset-pending.
+const SHARED_MOVEMENT_AND_CULTIVATION_SKILLS := [
 	{
 		"id": "cloud_step",
 		"name": "云步",
@@ -46,3 +30,27 @@ const STARTER_TEST_SKILLS := [
 		"description": "调息回灵，立即恢复部分灵力。",
 	},
 ]
+
+const QINGHUANG_SWORD_SKILLS := [
+	{"id": "qinghuang_sword_strike", "name": "青篁剑击", "key": "J", "spirit_cost": 0, "cooldown": 0.43, "description": "以青篁剑近身斩击。"},
+	{"id": "ningxi_sword_art", "name": "凝息剑诀", "key": "K", "spirit_cost": 18, "cooldown": 4.0, "range": 300.0, "damage_base": 20, "attack_ratio": 0.5, "mana_ratio": 30.0, "visual": "sword_wave", "description": "凝岚成刃，斩出一记中距离剑诀。"},
+]
+
+const HUIYUN_UMBRELLA_SKILLS := [
+	{"id": "huiyun_umbrella_strike", "name": "回云伞击", "key": "J", "spirit_cost": 0, "cooldown": 0.55, "description": "以伞缘横扫并借势卸力。"},
+	{"id": "huiyun_umbrella_array", "name": "回云伞阵", "key": "K", "spirit_cost": 16, "cooldown": 4.6, "range": 250.0, "damage_base": 15, "attack_ratio": 0.34, "mana_ratio": 36.0, "guard_seconds": 1.8, "visual": "umbrella_ward", "description": "撑开灵伞形成回云伞阵，近距震退并短暂护身。"},
+]
+
+const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
+
+static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
+	var weapon_skills: Array[Dictionary] = HUIYUN_UMBRELLA_SKILLS if item_name == "回云练气伞" else QINGHUANG_SWORD_SKILLS
+	var result: Array[Dictionary] = []
+	for skill in weapon_skills:
+		result.append(skill.duplicate(true))
+	for skill in SHARED_MOVEMENT_AND_CULTIVATION_SKILLS:
+		result.append(skill.duplicate(true))
+	return result
+
+static func is_umbrella_skill_set(item_name: String) -> bool:
+	return item_name == "回云练气伞"

@@ -52,32 +52,7 @@ func _on_player_attack(_direction: String) -> void:
 		_defeat_boss()
 
 func _cast_ningxi_sword_art() -> void:
-	if not near_boss or boss_health <= 0:
-		status.text = "凝息剑诀需要锁定近处的地火灵兽。"
-		return
-	if ningxi_cooldown > 0.0:
-		status.text = "凝息剑诀还需冷却 %.1f 秒。" % ningxi_cooldown
-		return
-	if player_mana < 18.0:
-		status.text = "灵力不足，无法施放凝息剑诀。"
-		return
-	var facing := (boss.position - player.position).normalized()
-	player_mana -= 18.0
-	ningxi_cooldown = 4.0
-	_refresh_player_mana()
-	ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
-	status.text = "凝息剑诀结印中……灵力 -18。"
-	await get_tree().create_timer(0.24).timeout
-	if defeated or not near_boss or boss_health <= 0:
-		return
-	var stats: Dictionary = GameState.derived_stats()
-	var damage := 34 + int(int(stats["攻击"]) / 2.0) + int(int(stats["灵力"]) / 30.0)
-	boss_health = max(0, boss_health - damage)
-	hit_spark.play_burst(boss.position + Vector2(0, -108), Vector2.UP)
-	status.text = "凝息剑诀命中炽甲，造成 %d 点伤害。" % damage
-	_refresh_boss_hp()
-	if boss_health == 0:
-		_defeat_boss()
+	_cast_dungeon_weapon_primary(34, "炽甲", Vector2(0, -108))
 
 func _defeat_boss() -> void:
 	if defeated:

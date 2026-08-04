@@ -21,6 +21,7 @@ func _run() -> void:
 	await _check_random_opportunity()
 	await _check_village_routes()
 	await _check_water_palace_loop()
+	await _check_umbrella_weapon_skill_sets()
 	await _check_mist_border_scene()
 	await _check_mist_bone_creek()
 	await _check_mist_forest_grove()
@@ -307,6 +308,36 @@ func _check_water_palace_loop() -> void:
 	_expect(GameState.is_region_unlocked("mist_border"), "Water Palace clear did not unlock Mist Tide Border.")
 	palace.queue_free()
 	await get_tree().process_frame
+
+func _check_umbrella_weapon_skill_sets() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("回云练气伞"):
+		GameState.player.inventory.append("回云练气伞")
+	GameState.equip_weapon("回云练气伞")
+	var palace := preload("res://scenes/mist_stream_water_palace.tscn").instantiate()
+	add_child(palace)
+	await get_tree().process_frame
+	_expect(str(palace._skill(1).get("id", "")) == "huiyun_umbrella_array", "Dungeon skill bar did not replace sword art with Huiyun Umbrella Array.")
+	palace.near_boss = true
+	var boss_hp_before: int = palace.boss_health
+	palace._cast_ningxi_sword_art()
+	await get_tree().create_timer(0.28).timeout
+	_expect(palace.boss_health < boss_hp_before and palace.guard_time_left > 0.0, "Umbrella Array should damage at close range and leave a brief defensive ward in dungeons.")
+	palace.queue_free()
+	await get_tree().process_frame
+	var arena := preload("res://scenes/duel_arena.tscn").instantiate()
+	add_child(arena)
+	await get_tree().process_frame
+	_expect(str(arena._skill(1).get("id", "")) == "huiyun_umbrella_array", "Local duel skill HUD did not replace sword art with Huiyun Umbrella Array.")
+	arena.player.position = arena.opponent.position + Vector2(100.0, 0.0)
+	var opponent_hp_before: int = arena.opponent.hp
+	arena._cast_ningxi_sword_art()
+	await get_tree().create_timer(0.26).timeout
+	_expect(arena.opponent.hp < opponent_hp_before and arena.guard_time_left > 0.0, "Umbrella Array should have distinct local-duel damage and ward behavior.")
+	arena.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
 
 func _check_mist_border_scene() -> void:
 	var inventory_before: int = GameState.player.inventory.size()

@@ -82,7 +82,7 @@ func _on_player_attack_impact(_direction: String) -> void:
 	if finished:
 		return
 	if player.global_position.distance_to(opponent.global_position) > 178.0:
-		status.text = "剑势未及对手：贴近后再出招。"
+		status.text = "%s未及对手：贴近后再出招。" % str(_skill(0)["name"])
 		return
 	var profile := GameCatalog.weapon_profile_for_item(GameState.player.equipped_weapon)
 	var damage := maxi(8, int(GameState.derived_stats()["攻击"]) / 3 + int(profile.get("bonus", 0)) + 5)
@@ -128,7 +128,7 @@ func _finish(player_won: bool) -> void:
 func _refresh_hud() -> void:
 	player_hp_label.text = "你 · %s　HP %d / 100" % [GameState.player.equipped_weapon, player_hp]
 	opponent_hp_label.text = "山门试剑使　HP %d / %d" % [opponent.hp, opponent.max_hp]
-	var skills := SKILL_CATALOG.STARTER_TEST_SKILLS
+	var skills := _skills()
 	skill_label.text = "灵力 %.0f / %.0f　%s%s　%s%s　%s%s　%s%s" % [
 		player_mana, player_max_mana,
 		str(skills[1].name), _cooldown_text(ningxi_cooldown),
@@ -139,21 +139,27 @@ func _refresh_hud() -> void:
 
 
 func _cast_ningxi_sword_art() -> void:
-	if player.global_position.distance_to(opponent.global_position) > 300.0:
-		status.text = "凝息剑诀需要在岚刃可及的距离内锁定对手。"
+	var primary := _skill(1)
+	if player.global_position.distance_to(opponent.global_position) > float(primary.get("range", 300.0)):
+		status.text = "%s需要在有效距离内锁定对手。" % str(primary["name"])
 		return
 	if not _try_use_skill(1, ningxi_cooldown):
 		return
-	ningxi_cooldown = float(_skill(1)["cooldown"])
+	ningxi_cooldown = float(primary["cooldown"])
 	var facing := (opponent.global_position - player.global_position).normalized()
-	_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
+	var umbrella := SKILL_CATALOG.is_umbrella_skill_set(GameState.player.equipped_weapon)
+	if umbrella:
+		_spawn_umbrella_ward(player.global_position + Vector2(0, -54), facing)
+		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
+	else:
+		_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
 	await get_tree().create_timer(0.22).timeout
-	if finished or opponent.hp <= 0 or player.global_position.distance_to(opponent.global_position) > 330.0:
+	if finished or opponent.hp <= 0 or player.global_position.distance_to(opponent.global_position) > float(primary.get("range", 300.0)) + 30.0:
 		return
 	var stats: Dictionary = GameState.derived_stats()
-	var damage := 20 + int(int(stats["攻击"]) / 2.0) + int(player_max_mana / 30.0)
+	var damage := int(primary.get("damage_base", 20)) + int(float(stats["攻击"]) * float(primary.get("attack_ratio", 0.5))) + int(player_max_mana / float(primary.get("mana_ratio", 30.0)))
 	opponent.take_damage(damage)
-	status.text = "凝息剑诀命中试剑使，造成 %d 点灵力伤害。" % damage
+	status.text = "%s命中试剑使，造成 %d 点灵力伤害。%s" % [str(primary["name"]), damage, "伞阵留下一层短暂护持。" if umbrella else ""]
 	_refresh_hud()
 
 
@@ -204,7 +210,10 @@ func _try_use_skill(index: int, cooldown: float) -> bool:
 
 
 func _skill(index: int) -> Dictionary:
-	return SKILL_CATALOG.STARTER_TEST_SKILLS[index]
+	return _skills()[index]
+
+func _skills() -> Array[Dictionary]:
+	return SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)
 
 
 func _cooldown_text(cooldown: float) -> String:
@@ -229,6 +238,27 @@ func _spawn_skill_ripple(origin: Vector2, tint: Color, radius: float, direction:
 	tween.tween_property(ring, "scale", Vector2(2.1, 2.1), 0.34)
 	tween.tween_property(ring, "modulate:a", 0.0, 0.34)
 	tween.chain().tween_callback(ring.queue_free)
+
+func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
+	# This is a defensive canopy, not recolored sword VFX: two offset arcs imply
+	# the opened umbrella surface while the actual umbrella sprite rotates with it.
+	for index in 2:
+		var arc := Line2D.new()
+		arc.width = 5.0 - index
+		arc.default_color = Color(0.62, 0.84, 1.0, 0.92 - index * 0.22)
+		arc.z_index = 18
+		var points := PackedVector2Array()
+		for point_index in 13:
+			var angle := lerpf(-2.52, -0.62, float(point_index) / 12.0)
+			points.append(Vector2(cos(angle) * (62.0 + index * 13.0), sin(angle) * 30.0))
+		arc.points = points
+		arc.position = origin + direction * 16.0
+		arc.rotation = direction.angle() + PI * 0.5
+		add_child(arc)
+		var tween := create_tween().set_parallel(true)
+		tween.tween_property(arc, "scale", Vector2(1.45, 1.45), 0.34)
+		tween.tween_property(arc, "modulate:a", 0.0, 0.34)
+		tween.chain().tween_callback(arc.queue_free)
 
 
 func _return_to_menu() -> void:
