@@ -389,7 +389,19 @@ func _enter_dungeon(dungeon_id: String) -> void:
 	GameState.enter_screen(GameState.Screen.DUNGEON)
 
 func _open_playable_world() -> void:
-	get_tree().change_scene_to_file("res://scenes/yunlan_south_gate.tscn")
+	# The menu must resume the player's actual region.  Always reopening the
+	# starter gate made the large-world regions feel like disconnected demos.
+	get_tree().change_scene_to_file(_playable_scene_for_current_region())
+
+func _playable_scene_for_current_region() -> String:
+	var scene_by_region := {
+		"starter_village": "res://scenes/yunlan_south_gate.tscn",
+		"mist_border": "res://scenes/mist_tide_border.tscn",
+		"red_maple_ancient_road": "res://scenes/red_maple_ancient_road.tscn",
+		"thunder_listening_cliff": "res://scenes/thunder_listening_cliff.tscn",
+		"return_abyss_mist_port": "res://scenes/return_abyss_mist_port.tscn",
+	}
+	return scene_by_region.get(GameState.current_region_id, "res://scenes/yunlan_south_gate.tscn")
 
 func _explore() -> void:
 	var opportunity: Dictionary = Catalog.OPPORTUNITIES.pick_random()

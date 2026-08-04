@@ -20,6 +20,7 @@ func _run() -> void:
 	await _check_world_population_encounter()
 	await _check_thunder_listening_cliff()
 	await _check_return_abyss_mist_port()
+	await _check_world_menu_region_resume()
 	if failures.is_empty():
 		print("RUNTIME_SMOKE_PASS")
 		get_tree().quit(0)
@@ -396,6 +397,20 @@ func _check_return_abyss_mist_port() -> void:
 	await get_tree().process_frame
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
+
+func _check_world_menu_region_resume() -> void:
+	var region_before: String = GameState.current_region_id
+	var main_script := preload("res://src/ui/main.gd")
+	var main := main_script.new()
+	add_child(main)
+	await get_tree().process_frame
+	GameState.current_region_id = "return_abyss_mist_port"
+	_expect(main._playable_scene_for_current_region() == "res://scenes/return_abyss_mist_port.tscn", "World menu did not resume Return Abyss Mist Port.")
+	GameState.current_region_id = "thunder_listening_cliff"
+	_expect(main._playable_scene_for_current_region() == "res://scenes/thunder_listening_cliff.tscn", "World menu did not resume Thunder Listening Cliff.")
+	GameState.current_region_id = region_before
+	main.queue_free()
+	await get_tree().process_frame
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:
