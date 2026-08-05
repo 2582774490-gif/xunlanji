@@ -29,6 +29,7 @@ func _run() -> void:
 	await _check_qingzhu_staff_runtime_layer_and_skill_set()
 	await _check_suiying_whip_runtime_layer_and_skill_set()
 	await _check_jique_crossbow_runtime_layer_and_skill_set()
+	await _check_liufeng_fan_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -601,6 +602,32 @@ func _check_jique_crossbow_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("CrossbowBoltProjectile"), "Jique Qi Crossbow basic attack did not spawn its own mechanical bolt in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_liufeng_fan_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["流风练气扇"]
+	GameState.equip_weapon("流风练气扇")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Liufeng Qi Fan did not create an independent player weapon render slot.")
+	_expect(port.player.weapon_motion is FanMotionController, "Liufeng Qi Fan did not use its dedicated fan-flick motion controller.")
+	var fan_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(fan_sprite.texture != null and "liufeng_qi_fan" in fan_sprite.texture.resource_path, "Liufeng Qi Fan was substituted with another weapon texture.")
+	var fan_skills := SkillCatalog.skills_for_weapon("流风练气扇")
+	_expect(str(fan_skills[0].name) == "流风扇击" and float(fan_skills[0].get("range", 0.0)) >= 270.0, "Liufeng Qi Fan needs its own short fan-gust basic skill.")
+	_expect(str(fan_skills[1].name) == "流风回旋" and str(fan_skills[1].get("visual", "")) == "fan_gust", "Liufeng Qi Fan needs its own three-stream gust primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := preload("res://scenes/mist_stream_water_palace.tscn").instantiate()
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("FanGustEffect"), "Liufeng Qi Fan basic attack did not spawn its own fan-gust effect in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

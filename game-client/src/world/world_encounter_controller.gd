@@ -16,6 +16,7 @@ const HammerShockwaveEffectScript = preload("res://src/combat/hammer_shockwave_e
 const StaffWhirlEffectScript = preload("res://src/combat/staff_whirl_effect.gd")
 const WhipLashEffectScript = preload("res://src/combat/whip_lash_effect.gd")
 const CrossbowBoltProjectileScript = preload("res://src/combat/crossbow_bolt_projectile.gd")
+const FanGustEffectScript = preload("res://src/combat/fan_gust_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 
 var _player: CharacterBody2D
@@ -92,7 +93,7 @@ func _on_player_attack_impact(_direction: String) -> void:
 		attack_range = float(SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)[0].get("range", MELEE_RANGE))
 	elif SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon):
 		attack_range = float(SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)[0].get("range", MELEE_RANGE))
-	elif SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_staff_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_whip_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon):
+	elif SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_staff_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_whip_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon):
 		attack_range = float(SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)[0].get("range", MELEE_RANGE))
 	if _player.global_position.distance_to(enemy_position) > attack_range:
 		_status.text = "攻击落空：%s 不在近战范围内。" % _target_name
@@ -118,6 +119,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_whip_lash(_player.global_position + Vector2(0, -44), (enemy_position - _player.global_position).normalized(), 132.0, 5.0)
 	elif SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon):
 		_spawn_crossbow_bolt(_player.global_position + Vector2(0, -50), enemy_position + Vector2(0, -52))
+	elif SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon):
+		_spawn_fan_gust(_player.global_position + Vector2(0, -46), (enemy_position - _player.global_position).normalized(), 142.0, 5.0)
 	_target_health = max(0, _target_health - damage)
 	_refresh_target_label()
 	_status.text = "%s 受击，造成 %d 点伤害。" % [_target_name, damage]
@@ -192,6 +195,12 @@ func _spawn_crossbow_bolt(origin: Vector2, target: Vector2, travel_time := 0.22)
 	bolt.name = "CrossbowBoltProjectile"
 	add_child(bolt)
 	bolt.launch(origin, target, travel_time)
+
+func _spawn_fan_gust(origin: Vector2, direction: Vector2, reach := 142.0, width := 5.0) -> void:
+	var gust: FanGustEffect = FanGustEffectScript.new()
+	gust.name = "FanGustEffect"
+	add_child(gust)
+	gust.launch(origin, direction, reach, width)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":

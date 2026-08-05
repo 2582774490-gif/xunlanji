@@ -23,6 +23,7 @@ const HammerMotionScript = preload("res://src/animation/hammer_motion_controller
 const StaffMotionScript = preload("res://src/animation/staff_motion_controller.gd")
 const WhipMotionScript = preload("res://src/animation/whip_motion_controller.gd")
 const CrossbowMotionScript = preload("res://src/animation/crossbow_motion_controller.gd")
+const FanMotionScript = preload("res://src/animation/fan_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -143,6 +144,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = WhipMotionScript.new()
 	elif motion == "jique_crossbow":
 		pivot = CrossbowMotionScript.new()
+	elif motion == "flowing_fan":
+		pivot = FanMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -208,6 +211,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.072, 0.072)
 		sprite.position = Vector2(35, -45)
 		sprite.rotation = deg_to_rad(-5.0)
+	elif motion == "flowing_fan":
+		# The jade pivot anchors this wide fan close to the casting hand; its own
+		# flick controller keeps the cloth spread readable without sword rotation.
+		sprite.scale = Vector2(0.060, 0.060)
+		sprite.position = Vector2(37, -46)
+		sprite.rotation = deg_to_rad(-18.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins
