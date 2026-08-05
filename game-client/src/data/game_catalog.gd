@@ -249,5 +249,30 @@ const ARTIFACT_PROFILES := {
 	},
 }
 
+# Pill data is separate from breakthrough material checks.  Lower-realm pills
+# can still be crafted and traded by high-realm players, but their medicinal
+# effect does not remain useful after the stated realm range.
+const PILL_PROFILES := {
+	"灵泉露": {"name": "灵泉露", "cultivation": 15, "burden": 2, "max_realm": 0, "max_stage": 9, "kind": "灵液"},
+	"凝息丹": {"name": "凝息丹", "cultivation": 15, "burden": 5, "max_realm": 0, "max_stage": 3, "kind": "炼气丹"},
+	"养元丹": {"name": "养元丹", "cultivation": 22, "burden": 7, "max_realm": 0, "max_stage": 6, "kind": "炼气丹"},
+	"归元丹": {"name": "归元丹", "cultivation": 30, "burden": 9, "max_realm": 0, "max_stage": 9, "kind": "炼气丹"},
+}
+
+const ALCHEMY_RECIPES := {
+	"ningxi": {
+		"name": "凝息丹", "output": "凝息丹", "materials": ["雾溪灵草", "雾溪药"],
+		"base_success": 0.74, "note": "炼气初期调息丹，药性温和。",
+	},
+	"yangyuan": {
+		"name": "养元丹", "output": "养元丹", "materials": ["雾泽灵草", "雾林材料", "凝气符材"],
+		"base_success": 0.68, "note": "炼气中期养元丹，药性比凝息丹更重。",
+	},
+	"guiyuan": {
+		"name": "归元丹", "output": "归元丹", "materials": ["雾林妖丹", "雾泽灵草", "临渊露"],
+		"base_success": 0.61, "note": "炼气后期归元丹，需谨慎安排当天药负。",
+	},
+}
+
 static func artifact_profile_for_item(item_name: String) -> Dictionary:
 	return ARTIFACT_PROFILES.get(item_name, {}).duplicate(true)

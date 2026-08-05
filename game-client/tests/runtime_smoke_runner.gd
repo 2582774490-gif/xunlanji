@@ -11,6 +11,7 @@ func _run() -> void:
 	await _check_optional_world_guidance()
 	await _check_cultivation_affinity()
 	await _check_fair_attribute_and_technique_growth()
+	await _check_alchemy_and_medicine_rules()
 	await _check_sect_progression()
 	await _check_wanted_patrol()
 	await _check_weapon_combat_profiles()
@@ -170,6 +171,45 @@ func _check_fair_attribute_and_technique_growth() -> void:
 	GameState.choose_cultivation_path("三折剑经")
 	_expect(GameState.attribute_point_budget() == 5, "Learning or switching a technique must not directly mint attribute points.")
 	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_alchemy_and_medicine_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var listings_before: Array = GameState.local_market_listings.duplicate(true)
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 1
+	GameState.player.cultivation = 0
+	GameState.player.cultivation_path = "云岚吐纳诀"
+	GameState.player.spirit_root = "水灵根"
+	GameState.player.physique = "岚息体"
+	GameState.player.inventory = ["雾溪灵草", "雾溪药"]
+	GameState.player.medicine_tolerance = {"day": "", "burden": 0}
+	GameState.player.alchemy_history = []
+	var ordinary_rate := GameState.alchemy_success_rate("ningxi")
+	GameState.player.cultivation_path = "百草调息录"
+	GameState.player.spirit_root = "木灵根"
+	GameState.player.physique = "青木灵胎"
+	_expect(GameState.alchemy_success_rate("ningxi") > ordinary_rate, "Dan cultivation, matching roots and physique should improve alchemy success rate.")
+	_expect(GameState.craft_alchemy_recipe("ningxi", 0.0), "A valid recipe should craft when its controlled roll is within the success rate.")
+	_expect(GameState.player.inventory.has("凝息丹") and not GameState.player.inventory.has("雾溪灵草"), "Successful alchemy should consume materials and produce the named pill.")
+	GameState.player.cultivation_path = "云岚吐纳诀"
+	GameState.player.spirit_root = "水灵根"
+	GameState.player.physique = "岚息体"
+	_expect(GameState.use_pill("凝息丹"), "A low-realm player should be able to use an effective crafted pill within daily burden.")
+	_expect(GameState.medicine_burden() == 5 and GameState.player.cultivation > 0, "Pill use should add its own medicine burden and cultivation effect.")
+	GameState.player.inventory.append("凝息丹")
+	_expect(GameState.use_pill("凝息丹"), "A second early pill should still fit the initial daily burden budget.")
+	GameState.player.inventory.append("凝息丹")
+	_expect(not GameState.use_pill("凝息丹") and GameState.player.inventory.has("凝息丹"), "A pill that exceeds daily burden should be rejected without consumption.")
+	GameState.player.realm_index = 1
+	GameState.player.minor_stage = 1
+	GameState.player.medicine_tolerance = {"day": "", "burden": 0}
+	_expect(not GameState.use_pill("凝息丹") and GameState.player.inventory.has("凝息丹"), "High-realm players should not consume ineffective low-realm pills.")
+	GameState.player.gold = 100
+	_expect(GameState.list_item_for_market("凝息丹", 31), "Crafted pills should remain freely tradeable through the market boundary.")
+	GameState.player = profile_before
+	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()
 
 func _check_wanted_patrol() -> void:

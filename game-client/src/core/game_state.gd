@@ -51,6 +51,8 @@ var player := {
 	"cultivation": 0,
 	"meditation_sessions": 3,
 	"meditation_day": "",
+	"medicine_tolerance": {"day": "", "burden": 0},
+	"alchemy_history": [],
 	"unspent_points": INITIAL_ATTRIBUTE_POINTS,
 	"attribute_points_earned": INITIAL_ATTRIBUTE_POINTS,
 	"attributes": {"体魄": 5, "灵识": 5, "身法": 5, "根骨": 5},
@@ -310,6 +312,15 @@ func _refresh_meditation_day() -> void:
 		player.meditation_day = today
 		player.meditation_sessions = 3
 
+
+func _refresh_medicine_day() -> void:
+	var today := Time.get_date_string_from_system()
+	var tolerance: Dictionary = player.get("medicine_tolerance", {})
+	if str(tolerance.get("day", "")) != today:
+		tolerance.day = today
+		tolerance.burden = 0
+	player.medicine_tolerance = tolerance
+
 func meditation_sessions_left() -> int:
 	_refresh_meditation_day()
 	return int(player.meditation_sessions)
@@ -468,7 +479,101 @@ func consume_items(items: Array[String]) -> bool:
 	profile_changed.emit()
 	return true
 
+
+func medicine_burden_capacity() -> int:
+	_refresh_medicine_day()
+	var capacity := 10 + int(player.minor_stage) * 2 + int(player.realm_index) * 8
+	if str(player.get("physique", "")) == "青木灵胎":
+		capacity += 3
+	return capacity
+
+
+func medicine_burden() -> int:
+	_refresh_medicine_day()
+	return int((player.medicine_tolerance as Dictionary).get("burden", 0))
+
+
+func medicine_burden_text() -> String:
+	return "今日药负 %d / %d" % [medicine_burden(), medicine_burden_capacity()]
+
+
+func alchemy_success_rate(recipe_id: String) -> float:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var recipe: Dictionary = catalog.ALCHEMY_RECIPES.get(recipe_id, {})
+	if recipe.is_empty():
+		return 0.0
+	var rate := float(recipe.get("base_success", 0.0))
+	var technique := str(player.get("cultivation_path", ""))
+	if technique == "百草调息录":
+		rate += 0.18
+	elif technique == "炉火化元法":
+		rate += 0.12
+	if str(player.get("spirit_root", "")) == "火灵根" or str(player.get("spirit_root", "")) == "木灵根":
+		rate += 0.05
+	if str(player.get("physique", "")) == "青木灵胎":
+		rate += 0.08
+	return clampf(rate, 0.45, 0.95)
+
+
+func craft_alchemy_recipe(recipe_id: String, forced_roll := -1.0) -> bool:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var recipe: Dictionary = catalog.ALCHEMY_RECIPES.get(recipe_id, {})
+	if recipe.is_empty():
+		return false
+	var materials: Array = recipe.get("materials", [])
+	if not consume_items(materials):
+		notify("炼制%s的材料不足。" % str(recipe.get("name", "丹药")))
+		return false
+	var roll := randf() if forced_roll < 0.0 else clampf(forced_roll, 0.0, 1.0)
+	var success_rate := alchemy_success_rate(recipe_id)
+	var history: Array = player.get("alchemy_history", [])
+	if roll <= success_rate:
+		var output := str(recipe.output)
+		add_item(output)
+		history.append({"recipe": recipe_id, "success": true, "rate": success_rate})
+		player.alchemy_history = history
+		notify("炼制成功：%s 入囊。%s" % [output, medicine_burden_text()])
+		profile_changed.emit()
+		return true
+	add_item("药渣")
+	history.append({"recipe": recipe_id, "success": false, "rate": success_rate})
+	player.alchemy_history = history
+	notify("炼制失手：得到药渣。丹修功法、灵根与体质会提高成丹率。")
+	profile_changed.emit()
+	return false
+
+
+func use_pill(item_name: String) -> bool:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var profile: Dictionary = catalog.PILL_PROFILES.get(item_name, {})
+	if profile.is_empty() or not player.inventory.has(item_name):
+		return false
+	var max_realm := int(profile.max_realm)
+	var max_stage := int(profile.max_stage)
+	if player.realm_index > max_realm or (player.realm_index == max_realm and player.minor_stage > max_stage):
+		notify("当前境界已超过%s的有效药性范围；低阶丹药不会提供提升。" % item_name)
+		return false
+	_refresh_medicine_day()
+	var burden_cost := int(profile.burden)
+	if medicine_burden() + burden_cost > medicine_burden_capacity():
+		notify("药性承受已接近上限（%s），今日不宜继续服用%s。" % [medicine_burden_text(), item_name])
+		return false
+	player.inventory.erase(item_name)
+	var effect := int(profile.cultivation)
+	if str(player.get("physique", "")) == "青木灵胎":
+		effect = ceili(effect * 1.10)
+	var tolerance: Dictionary = player.medicine_tolerance
+	tolerance.burden = medicine_burden() + burden_cost
+	player.medicine_tolerance = tolerance
+	gain_cultivation(effect)
+	notify("服用%s：修为 +%d，%s。" % [item_name, effect, medicine_burden_text()])
+	profile_changed.emit()
+	return true
+
 func use_cultivation_item(item_name: String, cultivation_amount: int, max_realm_index: int, max_minor_stage: int) -> bool:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	if catalog.PILL_PROFILES.has(item_name):
+		return use_pill(item_name)
 	if not player.inventory.has(item_name):
 		notify("行囊中没有%s。" % item_name)
 		return false
@@ -690,6 +795,15 @@ func _normalize_player_schema() -> void:
 		player.technique_insight = {}
 	for technique_name in player.learned_techniques:
 		_ensure_technique_insight_entry(str(technique_name))
+	if not player.has("medicine_tolerance") or not player.medicine_tolerance is Dictionary:
+		player.medicine_tolerance = {"day": "", "burden": 0}
+	else:
+		var tolerance: Dictionary = player.medicine_tolerance
+		tolerance.day = str(tolerance.get("day", ""))
+		tolerance.burden = max(0, int(tolerance.get("burden", 0)))
+		player.medicine_tolerance = tolerance
+	if not player.has("alchemy_history") or not player.alchemy_history is Array:
+		player.alchemy_history = []
 	if not player.has("world_guidance") or not player.world_guidance is Dictionary:
 		player.world_guidance = {"steps": [], "skipped": false}
 	else:

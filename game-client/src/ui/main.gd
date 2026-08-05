@@ -317,16 +317,16 @@ func _show_alchemy() -> void:
 	_text("初阶配方：雾溪灵草 × 1 + 雾溪药 × 1 → 凝息丹（炼气一至三层有效，使用后 +15 修为）")
 	_text("筑基丹方：雾林妖丹 × 1 + 雾潮晶簇 × 3 + 临渊准备材料 × 1（临渊露 / 御崖石屑 / 护脉阵片任选）→ 筑基丹", 18, Color("f2d79c"))
 	_buttons([["炼制凝息丹", _craft_condensing_pill, 210], ["炼制筑基丹", _craft_foundation_pill, 210], ["返回行囊", func(): GameState.enter_screen(GameState.Screen.INVENTORY), 160]])
+	_buttons([["炼制养元丹", func(): _craft_alchemy_recipe("yangyuan"), 210], ["炼制归元丹", func(): _craft_alchemy_recipe("guiyuan"), 210]])
+	_text("普通丹药有成丹率与每日药负；低阶丹药可交易，但高境界服用无效。当前：" + GameState.medicine_burden_text(), 16, Color("a7d5ca"))
 
 func _craft_condensing_pill() -> void:
-	if GameState.player.realm_index > 0 or GameState.player.minor_stage > 3:
-		GameState.notify("当前境界已超过凝息丹的有效药性范围。")
-		return
-	if not GameState.consume_items(["雾溪灵草", "雾溪药"]):
-		GameState.notify("材料不足：需要雾溪灵草与雾溪药各一份。")
-		return
-	GameState.add_item("凝息丹")
-	GameState.notify("炼制成功：凝息丹已入囊；请自行决定何时服用。")
+	GameState.craft_alchemy_recipe("ningxi")
+	_render()
+
+
+func _craft_alchemy_recipe(recipe_id: String) -> void:
+	GameState.craft_alchemy_recipe(recipe_id)
 	_render()
 
 func _craft_foundation_pill() -> void:
