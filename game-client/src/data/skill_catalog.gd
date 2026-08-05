@@ -111,6 +111,11 @@ const XUANSHUANG_BELL_SKILLS := [
 	{"id": "xuanshuang_seal_wave", "name": "玄霜镇音", "key": "K", "spirit_cost": 23, "cooldown": 4.9, "range": 338.0, "damage_base": 20, "attack_ratio": 0.40, "mana_ratio": 38.0, "visual": "bell_sonic_seal", "description": "三声镇铃化作层叠八角音印，向前推进，适合稳住近中距离的战局。"},
 ]
 
+const EIGHTFOLD_ARRAY_DISK_SKILLS := [
+	{"id": "eightfold_array_cast", "name": "八方落阵", "key": "J", "spirit_cost": 0, "cooldown": 0.68, "range": 255.0, "description": "将引岚阵盘抛至前方，展开一座短暂的八方阵纹，压迫中距离区域。"},
+	{"id": "eightfold_array_lock", "name": "八方锁岚", "key": "K", "spirit_cost": 24, "cooldown": 5.0, "range": 308.0, "damage_base": 21, "attack_ratio": 0.41, "mana_ratio": 37.0, "visual": "array_lattice", "description": "阵盘旋转展开，八条岚纹在落点交错锁合，适合限制前方区域而非贴身斩击。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -145,6 +150,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = BIHUANG_XIAO_SKILLS
 	elif item_name == "玄霜摄魂铃":
 		weapon_skills = XUANSHUANG_BELL_SKILLS
+	elif item_name == "八方引岚阵盘":
+		weapon_skills = EIGHTFOLD_ARRAY_DISK_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -196,3 +203,6 @@ static func is_xiao_skill_set(item_name: String) -> bool:
 
 static func is_bell_skill_set(item_name: String) -> bool:
 	return item_name == "玄霜摄魂铃"
+
+static func is_array_disk_skill_set(item_name: String) -> bool:
+	return item_name == "八方引岚阵盘"

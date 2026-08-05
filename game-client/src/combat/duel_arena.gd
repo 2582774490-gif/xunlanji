@@ -20,6 +20,7 @@ const FanGustEffectScript = preload("res://src/combat/fan_gust_effect.gd")
 const GuqinNoteEffectScript = preload("res://src/combat/guqin_note_effect.gd")
 const XiaoSoundstreamEffectScript = preload("res://src/combat/xiao_soundstream_effect.gd")
 const BellSonicSealEffectScript = preload("res://src/combat/bell_sonic_seal_effect.gd")
+const ArrayLatticeEffectScript = preload("res://src/combat/array_lattice_effect.gd")
 
 @onready var player: SpatialTestPlayer = $Player
 @onready var opponent: DuelOpponent = $Opponent
@@ -128,6 +129,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_xiao_soundstream(player.global_position + Vector2(0, -54), (opponent.global_position - player.global_position).normalized(), 205.0, 5.0)
 	elif SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon):
 		_spawn_bell_sonic_seal(player.global_position + Vector2(0, -54), (opponent.global_position - player.global_position).normalized(), 170.0, 18.0)
+	elif SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon):
+		_spawn_array_lattice(player.global_position + (opponent.global_position - player.global_position).normalized() * 145.0 + Vector2(0, -40), 42.0)
 	opponent.take_damage(damage)
 	status.text = "%s 命中试剑使，造成 %d 点伤害。" % [GameState.player.equipped_weapon, damage]
 	_refresh_hud()
@@ -204,6 +207,7 @@ func _cast_ningxi_sword_art() -> void:
 	var guqin := SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon)
 	var xiao := SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon)
 	var bell := SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon)
+	var array_disk := SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon)
 	if umbrella:
 		_spawn_umbrella_ward(player.global_position + Vector2(0, -54), facing)
 		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
@@ -237,6 +241,8 @@ func _cast_ningxi_sword_art() -> void:
 		_spawn_xiao_soundstream(player.global_position + Vector2(0, -56), facing, 260.0, 8.0)
 	elif bell:
 		_spawn_bell_sonic_seal(player.global_position + Vector2(0, -56), facing, 236.0, 28.0)
+	elif array_disk:
+		_spawn_array_lattice(player.global_position + facing * 205.0 + Vector2(0, -44), 70.0)
 	else:
 		_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
 	await get_tree().create_timer(0.22).timeout
@@ -403,6 +409,12 @@ func _spawn_bell_sonic_seal(origin: Vector2, direction: Vector2, reach := 170.0,
 	seal.name = "BellSonicSealEffect"
 	add_child(seal)
 	seal.launch(origin, direction, reach, radius)
+
+func _spawn_array_lattice(origin: Vector2, radius := 52.0) -> void:
+	var lattice: ArrayLatticeEffect = ArrayLatticeEffectScript.new()
+	lattice.name = "ArrayLatticeEffect"
+	add_child(lattice)
+	lattice.deploy(origin, radius)
 
 func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
 	# This is a defensive canopy, not recolored sword VFX: two offset arcs imply

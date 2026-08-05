@@ -148,6 +148,7 @@ const WEAPON_RUNTIME_PROFILES := {
 	"清商练气琴": {"motion": "qingshang_guqin", "asset": "res://assets/art/weapons/qingshang_qi_guqin/processed_alpha/qingshang_qi_guqin_v01_alpha.png"},
 	"碧篁练气箫": {"motion": "bihuang_xiao", "asset": "res://assets/art/weapons/bihuang_qi_xiao/processed_alpha/bihuang_qi_xiao_v01_alpha.png"},
 	"玄霜摄魂铃": {"motion": "xuanshuang_bell", "asset": "res://assets/art/weapons/xuanshuang_soul_bell/processed_alpha/xuanshuang_soul_bell_v01_alpha.png"},
+	"八方引岚阵盘": {"motion": "eightfold_array_disk", "asset": "res://assets/art/weapons/eightfold_wind_array_disk/processed_alpha/eightfold_wind_array_disk_v01_alpha.png"},
 }
 
 static func weapon_runtime_profile_for_item(item_name: String) -> Dictionary:

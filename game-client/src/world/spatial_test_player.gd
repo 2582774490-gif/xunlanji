@@ -27,6 +27,7 @@ const FanMotionScript = preload("res://src/animation/fan_motion_controller.gd")
 const GuqinMotionScript = preload("res://src/animation/guqin_motion_controller.gd")
 const XiaoMotionScript = preload("res://src/animation/xiao_motion_controller.gd")
 const BellMotionScript = preload("res://src/animation/bell_motion_controller.gd")
+const ArrayDiskMotionScript = preload("res://src/animation/array_disk_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -155,6 +156,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = XiaoMotionScript.new()
 	elif motion == "xuanshuang_bell":
 		pivot = BellMotionScript.new()
+	elif motion == "eightfold_array_disk":
+		pivot = ArrayDiskMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -244,6 +247,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.050, 0.050)
 		sprite.position = Vector2(38, -52)
 		sprite.rotation = deg_to_rad(-12.0)
+	elif motion == "eightfold_array_disk":
+		# Keep the face visible at a small scale so the player can identify the
+		# array before it is deployed in front of the casting hand.
+		sprite.scale = Vector2(0.055, 0.055)
+		sprite.position = Vector2(35, -52)
+		sprite.rotation = deg_to_rad(-8.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins
