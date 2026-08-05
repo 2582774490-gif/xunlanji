@@ -31,6 +31,7 @@ func _run() -> void:
 	await _check_jique_crossbow_runtime_layer_and_skill_set()
 	await _check_liufeng_fan_runtime_layer_and_skill_set()
 	await _check_qingshang_guqin_runtime_layer_and_skill_set()
+	await _check_bihuang_xiao_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -655,6 +656,32 @@ func _check_qingshang_guqin_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("GuqinNoteEffect"), "Qingshang Qi Guqin basic attack did not spawn its own note effect in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_bihuang_xiao_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["碧篁练气箫"]
+	GameState.equip_weapon("碧篁练气箫")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Bihuang Qi Xiao did not create an independent player weapon render slot.")
+	_expect(port.player.weapon_motion is XiaoMotionController, "Bihuang Qi Xiao did not use its dedicated breath-release motion controller.")
+	var xiao_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(xiao_sprite.texture != null and "bihuang_qi_xiao" in xiao_sprite.texture.resource_path, "Bihuang Qi Xiao was substituted with another weapon texture.")
+	var xiao_skills := SkillCatalog.skills_for_weapon("碧篁练气箫")
+	_expect(str(xiao_skills[0].name) == "碧篁清音" and float(xiao_skills[0].get("range", 0.0)) >= 350.0, "Bihuang Qi Xiao needs its own long soundstream basic skill.")
+	_expect(str(xiao_skills[1].name) == "碧篁绕音" and str(xiao_skills[1].get("visual", "")) == "xiao_soundstream", "Bihuang Qi Xiao needs its own helical soundstream primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := preload("res://scenes/mist_stream_water_palace.tscn").instantiate()
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("XiaoSoundstreamEffect"), "Bihuang Qi Xiao basic attack did not spawn its own soundstream effect in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

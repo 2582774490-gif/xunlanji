@@ -18,6 +18,7 @@ const WhipLashEffectScript = preload("res://src/combat/whip_lash_effect.gd")
 const CrossbowBoltProjectileScript = preload("res://src/combat/crossbow_bolt_projectile.gd")
 const FanGustEffectScript = preload("res://src/combat/fan_gust_effect.gd")
 const GuqinNoteEffectScript = preload("res://src/combat/guqin_note_effect.gd")
+const XiaoSoundstreamEffectScript = preload("res://src/combat/xiao_soundstream_effect.gd")
 
 @onready var player: SpatialTestPlayer = $Player
 @onready var opponent: DuelOpponent = $Opponent
@@ -122,6 +123,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_fan_gust(player.global_position + Vector2(0, -46), (opponent.global_position - player.global_position).normalized(), 142.0, 5.0)
 	elif SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon):
 		_spawn_guqin_note(player.global_position + Vector2(0, -56), (opponent.global_position - player.global_position).normalized(), 180.0, 5.0)
+	elif SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon):
+		_spawn_xiao_soundstream(player.global_position + Vector2(0, -54), (opponent.global_position - player.global_position).normalized(), 205.0, 5.0)
 	opponent.take_damage(damage)
 	status.text = "%s 命中试剑使，造成 %d 点伤害。" % [GameState.player.equipped_weapon, damage]
 	_refresh_hud()
@@ -196,6 +199,7 @@ func _cast_ningxi_sword_art() -> void:
 	var crossbow := SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon)
 	var fan := SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon)
 	var guqin := SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon)
+	var xiao := SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon)
 	if umbrella:
 		_spawn_umbrella_ward(player.global_position + Vector2(0, -54), facing)
 		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
@@ -225,6 +229,8 @@ func _cast_ningxi_sword_art() -> void:
 		_spawn_fan_gust(player.global_position + Vector2(0, -48), facing, 190.0, 8.0)
 	elif guqin:
 		_spawn_guqin_note(player.global_position + Vector2(0, -58), facing, 235.0, 8.0)
+	elif xiao:
+		_spawn_xiao_soundstream(player.global_position + Vector2(0, -56), facing, 260.0, 8.0)
 	else:
 		_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
 	await get_tree().create_timer(0.22).timeout
@@ -379,6 +385,12 @@ func _spawn_guqin_note(origin: Vector2, direction: Vector2, reach := 180.0, thic
 	note.name = "GuqinNoteEffect"
 	add_child(note)
 	note.launch(origin, direction, reach, thickness)
+
+func _spawn_xiao_soundstream(origin: Vector2, direction: Vector2, reach := 205.0, width := 5.0) -> void:
+	var stream: XiaoSoundstreamEffect = XiaoSoundstreamEffectScript.new()
+	stream.name = "XiaoSoundstreamEffect"
+	add_child(stream)
+	stream.launch(origin, direction, reach, width)
 
 func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
 	# This is a defensive canopy, not recolored sword VFX: two offset arcs imply

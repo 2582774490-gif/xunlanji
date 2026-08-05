@@ -10,7 +10,7 @@ extends Node2D
 @onready var touch_controls: Node = $HUD/TouchControls
 
 var active_interaction_id := ""
-const STARTER_TRIAL_WEAPONS: Array[String] = ["青篁练气剑", "回云练气伞", "朱砂练气符笔", "流云练气枪", "逐风练气弓", "断雾练气刀", "玄月练气戟", "开山练气斧", "撼岳练气锤", "青竹练气棍", "碎影练气鞭", "机阙练气弩", "流风练气扇", "清商练气琴"]
+const STARTER_TRIAL_WEAPONS: Array[String] = ["青篁练气剑", "回云练气伞", "朱砂练气符笔", "流云练气枪", "逐风练气弓", "断雾练气刀", "玄月练气戟", "开山练气斧", "撼岳练气锤", "青竹练气棍", "碎影练气鞭", "机阙练气弩", "流风练气扇", "清商练气琴", "碧篁练气箫"]
 
 func _ready() -> void:
 	GameState.current_region_id = "starter_village"

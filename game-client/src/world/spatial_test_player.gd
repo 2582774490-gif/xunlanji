@@ -25,6 +25,7 @@ const WhipMotionScript = preload("res://src/animation/whip_motion_controller.gd"
 const CrossbowMotionScript = preload("res://src/animation/crossbow_motion_controller.gd")
 const FanMotionScript = preload("res://src/animation/fan_motion_controller.gd")
 const GuqinMotionScript = preload("res://src/animation/guqin_motion_controller.gd")
+const XiaoMotionScript = preload("res://src/animation/xiao_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -149,6 +150,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = FanMotionScript.new()
 	elif motion == "qingshang_guqin":
 		pivot = GuqinMotionScript.new()
+	elif motion == "bihuang_xiao":
+		pivot = XiaoMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -226,6 +229,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.064, 0.064)
 		sprite.position = Vector2(32, -57)
 		sprite.rotation = deg_to_rad(-6.0)
+	elif motion == "bihuang_xiao":
+		# The lower end anchors close to the hands so the xiao can hover upright
+		# through its dedicated breath-release movement rather than polearm motion.
+		sprite.scale = Vector2(0.060, 0.060)
+		sprite.position = Vector2(38, -52)
+		sprite.rotation = deg_to_rad(-14.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins
