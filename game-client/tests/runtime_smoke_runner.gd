@@ -208,6 +208,17 @@ func _check_codex_registry_ui() -> void:
 	var rendered_text := _collect_label_text(codex_ui)
 	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型"), "Codex UI must render approved technique, artifact and weapon registry sections.")
 	codex_ui.queue_free()
+	GameState.player.inventory = ["雾港引潮盘", "沉雾舟纹袍"]
+	GameState.player.equipped_artifact = "雾港引潮盘"
+	GameState.player.equipped_armor = "沉雾舟纹袍"
+	GameState.current_screen = GameState.Screen.INVENTORY
+	var inventory_ui := preload("res://scenes/main.tscn").instantiate()
+	add_child(inventory_ui)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var inventory_text := _collect_label_text(inventory_ui)
+	_expect(inventory_text.contains("雾港引潮盘") and inventory_text.contains("沉雾舟纹袍") and inventory_text.contains("已装备"), "Inventory UI must render owned equipped artifact and armor cards with their state.")
+	inventory_ui.queue_free()
 	GameState.player = profile_before
 	GameState.current_screen = screen_before
 	GameState.profile_changed.emit()

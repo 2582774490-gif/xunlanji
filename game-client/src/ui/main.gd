@@ -256,6 +256,23 @@ func _show_inventory() -> void:
 	_text("已装备武器：%s｜已装备法宝：%s｜已装备护具：%s" % [GameState.player.equipped_weapon, GameState.player.equipped_artifact, armor_name if not armor_name.is_empty() else "未装备"], 20, Color("f2d79c"))
 	_text("当前物品：%s" % "、".join(GameState.player.inventory))
 	_line()
+	var card_names := {}
+	for item_value in GameState.player.inventory:
+		var item_name := str(item_value)
+		if card_names.has(item_name):
+			continue
+		card_names[item_name] = true
+		var artifact_profile := Catalog.artifact_profile_for_item(item_name)
+		if not artifact_profile.is_empty():
+			_add_inventory_equipment_card(item_name, artifact_profile, "法宝", item_name == str(GameState.player.get("equipped_artifact", "")))
+			continue
+		var armor_profile := Catalog.armor_profile_for_item(item_name)
+		if not armor_profile.is_empty():
+			_add_inventory_equipment_card(item_name, armor_profile, "护具", item_name == str(GameState.player.get("equipped_armor", "")))
+			continue
+		var footwear_profile := Catalog.footwear_profile_for_item(item_name)
+		if not footwear_profile.is_empty():
+			_add_inventory_equipment_card(item_name, footwear_profile, "足部护具", item_name == str(GameState.player.get("equipped_footwear", "")))
 	_text("首发正式基础器型：每种大类先做一把正式武器，再逐步补大分支、小分支、品级、武器卡、动作和特效。")
 	for family in Catalog.WEAPON_FAMILIES:
 		var profile: Dictionary = Catalog.weapon_profile_for_item(str(family.starter))
@@ -290,6 +307,29 @@ func _show_inventory() -> void:
 	if not upgrade_buttons.is_empty(): _buttons(upgrade_buttons)
 	if GameState.player.inventory.has("凝息丹"):
 		_buttons([["服用凝息丹（+15 修为）", _use_condensing_pill, 230]])
+
+func _add_inventory_equipment_card(item_name: String, profile: Dictionary, category: String, equipped: bool) -> void:
+	var runtime_asset := str(profile.get("runtime_asset", ""))
+	if runtime_asset.is_empty() or not ResourceLoader.exists(runtime_asset):
+		return
+	var card := HBoxContainer.new()
+	card.custom_minimum_size = Vector2(0, 128)
+	card.add_theme_constant_override("separation", 16)
+	content.add_child(card)
+	var prop_image := TextureRect.new()
+	prop_image.texture = load(runtime_asset) as Texture2D
+	prop_image.custom_minimum_size = Vector2(112, 118)
+	prop_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	prop_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	card.add_child(prop_image)
+	var details := Label.new()
+	var equipped_line := "已装备" if equipped else "行囊中"
+	details.text = "《%s》｜%s｜%s｜%s\n%s\n%s" % [item_name, category, str(profile.get("quality", "凡品")), equipped_line, str(profile.get("trait", "已登记运行时规则。")), GameState.equipment_upgrade_text(item_name)]
+	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_theme_font_size_override("font_size", 16)
+	card.add_child(details)
+
 
 func _show_sect() -> void:
 	_heading("宗门与身份")
