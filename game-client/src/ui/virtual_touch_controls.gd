@@ -10,6 +10,7 @@ signal action_requested(action_id: String)
 @export var combat_enabled := false
 @export var overworld_attack_enabled := false
 @export var interaction_enabled := true
+@export var weapon_switch_enabled := true
 
 const JOYSTICK_RADIUS := 78.0
 const JOYSTICK_DEAD_ZONE := 0.18
@@ -55,9 +56,13 @@ func _handle_touch(touch_id: int, touch_position: Vector2, pressed: bool) -> voi
 			_move_touch_id = touch_id
 			_update_joystick(touch_position)
 			return
-		if combat_enabled or overworld_attack_enabled or _interaction_available:
+		if combat_enabled or overworld_attack_enabled or _interaction_available or weapon_switch_enabled:
 			var action_id := _action_at(touch_position)
 			if not action_id.is_empty():
+				if action_id == "switch_weapon":
+					GameState.equip_next_runtime_weapon()
+					queue_redraw()
+					return
 				action_requested.emit(action_id)
 		return
 	if touch_id == _move_touch_id:
@@ -109,6 +114,8 @@ func _button_data() -> Array[Dictionary]:
 		])
 	elif overworld_attack_enabled:
 		buttons.append({"id": "attack", "label": "攻", "position": Vector2(x, y)})
+	if weapon_switch_enabled:
+		buttons.append({"id": "switch_weapon", "label": "换", "position": Vector2(x - 204.0, y - 108.0)})
 	if interaction_enabled and _interaction_available:
 		buttons.append({"id": "interact", "label": "交", "position": Vector2(x, y - 4.0)})
 	return buttons
@@ -138,8 +145,14 @@ func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	for button in _button_data():
 		var is_attack: bool = str(button["id"]) == "attack"
+		var is_switch: bool = str(button["id"]) == "switch_weapon"
 		var radius := BUTTON_RADIUS + 8.0 if is_attack else BUTTON_RADIUS
 		var color := Color(0.08, 0.38, 0.46, 0.88) if is_attack else Color(0.10, 0.23, 0.33, 0.82)
+		if is_switch:
+			color = Color(0.28, 0.21, 0.48, 0.90)
 		draw_circle(button["position"], radius, color)
 		draw_arc(button["position"], radius, 0.0, TAU, 32, Color(0.66, 0.94, 0.94, 0.82), 2.0)
 		draw_string(font, button["position"] + Vector2(-10.0, 8.0), button["label"], HORIZONTAL_ALIGNMENT_LEFT, -1, 23, Color(0.9, 1, 1, 1))
+	if weapon_switch_enabled:
+		var equipped := str(GameState.player.get("equipped_weapon", "练气木剑"))
+		draw_string(font, Vector2(size.x - 282.0, size.y - 185.0), "持：%s" % equipped, HORIZONTAL_ALIGNMENT_LEFT, 178.0, 15, Color(0.82, 0.94, 1.0, 0.96))

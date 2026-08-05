@@ -17,6 +17,7 @@ func _run() -> void:
 	await _check_wanted_patrol()
 	await _check_weapon_combat_profiles()
 	await _check_weapon_render_slot()
+	await _check_touch_weapon_switch()
 	await _check_umbrella_render_slot()
 	await _check_talisman_brush_runtime_layer_and_skill_set()
 	await _check_liuyun_spear_runtime_layer_and_skill_set()
@@ -312,6 +313,28 @@ func _check_weapon_render_slot() -> void:
 	var weapon_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
 	_expect(weapon_sprite.texture != null, "Equipped Qinghuang Sword render slot has no sword texture.")
 	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_touch_weapon_switch() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["青篁练气剑", "回云练气伞"]
+	GameState.equip_weapon("青篁练气剑")
+	var touch := VirtualTouchControls.new()
+	touch.size = Vector2(960.0, 540.0)
+	add_child(touch)
+	await get_tree().process_frame
+	var button_ids: Array[String] = []
+	var switch_position := Vector2.ZERO
+	for button in touch._button_data():
+		button_ids.append(str(button.id))
+		if str(button.id) == "switch_weapon":
+			switch_position = button.position
+	_expect(button_ids.has("switch_weapon") and switch_position != Vector2.ZERO, "Mobile touch controls are missing the weapon-switch button.")
+	touch._handle_touch(-1, switch_position, true)
+	_expect(GameState.player.equipped_weapon == "回云练气伞", "Mobile weapon-switch button did not use the same runtime weapon cycle as Q.")
+	touch.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
