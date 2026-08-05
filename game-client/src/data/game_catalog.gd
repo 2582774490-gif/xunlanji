@@ -262,7 +262,7 @@ static func technique_art_profile_for_name(path_name: String) -> Dictionary:
 const SECTS := [
 	{"id": "mist_sword", "name": "雾隐剑宗", "trait": "重视守序、剑阵与护山", "rule": "擅离驻守任务将扣除功勋；内门后叛离山门会触发通缉。", "technique": "三折剑经", "exit_wanted_rank": 1, "exit_penalty": "雾隐剑宗已记录你的离宗，山道与驻地附近可能出现追查。"},
 	{"id": "cloud_market", "name": "云市会", "trait": "重视商路、鉴宝与契约", "rule": "恶意毁约将失去交易权限，并可能被悬赏追讨。", "technique": "镜心守识篇", "exit_wanted_rank": 3, "exit_penalty": "云市会冻结了你的会内契约信用；正常离会不构成通缉。"},
-	{"id": "wild_herb", "name": "百草谷", "trait": "重视丹药、采集与救治", "rule": "私占宗门药圃会降低声望；可用贡献修复关系。", "technique": "百草调息篇", "exit_wanted_rank": 99, "exit_penalty": "百草谷保留了离谷记录，但不会因正常离开而通缉。"},
+	{"id": "wild_herb", "name": "百草谷", "trait": "重视丹药、采集与救治", "rule": "私占宗门药圃会降低声望；可用贡献修复关系。", "technique": "百草调息篇", "liaison": "百草谷执事·白蘅驻守雾泽药庐，负责药性记录、药圃规约与内门传功登记。", "exit_wanted_rank": 99, "exit_penalty": "百草谷保留了离谷记录，但不会因正常离开而通缉。"},
 ]
 
 const SECT_RANKS := [
@@ -278,6 +278,7 @@ const NPCS := [
 	{"name": "陆青禾", "role": "药材商", "place": "云岚村"},
 	{"name": "温行客", "role": "行脚鉴宝人", "place": "雾溪渡口"},
 	{"name": "祝铁山", "role": "炼器师", "place": "村北工坊"},
+	{"name": "白蘅", "role": "百草谷执事", "place": "雾泽药庐"},
 ]
 
 const NPC_CARD_PROFILES := {
@@ -308,6 +309,13 @@ const NPC_CARD_PROFILES := {
 		"relationship": "初识 · 可鉴宝",
 		"service": "说明雾港货物、法宝与材料的保护价区间；他的货单提供雾潮矿芯与潮息玉佩，并指向归墟雾港的拍卖行。",
 		"lead": "他会根据潮期收集残舟货签与古物传闻；这些线索可引向雾港航路、沉舷遗府和后续玩家交易。",
+	},
+	"白蘅": {
+		"card_asset": "res://assets/art/npcs/bai_heng/processed_alpha/bai_heng_card_v01_alpha.png",
+		"faction": "百草谷 · 雾泽药庐",
+		"relationship": "初识 · 丹修传功",
+		"service": "说明药性承受、灵植分区与百草谷门规；玩家自由加入百草谷并晋升内门后，会登记《百草调息篇》，但不会强制切换主修。",
+		"lead": "她会记录雨后灵泉、雾泽灵草与妖丹成熟期，后续可延展为药圃事件、高阶丹方和采集生态线索。",
 	},
 }
 

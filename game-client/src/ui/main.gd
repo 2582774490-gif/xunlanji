@@ -339,12 +339,16 @@ func _show_sect() -> void:
 		for sect in Catalog.SECTS:
 			var wanted_note := "｜你正被该宗门通缉" if GameState.is_wanted_by_sect(str(sect.id)) else ""
 			_text("【%s】%s｜门规：%s%s" % [sect.name, sect.trait, sect.rule, wanted_note])
+			if not str(sect.get("liaison", "")).is_empty():
+				_text(str(sect.liaison), 16, Color("a7d5ca"))
 			_buttons([["加入 %s" % sect.name, func(): GameState.join_sect(sect.id), 230]])
 	else:
 		var sect: Dictionary = _find_sect(GameState.player.sect_id)
 		_text("当前宗门：%s｜身份：%s｜贡献：%d" % [sect.name, GameState.sect_rank_name(), int(GameState.player.sect_contribution)], 21, Color("f2d79c"))
 		_text("%s\n门规：%s" % [sect.trait, sect.rule])
 		_text("内门传功：%s。达到内门会登记该功法，但不会强制切换主修。" % str(sect.technique), 16, Color("a7d5ca"))
+		if not str(sect.get("liaison", "")).is_empty():
+			_text(str(sect.liaison), 16, Color("a7d5ca"))
 		var promotion := GameState.sect_promotion_requirement()
 		if not promotion.is_empty():
 			_text("下一身份：%s｜需要贡献 %d、%s" % [promotion.name, int(promotion.contribution), GameState._realm_requirement_text(promotion)], 16, Color("a7d5ca"))
