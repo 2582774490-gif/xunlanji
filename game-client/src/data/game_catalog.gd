@@ -238,6 +238,10 @@ const TECHNIQUE_ART_PROFILES := {
 		"card_asset": "res://assets/art/techniques/vermilion_spirit_guidance_manual/processed_alpha/vermilion_spirit_guidance_manual_v01_alpha.png",
 		"caption": "朱砂引灵书秘卷｜以朱砂、符纸与灵机牵引为根本的符修入门法门。",
 	},
+	"驭风游身诀": {
+		"card_asset": "res://assets/art/techniques/wind_wandering_body_manual/processed_alpha/wind_wandering_body_manual_v01_alpha.png",
+		"caption": "驭风游身诀秘卷｜以风息调身、穿行与闪避为核心的游身法门。",
+	},
 }
 
 static func technique_art_profile_for_name(path_name: String) -> Dictionary:

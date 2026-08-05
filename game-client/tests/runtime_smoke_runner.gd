@@ -178,6 +178,8 @@ func _check_cultivation_affinity() -> void:
 	_expect(not manual_art.is_empty() and ResourceLoader.exists(str(manual_art.card_asset)), "Yunlan Breathing Manual must point to its own approved codex art asset.")
 	var vermilion_manual_art: Dictionary = GameCatalog.technique_art_profile_for_name("朱砂引灵书")
 	_expect(not vermilion_manual_art.is_empty() and ResourceLoader.exists(str(vermilion_manual_art.card_asset)), "Vermilion Spirit Guidance Manual must point to its own approved codex art asset.")
+	var wind_wandering_manual_art: Dictionary = GameCatalog.technique_art_profile_for_name("驭风游身诀")
+	_expect(not wind_wandering_manual_art.is_empty() and ResourceLoader.exists(str(wind_wandering_manual_art.card_asset)), "Wind Wandering Body Manual must point to its own approved codex art asset.")
 	_expect(GameCatalog.technique_art_profile_for_name("三折剑经").is_empty(), "Unapproved technique art must not silently reuse the Yunlan manual cover.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()

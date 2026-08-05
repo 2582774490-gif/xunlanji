@@ -39,7 +39,7 @@
 | 丹器百工 | 器纹初解 | 金灵根 / 御灵纹 | 炼器、法宝词条 | 运行中 |
 | 御兽音律 | 灵契共鸣篇 | 风灵根 / 御灵纹 | 灵兽、共鸣 | 运行中 |
 | 御兽音律 | 清商安魂曲 | 水灵根 / 镜心魂 | 安魂、音律护持 | 运行中 |
-| 御兽音律 | 驭风游身诀 | 风灵根 / 御灵纹 | 位移、御空 | 运行中 |
+| 御兽音律 | 驭风游身诀 | 风灵根 / 御灵纹 | 位移、御空 | 运行中；秘卷图已完成 |
 | 雷冰异修 | 惊雷转息法 | 雷灵根 / 听雷窍 | 雷击、预警 | 运行中 |
 | 雷冰异修 | 寒照凝形诀 | 冰灵根 / 流泉脉 | 凝形、减速 | 运行中 |
 | 雷冰异修 | 镜心守识篇 | 冰灵根 / 镜心魂 | 幻术抵抗、鉴别 | 运行中 |
@@ -150,5 +150,6 @@
 | 寒照破妄镜 | `assets/art/weapons/hanzhao_truth_mirror/processed_alpha/hanzhao_truth_mirror_v01_alpha.png` | 已完成原创寒照灵镜图、独立转镜动作、两段折返光束与副本/野外/本地论剑接入；不复用箭矢、符纸或珠类水岚弹道 |
 | 浮屠镇妖塔 | `assets/art/weapons/futu_demon_tower/processed_alpha/futu_demon_tower_v01_alpha.png` | 已完成原创浮屠塔图、独立浮塔动作、层叠塔纹震荡与副本/野外/本地论剑接入；不复用方印落点、阵盘地格或盾牌格挡 |
 | 逐岚练气轮 | `assets/art/weapons/zhulan_rift_wheel/processed_alpha/zhulan_rift_wheel_v01_alpha.png` | 已完成原创青玉风轮图、独立旋轮动作、去回双弧轮刃与副本/野外/本地论剑接入；不复用箭矢、弩矢或珠类水岚弹道 |
+| 驭风游身诀秘卷 | `assets/art/techniques/wind_wandering_body_manual/processed_alpha/wind_wandering_body_manual_v01_alpha.png` | 已完成原创风系游身秘卷图；已登记至功法图鉴，不复用云岚吐纳诀或朱砂引灵书的封面 |
 
 这三张均由 Image 2 生成，采用纯洋红底图后本地抠图。它们是原创的游戏道具概念资源；不使用任何现有动漫或游戏的角色、道具或画面素材。

@@ -38,7 +38,7 @@
 | 丹器百工 | 器纹初解 | 炼器、法宝词条 | P2 |
 | 御兽音律 | 灵契共鸣篇 | 灵兽协同 | P2 |
 | 御兽音律 | 清商安魂曲 | 安魂、音律护持 | P2 |
-| 御兽音律 | 驭风游身诀 | 位移、闪避 | P2 |
+| 御兽音律 | 驭风游身诀 | 位移、闪避 | 已完成秘卷图；后续补充功法获取事件 |
 | 雷冰异修 | 惊雷转息法 | 雷击、预警 | P2 |
 | 雷冰异修 | 寒照凝形诀 | 减速、凝形 | P2 |
 | 雷冰异修 | 镜心守识篇 | 幻术抵抗、鉴别 | P2 |
@@ -160,6 +160,7 @@
 | 寒照破妄镜 | `assets/art/weapons/hanzhao_truth_mirror/processed_alpha/hanzhao_truth_mirror_v01_alpha.png` | 抠图检查通过，独立灵镜悬浮层、转镜动作、折射光束与副本/野外/本地论剑均已验证 |
 | 浮屠镇妖塔 | `assets/art/weapons/futu_demon_tower/processed_alpha/futu_demon_tower_v01_alpha.png` | 抠图检查通过，独立浮塔层、投塔动作、塔纹震荡与副本/野外/本地论剑均已验证 |
 | 逐岚练气轮 | `assets/art/weapons/zhulan_rift_wheel/processed_alpha/zhulan_rift_wheel_v01_alpha.png` | 抠图检查通过，独立旋轮层、远掷回转与副本/野外/本地论剑均已验证 |
+| 驭风游身诀秘卷 | `assets/art/techniques/wind_wandering_body_manual/processed_alpha/wind_wandering_body_manual_v01_alpha.png` | 抠图检查通过，已登记至功法图鉴；后续只需补充获取事件，不复用其他功法封面 |
 
 ## F. 通用 Image 2 单体提示词模板
 
