@@ -26,6 +26,7 @@ func _run() -> void:
 	await _check_xuanyue_halberd_runtime_layer_and_skill_set()
 	await _check_kaishan_axe_runtime_layer_and_skill_set()
 	await _check_hanyue_hammer_runtime_layer_and_skill_set()
+	await _check_qingzhu_staff_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -520,6 +521,32 @@ func _check_hanyue_hammer_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("HammerShockwaveEffect"), "Hanyue Qi Hammer basic attack did not spawn its own radial shockwave in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_qingzhu_staff_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["青竹练气棍"]
+	GameState.equip_weapon("青竹练气棍")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Qingzhu Qi Staff did not create an independent player weapon render slot.")
+	_expect(port.player.weapon_motion is StaffMotionController, "Qingzhu Qi Staff did not use its dedicated quick-whirl motion controller.")
+	var staff_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(staff_sprite.texture != null and "qingzhu_qi_staff" in staff_sprite.texture.resource_path, "Qingzhu Qi Staff was substituted with another weapon texture.")
+	var staff_skills := SkillCatalog.skills_for_weapon("青竹练气棍")
+	_expect(str(staff_skills[0].name) == "青竹横扫" and float(staff_skills[0].get("range", 0.0)) >= 225.0, "Qingzhu Qi Staff needs its own quick medium-range sweep.")
+	_expect(str(staff_skills[1].name) == "青竹回风" and str(staff_skills[1].get("visual", "")) == "staff_whirl", "Qingzhu Qi Staff needs its own rotary-whirl primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := preload("res://scenes/mist_stream_water_palace.tscn").instantiate()
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("StaffWhirlEffect"), "Qingzhu Qi Staff basic attack did not spawn its own rotary effect in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

@@ -20,6 +20,7 @@ const DaoMotionScript = preload("res://src/animation/dao_motion_controller.gd")
 const HalberdMotionScript = preload("res://src/animation/halberd_motion_controller.gd")
 const AxeMotionScript = preload("res://src/animation/axe_motion_controller.gd")
 const HammerMotionScript = preload("res://src/animation/hammer_motion_controller.gd")
+const StaffMotionScript = preload("res://src/animation/staff_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -134,6 +135,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = AxeMotionScript.new()
 	elif motion == "mountain_hammer":
 		pivot = HammerMotionScript.new()
+	elif motion == "bamboo_staff":
+		pivot = StaffMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -181,6 +184,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.066, 0.066)
 		sprite.position = Vector2(37, -42)
 		sprite.rotation = deg_to_rad(-16.0)
+	elif motion == "bamboo_staff":
+		# A staff reads as a long diagonal line; keep its middle grip close to the
+		# hand so the dedicated quick-whirl controller can spin it around the body.
+		sprite.scale = Vector2(0.058, 0.058)
+		sprite.position = Vector2(39, -43)
+		sprite.rotation = deg_to_rad(-12.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins
