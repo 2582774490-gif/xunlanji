@@ -75,3 +75,15 @@
 | 源图 | `game-client/assets/art/armor/sunken_mist_vessel_robe/source/sunken_mist_vessel_robe_v01_chromakey.png` |
 | 透明游戏图 | `game-client/assets/art/armor/sunken_mist_vessel_robe/processed_alpha/sunken_mist_vessel_robe_v01_alpha.png` |
 | 实装位置 | 护具档案、角色独立护具层、沉舷遗府掉落池和自动验收。 |
+
+## 七、本轮 Image 2 交付：雾港引潮盘
+
+| 项目 | 内容 |
+|---|---|
+| 法宝定位 | 沉舷遗府的灵品航图法宝；水系 PVE 减伤 16%，灵力恢复 +0.30。 |
+| 取舍 | 雾潮炼气珠提供更高的纯水系防御；潮息玉佩提供更高的纯回灵；引潮盘提供中间型的航行与续航选择。 |
+| 掉落逻辑 | 沉舷遗府首领“沉舷残灵·鸣濯”的既有随机掉落，现已可装备、升级和交易。 |
+| PVP 规则 | 水系减伤不参与当前本地 1v1 PVP。 |
+| 源图 | `game-client/assets/art/artifacts/mist_harbor_tide_guide_disk/source/mist_harbor_tide_guide_disk_v01_chromakey.png` |
+| 透明游戏图 | `game-client/assets/art/artifacts/mist_harbor_tide_guide_disk/processed_alpha/mist_harbor_tide_guide_disk_v01_alpha.png` |
+| 实装位置 | 法宝档案、角色独立法宝层、沉舷遗府掉落池和自动验收。 |

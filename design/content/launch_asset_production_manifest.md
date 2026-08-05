@@ -204,3 +204,9 @@ Avoid: duplicated objects, cropped edges, photorealistic photography, muddy silh
 | 条目 | 透明运行时资源 | 验收状态 |
 |---|---|---|
 | 沉雾舟纹袍 | `assets/art/armor/sunken_mist_vessel_robe/processed_alpha/sunken_mist_vessel_robe_v01_alpha.png` | 抠图检查通过；已登记护具档案、角色独立护具层、沉舷遗府随机掉落与水系 PVE 减伤验收；不参与 PVP 减伤。 |
+
+## 雾港引潮盘运行时资产
+
+| 条目 | 透明运行时资源 | 验收状态 |
+|---|---|---|
+| 雾港引潮盘 | `assets/art/artifacts/mist_harbor_tide_guide_disk/processed_alpha/mist_harbor_tide_guide_disk_v01_alpha.png` | 抠图检查通过；已登记法宝档案、角色独立法宝层、沉舷遗府既有掉落与水系 PVE/回灵验收；不参与 PVP 减伤。 |

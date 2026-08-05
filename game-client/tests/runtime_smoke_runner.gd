@@ -45,6 +45,7 @@ func _run() -> void:
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_tide_breath_jade_pendant_runtime_rules()
+	await _check_mist_harbor_tide_guide_disk_runtime_rules()
 	await _check_mist_general_talisman_runtime_rules()
 	await _check_mist_forest_light_armor_runtime_rules()
 	await _check_sunken_mist_vessel_robe_runtime_rules()
@@ -1051,6 +1052,27 @@ func _check_tide_breath_jade_pendant_runtime_rules() -> void:
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
+
+func _check_mist_harbor_tide_guide_disk_runtime_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("雾港引潮盘"):
+		GameState.player.inventory.append("雾港引潮盘")
+	GameState.player.equipped_armor = ""
+	GameState.equip_artifact("雾港引潮盘")
+	_expect(is_equal_approx(GameState.artifact_damage_reduction("water"), 0.16), "Mist Harbor Tide-Guide Disk should expose its declared balanced water reduction.")
+	_expect(is_equal_approx(GameState.artifact_mana_regen_bonus(), 0.30), "Mist Harbor Tide-Guide Disk should expose its declared modest mana regeneration.")
+	_expect(GameState.pve_damage_after_equipment(17, "water") == 15, "Mist Harbor Tide-Guide Disk did not apply its water PVE mitigation through the shared equipment calculation.")
+	_expect(is_zero_approx(GameState.artifact_damage_reduction("earth")), "Mist Harbor Tide-Guide Disk must not reduce undeclared elements.")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	var artifact_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
+	_expect(artifact_sprite.texture != null and artifact_sprite.texture.resource_path.contains("mist_harbor_tide_guide_disk"), "Mist Harbor Tide-Guide Disk did not use its dedicated runtime artifact texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
 
 func _check_mist_general_talisman_runtime_rules() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)

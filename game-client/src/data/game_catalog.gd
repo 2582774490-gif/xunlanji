@@ -348,6 +348,15 @@ const ARTIFACT_PROFILES := {
 		"render_scale": 0.068,
 		"runtime_asset": "res://assets/art/artifacts/mist_general_talisman/processed_alpha/mist_general_talisman_v01_alpha.png",
 	},
+	"雾港引潮盘": {
+		"slot": "航图法宝",
+		"quality": "灵品",
+		"trait": "以古舵与潮眼校正岚潮航线；水系 PVE 伤害降低 16%，灵力恢复 +0.30，不参与 PVP 减伤。",
+		"mana_regen_bonus": 0.30,
+		"water_damage_reduction": 0.16,
+		"render_scale": 0.096,
+		"runtime_asset": "res://assets/art/artifacts/mist_harbor_tide_guide_disk/processed_alpha/mist_harbor_tide_guide_disk_v01_alpha.png",
+	},
 }
 
 # A reveal artifact does not provide combat reduction. Its exploration route is
