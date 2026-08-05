@@ -46,8 +46,9 @@ func _perform_boss_water_blade() -> void:
 		_return_to_village()
 
 func _on_player_attack(_direction: String) -> void:
-	if not near_boss or boss_health <= 0:
+	if not _can_hit_boss_with_basic() or boss_health <= 0:
 		return
+	_play_basic_weapon_effect()
 	hit_spark.play_burst(boss.position + Vector2(0, -108), Vector2.UP)
 	var damage := GameState.weapon_basic_damage(16)
 	boss_health = max(0, boss_health - damage)
@@ -65,7 +66,7 @@ func _defeat_boss() -> void:
 	defeated = true
 	boss.visible = false
 	boss.set_deferred("monitoring", false)
-	var first_clear_seal := not GameState.player.inventory.has("玄土练气印")
+	var first_clear_seal: bool = not GameState.player.inventory.has("玄土练气印")
 	last_drop = EARTHFIRE_DROPS.pick_random().duplicate()
 	GameState.add_item(str(last_drop.item))
 	if first_clear_seal:

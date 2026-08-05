@@ -18,6 +18,7 @@ func _run() -> void:
 	await _check_weapon_combat_profiles()
 	await _check_weapon_render_slot()
 	await _check_umbrella_render_slot()
+	await _check_talisman_brush_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -325,6 +326,24 @@ func _check_umbrella_render_slot() -> void:
 	_expect(port.player.weapon_motion is UmbrellaMotionController, "Huiyun Umbrella did not use its dedicated defensive motion controller.")
 	var umbrella_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
 	_expect(umbrella_sprite.texture != null, "Equipped Huiyun Umbrella render slot has no umbrella texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_talisman_brush_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["朱砂练气符笔"]
+	GameState.equip_weapon("朱砂练气符笔")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Zhusha Talisman Brush did not create an independent player weapon render slot.")
+	var brush_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(brush_sprite.texture != null and "vermilion_qi_talisman_brush" in brush_sprite.texture.resource_path, "Zhusha Talisman Brush was substituted with another weapon texture.")
+	var brush_skills := SkillCatalog.skills_for_weapon("朱砂练气符笔")
+	_expect(str(brush_skills[0].name) == "朱砂符点" and float(brush_skills[0].get("range", 0.0)) >= 275.0, "Zhusha Talisman Brush needs its own mid-range basic skill.")
+	_expect(str(brush_skills[1].name) == "缚灵朱符" and float(brush_skills[1].get("range", 0.0)) >= 360.0, "Zhusha Talisman Brush needs its own talisman primary skill.")
 	port.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

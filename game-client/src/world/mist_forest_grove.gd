@@ -40,8 +40,9 @@ func _perform_boss_water_blade() -> void:
 		_return_to_village()
 
 func _on_player_attack(_direction: String) -> void:
-	if not near_boss or boss_health <= 0:
+	if not _can_hit_boss_with_basic() or boss_health <= 0:
 		return
+	_play_basic_weapon_effect()
 	hit_spark.play_burst(boss.position + Vector2(0, -96), Vector2.UP)
 	var damage := GameState.weapon_basic_damage(10)
 	boss_health = max(0, boss_health - damage)

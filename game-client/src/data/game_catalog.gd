@@ -68,7 +68,7 @@ const QI_REFINING_CONTENT := [
 const WEAPON_FAMILIES := [
 	{"name": "剑", "branches": "飞剑、重剑、阵剑", "starter": "青篁练气剑", "school": "剑修"},
 	{"name": "刀", "branches": "长刀、双刃、灵刃", "starter": "赤纹练气刀", "school": "兵修"},
-	{"name": "枪", "branches": "长枪、短枪、御枪", "starter": "云纹练气枪", "school": "兵修"},
+	{"name": "枪", "branches": "长枪、短枪、御枪", "starter": "流云练气枪", "school": "兵修"},
 	{"name": "戟", "branches": "长戟、钩戟、月戟", "starter": "沉岳练气戟", "school": "体修"},
 	{"name": "斧", "branches": "战斧、双斧、破阵斧", "starter": "开山练气斧", "school": "体修"},
 	{"name": "锤", "branches": "重锤、双锤、雷锤", "starter": "镇石练气锤", "school": "体修"},
@@ -134,6 +134,7 @@ static func weapon_profile_for_item(item_name: String) -> Dictionary:
 const WEAPON_RUNTIME_PROFILES := {
 	"青篁练气剑": {"motion": "hand_swing", "asset": "res://assets/art/weapons/qinghuang_qi_sword/processed_alpha/qinghuang_qi_sword_v01_alpha.png"},
 	"回云练气伞": {"motion": "defense_umbrella", "asset": "res://assets/art/weapons/huiyun_qi_umbrella/processed_alpha/huiyun_qi_umbrella_v01_alpha.png"},
+	"朱砂练气符笔": {"motion": "rune_brush", "asset": "res://assets/art/weapons/vermilion_qi_talisman_brush/processed_alpha/vermilion_qi_talisman_brush_v01_alpha.png"},
 }
 
 static func weapon_runtime_profile_for_item(item_name: String) -> Dictionary:

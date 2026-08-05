@@ -1,6 +1,7 @@
 extends Node2D
 
 const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
+const TalismanProjectileScript = preload("res://src/combat/talisman_projectile.gd")
 
 @onready var player: CharacterBody2D = $Player
 @onready var boss: Area2D = $Boss
@@ -108,8 +109,9 @@ func _perform_boss_water_blade() -> void:
 		get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
 
 func _on_player_attack(_direction: String) -> void:
-	if not near_boss or boss_health <= 0:
+	if not _can_hit_boss_with_basic() or boss_health <= 0:
 		return
+	_play_basic_weapon_effect()
 	hit_spark.play_burst(boss.position + Vector2(0, -90), Vector2.UP)
 	var damage := GameState.weapon_basic_damage(8)
 	boss_health = max(0, boss_health - damage)
@@ -120,12 +122,12 @@ func _on_player_attack(_direction: String) -> void:
 
 
 func _on_player_attack_started(direction: String) -> void:
-	if not near_boss or boss_health <= 0:
+	if boss_health <= 0:
 		return
 	var facing := _direction_vector(direction)
 	if SKILL_CATALOG.is_umbrella_skill_set(GameState.player.equipped_weapon):
 		_spawn_umbrella_ward(player.position + facing * 34.0 + Vector2(0, -34), facing)
-	else:
+	elif not SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon):
 		slash_trail.play_burst(player.position + facing * 46.0 + Vector2(0, -34), facing)
 
 
@@ -134,7 +136,7 @@ func _cast_ningxi_sword_art() -> void:
 
 func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_offset: Vector2) -> void:
 	var primary := _skill(1)
-	if not near_boss or boss_health <= 0:
+	if boss_health <= 0 or player.position.distance_to(boss.position) > float(primary.get("range", 205.0)):
 		status.text = "%s需要锁定近处目标。" % str(primary["name"])
 		return
 	if ningxi_cooldown > 0.0:
@@ -145,17 +147,20 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 		return
 	var facing := (boss.position - player.position).normalized()
 	var umbrella := SKILL_CATALOG.is_umbrella_skill_set(GameState.player.equipped_weapon)
+	var brush := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon)
 	player_mana -= float(primary["spirit_cost"])
 	ningxi_cooldown = float(primary["cooldown"])
 	_refresh_player_mana()
 	if umbrella:
 		_spawn_umbrella_ward(player.position + Vector2(0, -58), facing)
 		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
+	elif brush:
+		_spawn_brush_talisman(player.position + Vector2(0, -56), boss.position + hit_offset)
 	else:
 		ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
 	status.text = "%s结印中……灵力 -%d。" % [str(primary["name"]), int(primary["spirit_cost"])]
 	await get_tree().create_timer(0.24).timeout
-	if defeated or not near_boss or boss_health <= 0:
+	if defeated or boss_health <= 0 or player.position.distance_to(boss.position) > float(primary.get("range", 205.0)) + 30.0:
 		return
 	var tuned_base := int(primary.get("damage_base", 20)) + (base_damage - 20)
 	var damage := GameState.weapon_skill_damage(tuned_base, float(primary.get("attack_ratio", 0.5)), player_max_mana, float(primary.get("mana_ratio", 30.0)))
@@ -165,6 +170,22 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 	_refresh_boss_hp()
 	if boss_health == 0:
 		_defeat_boss()
+
+func _can_hit_boss_with_basic() -> bool:
+	if near_boss:
+		return true
+	if not SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon):
+		return false
+	return player.position.distance_to(boss.position) <= float(_skill(0).get("range", 205.0))
+
+func _play_basic_weapon_effect() -> void:
+	if SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon):
+		_spawn_brush_talisman(player.position + Vector2(0, -46), boss.position + Vector2(0, -90))
+
+func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
+	var talisman: TalismanProjectile = TalismanProjectileScript.new()
+	add_child(talisman)
+	talisman.launch(origin, target)
 
 
 func _cast_cloud_step() -> void:
@@ -229,7 +250,7 @@ func _defeat_boss() -> void:
 	defeated = true
 	boss.visible = false
 	boss.set_deferred("monitoring", false)
-	var first_clear_pearl := not GameState.player.inventory.has("雾潮练气珠")
+	var first_clear_pearl: bool = not GameState.player.inventory.has("雾潮练气珠")
 	last_drop = WATER_PALACE_DROPS.pick_random().duplicate()
 	GameState.add_item(str(last_drop.item))
 	if first_clear_pearl:

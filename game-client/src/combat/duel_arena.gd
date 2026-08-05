@@ -6,6 +6,7 @@ extends Node2D
 ## presentation. It intentionally does not claim networked multiplayer.
 
 const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
+const TalismanProjectileScript = preload("res://src/combat/talisman_projectile.gd")
 
 @onready var player: SpatialTestPlayer = $Player
 @onready var opponent: DuelOpponent = $Opponent
@@ -81,10 +82,13 @@ func _use_action(action_id: String) -> void:
 func _on_player_attack_impact(_direction: String) -> void:
 	if finished:
 		return
-	if player.global_position.distance_to(opponent.global_position) > 178.0:
+	var attack_range := float(_skill(0).get("range", 178.0))
+	if player.global_position.distance_to(opponent.global_position) > attack_range:
 		status.text = "%s未及对手：贴近后再出招。" % str(_skill(0)["name"])
 		return
 	var damage := maxi(8, GameState.weapon_basic_damage(5))
+	if SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon):
+		_spawn_brush_talisman(player.global_position + Vector2(0, -46), opponent.global_position + Vector2(0, -56))
 	opponent.take_damage(damage)
 	status.text = "%s 命中试剑使，造成 %d 点伤害。" % [GameState.player.equipped_weapon, damage]
 	_refresh_hud()
@@ -147,9 +151,12 @@ func _cast_ningxi_sword_art() -> void:
 	ningxi_cooldown = float(primary["cooldown"])
 	var facing := (opponent.global_position - player.global_position).normalized()
 	var umbrella := SKILL_CATALOG.is_umbrella_skill_set(GameState.player.equipped_weapon)
+	var brush := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon)
 	if umbrella:
 		_spawn_umbrella_ward(player.global_position + Vector2(0, -54), facing)
 		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
+	elif brush:
+		_spawn_brush_talisman(player.global_position + Vector2(0, -54), opponent.global_position + Vector2(0, -56))
 	else:
 		_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
 	await get_tree().create_timer(0.22).timeout
@@ -236,6 +243,11 @@ func _spawn_skill_ripple(origin: Vector2, tint: Color, radius: float, direction:
 	tween.tween_property(ring, "scale", Vector2(2.1, 2.1), 0.34)
 	tween.tween_property(ring, "modulate:a", 0.0, 0.34)
 	tween.chain().tween_callback(ring.queue_free)
+
+func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
+	var talisman: TalismanProjectile = TalismanProjectileScript.new()
+	add_child(talisman)
+	talisman.launch(origin, target)
 
 func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
 	# This is a defensive canopy, not recolored sword VFX: two offset arcs imply

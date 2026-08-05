@@ -41,10 +41,19 @@ const HUIYUN_UMBRELLA_SKILLS := [
 	{"id": "huiyun_umbrella_array", "name": "回云伞阵", "key": "K", "spirit_cost": 16, "cooldown": 4.6, "range": 250.0, "damage_base": 15, "attack_ratio": 0.34, "mana_ratio": 36.0, "guard_seconds": 1.8, "visual": "umbrella_ward", "description": "撑开灵伞形成回云伞阵，近距震退并短暂护身。"},
 ]
 
+const VERMILION_TALISMAN_BRUSH_SKILLS := [
+	{"id": "vermilion_brush_flick", "name": "朱砂符点", "key": "J", "spirit_cost": 0, "cooldown": 0.48, "range": 275.0, "description": "以符笔掷出朱砂灵符，保持中距离牵制。"},
+	{"id": "vermilion_binding_talisman", "name": "缚灵朱符", "key": "K", "spirit_cost": 20, "cooldown": 4.3, "range": 360.0, "damage_base": 18, "attack_ratio": 0.44, "mana_ratio": 28.0, "visual": "talisman_burst", "description": "朱砂成符，射出一记中距离缚灵符。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
-	var weapon_skills: Array[Dictionary] = HUIYUN_UMBRELLA_SKILLS if item_name == "回云练气伞" else QINGHUANG_SWORD_SKILLS
+	var weapon_skills: Array[Dictionary] = QINGHUANG_SWORD_SKILLS
+	if item_name == "回云练气伞":
+		weapon_skills = HUIYUN_UMBRELLA_SKILLS
+	elif item_name == "朱砂练气符笔":
+		weapon_skills = VERMILION_TALISMAN_BRUSH_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -54,3 +63,6 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 
 static func is_umbrella_skill_set(item_name: String) -> bool:
 	return item_name == "回云练气伞"
+
+static func is_talisman_brush_skill_set(item_name: String) -> bool:
+	return item_name == "朱砂练气符笔"

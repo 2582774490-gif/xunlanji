@@ -12,8 +12,6 @@ const FEMALE_IDLE_SHEET: Texture2D = preload("res://assets/art/characters/yunlan
 const FEMALE_WALK_KEY_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_walk_keypose_8dir_v01_alpha.png")
 const FEMALE_WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_walk_south_6f_v01_alpha.png")
 const FEMALE_ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_attack_south_6f_v01_alpha.png")
-const QINGHUANG_SWORD_TEXTURE: Texture2D = preload("res://assets/art/weapons/qinghuang_qi_sword/processed_alpha/qinghuang_qi_sword_v01_alpha.png")
-const HUIYUN_UMBRELLA_TEXTURE: Texture2D = preload("res://assets/art/weapons/huiyun_qi_umbrella/processed_alpha/huiyun_qi_umbrella_v01_alpha.png")
 const WeaponMotionScript = preload("res://src/animation/weapon_motion_controller.gd")
 const UmbrellaMotionScript = preload("res://src/animation/umbrella_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
@@ -105,7 +103,9 @@ func _configure_equipped_weapon_visual() -> void:
 	# owns; unfinished families intentionally stay asset-pending.
 	var runtime_profile := GameCatalog.weapon_runtime_profile_for_item(GameState.player.equipped_weapon)
 	var motion := str(runtime_profile.get("motion", ""))
-	if motion.is_empty():
+	var asset_path := str(runtime_profile.get("asset", ""))
+	var weapon_texture := load(asset_path) as Texture2D
+	if motion.is_empty() or weapon_texture == null:
 		return
 	var pivot: WeaponMotionController = UmbrellaMotionScript.new() if motion == "defense_umbrella" else WeaponMotionScript.new()
 	pivot.name = "WeaponPivot"
@@ -114,11 +114,16 @@ func _configure_equipped_weapon_visual() -> void:
 	weapon_motion = pivot
 	var sprite := Sprite2D.new()
 	sprite.name = "WeaponSprite"
+	sprite.texture = weapon_texture
 	if motion == "defense_umbrella":
-		sprite.texture = HUIYUN_UMBRELLA_TEXTURE
 		sprite.scale = Vector2(0.092, 0.092)
+	elif motion == "rune_brush":
+		# The brush has its own off-hand layer and swing timing; it is not a
+		# recoloured sword sprite.  The lower bristle points at the casting hand.
+		sprite.scale = Vector2(0.105, 0.105)
+		sprite.position = Vector2(38, -44)
+		sprite.rotation = deg_to_rad(-28.0)
 	else:
-		sprite.texture = QINGHUANG_SWORD_TEXTURE
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins
 		# that hilt near the moving hand pivot instead of rotating around center.

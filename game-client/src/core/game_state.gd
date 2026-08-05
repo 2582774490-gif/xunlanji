@@ -1007,7 +1007,7 @@ func _attribute_points_spent_raw() -> int:
 
 func _refresh_attribute_budget() -> void:
 	var spent := _attribute_points_spent_raw()
-	var earned := max(INITIAL_ATTRIBUTE_POINTS, int(player.get("attribute_points_earned", INITIAL_ATTRIBUTE_POINTS)), spent)
+	var earned: int = maxi(INITIAL_ATTRIBUTE_POINTS, maxi(int(player.get("attribute_points_earned", INITIAL_ATTRIBUTE_POINTS)), spent))
 	player.attribute_points_earned = earned
 	player.unspent_points = max(0, earned - spent)
 
