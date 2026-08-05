@@ -251,9 +251,17 @@ func _check_alchemy_and_medicine_rules() -> void:
 	GameState.player.cultivation_path = "云岚吐纳诀"
 	GameState.player.spirit_root = "水灵根"
 	GameState.player.physique = "岚息体"
-	GameState.player.inventory = ["雾溪灵草", "雾溪药"]
+	GameState.player.inventory = ["雾溪灵草"]
+	GameState.player.gold = 50
 	GameState.player.medicine_tolerance = {"day": "", "burden": 0}
 	GameState.player.alchemy_history = []
+	var medicine_listing_index := -1
+	for index in GameState.local_market_listings.size():
+		if str(GameState.local_market_listings[index].get("name", "")) == "雾溪药":
+			medicine_listing_index = index
+			break
+	_expect(medicine_listing_index >= 0, "Yunlan medicine vendor must provide the first Condensing Breath Pill ingredient.")
+	_expect(GameState.buy_market_listing(medicine_listing_index) and GameState.player.inventory.has("雾溪药"), "A new player must be able to buy the missing first alchemy ingredient from the local vendor.")
 	var ordinary_rate := GameState.alchemy_success_rate("ningxi")
 	GameState.player.cultivation_path = "百草调息录"
 	GameState.player.spirit_root = "木灵根"
