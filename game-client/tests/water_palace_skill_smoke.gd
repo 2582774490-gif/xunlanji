@@ -57,6 +57,7 @@ func _run() -> void:
 
 	var runs_before: int = GameState.player.dungeon_runs.size()
 	var inventory_before: int = GameState.player.inventory.size()
+	var had_pearl := GameState.player.inventory.has("雾潮练气珠")
 	palace.call("_defeat_boss")
 	await process_frame
 	if not palace.defeated or palace.boss.visible:
@@ -67,8 +68,9 @@ func _run() -> void:
 		push_error("Defeating the boss did not show the mobile-friendly settlement panel.")
 		quit(1)
 		return
-	if GameState.player.inventory.size() != inventory_before + 1 or GameState.player.dungeon_runs.size() != runs_before + 1:
-		push_error("Dungeon clear did not grant exactly one drop and record the run.")
+	var expected_item_count := 1 if had_pearl else 2
+	if GameState.player.inventory.size() != inventory_before + expected_item_count or GameState.player.dungeon_runs.size() != runs_before + 1:
+		push_error("Dungeon clear did not grant its drop, first-clear Pearl reward, and run record.")
 		quit(1)
 		return
 

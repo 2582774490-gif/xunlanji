@@ -704,6 +704,20 @@ func equipment_power_bonus(item_name: String) -> int:
 	return equipment_upgrade_level(item_name) * 2
 
 
+func equipped_artifact_profile() -> Dictionary:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	return catalog.artifact_profile_for_item(str(player.get("equipped_artifact", "")))
+
+
+func artifact_mana_regen_bonus() -> float:
+	return maxf(0.0, float(equipped_artifact_profile().get("mana_regen_bonus", 0.0)))
+
+
+func artifact_damage_reduction(element: String) -> float:
+	var field := "%s_damage_reduction" % element.strip_edges().to_lower()
+	return clampf(float(equipped_artifact_profile().get(field, 0.0)), 0.0, 0.75)
+
+
 func weapon_basic_damage(base_damage: int) -> int:
 	var catalog := preload("res://src/data/game_catalog.gd")
 	var profile: Dictionary = catalog.weapon_profile_for_item(str(player.get("equipped_weapon", "")))

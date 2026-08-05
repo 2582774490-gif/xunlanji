@@ -70,7 +70,7 @@ func _process(delta: float) -> void:
 	guard_cooldown = maxf(0.0, guard_cooldown - delta)
 	nourish_cooldown = maxf(0.0, nourish_cooldown - delta)
 	guard_time_left = maxf(0.0, guard_time_left - delta)
-	player_mana = minf(player_max_mana, player_mana + delta * 2.0)
+	player_mana = minf(player_max_mana, player_mana + delta * (2.0 + GameState.artifact_mana_regen_bonus()))
 	_refresh_player_mana()
 	_refresh_skill_bar()
 	if defeated or not near_boss or boss_health <= 0:
@@ -89,12 +89,17 @@ func _perform_boss_water_blade() -> void:
 	if defeated or not near_boss or boss_health <= 0:
 		return
 	var damage := 9
+	var mitigation_notes: Array[String] = []
+	var water_reduction := GameState.artifact_damage_reduction("water")
+	if water_reduction > 0.0:
+		damage = ceili(float(damage) * (1.0 - water_reduction))
+		mitigation_notes.append("%s凝出水幕，抵去%d%%水系伤害。" % [str(GameState.player.get("equipped_artifact", "法宝")), roundi(water_reduction * 100.0)])
 	if guard_time_left > 0.0:
 		damage = ceili(float(damage) * 0.45)
 		guard_time_left = 0.0
-		status.text = "岚息护体抵去了大半水刃。"
+		mitigation_notes.append("岚息护体抵去了大半水刃。")
 	player_health = max(0, player_health - damage)
-	status.text = "潮妃·兰纱掀起水刃，造成 %d 点伤害。" % damage
+	status.text = "潮妃·兰纱掀起水刃，造成 %d 点伤害。%s" % [damage, " ".join(mitigation_notes)]
 	_refresh_player_hp()
 	if player_health == 0:
 		defeated = true
@@ -224,8 +229,11 @@ func _defeat_boss() -> void:
 	defeated = true
 	boss.visible = false
 	boss.set_deferred("monitoring", false)
+	var first_clear_pearl := not GameState.player.inventory.has("雾潮练气珠")
 	last_drop = WATER_PALACE_DROPS.pick_random().duplicate()
 	GameState.add_item(str(last_drop.item))
+	if first_clear_pearl:
+		GameState.add_item("雾潮练气珠")
 	GameState.add_spirit_stones(int(last_drop.stones))
 	GameState.gain_cultivation(int(last_drop.cultivation))
 	GameState.record_dungeon_run({
@@ -238,7 +246,8 @@ func _defeat_boss() -> void:
 	GameState.unlock_region("mist_border")
 	status.text = "水府试炼完成：已获得掉落，可从结算面板返回云岚村。"
 	prompt.text = ""
-	clear_summary.text = "潮妃·兰纱已退入水雾。\n\n获得：%s\n灵石 +%d　修为 +%d\n\n本次掉落已进入行囊，并记入水府试炼记录。" % [str(last_drop.item), int(last_drop.stones), int(last_drop.cultivation)]
+	var pearl_reward := "、雾潮练气珠（首通御水法宝）" if first_clear_pearl else ""
+	clear_summary.text = "潮妃·兰纱已退入水雾。\n\n获得：%s%s\n灵石 +%d　修为 +%d\n\n本次掉落已进入行囊，并记入水府试炼记录。" % [str(last_drop.item), pearl_reward, int(last_drop.stones), int(last_drop.cultivation)]
 	clear_panel.visible = true
 
 func _return_to_village() -> void:

@@ -21,6 +21,7 @@ func _run() -> void:
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
+	await _check_mist_tide_pearl_combat_rules()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
@@ -377,6 +378,19 @@ func _check_mist_tide_pearl_render_slot() -> void:
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
+
+func _check_mist_tide_pearl_combat_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.equipped_artifact = "雾潮练气珠"
+	_expect(is_equal_approx(GameState.artifact_damage_reduction("water"), 0.35), "Mist-Tide Qi Pearl should reduce only declared water damage by 35%.")
+	_expect(is_zero_approx(GameState.artifact_damage_reduction("fire")), "Mist-Tide Qi Pearl must not reduce non-water damage.")
+	_expect(is_zero_approx(GameState.artifact_mana_regen_bonus()), "Mist-Tide Qi Pearl should not inherit the Jade Pendant mana regeneration.")
+	GameState.player.equipped_artifact = "纳灵玉佩"
+	_expect(GameState.artifact_mana_regen_bonus() > 0.0, "Naling Jade Pendant should retain its own mana-regeneration effect.")
+	_expect(is_zero_approx(GameState.artifact_damage_reduction("water")), "Naling Jade Pendant should not gain the Pearl water-defense effect.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
 func _check_local_market_loop() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	var listings_before: Array = GameState.local_market_listings.duplicate(true)
@@ -438,6 +452,7 @@ func _check_village_routes() -> void:
 func _check_water_palace_loop() -> void:
 	var runs_before: int = GameState.player.dungeon_runs.size()
 	var inventory_before: int = GameState.player.inventory.size()
+	var had_pearl := GameState.player.inventory.has("雾潮练气珠")
 	var palace := preload("res://scenes/mist_stream_water_palace.tscn").instantiate()
 	add_child(palace)
 	await get_tree().process_frame
@@ -450,7 +465,9 @@ func _check_water_palace_loop() -> void:
 	await get_tree().process_frame
 	_expect(palace.defeated and not palace.boss.visible, "Boss clear did not close the encounter.")
 	_expect(palace.clear_panel.visible, "Boss clear did not show a settlement panel.")
-	_expect(GameState.player.inventory.size() == inventory_before + 1, "Boss clear did not grant one initial-equipment drop.")
+	var expected_item_count := 1 if had_pearl else 2
+	_expect(GameState.player.inventory.size() == inventory_before + expected_item_count, "Boss clear did not grant the random initial-equipment drop and the first-clear Pearl reward.")
+	_expect(GameState.player.inventory.has("雾潮练气珠"), "First Water Palace clear did not grant the Mist-Tide Qi Pearl.")
 	_expect(GameState.player.dungeon_runs.size() == runs_before + 1, "Boss clear did not record the dungeon run.")
 	_expect(GameState.is_region_unlocked("mist_border"), "Water Palace clear did not unlock Mist Tide Border.")
 	palace.queue_free()

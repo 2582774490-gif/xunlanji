@@ -80,7 +80,7 @@
 
 ## 四、Image 2 首发美术队列
 
-1. **雾潮练气珠**：单体法宝图标卡 + 可抠图的装备单体，水系炼气法宝；已生成、已接入独立装备层。
+1. **雾潮练气珠**：单体法宝图标卡 + 可抠图的装备单体，水系炼气法宝；已生成、已接入独立装备层；雾溪水府首通必得，水系伤害降低 35%。
 2. **玄土练气印**：单体法宝图标卡；土金质地，不沿用玉佩外形。
 3. **朱砂练气符笔**：单体武器图标卡；已生成，需在完成专属动作与特效后才可接入运行时武器层。
 4. **雾纹护腕**：单体装备图标卡；布甲与灵纹结合。
@@ -92,7 +92,7 @@
 
 | 内容 | 透明游戏资源 | 当前接入 |
 |---|---|---|
-| 雾潮练气珠 | `assets/art/artifacts/mist_tide_qi_pearl/processed_alpha/mist_tide_qi_pearl_v01_alpha.png` | 已在法宝资料与角色独立法宝层验证 |
+| 雾潮练气珠 | `assets/art/artifacts/mist_tide_qi_pearl/processed_alpha/mist_tide_qi_pearl_v01_alpha.png` | 已在法宝资料、角色独立法宝层与水府水系减伤验证；水府首通必得 |
 | 朱砂练气符笔 | `assets/art/weapons/vermilion_qi_talisman_brush/processed_alpha/vermilion_qi_talisman_brush_v01_alpha.png` | 已登记美术，待专属动作、攻击特效与武器卡 |
 | 云岚吐纳诀秘卷 | `assets/art/techniques/cloud_mist_breathing_manual/processed_alpha/cloud_mist_breathing_manual_v01_alpha.png` | 已登记功法图，待功法图鉴界面接入 |
 
