@@ -18,6 +18,7 @@ const SpearMotionScript = preload("res://src/animation/spear_motion_controller.g
 const BowMotionScript = preload("res://src/animation/bow_motion_controller.gd")
 const DaoMotionScript = preload("res://src/animation/dao_motion_controller.gd")
 const HalberdMotionScript = preload("res://src/animation/halberd_motion_controller.gd")
+const AxeMotionScript = preload("res://src/animation/axe_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -128,6 +129,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = DaoMotionScript.new()
 	elif motion == "moon_halberd":
 		pivot = HalberdMotionScript.new()
+	elif motion == "mountain_axe":
+		pivot = AxeMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -163,6 +166,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.060, 0.060)
 		sprite.position = Vector2(42, -46)
 		sprite.rotation = deg_to_rad(-12.0)
+	elif motion == "mountain_axe":
+		# The heavy axe head stays just above the hand while the lower butt anchors
+		# the diagonal source, leaving room for the deliberate downward cleave.
+		sprite.scale = Vector2(0.068, 0.068)
+		sprite.position = Vector2(39, -45)
+		sprite.rotation = deg_to_rad(-10.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins

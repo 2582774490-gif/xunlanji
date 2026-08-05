@@ -24,6 +24,7 @@ func _run() -> void:
 	await _check_zhufeng_bow_runtime_layer_and_skill_set()
 	await _check_duanwu_dao_runtime_layer_and_skill_set()
 	await _check_xuanyue_halberd_runtime_layer_and_skill_set()
+	await _check_kaishan_axe_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -466,6 +467,32 @@ func _check_xuanyue_halberd_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("HalberdSweepEffect"), "Xuanyue Qi Halberd basic attack did not spawn its own hooked sweep in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_kaishan_axe_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["开山练气斧"]
+	GameState.equip_weapon("开山练气斧")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Kaishan Qi Axe did not create an independent player weapon render slot.")
+	_expect(port.player.weapon_motion is AxeMotionController, "Kaishan Qi Axe did not use its dedicated heavy-chop motion controller.")
+	var axe_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(axe_sprite.texture != null and "kaishan_qi_axe" in axe_sprite.texture.resource_path, "Kaishan Qi Axe was substituted with another weapon texture.")
+	var axe_skills := SkillCatalog.skills_for_weapon("开山练气斧")
+	_expect(str(axe_skills[0].name) == "开山斧劈" and float(axe_skills[0].get("range", 0.0)) <= 205.0, "Kaishan Qi Axe must remain a slow close-range heavy strike.")
+	_expect(str(axe_skills[1].name) == "裂地开山" and int(axe_skills[1].get("damage_base", 0)) >= 29, "Kaishan Qi Axe needs its own high-impact ground-cleave primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := preload("res://scenes/mist_stream_water_palace.tscn").instantiate()
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("AxeGroundCleaveEffect"), "Kaishan Qi Axe basic attack did not spawn its own ground-cleave effect in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

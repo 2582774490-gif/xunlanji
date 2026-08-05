@@ -66,6 +66,11 @@ const XUANYUE_HALBERD_SKILLS := [
 	{"id": "xuanyue_moon_sweep", "name": "玄月横扫", "key": "K", "spirit_cost": 21, "cooldown": 4.5, "range": 292.0, "damage_base": 24, "attack_ratio": 0.52, "mana_ratio": 26.0, "visual": "halberd_sweep", "description": "岚息贯入戟杆，挥出一轮带钩的半圆戟势，克制试图贴近的敌手。"},
 ]
 
+const KAISHAN_AXE_SKILLS := [
+	{"id": "kaishan_axe_chop", "name": "开山斧劈", "key": "J", "spirit_cost": 0, "cooldown": 0.72, "range": 202.0, "description": "双手蓄力后沉斧重劈，范围短但单次压制力极强。"},
+	{"id": "kaishan_earthsplitter", "name": "裂地开山", "key": "K", "spirit_cost": 25, "cooldown": 5.1, "range": 224.0, "damage_base": 29, "attack_ratio": 0.58, "mana_ratio": 22.0, "visual": "axe_ground_cleave", "description": "以斧刃震裂地面，近处目标承受一次厚重的裂地冲击。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -82,6 +87,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = DUANWU_DAO_SKILLS
 	elif item_name == "玄月练气戟":
 		weapon_skills = XUANYUE_HALBERD_SKILLS
+	elif item_name == "开山练气斧":
+		weapon_skills = KAISHAN_AXE_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -106,3 +113,6 @@ static func is_dao_skill_set(item_name: String) -> bool:
 
 static func is_halberd_skill_set(item_name: String) -> bool:
 	return item_name == "玄月练气戟"
+
+static func is_axe_skill_set(item_name: String) -> bool:
+	return item_name == "开山练气斧"
