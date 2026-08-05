@@ -164,3 +164,7 @@
 |---|---|---|
 | 凝息丹 | `assets/art/pills/condensing_breath_pill/processed_alpha/condensing_breath_pill_v01_alpha.png` | 炼丹工坊图卡、丹药规则与自动验收 |
 | 三折剑经秘卷 | `assets/art/techniques/threefold_sword_sutra/processed_alpha/threefold_sword_sutra_v01_alpha.png` | 功法图鉴、剑修路线自动验收 |
+
+## 七、已接入的自由功法发现
+
+听雷断崖会随机出现“风隙回响”。触发后获得可交易的驭风残页与修为，并将《驭风游身诀》登记为可并修功法；不会自动替玩家切换主修，也不要求加入任何宗门。

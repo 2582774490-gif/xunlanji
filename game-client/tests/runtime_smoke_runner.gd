@@ -1738,10 +1738,12 @@ func _check_thunder_listening_cliff() -> void:
 	_expect(cliff.chunk_streamer.loaded_chunk_count() >= 1, "Thunder Listening Cliff did not load its nearby terrain chunk.")
 	cliff.active_interaction = cliff.pavilion_interaction
 	cliff._activate_contextual()
+	cliff.thunder_window = cliff.THUNDER_WINDOWS[1].duplicate()
 	cliff.active_interaction = cliff.thunder_interaction
 	cliff._activate_contextual()
 	_expect(cliff.pavilion_visited and cliff.thunder_resolved, "Thunder Listening Cliff did not resolve its shelter and thunder-window routes.")
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Thunder Listening Cliff should grant its weather-material outcome.")
+	_expect(GameState.player.learned_techniques.has("驭风游身诀") and GameState.player.codex.has("驭风游身诀"), "Wind Echo must register Wind Wandering Body Manual without forcing it as the active path.")
 	_expect(GameState.player.opportunity_log.size() == log_before + 2, "Thunder Listening Cliff did not record both free-exploration discoveries.")
 	cliff.queue_free()
 	await get_tree().process_frame

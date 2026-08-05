@@ -233,6 +233,30 @@ func choose_cultivation_path(path_name: String) -> void:
 	notify("已切换主修功法：%s。功法可随时转换，灵根与体质只影响效率。" % path_name)
 	profile_changed.emit()
 
+
+func discover_technique(path_name: String, source: String) -> bool:
+	_normalize_player_schema()
+	var catalog := preload("res://src/data/game_catalog.gd")
+	if not catalog.TECHNIQUE_AFFINITIES.has(path_name):
+		notify("这段感悟尚未对应可修行的功法。")
+		return false
+	var learned: Array = player.get("learned_techniques", [])
+	var discovered := not learned.has(path_name)
+	if discovered:
+		learned.append(path_name)
+		player.learned_techniques = learned
+		_ensure_technique_insight_entry(path_name)
+	var codex_entries: Array = player.get("codex", [])
+	if not codex_entries.has(path_name):
+		codex_entries.append(path_name)
+		player.codex = codex_entries
+	if discovered:
+		notify("从%s领悟《%s》；已登记，可在修炼界面自由切换主修。" % [source, path_name])
+	else:
+		notify("%s与你已知的《%s》相互印证，留下新的探索记录。" % [source, path_name])
+	profile_changed.emit()
+	return discovered
+
 func realm_name() -> String:
 	var catalog := preload("res://src/data/game_catalog.gd")
 	var realm: Dictionary = catalog.REALMS[player.realm_index]

@@ -93,6 +93,8 @@ func _resolve_thunder_window() -> void:
 	thunder_interaction.set_deferred("monitoring", false)
 	GameState.add_item(str(thunder_window.item))
 	GameState.gain_cultivation(int(thunder_window.cultivation))
+	if str(thunder_window.get("item", "")) == "驭风残页":
+		GameState.discover_technique("驭风游身诀", "听雷断崖的风隙回响")
 	GameState.record_opportunity({"region": "thunder_listening_cliff", "name": thunder_window.name, "item": thunder_window.item, "cultivation": thunder_window.cultivation})
 	status.text = "你抓住 %s：%s 获得 %s，修为 +%d。" % [thunder_window.name, thunder_window.description, thunder_window.item, thunder_window.cultivation]
 	_close_interaction()
