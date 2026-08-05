@@ -422,6 +422,10 @@ const PILL_PROFILES := {
 # Runtime art is deliberately independent from pill balance data. This lets a
 # future pill add a unique card without accidentally inheriting another item.
 const PILL_ART_PROFILES := {
+	"灵泉露": {
+		"card_asset": "res://assets/art/pills/spirit_spring_dew/processed_alpha/spirit_spring_dew_v01_alpha.png",
+		"caption": "炼气期可饮用的温和灵液；修为 +15，药负 +2。多见于雨后低洼灵泉与溪谷雾地。",
+	},
 	"凝息丹": {
 		"card_asset": "res://assets/art/pills/condensing_breath_pill/processed_alpha/condensing_breath_pill_v01_alpha.png",
 		"caption": "炼气一至三层的温和调息丹；修为 +15，药负 +5。",
