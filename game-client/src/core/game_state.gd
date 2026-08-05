@@ -957,6 +957,9 @@ func try_promote_sect_rank() -> bool:
 		notify("境界不足：晋升%s需要%s。" % [str(requirement.name), _realm_requirement_text(requirement)])
 		return false
 	player.sect_rank = int(player.get("sect_rank", 0)) + 1
+	var sect := current_sect()
+	if int(player.sect_rank) >= 1 and not sect.is_empty():
+		discover_technique(str(sect.get("technique", "")), "%s内门传功" % str(sect.name))
 	notify("身份晋升：%s。" % sect_rank_name())
 	profile_changed.emit()
 	return true

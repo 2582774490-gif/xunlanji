@@ -152,6 +152,7 @@ func _check_sect_progression() -> void:
 	GameState.player.sect_rank = 0
 	GameState.player.sect_contribution = 0
 	GameState.player.sect_wanted_by = []
+	GameState.player.cultivation_path = "云岚吐纳诀"
 	GameState.player.inventory.append("宗门测试贡品")
 	_expect(GameState.join_sect("mist_sword"), "Player should freely join an available sect.")
 	_expect(GameState.sect_rank_name() == "外门弟子", "Sect join should begin at outer disciple rank.")
@@ -162,6 +163,7 @@ func _check_sect_progression() -> void:
 	GameState.player.sect_contribution = 80
 	_expect(GameState.try_promote_sect_rank(), "Outer disciple with sufficient realm and contribution should promote.")
 	_expect(GameState.sect_rank_name() == "内门弟子", "Sect promotion did not reach inner disciple rank.")
+	_expect(GameState.player.learned_techniques.has("三折剑经") and GameState.player.cultivation_path != "三折剑经", "Inner sect teaching must register its manual without forcing the active cultivation path.")
 	_expect(GameState.leave_sect(), "Player should be able to freely leave a sect.")
 	_expect(GameState.is_wanted_by_sect("mist_sword"), "Leaving Mist Sword at inner rank should preserve a sect wanted record.")
 	GameState.player = profile_before

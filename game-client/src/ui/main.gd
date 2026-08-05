@@ -303,6 +303,7 @@ func _show_sect() -> void:
 		var sect: Dictionary = _find_sect(GameState.player.sect_id)
 		_text("当前宗门：%s｜身份：%s｜贡献：%d" % [sect.name, GameState.sect_rank_name(), int(GameState.player.sect_contribution)], 21, Color("f2d79c"))
 		_text("%s\n门规：%s" % [sect.trait, sect.rule])
+		_text("内门传功：%s。达到内门会登记该功法，但不会强制切换主修。" % str(sect.technique), 16, Color("a7d5ca"))
 		var promotion := GameState.sect_promotion_requirement()
 		if not promotion.is_empty():
 			_text("下一身份：%s｜需要贡献 %d、%s" % [promotion.name, int(promotion.contribution), GameState._realm_requirement_text(promotion)], 16, Color("a7d5ca"))
