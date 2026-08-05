@@ -286,6 +286,15 @@ const NPC_CARD_PROFILES := {
 	},
 }
 
+	"祝铁山": {
+		"card_asset": "res://assets/art/npcs/zhu_tieshan/processed_alpha/zhu_tieshan_card_v01_alpha.png",
+		"faction": "云岚村 · 村北工坊",
+		"relationship": "初识 · 可委托强化",
+		"service": "说明首发装备强化所需的雾潮晶簇、流火矿与境界门槛；已强化的装备状态会随交易转移。",
+		"lead": "他会收集古战残魂与地火材料，并可引出炼器、武器大分支和地火洞的传闻。",
+	},
+}
+
 static func npc_card_profile_for_name(npc_name: String) -> Dictionary:
 	return NPC_CARD_PROFILES.get(npc_name, {}).duplicate(true)
 

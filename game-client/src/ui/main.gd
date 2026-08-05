@@ -299,6 +299,7 @@ func _show_inventory() -> void:
 			footwear_equips.append(["装备足部 %s" % item_name, func(): GameState.equip_footwear(item_name), 220])
 	if not footwear_equips.is_empty(): _buttons(footwear_equips)
 	_text("装备强化：同类基础器型可用材料升级，升级属性可随交易一并转移；强化受境界限制。", 16, Color("a7d5ca"))
+	_text("村北工坊的祝铁山负责说明强化材料与境界门槛；当前原型可直接在行囊中委托强化。", 16, Color("a7d5ca"))
 	var upgrade_buttons: Array = []
 	for item_name in GameState.player.inventory:
 		if GameState.is_upgradeable_equipment(str(item_name)):

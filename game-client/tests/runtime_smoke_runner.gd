@@ -206,7 +206,7 @@ func _check_codex_registry_ui() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var rendered_text := _collect_label_text(codex_ui)
-	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药"), "Codex UI must render approved technique, artifact, weapon and NPC card registry sections.")
+	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿"), "Codex UI must render approved technique, artifact, weapon and NPC card registry sections.")
 	codex_ui.queue_free()
 	GameState.player.inventory = ["雾港引潮盘", "沉雾舟纹袍"]
 	GameState.player.equipped_artifact = "雾港引潮盘"
