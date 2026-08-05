@@ -34,6 +34,7 @@ const PearlMotionScript = preload("res://src/animation/pearl_motion_controller.g
 const SealMotionScript = preload("res://src/animation/seal_motion_controller.gd")
 const MirrorMotionScript = preload("res://src/animation/mirror_motion_controller.gd")
 const TowerMotionScript = preload("res://src/animation/tower_motion_controller.gd")
+const WheelMotionScript = preload("res://src/animation/wheel_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -176,6 +177,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = MirrorMotionScript.new()
 	elif motion == "futu_tower":
 		pivot = TowerMotionScript.new()
+	elif motion == "zhulan_wheel":
+		pivot = WheelMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -306,6 +309,11 @@ func _configure_equipped_weapon_visual() -> void:
 		# without covering the player or behaving like an environmental building.
 		sprite.scale = Vector2(0.046, 0.046)
 		sprite.position = Vector2(0, 0)
+		sprite.rotation = 0.0
+	elif motion == "zhulan_wheel":
+		# The ring is centered on its pivot so its constant spin reads clearly.
+		sprite.scale = Vector2(0.060, 0.060)
+		sprite.position = Vector2.ZERO
 		sprite.rotation = 0.0
 	else:
 		sprite.scale = Vector2(0.13, 0.13)

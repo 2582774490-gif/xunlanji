@@ -40,6 +40,7 @@ func _run() -> void:
 	await _check_zhenyue_seal_runtime_layer_and_skill_set()
 	await _check_hanzhao_mirror_runtime_layer_and_skill_set()
 	await _check_futu_tower_runtime_layer_and_skill_set()
+	await _check_zhulan_wheel_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -906,6 +907,33 @@ func _check_futu_tower_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("TowerWardImpactEffect"), "Futu Demon Tower basic attack did not spawn its own tower ward impact in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_zhulan_wheel_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["逐岚练气轮"]
+	GameState.player.equipped_weapon = "逐岚练气轮"
+	var port := SpatialTestPort.new()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Zhulan Qi Wheel did not create an independent wheel render slot.")
+	_expect(port.player.weapon_motion is WheelMotionController, "Zhulan Qi Wheel did not use its dedicated spinning-wheel motion controller.")
+	var wheel_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(wheel_sprite.texture != null and "zhulan_rift_wheel" in wheel_sprite.texture.resource_path, "Zhulan Qi Wheel was substituted with another weapon texture.")
+	var wheel_skills := SkillCatalog.skills_for_weapon("逐岚练气轮")
+	_expect(str(wheel_skills[0].name) == "逐岚回轮" and float(wheel_skills[0].get("range", 0.0)) >= 400.0, "Zhulan Qi Wheel needs its own long-range returning basic skill.")
+	_expect(str(wheel_skills[1].name) == "裂空回轮" and str(wheel_skills[1].get("visual", "")) == "wheel_return", "Zhulan Qi Wheel needs its own return-arc primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := MistStreamWaterPalace.new()
+	GameState.player.equipped_weapon = "逐岚练气轮"
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("WheelReturnEffect"), "Zhulan Qi Wheel basic attack did not spawn its own returning wheel in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

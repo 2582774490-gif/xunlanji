@@ -146,6 +146,11 @@ const FUTU_TOWER_SKILLS := [
 	{"id": "futu_tower_layers", "name": "浮屠三镇", "key": "K", "spirit_cost": 26, "cooldown": 5.3, "range": 312.0, "damage_base": 24, "attack_ratio": 0.44, "mana_ratio": 35.0, "visual": "tower_ward_impact", "description": "三层镇妖塔纹依次投落，在前方形成连续震荡，适合压制一处战场。"},
 ]
 
+const ZHULAN_WHEEL_SKILLS := [
+	{"id": "zhulan_wheel_throw", "name": "逐岚回轮", "key": "J", "spirit_cost": 0, "cooldown": 0.58, "range": 405.0, "description": "掷出逐岚练气轮，轮刃沿风线回旋后折返，适合在远处保持游走节奏。"},
+	{"id": "zhulan_riftsplit_return", "name": "裂空回轮", "key": "K", "spirit_cost": 22, "cooldown": 4.5, "range": 475.0, "damage_base": 21, "attack_ratio": 0.45, "mana_ratio": 32.0, "visual": "wheel_return", "description": "以风岚催动轮刃远掷，去程与回程划出相反弧线；核心不在直线射击，而在可读的回旋压制。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -194,6 +199,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = HANZHAO_MIRROR_SKILLS
 	elif item_name == "浮屠镇妖塔":
 		weapon_skills = FUTU_TOWER_SKILLS
+	elif item_name == "逐岚练气轮":
+		weapon_skills = ZHULAN_WHEEL_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -266,3 +273,6 @@ static func is_mirror_skill_set(item_name: String) -> bool:
 
 static func is_tower_skill_set(item_name: String) -> bool:
 	return item_name == "浮屠镇妖塔"
+
+static func is_wheel_skill_set(item_name: String) -> bool:
+	return item_name == "逐岚练气轮"

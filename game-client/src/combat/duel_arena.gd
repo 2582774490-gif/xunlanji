@@ -27,6 +27,7 @@ const PearlTideProjectileScript = preload("res://src/combat/pearl_tide_projectil
 const SealSlamEffectScript = preload("res://src/combat/seal_slam_effect.gd")
 const MirrorRayEffectScript = preload("res://src/combat/mirror_ray_effect.gd")
 const TowerWardImpactEffectScript = preload("res://src/combat/tower_ward_impact_effect.gd")
+const WheelReturnEffectScript = preload("res://src/combat/wheel_return_effect.gd")
 
 @onready var player: SpatialTestPlayer = $Player
 @onready var opponent: DuelOpponent = $Opponent
@@ -149,6 +150,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_mirror_ray(player.global_position + Vector2(28, -56), (opponent.global_position - player.global_position).normalized(), 190.0, 4.0)
 	elif SKILL_CATALOG.is_tower_skill_set(GameState.player.equipped_weapon):
 		_spawn_tower_ward_impact(player.global_position + (opponent.global_position - player.global_position).normalized() * 150.0 + Vector2(0, -42), 42.0)
+	elif SKILL_CATALOG.is_wheel_skill_set(GameState.player.equipped_weapon):
+		_spawn_wheel_return(player.global_position + Vector2(28, -54), opponent.global_position + Vector2(0, -52), 13.0, 0.38)
 	opponent.take_damage(damage)
 	status.text = "%s 命中试剑使，造成 %d 点伤害。" % [GameState.player.equipped_weapon, damage]
 	_refresh_hud()
@@ -232,6 +235,7 @@ func _cast_ningxi_sword_art() -> void:
 	var seal := SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon)
 	var mirror := SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon)
 	var tower := SKILL_CATALOG.is_tower_skill_set(GameState.player.equipped_weapon)
+	var wheel := SKILL_CATALOG.is_wheel_skill_set(GameState.player.equipped_weapon)
 	if umbrella:
 		_spawn_umbrella_ward(player.global_position + Vector2(0, -54), facing)
 		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
@@ -279,6 +283,8 @@ func _cast_ningxi_sword_art() -> void:
 		_spawn_mirror_ray(player.global_position + Vector2(28, -58), facing, 260.0, 7.0)
 	elif tower:
 		_spawn_tower_ward_impact(player.global_position + facing * 218.0 + Vector2(0, -44), 74.0)
+	elif wheel:
+		_spawn_wheel_return(player.global_position + Vector2(28, -56), opponent.global_position + Vector2(0, -56), 18.0, 0.52)
 	else:
 		_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
 	await get_tree().create_timer(0.22).timeout
@@ -487,6 +493,12 @@ func _spawn_tower_ward_impact(origin: Vector2, radius := 48.0) -> void:
 	impact.name = "TowerWardImpactEffect"
 	add_child(impact)
 	impact.invoke(origin, radius)
+
+func _spawn_wheel_return(origin: Vector2, target: Vector2, radius := 17.0, duration := 0.42) -> void:
+	var wheel: WheelReturnEffect = WheelReturnEffectScript.new()
+	wheel.name = "WheelReturnEffect"
+	add_child(wheel)
+	wheel.launch(origin, target, radius, duration)
 
 func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
 	# This is a defensive canopy, not recolored sword VFX: two offset arcs imply

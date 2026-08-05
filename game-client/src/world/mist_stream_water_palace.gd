@@ -22,6 +22,7 @@ const PearlTideProjectileScript = preload("res://src/combat/pearl_tide_projectil
 const SealSlamEffectScript = preload("res://src/combat/seal_slam_effect.gd")
 const MirrorRayEffectScript = preload("res://src/combat/mirror_ray_effect.gd")
 const TowerWardImpactEffectScript = preload("res://src/combat/tower_ward_impact_effect.gd")
+const WheelReturnEffectScript = preload("res://src/combat/wheel_return_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 const BOSS_RETALIATION_RANGE := 650.0
 
@@ -187,6 +188,8 @@ func _on_player_attack_started(direction: String) -> void:
 		_spawn_mirror_ray(player.position + Vector2(28, -56), facing, 190.0, 4.0)
 	elif SKILL_CATALOG.is_tower_skill_set(GameState.player.equipped_weapon):
 		_spawn_tower_ward_impact(player.position + facing * 150.0 + Vector2(0, -42), 42.0)
+	elif SKILL_CATALOG.is_wheel_skill_set(GameState.player.equipped_weapon):
+		_spawn_wheel_return(player.position + Vector2(28, -54), boss.position + Vector2(0, -72), 13.0, 0.38)
 	elif not SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon):
 		slash_trail.play_burst(player.position + facing * 46.0 + Vector2(0, -34), facing)
 
@@ -228,6 +231,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 	var seal := SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon)
 	var mirror := SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon)
 	var tower := SKILL_CATALOG.is_tower_skill_set(GameState.player.equipped_weapon)
+	var wheel := SKILL_CATALOG.is_wheel_skill_set(GameState.player.equipped_weapon)
 	boss_engaged = true
 	player_mana -= float(primary["spirit_cost"])
 	ningxi_cooldown = float(primary["cooldown"])
@@ -279,6 +283,8 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 		_spawn_mirror_ray(player.position + Vector2(28, -58), facing, 260.0, 7.0)
 	elif tower:
 		_spawn_tower_ward_impact(player.position + facing * 218.0 + Vector2(0, -44), 74.0)
+	elif wheel:
+		_spawn_wheel_return(player.position + Vector2(28, -56), boss.position + hit_offset, 18.0, 0.52)
 	else:
 		ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
 	status.text = "%s结印中……灵力 -%d。" % [str(primary["name"]), int(primary["spirit_cost"])]
@@ -297,7 +303,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 func _can_hit_boss_with_basic() -> bool:
 	if near_boss:
 		return true
-	var ranged_weapon := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_staff_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_whip_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_tower_skill_set(GameState.player.equipped_weapon)
+	var ranged_weapon := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_staff_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_whip_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_tower_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_wheel_skill_set(GameState.player.equipped_weapon)
 	if not ranged_weapon:
 		return false
 	return player.position.distance_to(boss.position) <= float(_skill(0).get("range", 205.0))
@@ -345,6 +351,8 @@ func _play_basic_weapon_effect() -> void:
 		_spawn_mirror_ray(player.position + Vector2(28, -56), (boss.position - player.position).normalized(), 190.0, 4.0)
 	elif SKILL_CATALOG.is_tower_skill_set(GameState.player.equipped_weapon):
 		_spawn_tower_ward_impact(player.position + (boss.position - player.position).normalized() * 150.0 + Vector2(0, -42), 42.0)
+	elif SKILL_CATALOG.is_wheel_skill_set(GameState.player.equipped_weapon):
+		_spawn_wheel_return(player.position + Vector2(28, -54), boss.position + Vector2(0, -72), 13.0, 0.38)
 
 func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
 	var talisman: TalismanProjectile = TalismanProjectileScript.new()
@@ -467,6 +475,12 @@ func _spawn_tower_ward_impact(origin: Vector2, radius := 48.0) -> void:
 	impact.name = "TowerWardImpactEffect"
 	add_child(impact)
 	impact.invoke(origin, radius)
+
+func _spawn_wheel_return(origin: Vector2, target: Vector2, radius := 17.0, duration := 0.42) -> void:
+	var wheel: WheelReturnEffect = WheelReturnEffectScript.new()
+	wheel.name = "WheelReturnEffect"
+	add_child(wheel)
+	wheel.launch(origin, target, radius, duration)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":
