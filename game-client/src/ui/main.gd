@@ -332,6 +332,7 @@ func _show_market() -> void:
 
 func _show_alchemy() -> void:
 	_heading("云岚村 · 炼丹工坊")
+	_add_alchemy_pill_card("养元丹")
 	var pill_art := Catalog.pill_art_profile_for_item("凝息丹")
 	if not pill_art.is_empty():
 		var pill_card := HBoxContainer.new()
@@ -356,6 +357,28 @@ func _show_alchemy() -> void:
 	_buttons([["炼制凝息丹", _craft_condensing_pill, 210], ["炼制筑基丹", _craft_foundation_pill, 210], ["返回行囊", func(): GameState.enter_screen(GameState.Screen.INVENTORY), 160]])
 	_buttons([["炼制养元丹", func(): _craft_alchemy_recipe("yangyuan"), 210], ["炼制归元丹", func(): _craft_alchemy_recipe("guiyuan"), 210]])
 	_text("普通丹药有成丹率与每日药负；低阶丹药可交易，但高境界服用无效。当前：" + GameState.medicine_burden_text(), 16, Color("a7d5ca"))
+
+func _add_alchemy_pill_card(pill_name: String) -> void:
+	var pill_art := Catalog.pill_art_profile_for_item(pill_name)
+	if pill_art.is_empty():
+		return
+	var pill_card := HBoxContainer.new()
+	pill_card.custom_minimum_size = Vector2(0, 104)
+	pill_card.add_theme_constant_override("separation", 14)
+	content.add_child(pill_card)
+	var pill_texture := TextureRect.new()
+	pill_texture.texture = load(str(pill_art.card_asset)) as Texture2D
+	pill_texture.custom_minimum_size = Vector2(96, 96)
+	pill_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pill_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	pill_card.add_child(pill_texture)
+	var pill_details := Label.new()
+	pill_details.text = "《%s》\n%s" % [pill_name, str(pill_art.caption)]
+	pill_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pill_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pill_details.add_theme_font_size_override("font_size", 16)
+	pill_card.add_child(pill_details)
+
 
 func _craft_condensing_pill() -> void:
 	GameState.craft_alchemy_recipe("ningxi")

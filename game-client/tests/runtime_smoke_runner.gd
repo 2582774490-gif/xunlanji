@@ -289,6 +289,8 @@ func _check_alchemy_and_medicine_rules() -> void:
 	_expect(GameState.list_item_for_market("凝息丹", 31), "Crafted pills should remain freely tradeable through the market boundary.")
 	var condensing_art: Dictionary = GameCatalog.pill_art_profile_for_item("凝息丹")
 	_expect(not condensing_art.is_empty() and ResourceLoader.exists(str(condensing_art.card_asset)), "Condensing Breath Pill must point to its own approved alchemy art asset.")
+	var nourishing_art: Dictionary = GameCatalog.pill_art_profile_for_item("养元丹")
+	_expect(not nourishing_art.is_empty() and ResourceLoader.exists(str(nourishing_art.card_asset)), "Nourishing Origin Pill must point to its own approved alchemy art asset.")
 	GameState.player = profile_before
 	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()

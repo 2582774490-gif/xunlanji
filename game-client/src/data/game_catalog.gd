@@ -375,6 +375,10 @@ const PILL_ART_PROFILES := {
 		"card_asset": "res://assets/art/pills/condensing_breath_pill/processed_alpha/condensing_breath_pill_v01_alpha.png",
 		"caption": "炼气一至三层的温和调息丹；修为 +15，药负 +5。",
 	},
+	"养元丹": {
+		"card_asset": "res://assets/art/pills/nourishing_origin_pill/processed_alpha/nourishing_origin_pill_v01_alpha.png",
+		"caption": "炼气中期的养元灵丹；修为 +22，药负 +7。以雾泽灵草、雾林材料与凝气符材炼成。",
+	},
 }
 
 const ALCHEMY_RECIPES := {
