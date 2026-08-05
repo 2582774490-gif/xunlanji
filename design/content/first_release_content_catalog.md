@@ -54,3 +54,13 @@
 | 实装位置 | 炼丹工坊卡片、丹药图鉴数据、自动资源验收 |
 
 后续严格按“一件物品 → 源图 → 抠图 → 图鉴/玩法实装 → 验收”的顺序推进；不会批量产生无法判断品质、又未接入玩法的图片。
+
+## 五、本轮 Image 2 交付：百草调息篇
+
+| 项目 | 内容 |
+|---|---|
+| 功法定位 | 丹修入门功法；木灵根与青木灵胎可提高修行效率，当前已影响炼丹成功率。 |
+| 获得逻辑 | 可由百草谷内门传功登记；并修不强制改换主修。 |
+| 源图 | `game-client/assets/art/techniques/hundred_herbs_breath_regulation_manual/source/hundred_herbs_breath_regulation_manual_v01_chromakey.png` |
+| 透明游戏图 | `game-client/assets/art/techniques/hundred_herbs_breath_regulation_manual/processed_alpha/hundred_herbs_breath_regulation_manual_v01_alpha.png` |
+| 实装位置 | 功法图鉴卡片、百草谷路线数据与自动资源验收。 |

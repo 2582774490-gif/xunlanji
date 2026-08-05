@@ -192,3 +192,9 @@ Avoid: duplicated objects, cropped edges, photorealistic photography, muddy silh
 | 条目 | 透明运行时资源 | 验收状态 |
 |---|---|---|
 | 养元丹 | `assets/art/pills/nourishing_origin_pill/processed_alpha/nourishing_origin_pill_v01_alpha.png` | 抠图检查通过；已登记炼丹工坊卡片、丹药图鉴数据与自动资源验收；不复用凝息丹或任何法宝、装备图。 |
+
+## 百草调息篇运行时资产
+
+| 条目 | 透明运行时资源 | 验收状态 |
+|---|---|---|
+| 百草调息篇秘卷 | `assets/art/techniques/hundred_herbs_breath_regulation_manual/processed_alpha/hundred_herbs_breath_regulation_manual_v01_alpha.png` | 抠图检查通过；已登记功法图鉴、百草谷内门传功路线与自动资源验收；不复用云岚、剑修、符修或风系秘卷封面。 |

@@ -246,6 +246,10 @@ const TECHNIQUE_ART_PROFILES := {
 		"card_asset": "res://assets/art/techniques/threefold_sword_sutra/processed_alpha/threefold_sword_sutra_v01_alpha.png",
 		"caption": "三折剑经秘卷｜雾隐剑宗的入门剑修法门，以折势、续势与归势三段养成剑势。",
 	},
+	"百草调息篇": {
+		"card_asset": "res://assets/art/techniques/hundred_herbs_breath_regulation_manual/processed_alpha/hundred_herbs_breath_regulation_manual_v01_alpha.png",
+		"caption": "百草调息篇秘卷——以药植吐纳、药性相济与温养经脉为根本的丹修入门法门；提升炼丹稳定性。",
+	},
 }
 
 static func technique_art_profile_for_name(path_name: String) -> Dictionary:

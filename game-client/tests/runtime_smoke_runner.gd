@@ -85,6 +85,8 @@ func _run() -> void:
 	get_tree().quit(1)
 
 func _check_manual_progression() -> void:
+	var hundred_herbs_manual_art: Dictionary = GameCatalog.technique_art_profile_for_name("百草调息篇")
+	_expect(not hundred_herbs_manual_art.is_empty() and ResourceLoader.exists(str(hundred_herbs_manual_art.card_asset)), "Hundred Herbs Breath-Regulating Chapter must point to its own approved codex art asset.")
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.realm_index = 0
 	GameState.player.minor_stage = 1
