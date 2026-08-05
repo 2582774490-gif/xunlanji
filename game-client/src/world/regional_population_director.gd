@@ -5,6 +5,7 @@ extends Node2D
 ## A region provides only locations that make sense for its roads, water,
 ## ruins and resource sites.  Each visit then chooses a small subset of them.
 const WorldInteractionScript = preload("res://src/world/world_interaction.gd")
+const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
 const SCOUT_TEXTURE: Texture2D = preload("res://assets/art/npcs/border_scout_liushuo/processed_alpha/border_scout_liushuo_idle_v01_alpha.png")
 const MERCHANT_TEXTURE: Texture2D = preload("res://assets/art/npcs/marketkeeper_luo/processed_alpha/marketkeeper_luo_idle_v01_alpha.png")
 const GUIDE_TEXTURE: Texture2D = preload("res://assets/art/npcs/guide_shen/processed_alpha/guide_shen_idle_south_v01_alpha.png")
@@ -29,11 +30,41 @@ func populate(seed_value: int, profiles: Array[Dictionary]) -> void:
 			continue
 		if rng.randf() > float(profile.get("chance", 1.0)):
 			continue
-		var anchors: Array = profile.get("anchors", [])
+		var anchors := _eligible_anchors(profile)
 		if anchors.is_empty():
 			continue
 		var anchor: Vector2 = anchors[rng.randi_range(0, anchors.size() - 1)]
 		_create_population_node(profile, anchor)
+
+
+func _eligible_anchors(profile: Dictionary) -> Array:
+	var anchors: Array = profile.get("anchors", [])
+	var sector_id := str(profile.get("sector", _sector_for_profile(str(profile.get("id", "")))))
+	if sector_id.is_empty():
+		return anchors
+	var region_style := str(profile.get("region", ""))
+	var eligible: Array = []
+	for anchor_variant in anchors:
+		if not anchor_variant is Vector2:
+			continue
+		var anchor: Vector2 = anchor_variant
+		var sector := RegionalSectorCatalogScript.sector_at(region_style, anchor)
+		if str(sector.get("id", "")) == sector_id:
+			eligible.append(anchor)
+	return eligible
+
+
+func _sector_for_profile(profile_id: String) -> String:
+	# Launch ecology is intentionally clustered.  Keep this mapping central so a
+	# profile cannot silently drift into a visually convenient but illogical zone.
+	match profile_id:
+		"fog_channel_beast": return "fog_channel"
+		"mist_ore_rogue": return "ore_flats"
+		"checkpoint_watcher", "mist_sword_patrol": return "old_checkpoint"
+		"wetland_mist_herb", "wetland_herbalist": return "herb_wetland"
+		"earthfire_hound": return "earthfire_ravine"
+		"battlefield_remnant", "relic_seeker": return "ancient_battlefield"
+		_: return ""
 
 func owns(interaction: Area2D) -> bool:
 	return _entries.has(interaction)

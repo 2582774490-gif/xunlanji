@@ -217,7 +217,7 @@ func _population_profiles() -> Array[Dictionary]:
 		{
 			"id": "mist_ore_rogue", "region": "mist_border", "kind": "rogue", "name": "采雾散修",
 			"prompt": "向采雾散修打听矿脉", "chance": 0.48,
-			"anchors": [Vector2(1900, 1190), Vector2(2060, 1260), Vector2(2200, 1160)],
+			"anchors": [Vector2(3860, 1190), Vector2(4060, 1260), Vector2(4280, 1160)],
 			"tint": Color(0.78, 0.83, 0.94), "label_color": Color(0.81, 0.87, 1.0),
 		},
 		{
