@@ -455,14 +455,25 @@ func _show_codex() -> void:
 		illustrated_names.append(name)
 		if name != current_technique:
 			_add_technique_codex_card(name, Catalog.technique_art_profile_for_name(name))
-	var pending_names: Array[String] = []
+	_line()
+	_heading("完整修行路线")
 	for school in Catalog.CULTIVATION_SCHOOLS:
+		_text("【%s】" % str(school.faction), 18, Color("f2d79c"))
 		for technique_name in school.techniques:
 			var name := str(technique_name)
-			if not illustrated_names.has(name):
-				pending_names.append(name)
-	_heading("已设定、待单独出图的功法")
-	_text("、".join(pending_names), 16, Color("a7d5ca"))
+			var affinity := Catalog.technique_affinity_for(name)
+			var art_state := "独立秘卷已验收" if illustrated_names.has(name) else "已设定，待单独出图"
+			_text("· 《%s》｜%s｜适配 %s / %s｜%s" % [name, str(affinity.label), str(affinity.root), str(affinity.physique), art_state], 16, Color("a7d5ca"))
+	_line()
+	_heading("炼气丹药图鉴")
+	for pill_name in Catalog.PILL_PROFILES:
+		var name := str(pill_name)
+		var pill_profile := Catalog.pill_art_profile_for_item(name)
+		if pill_profile.is_empty():
+			var profile: Dictionary = Catalog.PILL_PROFILES.get(name, {})
+			_text("《%s》｜%s｜修为 +%d｜药负 +%d｜已设定，待单独出图" % [name, str(profile.get("kind", "丹药")), int(profile.get("cultivation", 0)), int(profile.get("burden", 0))], 16, Color("a7d5ca"))
+		else:
+			_add_alchemy_pill_card(name)
 	_line()
 	_heading("法宝与护具图鉴")
 	for item_name in Catalog.ARTIFACT_PROFILES:
