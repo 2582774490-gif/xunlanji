@@ -19,6 +19,7 @@ func _run() -> void:
 	await _check_artifact_render_slot()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
+	await _check_world_menu_does_not_fabricate_opportunity_rewards()
 	await _check_village_routes()
 	await _check_water_palace_loop()
 	await _check_umbrella_weapon_skill_sets()
@@ -278,6 +279,23 @@ func _check_random_opportunity() -> void:
 	_expect(GameState.player.opportunity_log.size() == log_before + 1, "Opportunity collection did not write a log record.")
 	south_gate.queue_free()
 	await get_tree().process_frame
+
+
+func _check_world_menu_does_not_fabricate_opportunity_rewards() -> void:
+	var inventory_before: Array = GameState.player.inventory.duplicate(true)
+	var cultivation_before: int = GameState.player.cultivation
+	var log_before: int = GameState.player.opportunity_log.size()
+	var region_before: String = GameState.current_region_id
+	GameState.current_region_id = "mist_border"
+	var menu := preload("res://scenes/main.tscn").instantiate()
+	add_child(menu)
+	await get_tree().process_frame
+	menu._explore()
+	_expect(GameState.player.inventory == inventory_before and GameState.player.cultivation == cultivation_before, "World-menu exploration must not mint rewards without a physical regional interaction.")
+	_expect(GameState.player.opportunity_log.size() == log_before, "World-menu exploration must not log a fabricated opportunity.")
+	menu.queue_free()
+	await get_tree().process_frame
+	GameState.current_region_id = region_before
 
 func _check_village_routes() -> void:
 	var village := preload("res://scenes/yunlan_village.tscn").instantiate()

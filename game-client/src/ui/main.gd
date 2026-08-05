@@ -206,7 +206,7 @@ func _show_overworld() -> void:
 		dungeon_buttons.append([Catalog.DUNGEONS[dungeon_id].name, func(): _enter_dungeon(dungeon_id), 180])
 	_buttons(dungeon_buttons)
 	_buttons([["进入可运行大地图", _open_playable_world, 240]])
-	_buttons([["探索随机机缘", _explore, 220], ["返回洞府", func(): GameState.enter_screen(GameState.Screen.HOME), 160]])
+	_buttons([["查看区域探索要点", _explore, 220], ["返回洞府", func(): GameState.enter_screen(GameState.Screen.HOME), 160]])
 
 func _show_dungeon() -> void:
 	var dungeon: Dictionary = Catalog.DUNGEONS[GameState.selected_dungeon_id]
@@ -433,10 +433,19 @@ func _playable_scene_for_current_region() -> String:
 	return scene_by_region.get(GameState.current_region_id, "res://scenes/yunlan_south_gate.tscn")
 
 func _explore() -> void:
-	var opportunity: Dictionary = Catalog.OPPORTUNITIES.pick_random()
-	GameState.add_item(opportunity.item)
-	GameState.gain_cultivation(opportunity.cultivation)
-	GameState.notify("机缘【%s】：%s 获得 %s。" % [opportunity.title, opportunity.text, opportunity.item])
+	# Menu actions cannot mint cultivation or materials. Real opportunities are
+	# only resolved at physical regional anchors in the playable world.
+	var region := _current_region()
+	var hint_by_region := {
+		"starter_village": "先进入云岚村南门：灵草、引路人和初始遗物都在可到达的位置。",
+		"mist_border": "进入雾潮边境后，沿雾渠、矿滩和药湿地观察；不同地貌只会出现相应生态。",
+		"red_maple_ancient_road": "赤枫古道的机缘应在商路、断桥与火窑遗址附近寻找。",
+		"thunder_listening_cliff": "听雷崖的线索集中在崖缘、雷纹石与避风平台，不会平铺在全区。",
+		"return_abyss_mist_port": "归墟雾港以潮汐、港道和海穴决定探索内容。",
+		"abysswatch_terrace": "临渊台的资源与感悟位于崖道、观想台和阵法残迹周边。",
+		"ancient_ridge": "古脊岭的地火、战场残魂与石海遗迹各有地貌边界；请在大地图实地探索。",
+	}
+	GameState.notify("%s｜%s" % [str(region.name), str(hint_by_region.get(region.id, "请进入可运行大地图寻找可解释的机缘。"))])
 	_render()
 
 func _attack() -> void:
