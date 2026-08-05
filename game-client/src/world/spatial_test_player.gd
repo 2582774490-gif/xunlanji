@@ -22,6 +22,7 @@ const AxeMotionScript = preload("res://src/animation/axe_motion_controller.gd")
 const HammerMotionScript = preload("res://src/animation/hammer_motion_controller.gd")
 const StaffMotionScript = preload("res://src/animation/staff_motion_controller.gd")
 const WhipMotionScript = preload("res://src/animation/whip_motion_controller.gd")
+const CrossbowMotionScript = preload("res://src/animation/crossbow_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -140,6 +141,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = StaffMotionScript.new()
 	elif motion == "shadow_whip":
 		pivot = WhipMotionScript.new()
+	elif motion == "jique_crossbow":
+		pivot = CrossbowMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -199,6 +202,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.063, 0.063)
 		sprite.position = Vector2(37, -43)
 		sprite.rotation = deg_to_rad(-8.0)
+	elif motion == "jique_crossbow":
+		# The rear grip is lower-left while the bolt rack points right; this keeps
+		# the dedicated recoil controller aligned with the firing direction.
+		sprite.scale = Vector2(0.072, 0.072)
+		sprite.position = Vector2(35, -45)
+		sprite.rotation = deg_to_rad(-5.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins

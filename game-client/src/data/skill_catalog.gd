@@ -86,6 +86,11 @@ const SUIYING_WHIP_SKILLS := [
 	{"id": "suiying_bindback", "name": "碎影回缚", "key": "K", "spirit_cost": 20, "cooldown": 4.4, "range": 348.0, "damage_base": 19, "attack_ratio": 0.46, "mana_ratio": 29.0, "visual": "whip_lash", "description": "岚息沿鞭节疾走，鞭梢弯折回抽，适合压制试图拉开距离的敌手。"},
 ]
 
+const JIQUE_CROSSBOW_SKILLS := [
+	{"id": "jique_bolt", "name": "机阙灵矢", "key": "J", "spirit_cost": 0, "cooldown": 0.48, "range": 410.0, "description": "机关匣弹出短灵矢，射程不及长弓但起射更快。"},
+	{"id": "jique_threebolt", "name": "机阙三连", "key": "K", "spirit_cost": 21, "cooldown": 4.2, "range": 480.0, "damage_base": 21, "attack_ratio": 0.45, "mana_ratio": 28.0, "visual": "crossbow_bolt", "description": "拨动机关匣，连续送出三枚练气短矢，强调短促爆发而非弓术蓄势。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -110,6 +115,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = QINGZHU_STAFF_SKILLS
 	elif item_name == "碎影练气鞭":
 		weapon_skills = SUIYING_WHIP_SKILLS
+	elif item_name == "机阙练气弩":
+		weapon_skills = JIQUE_CROSSBOW_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -146,3 +153,6 @@ static func is_staff_skill_set(item_name: String) -> bool:
 
 static func is_whip_skill_set(item_name: String) -> bool:
 	return item_name == "碎影练气鞭"
+
+static func is_crossbow_skill_set(item_name: String) -> bool:
+	return item_name == "机阙练气弩"
