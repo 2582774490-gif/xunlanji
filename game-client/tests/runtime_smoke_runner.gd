@@ -32,6 +32,7 @@ func _run() -> void:
 	await _check_liufeng_fan_runtime_layer_and_skill_set()
 	await _check_qingshang_guqin_runtime_layer_and_skill_set()
 	await _check_bihuang_xiao_runtime_layer_and_skill_set()
+	await _check_xuanshuang_bell_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -682,6 +683,33 @@ func _check_bihuang_xiao_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("XiaoSoundstreamEffect"), "Bihuang Qi Xiao basic attack did not spawn its own soundstream effect in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_xuanshuang_bell_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["玄霜摄魂铃"]
+	GameState.player.equipped_weapon = "玄霜摄魂铃"
+	var port := SpatialTestPort.new()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Xuanshuang Soul Bell did not create an independent player weapon render slot.")
+	_expect(port.player.weapon_motion is BellMotionController, "Xuanshuang Soul Bell did not use its dedicated pendulum-ring motion controller.")
+	var bell_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(bell_sprite.texture != null and "xuanshuang_soul_bell" in bell_sprite.texture.resource_path, "Xuanshuang Soul Bell was substituted with another weapon texture.")
+	var bell_skills := SkillCatalog.skills_for_weapon("玄霜摄魂铃")
+	_expect(str(bell_skills[0].name) == "玄霜铃音" and float(bell_skills[0].get("range", 0.0)) >= 280.0, "Xuanshuang Soul Bell needs its own medium-range sonic seal basic skill.")
+	_expect(str(bell_skills[1].name) == "玄霜镇音" and str(bell_skills[1].get("visual", "")) == "bell_sonic_seal", "Xuanshuang Soul Bell needs its own octagonal sonic seal primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := MistStreamWaterPalace.new()
+	GameState.player.equipped_weapon = "玄霜摄魂铃"
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("BellSonicSealEffect"), "Xuanshuang Soul Bell basic attack did not spawn its own sonic seal effect in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

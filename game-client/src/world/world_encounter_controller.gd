@@ -19,6 +19,7 @@ const CrossbowBoltProjectileScript = preload("res://src/combat/crossbow_bolt_pro
 const FanGustEffectScript = preload("res://src/combat/fan_gust_effect.gd")
 const GuqinNoteEffectScript = preload("res://src/combat/guqin_note_effect.gd")
 const XiaoSoundstreamEffectScript = preload("res://src/combat/xiao_soundstream_effect.gd")
+const BellSonicSealEffectScript = preload("res://src/combat/bell_sonic_seal_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 
 var _player: CharacterBody2D
@@ -127,6 +128,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_guqin_note(_player.global_position + Vector2(0, -56), (enemy_position - _player.global_position).normalized(), 180.0, 5.0)
 	elif SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon):
 		_spawn_xiao_soundstream(_player.global_position + Vector2(0, -54), (enemy_position - _player.global_position).normalized(), 205.0, 5.0)
+	elif SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon):
+		_spawn_bell_sonic_seal(_player.global_position + Vector2(0, -54), (enemy_position - _player.global_position).normalized(), 170.0, 18.0)
 	_target_health = max(0, _target_health - damage)
 	_refresh_target_label()
 	_status.text = "%s 受击，造成 %d 点伤害。" % [_target_name, damage]
@@ -219,6 +222,12 @@ func _spawn_xiao_soundstream(origin: Vector2, direction: Vector2, reach := 205.0
 	stream.name = "XiaoSoundstreamEffect"
 	add_child(stream)
 	stream.launch(origin, direction, reach, width)
+
+func _spawn_bell_sonic_seal(origin: Vector2, direction: Vector2, reach := 170.0, radius := 18.0) -> void:
+	var seal: BellSonicSealEffect = BellSonicSealEffectScript.new()
+	seal.name = "BellSonicSealEffect"
+	add_child(seal)
+	seal.launch(origin, direction, reach, radius)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":

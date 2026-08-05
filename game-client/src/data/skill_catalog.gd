@@ -106,6 +106,11 @@ const BIHUANG_XIAO_SKILLS := [
 	{"id": "bihuang_winding_tone", "name": "碧篁绕音", "key": "K", "spirit_cost": 20, "cooldown": 4.3, "range": 410.0, "damage_base": 18, "attack_ratio": 0.42, "mana_ratio": 33.0, "visual": "xiao_soundstream", "description": "箫音沿岚息回旋向前，形成更长的螺旋音流，擅长远距骚扰。"},
 ]
 
+const XUANSHUANG_BELL_SKILLS := [
+	{"id": "xuanshuang_bell_chime", "name": "玄霜铃音", "key": "J", "spirit_cost": 0, "cooldown": 0.62, "range": 285.0, "description": "轻振摄魂铃，放出一枚八角音印，扰乱中距离目标的步调。"},
+	{"id": "xuanshuang_seal_wave", "name": "玄霜镇音", "key": "K", "spirit_cost": 23, "cooldown": 4.9, "range": 338.0, "damage_base": 20, "attack_ratio": 0.40, "mana_ratio": 38.0, "visual": "bell_sonic_seal", "description": "三声镇铃化作层叠八角音印，向前推进，适合稳住近中距离的战局。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -138,6 +143,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = QINGSHANG_GUQIN_SKILLS
 	elif item_name == "碧篁练气箫":
 		weapon_skills = BIHUANG_XIAO_SKILLS
+	elif item_name == "玄霜摄魂铃":
+		weapon_skills = XUANSHUANG_BELL_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -186,3 +193,6 @@ static func is_guqin_skill_set(item_name: String) -> bool:
 
 static func is_xiao_skill_set(item_name: String) -> bool:
 	return item_name == "碧篁练气箫"
+
+static func is_bell_skill_set(item_name: String) -> bool:
+	return item_name == "玄霜摄魂铃"

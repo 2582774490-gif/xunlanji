@@ -26,6 +26,7 @@ const CrossbowMotionScript = preload("res://src/animation/crossbow_motion_contro
 const FanMotionScript = preload("res://src/animation/fan_motion_controller.gd")
 const GuqinMotionScript = preload("res://src/animation/guqin_motion_controller.gd")
 const XiaoMotionScript = preload("res://src/animation/xiao_motion_controller.gd")
+const BellMotionScript = preload("res://src/animation/bell_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -152,6 +153,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = GuqinMotionScript.new()
 	elif motion == "bihuang_xiao":
 		pivot = XiaoMotionScript.new()
+	elif motion == "xuanshuang_bell":
+		pivot = BellMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -235,6 +238,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.060, 0.060)
 		sprite.position = Vector2(38, -52)
 		sprite.rotation = deg_to_rad(-14.0)
+	elif motion == "xuanshuang_bell":
+		# This large source is pinned at the handle; its controller adds a small
+		# hanging sway so it reads as a hand bell rather than a static accessory.
+		sprite.scale = Vector2(0.050, 0.050)
+		sprite.position = Vector2(38, -52)
+		sprite.rotation = deg_to_rad(-12.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins
