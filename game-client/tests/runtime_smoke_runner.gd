@@ -29,6 +29,7 @@ func _run() -> void:
 	await _check_earthseal_render_and_combat_rules()
 	await _check_eightfold_array_render_and_combat_rules()
 	await _check_mist_pattern_bracers_armor_rules()
+	await _check_water_palace_spirit_boots_runtime_slot()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
@@ -155,6 +156,8 @@ func _check_cultivation_affinity() -> void:
 	_expect(GameState.cultivation_efficiency_multiplier() >= 1.0, "Mismatched paths must remain playable rather than being blocked.")
 	var manual_art: Dictionary = GameCatalog.technique_art_profile_for_name("云岚吐纳诀")
 	_expect(not manual_art.is_empty() and ResourceLoader.exists(str(manual_art.card_asset)), "Yunlan Breathing Manual must point to its own approved codex art asset.")
+	var vermilion_manual_art: Dictionary = GameCatalog.technique_art_profile_for_name("朱砂引灵书")
+	_expect(not vermilion_manual_art.is_empty() and ResourceLoader.exists(str(vermilion_manual_art.card_asset)), "Vermilion Spirit Guidance Manual must point to its own approved codex art asset.")
 	_expect(GameCatalog.technique_art_profile_for_name("三折剑经").is_empty(), "Unapproved technique art must not silently reuse the Yunlan manual cover.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
@@ -529,6 +532,20 @@ func _check_eightfold_array_render_and_combat_rules() -> void:
 	_expect(is_equal_approx(GameState.artifact_damage_reduction("neutral"), 0.16), "Eightfold Qi Array should reduce only its declared neutral PVE damage.")
 	_expect(GameState.elemental_damage_after_artifact(20, "neutral") == 17, "Eightfold Qi Array did not use the shared neutral damage calculation.")
 	_expect(is_zero_approx(GameState.artifact_damage_reduction("water")), "Eightfold Qi Array must not inherit water reduction from the Pearl.")
+	var forest := preload("res://scenes/mist_forest_grove.tscn").instantiate()
+	add_child(forest)
+	await get_tree().process_frame
+	forest.near_boss = true
+	forest.boss_engaged = true
+	forest.player.position = forest.boss.position + Vector2(120, 0)
+	forest.player_health = 100
+	forest.guard_time_left = 0.0
+	forest._perform_boss_water_blade()
+	await get_tree().create_timer(0.30).timeout
+	_expect(forest.player_health == 88, "Eightfold Qi Array did not reduce the neutral Mist Forest impact.")
+	_expect(forest.has_node("EightfoldArrayWard"), "Eightfold Qi Array did not create a visible ward when it mitigated a neutral hit.")
+	forest.queue_free()
+	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
@@ -553,6 +570,8 @@ func _check_mist_pattern_bracers_armor_rules() -> void:
 	add_child(forest)
 	await get_tree().process_frame
 	forest.near_boss = true
+	forest.boss_engaged = true
+	forest.player.position = forest.boss.position + Vector2(120, 0)
 	forest.player_health = 100
 	forest.guard_time_left = 0.0
 	forest._perform_boss_water_blade()
@@ -562,6 +581,26 @@ func _check_mist_pattern_bracers_armor_rules() -> void:
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
+
+func _check_water_palace_spirit_boots_runtime_slot() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("水府灵靴"):
+		GameState.player.inventory.append("水府灵靴")
+	GameState.player.equipped_armor = ""
+	GameState.equip_footwear("水府灵靴")
+	_expect(is_equal_approx(GameState.footwear_move_speed_bonus(), 18.0), "Water Palace Spirit Boots did not expose their declared movement bonus.")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("FootwearPivot/FootwearSprite"), "Water Palace Spirit Boots did not create an independent footwear layer.")
+	var footwear_sprite: Sprite2D = port.player.get_node("FootwearPivot/FootwearSprite")
+	_expect(footwear_sprite.texture != null and "water_palace_spirit_boots" in footwear_sprite.texture.resource_path, "Water Palace Spirit Boots runtime layer used no approved dedicated texture.")
+	_expect(is_equal_approx(port.player.effective_move_speed(), minf(395.0, GameState.world_move_speed() + 18.0)), "Water Palace Spirit Boots did not apply movement only through the world-avatar speed path.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
 
 func _check_local_market_loop() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)

@@ -4,6 +4,7 @@ const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
 const TalismanProjectileScript = preload("res://src/combat/talisman_projectile.gd")
 const SpearThrustEffectScript = preload("res://src/combat/spear_thrust_effect.gd")
 const WindArrowProjectileScript = preload("res://src/combat/wind_arrow_projectile.gd")
+const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 const BOSS_RETALIATION_RANGE := 650.0
 
 @onready var player: CharacterBody2D = $Player
@@ -213,6 +214,17 @@ func _spawn_wind_arrow(origin: Vector2, target: Vector2, travel_time := 0.30) ->
 	var arrow: WindArrowProjectile = WindArrowProjectileScript.new()
 	add_child(arrow)
 	arrow.launch(origin, target, Color(0.70, 0.94, 1.0), travel_time)
+
+func _show_eightfold_array_ward(element: String) -> bool:
+	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":
+		return false
+	if GameState.artifact_damage_reduction(element) <= 0.0:
+		return false
+	var ward: EightfoldArrayWard = EightfoldArrayWardScript.new()
+	ward.name = "EightfoldArrayWard"
+	add_child(ward)
+	ward.trigger(player.position + Vector2(0, -52))
+	return true
 
 func _boss_can_reach_player() -> bool:
 	return player.position.distance_to(boss.position) <= BOSS_RETALIATION_RANGE

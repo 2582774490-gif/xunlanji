@@ -9,6 +9,7 @@ const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
 const TalismanProjectileScript = preload("res://src/combat/talisman_projectile.gd")
 const SpearThrustEffectScript = preload("res://src/combat/spear_thrust_effect.gd")
 const WindArrowProjectileScript = preload("res://src/combat/wind_arrow_projectile.gd")
+const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 
 var _player: CharacterBody2D
 var _population: Node
@@ -52,9 +53,10 @@ func _process(delta: float) -> void:
 		return
 	_attack_cooldown = 2.2
 	var damage := GameState.pve_damage_after_equipment(_target_damage, "neutral")
+	var array_ward := _show_eightfold_array_ward("neutral")
 	_player_health = max(0, _player_health - damage)
 	_refresh_player_label()
-	_status.text = "%s 逼近发动袭击，造成 %d 点伤害。可继续手操反击或先拉开距离。" % [_target_name, damage]
+	_status.text = "%s 逼近发动袭击，造成 %d 点伤害。%s可继续手操反击或先拉开距离。" % [_target_name, damage, "八角阵纹卸去部分冲击；" if array_ward else ""]
 	if _player_health == 0:
 		_player_health = _player_max_health
 		_player.position -= (enemy_position - _player.position).normalized() * 190.0
@@ -128,3 +130,14 @@ func _spawn_wind_arrow(origin: Vector2, target: Vector2, travel_time := 0.30) ->
 	var arrow: WindArrowProjectile = WindArrowProjectileScript.new()
 	add_child(arrow)
 	arrow.launch(origin, target, Color(0.70, 0.94, 1.0), travel_time)
+
+func _show_eightfold_array_ward(element: String) -> bool:
+	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":
+		return false
+	if GameState.artifact_damage_reduction(element) <= 0.0:
+		return false
+	var ward: EightfoldArrayWard = EightfoldArrayWardScript.new()
+	ward.name = "EightfoldArrayWard"
+	add_child(ward)
+	ward.trigger(_player.global_position + Vector2(0, -52))
+	return true

@@ -35,6 +35,7 @@ var _attack_lock_time_left := 0.0
 var _rendered_weapon_name := ""
 var _rendered_artifact_name := ""
 var _rendered_armor_name := ""
+var _rendered_footwear_name := ""
 
 func _ready() -> void:
 	var idle_sheet := FEMALE_IDLE_SHEET if GameState.player.gender == "女" else IDLE_SHEET
@@ -91,6 +92,11 @@ func _sync_equipment_layers() -> void:
 		_remove_runtime_layer("ArmorPivot")
 		_rendered_armor_name = desired_armor
 		_configure_equipped_armor_visual()
+	var desired_footwear := str(GameState.player.get("equipped_footwear", ""))
+	if desired_footwear != _rendered_footwear_name:
+		_remove_runtime_layer("FootwearPivot")
+		_rendered_footwear_name = desired_footwear
+		_configure_equipped_footwear_visual()
 
 func _remove_runtime_layer(node_name: String) -> void:
 	var layer := get_node_or_null(NodePath(node_name))
@@ -193,6 +199,29 @@ func _configure_equipped_armor_visual() -> void:
 	sprite.position = Vector2(0, -62)
 	pivot.add_child(sprite)
 
+func _configure_equipped_footwear_visual() -> void:
+	# Footwear is a lower-body layer. It may coexist with bracers and a body
+	# piece instead of being forced through the temporary armor slot.
+	var footwear_profile := GameCatalog.footwear_profile_for_item(str(GameState.player.get("equipped_footwear", "")))
+	var asset_path := str(footwear_profile.get("runtime_asset", ""))
+	if asset_path.is_empty():
+		return
+	var footwear_texture := load(asset_path) as Texture2D
+	if footwear_texture == null:
+		return
+	var pivot := Node2D.new()
+	pivot.name = "FootwearPivot"
+	pivot.z_index = 4
+	add_child(pivot)
+	var sprite := Sprite2D.new()
+	sprite.name = "FootwearSprite"
+	sprite.texture = footwear_texture
+	var render_scale := float(footwear_profile.get("render_scale", 0.035))
+	sprite.scale = Vector2(render_scale, render_scale)
+	sprite.position = Vector2(0, -20)
+	pivot.add_child(sprite)
+
+
 func _physics_process(delta: float) -> void:
 	var movement := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	velocity = movement * effective_move_speed()
@@ -253,7 +282,7 @@ func perform_dash(facing: Vector2, distance := 116.0) -> void:
 
 
 func effective_move_speed() -> float:
-	return GameState.world_move_speed()
+	return minf(395.0, GameState.world_move_speed() + GameState.footwear_move_speed_bonus())
 
 
 func _emit_attack_impact(direction: String) -> void:

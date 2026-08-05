@@ -26,12 +26,13 @@ func _perform_boss_water_blade() -> void:
 	if defeated or not boss_engaged or not _boss_can_reach_player() or boss_health <= 0:
 		return
 	var damage := GameState.pve_damage_after_equipment(14, "neutral")
+	var array_ward := _show_eightfold_array_ward("neutral")
 	if guard_time_left > 0.0:
 		damage = ceili(float(damage) * 0.45)
 		guard_time_left = 0.0
 		status.text = "岚息护体挡下了大半雾刃。"
 	player_health = max(0, player_health - damage)
-	status.text = "雾林妖将 · 玄枝挥出雾刃，造成 %d 点伤害。" % damage
+	status.text = "雾林妖将 · 玄枝挥出雾刃，造成 %d 点伤害。%s" % [damage, "八角阵纹展开，卸去部分冲击。" if array_ward else ""]
 	_refresh_player_hp()
 	if player_health == 0:
 		defeated = true

@@ -276,6 +276,11 @@ func _show_inventory() -> void:
 		if not Catalog.armor_profile_for_item(item_name).is_empty():
 			armor_equips.append(["装备护具 %s" % item_name, func(): GameState.equip_armor(item_name), 220])
 	if not armor_equips.is_empty(): _buttons(armor_equips)
+	var footwear_equips: Array = []
+	for item_name in GameState.player.inventory:
+		if not Catalog.footwear_profile_for_item(item_name).is_empty():
+			footwear_equips.append(["装备足部 %s" % item_name, func(): GameState.equip_footwear(item_name), 220])
+	if not footwear_equips.is_empty(): _buttons(footwear_equips)
 	_text("装备强化：同类基础器型可用材料升级，升级属性可随交易一并转移；强化受境界限制。", 16, Color("a7d5ca"))
 	var upgrade_buttons: Array = []
 	for item_name in GameState.player.inventory:

@@ -215,6 +215,10 @@ const TECHNIQUE_ART_PROFILES := {
 		"card_asset": "res://assets/art/techniques/cloud_mist_breathing_manual/processed_alpha/cloud_mist_breathing_manual_v01_alpha.png",
 		"caption": "云岚吐纳诀秘卷｜岚潮一脉的基础吐纳法门。",
 	},
+	"朱砂引灵书": {
+		"card_asset": "res://assets/art/techniques/vermilion_spirit_guidance_manual/processed_alpha/vermilion_spirit_guidance_manual_v01_alpha.png",
+		"caption": "朱砂引灵书秘卷｜以朱砂、符纸与灵机牵引为根本的符修入门法门。",
+	},
 }
 
 static func technique_art_profile_for_name(path_name: String) -> Dictionary:
@@ -341,5 +345,23 @@ const ARMOR_PROFILES := {
 }
 
 
+# Feet are independent from bracers/body armor so the player can eventually
+# wear both. The prototype starts with a modest exploration-only speed bonus.
+const FOOTWEAR_PROFILES := {
+	"水府灵靴": {
+		"slot": "足部",
+		"quality": "凡品",
+		"trait": "水纹护靴，浅水探索时步伐更稳；大世界移动速度 +18。",
+		"move_speed_bonus": 18.0,
+		"render_scale": 0.035,
+		"runtime_asset": "res://assets/art/armor/water_palace_spirit_boots/processed_alpha/water_palace_spirit_boots_v01_alpha.png",
+	},
+}
+
+
 static func armor_profile_for_item(item_name: String) -> Dictionary:
 	return ARMOR_PROFILES.get(item_name, {}).duplicate(true)
+
+
+static func footwear_profile_for_item(item_name: String) -> Dictionary:
+	return FOOTWEAR_PROFILES.get(item_name, {}).duplicate(true)
