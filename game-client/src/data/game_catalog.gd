@@ -276,6 +276,19 @@ const NPCS := [
 	{"name": "祝铁山", "role": "炼器师", "place": "村北工坊"},
 ]
 
+const NPC_CARD_PROFILES := {
+	"陆青禾": {
+		"card_asset": "res://assets/art/npcs/lu_qinghe/processed_alpha/lu_qinghe_card_v01_alpha.png",
+		"faction": "云岚村 · 药圃行",
+		"relationship": "初识 · 可交易",
+		"service": "出售雾溪药；它与雾溪灵草共同构成凝息丹的首个可自由取得配方。",
+		"lead": "她会留意雨后溪路的药草变化，并可能提供雾泽灵草与百草谷的传闻。",
+	},
+}
+
+static func npc_card_profile_for_name(npc_name: String) -> Dictionary:
+	return NPC_CARD_PROFILES.get(npc_name, {}).duplicate(true)
+
 const OPPORTUNITIES := [
 	{"title": "雾潮散开", "text": "山道雾气短暂散去，发现一株雾溪草。", "item": "雾溪草", "cultivation": 8},
 	{"title": "旧碑回响", "text": "残碑与当前炼气法门共鸣，获得一段可参悟的行气法。", "item": "残碑拓片", "cultivation": 16},

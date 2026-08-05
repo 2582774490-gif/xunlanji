@@ -448,7 +448,12 @@ func _show_codex() -> void:
 	_text("已发现：%s" % "、".join(GameState.player.codex), 18, Color("f2d79c"))
 	_text("首批 NPC：")
 	for npc in Catalog.NPCS:
-		_text("%s · %s · %s" % [npc.name, npc.role, npc.place], 17)
+		var npc_name := str(npc.name)
+		var npc_profile := Catalog.npc_card_profile_for_name(npc_name)
+		if npc_profile.is_empty():
+			_text("%s · %s · %s" % [npc.name, npc.role, npc.place], 17)
+		else:
+			_add_npc_codex_card(npc, npc_profile)
 	_line()
 	_text("图鉴分类接口：人物、宗门、妖怪、法宝、灵植、资源、地点、副本、功法、事件。")
 	_line()
@@ -485,6 +490,29 @@ func _show_codex() -> void:
 	_line()
 	_heading("首发基础器型（均已有独立动作与运行时素材）")
 	_text("、".join(Catalog.WEAPON_RUNTIME_PROFILES.keys()), 16, Color("a7d5ca"))
+
+
+func _add_npc_codex_card(npc: Dictionary, profile: Dictionary) -> void:
+	var runtime_asset := str(profile.get("card_asset", ""))
+	if runtime_asset.is_empty() or not ResourceLoader.exists(runtime_asset):
+		_text("%s · %s · %s" % [npc.name, npc.role, npc.place], 17)
+		return
+	var card := HBoxContainer.new()
+	card.custom_minimum_size = Vector2(0, 182)
+	card.add_theme_constant_override("separation", 18)
+	content.add_child(card)
+	var portrait := TextureRect.new()
+	portrait.texture = load(runtime_asset) as Texture2D
+	portrait.custom_minimum_size = Vector2(128, 172)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	card.add_child(portrait)
+	var details := Label.new()
+	details.text = "《%s》｜%s\n所在地：%s｜势力：%s\n关系：%s\n交易：%s\n线索：%s" % [str(npc.name), str(npc.role), str(npc.place), str(profile.get("faction", "无")), str(profile.get("relationship", "初识")), str(profile.get("service", "暂无")), str(profile.get("lead", "暂无"))]
+	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_theme_font_size_override("font_size", 16)
+	card.add_child(details)
 
 
 func _add_technique_codex_card(technique_name: String, art_profile: Dictionary, show_insight := false) -> void:

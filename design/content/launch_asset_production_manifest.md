@@ -210,3 +210,9 @@ Avoid: duplicated objects, cropped edges, photorealistic photography, muddy silh
 | 条目 | 透明运行时资源 | 验收状态 |
 |---|---|---|
 | 雾港引潮盘 | `assets/art/artifacts/mist_harbor_tide_guide_disk/processed_alpha/mist_harbor_tide_guide_disk_v01_alpha.png` | 抠图检查通过；已登记法宝档案、角色独立法宝层、沉舷遗府既有掉落与水系 PVE/回灵验收；不参与 PVP 减伤。 |
+
+## 陆青禾运行时 NPC 卡
+
+| 条目 | 透明运行时资源 | 验收状态 |
+|---|---|---|
+| 陆青禾 | `assets/art/npcs/lu_qinghe/processed_alpha/lu_qinghe_card_v01_alpha.png` | 抠图检查通过；已登记万物图鉴 NPC 卡、雾溪药商店来源与界面验收；不复用角色模板或其他 NPC 人物图。 |

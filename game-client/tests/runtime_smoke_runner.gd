@@ -206,7 +206,7 @@ func _check_codex_registry_ui() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var rendered_text := _collect_label_text(codex_ui)
-	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型"), "Codex UI must render approved technique, artifact and weapon registry sections.")
+	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药"), "Codex UI must render approved technique, artifact, weapon and NPC card registry sections.")
 	codex_ui.queue_free()
 	GameState.player.inventory = ["雾港引潮盘", "沉雾舟纹袍"]
 	GameState.player.equipped_artifact = "雾港引潮盘"
@@ -279,6 +279,7 @@ func _check_alchemy_and_medicine_rules() -> void:
 			medicine_listing_index = index
 			break
 	_expect(medicine_listing_index >= 0, "Yunlan medicine vendor must provide the first Condensing Breath Pill ingredient.")
+	_expect(str(GameState.local_market_listings[medicine_listing_index].get("seller", "")) == "陆青禾", "The first alchemy ingredient should remain tied to Lu Qinghe's NPC market card.")
 	_expect(GameState.buy_market_listing(medicine_listing_index) and GameState.player.inventory.has("雾溪药"), "A new player must be able to buy the missing first alchemy ingredient from the local vendor.")
 	var ordinary_rate := GameState.alchemy_success_rate("ningxi")
 	GameState.player.cultivation_path = "百草调息篇"
