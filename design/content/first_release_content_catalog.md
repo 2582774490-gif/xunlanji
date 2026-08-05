@@ -16,7 +16,7 @@
 | 岚潮一脉 | 云岚吐纳诀、雾行隐踪篇、听潮观息法 | 岚灵根 / 水灵根 | 吐纳、探索、雾水感知 | 云岚吐纳诀已独立美术 |
 | 剑与兵修 | 三折剑经、沉锋养势诀、百兵淬体法 | 金 / 土灵根 | 连段、蓄势、兵器适配 | 三折剑经已独立美术 |
 | 符阵机巧 | 朱砂引灵书、四隅阵解、机关偃偶篇 | 火 / 土 / 金灵根 | 符法、控场、机关 | 朱砂引灵书已独立美术 |
-| 丹器百工 | 百草调息篇、炉火化元法、器纹初解 | 木 / 火 / 金灵根 | 炼丹、炼器、法宝词条 | 待独立秘卷 |
+| 丹器百工 | 百草调息篇、炉火化元法、器纹初解 | 木 / 火 / 金灵根 | 炼丹、炼器、法宝词条 | 百草调息篇、炉火化元法已独立美术 |
 | 灵兽音律 | 灵契共鸣篇、清商安魂曲、驭风游身诀 | 风 / 水灵根 | 灵兽、音律、位移 | 驭风游身诀已独立美术 |
 | 雷冰异修 | 惊雷转息法、寒照凝形诀、镜心守识篇 | 雷 / 冰灵根 | 预警、凝形、鉴识 | 待独立秘卷 |
 
@@ -64,6 +64,16 @@
 | 源图 | `game-client/assets/art/techniques/hundred_herbs_breath_regulation_manual/source/hundred_herbs_breath_regulation_manual_v01_chromakey.png` |
 | 透明游戏图 | `game-client/assets/art/techniques/hundred_herbs_breath_regulation_manual/processed_alpha/hundred_herbs_breath_regulation_manual_v01_alpha.png` |
 | 实装位置 | 功法图鉴卡片、百草谷路线数据与自动资源验收。 |
+
+## 五之一、本轮 Image 2 交付：炉火化元法
+
+| 项目 | 内容 |
+|---|---|
+| 功法定位 | 丹器百工派系的火行入门功法；火灵根与赤阳髓更易上手，当前独立提供炼丹成功率 +12%。 |
+| 获得逻辑 | 预留村北工坊、炼器支线和火行散修的传授入口；可并修，不强制改换主修。 |
+| 源图 | `game-client/assets/art/techniques/furnace_fire_transforming_origin_manual/source/furnace_fire_transforming_origin_manual_v01_chromakey.png` |
+| 透明游戏图 | `game-client/assets/art/techniques/furnace_fire_transforming_origin_manual/processed_alpha/furnace_fire_transforming_origin_manual_v01_alpha.png` |
+| 实装位置 | 功法图鉴卡片、炼丹成功率规则与自动资源验收。 |
 
 ## 六、本轮 Image 2 交付：沉雾舟纹袍
 

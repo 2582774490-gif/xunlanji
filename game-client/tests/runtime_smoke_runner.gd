@@ -89,6 +89,8 @@ func _run() -> void:
 func _check_manual_progression() -> void:
 	var hundred_herbs_manual_art: Dictionary = GameCatalog.technique_art_profile_for_name("百草调息篇")
 	_expect(not hundred_herbs_manual_art.is_empty() and ResourceLoader.exists(str(hundred_herbs_manual_art.card_asset)), "Hundred Herbs Breath-Regulating Chapter must point to its own approved codex art asset.")
+	var furnace_fire_manual_art: Dictionary = GameCatalog.technique_art_profile_for_name("炉火化元法")
+	_expect(not furnace_fire_manual_art.is_empty() and ResourceLoader.exists(str(furnace_fire_manual_art.card_asset)), "Furnace-Fire Transforming Origin Method must point to its own approved codex art asset.")
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.realm_index = 0
 	GameState.player.minor_stage = 1
@@ -292,6 +294,9 @@ func _check_alchemy_and_medicine_rules() -> void:
 	GameState.player.cultivation_path = "云岚吐纳诀"
 	var matching_baseline_rate := GameState.alchemy_success_rate("guiyuan")
 	_expect(is_equal_approx(hundred_herbs_rate - matching_baseline_rate, 0.18), "Hundred Herbs Breath-Regulating Chapter should independently grant its documented 18% alchemy stability bonus.")
+	GameState.player.cultivation_path = "炉火化元法"
+	var furnace_fire_rate := GameState.alchemy_success_rate("guiyuan")
+	_expect(is_equal_approx(furnace_fire_rate - matching_baseline_rate, 0.12), "Furnace-Fire Transforming Origin Method should independently grant its documented 12% alchemy stability bonus.")
 	GameState.player.cultivation_path = "百草调息篇"
 	_expect(GameState.craft_alchemy_recipe("ningxi", 0.0), "A valid recipe should craft when its controlled roll is within the success rate.")
 	_expect(GameState.player.inventory.has("凝息丹") and not GameState.player.inventory.has("雾溪灵草"), "Successful alchemy should consume materials and produce the named pill.")

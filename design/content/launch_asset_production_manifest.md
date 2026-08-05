@@ -199,6 +199,12 @@ Avoid: duplicated objects, cropped edges, photorealistic photography, muddy silh
 |---|---|---|
 | 百草调息篇秘卷 | `assets/art/techniques/hundred_herbs_breath_regulation_manual/processed_alpha/hundred_herbs_breath_regulation_manual_v01_alpha.png` | 抠图检查通过；已登记功法图鉴、百草谷内门传功路线与自动资源验收；不复用云岚、剑修、符修或风系秘卷封面。 |
 
+## 炉火化元法运行时资产
+
+| 条目 | 透明运行时资源 | 验收状态 |
+|---|---|---|
+| 炉火化元法秘卷 | `assets/art/techniques/furnace_fire_transforming_origin_manual/processed_alpha/furnace_fire_transforming_origin_manual_v01_alpha.png` | 抠图检查通过；已登记功法图鉴、炼丹成功率 +12% 规则与自动资源验收；不复用丹修、剑修、符修或风系秘卷封面。 |
+
 ## 沉雾舟纹袍运行时资产
 
 | 条目 | 透明运行时资源 | 验收状态 |

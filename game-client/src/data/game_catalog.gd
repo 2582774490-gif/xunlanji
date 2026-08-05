@@ -189,7 +189,7 @@ const CULTIVATION_SCHOOLS := [
 	{"faction": "岚潮一脉", "techniques": ["云岚吐纳诀", "雾行隐踪篇", "听潮观息法"]},
 	{"faction": "剑与兵修", "techniques": ["三折剑经", "沉锋养势诀", "百兵淬体法"]},
 	{"faction": "符阵机关", "techniques": ["朱砂引灵书", "四隅阵解", "机枢御偶篇"]},
-	{"faction": "丹器百工", "techniques": ["百草调息录", "炉火化元法", "器纹初解"]},
+	{"faction": "丹器百工", "techniques": ["百草调息篇", "炉火化元法", "器纹初解"]},
 	{"faction": "御兽音律", "techniques": ["灵契共鸣篇", "清商安魂曲", "驭风游身诀"]},
 	{"faction": "雷冰异修", "techniques": ["惊雷转息法", "寒照凝形诀", "镜心守识篇"]},
 ]
@@ -211,7 +211,7 @@ const TECHNIQUE_AFFINITIES := {
 	"朱砂引灵书": {"root": "火灵根", "physique": "镜心魂", "label": "符法引灵"},
 	"四隅阵解": {"root": "土灵根", "physique": "镜心魂", "label": "阵法推演"},
 	"机枢御偶篇": {"root": "金灵根", "physique": "御灵纹", "label": "机关御偶"},
-	"百草调息录": {"root": "木灵根", "physique": "青木灵胎", "label": "丹修调息"},
+	"百草调息篇": {"root": "木灵根", "physique": "青木灵胎", "label": "丹修调息"},
 	"炉火化元法": {"root": "火灵根", "physique": "赤阳髓", "label": "炉火化元"},
 	"器纹初解": {"root": "金灵根", "physique": "御灵纹", "label": "器纹炼器"},
 	"灵契共鸣篇": {"root": "风灵根", "physique": "御灵纹", "label": "御兽灵契"},
@@ -249,6 +249,10 @@ const TECHNIQUE_ART_PROFILES := {
 	"百草调息篇": {
 		"card_asset": "res://assets/art/techniques/hundred_herbs_breath_regulation_manual/processed_alpha/hundred_herbs_breath_regulation_manual_v01_alpha.png",
 		"caption": "百草调息篇秘卷——以药植吐纳、药性相济与温养经脉为根本的丹修入门法门；提升炼丹稳定性。",
+	},
+	"炉火化元法": {
+		"card_asset": "res://assets/art/techniques/furnace_fire_transforming_origin_manual/processed_alpha/furnace_fire_transforming_origin_manual_v01_alpha.png",
+		"caption": "炉火化元法秘卷——以炉温、火候与元息循环调和药材；炼丹稳定性略增，并为炼器路线预留火候理解。",
 	},
 }
 
