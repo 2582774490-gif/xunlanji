@@ -169,7 +169,7 @@ func _show_home() -> void:
 	_heading("修士洞府")
 	_text("%s · %s · 灵石 %d · 金钱 %d" % [GameState.player.gender, GameState.realm_name(), GameState.player.spirit_stones, GameState.player.gold], 21, Color("f2d79c"))
 	_text("灵根：%s｜体质：%s｜主修：%s" % [GameState.player.spirit_root, GameState.player.physique, GameState.player.cultivation_path])
-	_text("已装备：%s｜法宝：%s" % [GameState.player.equipped_weapon, GameState.player.equipped_artifact])
+	_text("已装备：%s｜法宝：%s｜护具：%s" % [GameState.player.equipped_weapon, GameState.player.equipped_artifact, GameState.player.get("equipped_armor", "未装备") if not str(GameState.player.get("equipped_armor", "")).is_empty() else "未装备"])
 	_line()
 	_text("核心循环：探索区域 → 获得资源/机缘 → 修炼与装备成长 → 宗门/交易/PVP → 解锁更高区域。")
 	_buttons([["进入开放世界", func(): GameState.enter_screen(GameState.Screen.OVERWORLD), 220], ["吐纳修炼", func(): GameState.enter_screen(GameState.Screen.REALM), 180], ["查看行囊", func(): GameState.enter_screen(GameState.Screen.INVENTORY), 180]])
@@ -252,7 +252,8 @@ func _allocate_attribute(attribute_name: String) -> void:
 
 func _show_inventory() -> void:
 	_heading("行囊 · 装备与法宝")
-	_text("已装备武器：%s｜已装备法宝：%s" % [GameState.player.equipped_weapon, GameState.player.equipped_artifact], 20, Color("f2d79c"))
+	var armor_name := str(GameState.player.get("equipped_armor", ""))
+	_text("已装备武器：%s｜已装备法宝：%s｜已装备护具：%s" % [GameState.player.equipped_weapon, GameState.player.equipped_artifact, armor_name if not armor_name.is_empty() else "未装备"], 20, Color("f2d79c"))
 	_text("当前物品：%s" % "、".join(GameState.player.inventory))
 	_line()
 	_text("首发正式基础器型：每种大类先做一把正式武器，再逐步补大分支、小分支、品级、武器卡、动作和特效。")
@@ -270,6 +271,11 @@ func _show_inventory() -> void:
 		if not Catalog.artifact_profile_for_item(item_name).is_empty():
 			artifact_equips.append(["装备法宝 %s" % item_name, func(): GameState.equip_artifact(item_name), 220])
 	if not artifact_equips.is_empty(): _buttons(artifact_equips)
+	var armor_equips: Array = []
+	for item_name in GameState.player.inventory:
+		if not Catalog.armor_profile_for_item(item_name).is_empty():
+			armor_equips.append(["装备护具 %s" % item_name, func(): GameState.equip_armor(item_name), 220])
+	if not armor_equips.is_empty(): _buttons(armor_equips)
 	_text("装备强化：同类基础器型可用材料升级，升级属性可随交易一并转移；强化受境界限制。", 16, Color("a7d5ca"))
 	var upgrade_buttons: Array = []
 	for item_name in GameState.player.inventory:

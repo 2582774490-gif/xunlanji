@@ -27,7 +27,7 @@ func _perform_boss_water_blade() -> void:
 	if defeated or not near_boss or boss_health <= 0:
 		return
 	var raw_damage := 20
-	var damage := GameState.elemental_damage_after_artifact(raw_damage, "earth")
+	var damage := GameState.pve_damage_after_equipment(raw_damage, "earth")
 	var mitigation_notes: Array[String] = []
 	var earth_reduction := GameState.artifact_damage_reduction("earth")
 	if earth_reduction > 0.0:

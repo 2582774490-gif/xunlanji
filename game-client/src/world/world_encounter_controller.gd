@@ -47,7 +47,7 @@ func _process(delta: float) -> void:
 	if _attack_cooldown > 0.0:
 		return
 	_attack_cooldown = 2.2
-	var damage := _target_damage
+	var damage := GameState.pve_damage_after_equipment(_target_damage, "neutral")
 	_player_health = max(0, _player_health - damage)
 	_refresh_player_label()
 	_status.text = "%s 逼近发动袭击，造成 %d 点伤害。可继续手操反击或先拉开距离。" % [_target_name, damage]

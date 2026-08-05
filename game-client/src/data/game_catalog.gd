@@ -312,3 +312,22 @@ const ALCHEMY_RECIPES := {
 
 static func artifact_profile_for_item(item_name: String) -> Dictionary:
 	return ARTIFACT_PROFILES.get(item_name, {}).duplicate(true)
+
+
+# Armor is an independent body slot. Body protection is deliberately mild PVE
+# mitigation; artifacts remain elemental/utility choices and PVP does not call
+# this protection path.
+const ARMOR_PROFILES := {
+	"雾纹护腕": {
+		"slot": "护腕",
+		"quality": "凡品",
+		"trait": "以雾纹分散近身冲击，PVE伤害降低 8%；不参与PVP减伤。",
+		"pve_damage_reduction": 0.08,
+		"render_scale": 0.045,
+		"runtime_asset": "res://assets/art/armor/mist_pattern_bracers/processed_alpha/mist_pattern_bracers_v01_alpha.png",
+	},
+}
+
+
+static func armor_profile_for_item(item_name: String) -> Dictionary:
+	return ARMOR_PROFILES.get(item_name, {}).duplicate(true)

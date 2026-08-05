@@ -67,7 +67,7 @@
 
 | 名称 | 部位 | 品阶 | 定位 | 主要来源 | 状态 |
 |---|---|---|---|---|---|
-| 雾纹护腕 | 护腕 | 凡品 | 攻击节奏、近战防护 | 雾溪水府 | 运行掉落，待装备卡 |
+| 雾纹护腕 | 护腕 | 凡品 | 近战防护，PVE伤害降低 8% | 雾溪水府 | 运行掉落、独立护具栏与美术层已接入；不参与PVP减伤 |
 | 水府灵靴 | 靴 | 凡品 | 移速、浅水行走 | 雾溪水府 | 运行掉落，待装备卡 |
 | 潮息玉佩 | 饰品 | 凡品 | 灵力恢复 | 雾溪水府 | 运行掉落，待装备卡 |
 | 雾林轻甲 | 胸甲 | 灵品 | 闪避、雾林抗性 | 雾林妖径 | 待美术 |
@@ -83,7 +83,7 @@
 1. **雾潮练气珠**：单体法宝图标卡 + 可抠图的装备单体，水系炼气法宝；已生成、已接入独立装备层；雾溪水府首通必得，水系伤害降低 35%。
 2. **玄土练气印**：单体法宝图标卡；土金质地，不沿用玉佩外形。已生成并完成抠图，地火洞首通必得；土岩伤害降低 32%，不对水、火或 PVP 普攻泛用减伤。
 3. **朱砂练气符笔**：单体武器图标卡；已生成，需在完成专属动作与特效后才可接入运行时武器层。
-4. **雾纹护腕**：单体装备图标卡；布甲与灵纹结合。
+4. **雾纹护腕**：单体装备图标卡；布甲与灵纹结合。已生成、已接入护具栏、强化与PVE防护结算。
 5. **水府灵靴**：单体装备图标卡；浅水行走的水纹护靴。
 
 每张原图必须：主体居中、留出 12% 以上边距、背景为无阴影纯洋红 `#ff00ff` 便于抠图、无文字、无水印、无角色、无场景。导入后生成透明 PNG，再单独制作 UI 图标裁切和游戏内展示尺寸；不会把概念图直接当作可装备资源。
@@ -94,6 +94,7 @@
 |---|---|---|
 | 雾潮练气珠 | `assets/art/artifacts/mist_tide_qi_pearl/processed_alpha/mist_tide_qi_pearl_v01_alpha.png` | 已在法宝资料、角色独立法宝层与水府、沉舷遗府的水系减伤验证；水府首通必得 |
 | 玄土练气印 | `assets/art/artifacts/earthseal_qi_stamp/processed_alpha/earthseal_qi_stamp_v01_alpha.png` | 已完成原创法宝图、角色独立法宝层与地火洞土岩减伤验证；地火洞首通必得 |
+| 雾纹护腕 | `assets/art/armor/mist_pattern_bracers/processed_alpha/mist_pattern_bracers_v01_alpha.png` | 已完成原创护具图、独立护具层与PVE减伤验证；雾溪水府随机掉落 |
 | 朱砂练气符笔 | `assets/art/weapons/vermilion_qi_talisman_brush/processed_alpha/vermilion_qi_talisman_brush_v01_alpha.png` | 已登记美术，待专属动作、攻击特效与武器卡 |
 | 云岚吐纳诀秘卷 | `assets/art/techniques/cloud_mist_breathing_manual/processed_alpha/cloud_mist_breathing_manual_v01_alpha.png` | 已登记功法图，待功法图鉴界面接入 |
 

@@ -23,6 +23,7 @@ func _run() -> void:
 	await _check_mist_tide_pearl_render_slot()
 	await _check_mist_tide_pearl_combat_rules()
 	await _check_earthseal_render_and_combat_rules()
+	await _check_mist_pattern_bracers_armor_rules()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
@@ -419,6 +420,37 @@ func _check_earthseal_render_and_combat_rules() -> void:
 	await get_tree().create_timer(0.30).timeout
 	_expect(cave.player_health == 86, "Earthfire Cave did not apply the Earthseal Qi Stamp only to its earth-impact attack.")
 	cave.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_mist_pattern_bracers_armor_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("雾纹护腕"):
+		GameState.player.inventory.append("雾纹护腕")
+	GameState.player.equipped_artifact = ""
+	GameState.equip_armor("雾纹护腕")
+	_expect(is_equal_approx(GameState.armor_pve_damage_reduction(), 0.08), "Mist Pattern Bracers should provide only their declared PVE mitigation.")
+	_expect(GameState.pve_damage_after_equipment(14, "neutral") == 13, "Mist Pattern Bracers did not reduce a neutral PVE hit through the shared equipment calculation.")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("ArmorPivot/ArmorSprite"), "Equipped Mist Pattern Bracers did not create an independent armor render layer.")
+	var armor_sprite: Sprite2D = port.player.get_node("ArmorPivot/ArmorSprite")
+	_expect(armor_sprite.texture != null, "Mist Pattern Bracers armor layer has no approved dedicated texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	var forest := preload("res://scenes/mist_forest_grove.tscn").instantiate()
+	add_child(forest)
+	await get_tree().process_frame
+	forest.near_boss = true
+	forest.player_health = 100
+	forest.guard_time_left = 0.0
+	forest._perform_boss_water_blade()
+	await get_tree().create_timer(0.30).timeout
+	_expect(forest.player_health == 87, "Mist Pattern Bracers did not apply their PVE mitigation to a neutral dungeon attack.")
+	forest.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
@@ -849,6 +881,7 @@ func _check_local_duel_arena() -> void:
 		GameState.player.inventory.append("青篁练气剑")
 	GameState.equip_weapon("青篁练气剑")
 	GameState.player.equipped_artifact = "雾潮练气珠"
+	GameState.player.equipped_armor = "雾纹护腕"
 	var arena := preload("res://scenes/duel_arena.tscn").instantiate()
 	add_child(arena)
 	await get_tree().process_frame

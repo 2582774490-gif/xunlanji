@@ -68,6 +68,7 @@ var player := {
 	"ecology_cooldowns": {},
 	"equipped_weapon": "练气木剑",
 	"equipped_artifact": "纳灵玉佩",
+	"equipped_armor": "",
 	"equipment_upgrades": {},
 	"inventory": ["练气木剑", "凝气符", "雾溪草", "纳灵玉佩"],
 	"codex": ["云岚村", "雾溪水府"],
@@ -149,8 +150,8 @@ func list_item_for_market(item_name: String, price: int) -> bool:
 	if not player.inventory.has(item_name):
 		notify("行囊中没有可上架的 %s。" % item_name)
 		return false
-	if item_name == str(player.get("equipped_weapon", "")) or item_name == str(player.get("equipped_artifact", "")):
-		notify("已装备的武器或法宝不能直接上架，请先更换装备。")
+	if item_name == str(player.get("equipped_weapon", "")) or item_name == str(player.get("equipped_artifact", "")) or item_name == str(player.get("equipped_armor", "")):
+		notify("已装备的武器、法宝或护具不能直接上架，请先更换装备。")
 		return false
 	var fee := market_fee(price)
 	if player.gold < fee:
@@ -674,12 +675,26 @@ func equip_artifact(item_name: String) -> void:
 	profile_changed.emit()
 
 
+func equip_armor(item_name: String) -> void:
+	if not player.inventory.has(item_name):
+		notify("行囊中没有 %s，不能装备。" % item_name)
+		return
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var profile: Dictionary = catalog.armor_profile_for_item(item_name)
+	if profile.is_empty():
+		notify("%s 尚未建立护具卡，暂不能装备。" % item_name)
+		return
+	player.equipped_armor = item_name
+	notify("已装备护具：%s｜%s" % [item_name, str(profile.trait)])
+	profile_changed.emit()
+
+
 func is_upgradeable_equipment(item_name: String) -> bool:
 	var catalog := preload("res://src/data/game_catalog.gd")
 	for family in catalog.WEAPON_FAMILIES:
 		if item_name == str(family.starter):
 			return true
-	return not catalog.artifact_profile_for_item(item_name).is_empty()
+	return not catalog.artifact_profile_for_item(item_name).is_empty() or not catalog.armor_profile_for_item(item_name).is_empty()
 
 
 func equipment_upgrade_level(item_name: String) -> int:
@@ -709,6 +724,11 @@ func equipped_artifact_profile() -> Dictionary:
 	return catalog.artifact_profile_for_item(str(player.get("equipped_artifact", "")))
 
 
+func equipped_armor_profile() -> Dictionary:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	return catalog.armor_profile_for_item(str(player.get("equipped_armor", "")))
+
+
 func artifact_mana_regen_bonus() -> float:
 	return maxf(0.0, float(equipped_artifact_profile().get("mana_regen_bonus", 0.0)))
 
@@ -721,6 +741,18 @@ func artifact_damage_reduction(element: String) -> float:
 func elemental_damage_after_artifact(raw_damage: int, element: String) -> int:
 	var reduction := artifact_damage_reduction(element)
 	return maxi(1, ceili(float(raw_damage) * (1.0 - reduction)))
+
+
+func armor_pve_damage_reduction() -> float:
+	var armor_name := str(player.get("equipped_armor", ""))
+	var base_reduction := float(equipped_armor_profile().get("pve_damage_reduction", 0.0))
+	var upgrade_bonus := float(equipment_upgrade_level(armor_name)) * 0.006
+	return clampf(base_reduction + upgrade_bonus, 0.0, 0.25)
+
+
+func pve_damage_after_equipment(raw_damage: int, element: String) -> int:
+	var after_artifact := elemental_damage_after_artifact(raw_damage, element)
+	return maxi(1, ceili(float(after_artifact) * (1.0 - armor_pve_damage_reduction())))
 
 
 func weapon_basic_damage(base_damage: int) -> int:
@@ -859,7 +891,7 @@ func contribute_item_to_sect(item_name: String) -> bool:
 	if str(player.get("sect_id", "")).is_empty():
 		notify("散修可自由持有资源；加入宗门后才能进献。")
 		return false
-	if item_name == str(player.get("equipped_weapon", "")) or not player.inventory.has(item_name):
+	if item_name == str(player.get("equipped_weapon", "")) or item_name == str(player.get("equipped_artifact", "")) or item_name == str(player.get("equipped_armor", "")) or not player.inventory.has(item_name):
 		notify("该物品不能作为当前宗门进献。")
 		return false
 	player.inventory.erase(item_name)
@@ -948,6 +980,10 @@ func _normalize_player_schema() -> void:
 			else:
 				equipment_states.erase(item_name)
 		player.equipment_upgrades = equipment_states
+	if not player.has("equipped_armor"):
+		player.equipped_armor = ""
+	else:
+		player.equipped_armor = str(player.equipped_armor)
 	if not player.has("world_guidance") or not player.world_guidance is Dictionary:
 		player.world_guidance = {"steps": [], "skipped": false}
 	else:

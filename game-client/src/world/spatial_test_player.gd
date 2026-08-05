@@ -34,6 +34,7 @@ var _attack_visual_time_left := 0.0
 var _attack_lock_time_left := 0.0
 var _rendered_weapon_name := ""
 var _rendered_artifact_name := ""
+var _rendered_armor_name := ""
 
 func _ready() -> void:
 	var idle_sheet := FEMALE_IDLE_SHEET if GameState.player.gender == "女" else IDLE_SHEET
@@ -85,6 +86,11 @@ func _sync_equipment_layers() -> void:
 		artifact_motion = null
 		_rendered_artifact_name = desired_artifact
 		_configure_equipped_artifact_visual()
+	var desired_armor := str(GameState.player.get("equipped_armor", ""))
+	if desired_armor != _rendered_armor_name:
+		_remove_runtime_layer("ArmorPivot")
+		_rendered_armor_name = desired_armor
+		_configure_equipped_armor_visual()
 
 func _remove_runtime_layer(node_name: String) -> void:
 	var layer := get_node_or_null(NodePath(node_name))
@@ -140,6 +146,29 @@ func _configure_equipped_artifact_visual() -> void:
 	sprite.texture = artifact_texture
 	var render_scale := float(artifact_profile.get("render_scale", 0.075))
 	sprite.scale = Vector2(render_scale, render_scale)
+	pivot.add_child(sprite)
+
+
+func _configure_equipped_armor_visual() -> void:
+	# Lightweight armor cards can attach as their own layer while full costume
+	# sheets are still produced. They never alter the body atlas or weapon slot.
+	var armor_profile := GameCatalog.armor_profile_for_item(str(GameState.player.get("equipped_armor", "")))
+	var asset_path := str(armor_profile.get("runtime_asset", ""))
+	if asset_path.is_empty():
+		return
+	var armor_texture := load(asset_path) as Texture2D
+	if armor_texture == null:
+		return
+	var pivot := Node2D.new()
+	pivot.name = "ArmorPivot"
+	pivot.z_index = 4
+	add_child(pivot)
+	var sprite := Sprite2D.new()
+	sprite.name = "ArmorSprite"
+	sprite.texture = armor_texture
+	var render_scale := float(armor_profile.get("render_scale", 0.045))
+	sprite.scale = Vector2(render_scale, render_scale)
+	sprite.position = Vector2(0, -62)
 	pivot.add_child(sprite)
 
 func _physics_process(delta: float) -> void:
