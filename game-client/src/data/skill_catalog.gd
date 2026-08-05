@@ -96,6 +96,11 @@ const LIUFENG_FAN_SKILLS := [
 	{"id": "liufeng_wind_return", "name": "流风回旋", "key": "K", "spirit_cost": 19, "cooldown": 4.1, "range": 310.0, "damage_base": 18, "attack_ratio": 0.44, "mana_ratio": 31.0, "visual": "fan_gust", "description": "以折扇引动岚息，三道回旋风流扫过前方，不以硬碰硬取胜。"},
 ]
 
+const QINGSHANG_GUQIN_SKILLS := [
+	{"id": "qingshang_note", "name": "清商弦音", "key": "J", "spirit_cost": 0, "cooldown": 0.56, "range": 335.0, "description": "拨出一道清音，音波在中距离扩散，不依赖兵刃接触。"},
+	{"id": "qingshang_resonance", "name": "清商回鸣", "key": "K", "spirit_cost": 22, "cooldown": 4.7, "range": 382.0, "damage_base": 19, "attack_ratio": 0.43, "mana_ratio": 34.0, "visual": "guqin_note", "description": "连拨三弦，令三圈音波依次前推，以节奏压制远处目标。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -124,6 +129,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = JIQUE_CROSSBOW_SKILLS
 	elif item_name == "流风练气扇":
 		weapon_skills = LIUFENG_FAN_SKILLS
+	elif item_name == "清商练气琴":
+		weapon_skills = QINGSHANG_GUQIN_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -166,3 +173,6 @@ static func is_crossbow_skill_set(item_name: String) -> bool:
 
 static func is_fan_skill_set(item_name: String) -> bool:
 	return item_name == "流风练气扇"
+
+static func is_guqin_skill_set(item_name: String) -> bool:
+	return item_name == "清商练气琴"

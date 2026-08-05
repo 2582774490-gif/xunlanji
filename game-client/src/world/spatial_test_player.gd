@@ -24,6 +24,7 @@ const StaffMotionScript = preload("res://src/animation/staff_motion_controller.g
 const WhipMotionScript = preload("res://src/animation/whip_motion_controller.gd")
 const CrossbowMotionScript = preload("res://src/animation/crossbow_motion_controller.gd")
 const FanMotionScript = preload("res://src/animation/fan_motion_controller.gd")
+const GuqinMotionScript = preload("res://src/animation/guqin_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -146,6 +147,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = CrossbowMotionScript.new()
 	elif motion == "flowing_fan":
 		pivot = FanMotionScript.new()
+	elif motion == "qingshang_guqin":
+		pivot = GuqinMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -217,6 +220,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.060, 0.060)
 		sprite.position = Vector2(37, -46)
 		sprite.rotation = deg_to_rad(-18.0)
+	elif motion == "qingshang_guqin":
+		# The full instrument rests just in front of the torso, far enough from
+		# the feet to remain legible while its dedicated pluck controller floats.
+		sprite.scale = Vector2(0.064, 0.064)
+		sprite.position = Vector2(32, -57)
+		sprite.rotation = deg_to_rad(-6.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins

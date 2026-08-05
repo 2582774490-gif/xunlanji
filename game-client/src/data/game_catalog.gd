@@ -145,6 +145,7 @@ const WEAPON_RUNTIME_PROFILES := {
 	"碎影练气鞭": {"motion": "shadow_whip", "asset": "res://assets/art/weapons/suiying_qi_whip/processed_alpha/suiying_qi_whip_v01_alpha.png"},
 	"机阙练气弩": {"motion": "jique_crossbow", "asset": "res://assets/art/weapons/jique_qi_crossbow/processed_alpha/jique_qi_crossbow_v01_alpha.png"},
 	"流风练气扇": {"motion": "flowing_fan", "asset": "res://assets/art/weapons/liufeng_qi_fan/processed_alpha/liufeng_qi_fan_v01_alpha.png"},
+	"清商练气琴": {"motion": "qingshang_guqin", "asset": "res://assets/art/weapons/qingshang_qi_guqin/processed_alpha/qingshang_qi_guqin_v01_alpha.png"},
 }
 
 static func weapon_runtime_profile_for_item(item_name: String) -> Dictionary:
