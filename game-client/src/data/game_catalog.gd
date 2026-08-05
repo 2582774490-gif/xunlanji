@@ -425,6 +425,10 @@ const PILL_ART_PROFILES := {
 		"card_asset": "res://assets/art/pills/nourishing_origin_pill/processed_alpha/nourishing_origin_pill_v01_alpha.png",
 		"caption": "炼气中期的养元灵丹；修为 +22，药负 +7。以雾泽灵草、雾林材料与凝气符材炼成。",
 	},
+	"归元丹": {
+		"card_asset": "res://assets/art/pills/returning_origin_pill/processed_alpha/returning_origin_pill_v01_alpha.png",
+		"caption": "炼气七至九层的归元灵丹；修为 +30，药负 +9。以妖丹、灵草与临渊露调和而成。",
+	},
 }
 
 const ALCHEMY_RECIPES := {

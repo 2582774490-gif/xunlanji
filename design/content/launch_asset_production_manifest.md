@@ -193,6 +193,12 @@ Avoid: duplicated objects, cropped edges, photorealistic photography, muddy silh
 |---|---|---|
 | 养元丹 | `assets/art/pills/nourishing_origin_pill/processed_alpha/nourishing_origin_pill_v01_alpha.png` | 抠图检查通过；已登记炼丹工坊卡片、丹药图鉴数据与自动资源验收；不复用凝息丹或任何法宝、装备图。 |
 
+## 归元丹运行时资产
+
+| 条目 | 透明运行时资源 | 验收状态 |
+|---|---|---|
+| 归元丹 | `assets/art/pills/returning_origin_pill/processed_alpha/returning_origin_pill_v01_alpha.png` | 抠图检查通过；已登记炼丹工坊卡片、归元丹配方与自动界面验收；不复用凝息丹、养元丹或任何法宝、装备图。 |
+
 ## 百草调息篇运行时资产
 
 | 条目 | 透明运行时资源 | 验收状态 |

@@ -223,6 +223,14 @@ func _check_codex_registry_ui() -> void:
 	var inventory_text := _collect_label_text(inventory_ui)
 	_expect(inventory_text.contains("雾港引潮盘") and inventory_text.contains("沉雾舟纹袍") and inventory_text.contains("已装备"), "Inventory UI must render owned equipped artifact and armor cards with their state.")
 	inventory_ui.queue_free()
+	GameState.current_screen = GameState.Screen.ALCHEMY
+	var alchemy_ui := preload("res://scenes/main.tscn").instantiate()
+	add_child(alchemy_ui)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var alchemy_text := _collect_label_text(alchemy_ui)
+	_expect(alchemy_text.contains("凝息丹") and alchemy_text.contains("养元丹") and alchemy_text.contains("归元丹"), "Alchemy UI must render every approved Qi-refining pill with its independent card.")
+	alchemy_ui.queue_free()
 	GameState.player = profile_before
 	GameState.current_screen = screen_before
 	GameState.profile_changed.emit()
@@ -319,6 +327,8 @@ func _check_alchemy_and_medicine_rules() -> void:
 	_expect(not condensing_art.is_empty() and ResourceLoader.exists(str(condensing_art.card_asset)), "Condensing Breath Pill must point to its own approved alchemy art asset.")
 	var nourishing_art: Dictionary = GameCatalog.pill_art_profile_for_item("养元丹")
 	_expect(not nourishing_art.is_empty() and ResourceLoader.exists(str(nourishing_art.card_asset)), "Nourishing Origin Pill must point to its own approved alchemy art asset.")
+	var returning_origin_art: Dictionary = GameCatalog.pill_art_profile_for_item("归元丹")
+	_expect(not returning_origin_art.is_empty() and ResourceLoader.exists(str(returning_origin_art.card_asset)), "Returning-Origin Pill must point to its own approved alchemy art asset.")
 	GameState.player = profile_before
 	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()

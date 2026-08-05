@@ -40,7 +40,7 @@
 |---|---|---|---|
 | 武器 | 24 种基础器型：剑、刀、枪、戟、斧、锤、棍、鞭、弓、弩、扇、伞、琴、箫、铃、符笔、阵盘、偃偶、鼎、珠、印、镜、塔、轮 | 每类均有独立持握层、普攻与主技能 | 可用 |
 | 护具 | 雾纹护臂、雾林轻甲、水府灵靴 | PVE 减伤或探索移动 | 可用，独立美术 |
-| 炼气丹药 | 灵泉露、凝息丹、养元丹、归元丹 | 分别服务炼气前、中、后期；高阶服用低阶无效 | 全部可炼制；凝息丹、养元丹已独立美术 |
+| 炼气丹药 | 灵泉露、凝息丹、养元丹、归元丹 | 分别服务炼气前、中、后期；高阶服用低阶无效 | 全部可炼制；凝息丹、养元丹、归元丹已独立美术 |
 | 筑基材料 | 雾林妖丹、雾潮晶簇、临渊露、雾岭石屑、护脉阵片 | 筑基丹与区域探索 | 可用，逐步补图 |
 
 ## 四、本轮 Image 2 交付：养元丹
@@ -52,6 +52,16 @@
 | 源图 | `game-client/assets/art/pills/nourishing_origin_pill/source/nourishing_origin_pill_v01_chromakey.png` |
 | 透明游戏图 | `game-client/assets/art/pills/nourishing_origin_pill/processed_alpha/nourishing_origin_pill_v01_alpha.png` |
 | 实装位置 | 炼丹工坊卡片、丹药图鉴数据、自动资源验收 |
+
+## 四之一、本轮 Image 2 交付：归元丹
+
+| 项目 | 内容 |
+|---|---|
+| 物品定位 | 炼气七至九层的后期丹药，修为 +30，药负 +9。 |
+| 配方 | 雾林妖丹 × 1 + 雾泽灵草 × 1 + 临渊露 × 1。 |
+| 源图 | `game-client/assets/art/pills/returning_origin_pill/source/returning_origin_pill_v01_chromakey.png` |
+| 透明游戏图 | `game-client/assets/art/pills/returning_origin_pill/processed_alpha/returning_origin_pill_v01_alpha.png` |
+| 实装位置 | 炼丹工坊卡片、丹药图鉴数据、归元丹配方与自动界面验收。 |
 
 后续严格按“一件物品 → 源图 → 抠图 → 图鉴/玩法实装 → 验收”的顺序推进；不会批量产生无法判断品质、又未接入玩法的图片。
 
