@@ -37,6 +37,7 @@ func _run() -> void:
 	await _check_moxu_puppet_runtime_layer_and_skill_set()
 	await _check_qinglu_cauldron_runtime_layer_and_skill_set()
 	await _check_canglan_pearl_runtime_layer_and_skill_set()
+	await _check_zhenyue_seal_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -822,6 +823,33 @@ func _check_canglan_pearl_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("PearlTideProjectile"), "Canglan Spirit Pearl basic attack did not spawn its own tide projectile in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_zhenyue_seal_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["镇岳缚灵印"]
+	GameState.player.equipped_weapon = "镇岳缚灵印"
+	var port := SpatialTestPort.new()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Zhenyue Spirit Seal did not create an independent floating seal render slot.")
+	_expect(port.player.weapon_motion is SealMotionController, "Zhenyue Spirit Seal did not use its dedicated rise-and-stamp motion controller.")
+	var seal_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(seal_sprite.texture != null and "zhenyue_spirit_seal" in seal_sprite.texture.resource_path, "Zhenyue Spirit Seal was substituted with another weapon texture.")
+	var seal_skills := SkillCatalog.skills_for_weapon("镇岳缚灵印")
+	_expect(str(seal_skills[0].name) == "镇岳落印" and float(seal_skills[0].get("range", 0.0)) >= 240.0, "Zhenyue Spirit Seal needs its own medium-range stamp basic skill.")
+	_expect(str(seal_skills[1].name) == "镇岳缚灵" and str(seal_skills[1].get("visual", "")) == "seal_slam", "Zhenyue Spirit Seal needs its own mountain-seal primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := MistStreamWaterPalace.new()
+	GameState.player.equipped_weapon = "镇岳缚灵印"
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("SealSlamEffect"), "Zhenyue Spirit Seal basic attack did not spawn its own seal-slam effect in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

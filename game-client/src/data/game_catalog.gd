@@ -152,6 +152,7 @@ const WEAPON_RUNTIME_PROFILES := {
 	"墨枢练气傀儡": {"motion": "moxu_puppet", "asset": "res://assets/art/weapons/moxu_qi_puppet/processed_alpha/moxu_qi_puppet_v01_alpha.png"},
 	"青炉练气鼎": {"motion": "qinglu_cauldron", "asset": "res://assets/art/weapons/qinglu_qi_cauldron/processed_alpha/qinglu_qi_cauldron_v01_alpha.png"},
 	"沧澜引灵珠": {"motion": "canglan_pearl", "asset": "res://assets/art/weapons/canglan_spirit_pearl/processed_alpha/canglan_spirit_pearl_v01_alpha.png"},
+	"镇岳缚灵印": {"motion": "zhenyue_seal", "asset": "res://assets/art/weapons/zhenyue_spirit_seal/processed_alpha/zhenyue_spirit_seal_v01_alpha.png"},
 }
 
 static func weapon_runtime_profile_for_item(item_name: String) -> Dictionary:

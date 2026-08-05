@@ -131,6 +131,11 @@ const CANGLAN_PEARL_SKILLS := [
 	{"id": "canglan_tide_return", "name": "沧澜回潮", "key": "K", "spirit_cost": 22, "cooldown": 4.6, "range": 425.0, "damage_base": 20, "attack_ratio": 0.40, "mana_ratio": 38.0, "visual": "pearl_tide", "description": "灵珠裹挟回潮水岚飞得更远，在命中处泛起一圈珠潮，不以直线箭矢取胜。"},
 ]
 
+const ZHENYUE_SEAL_SKILLS := [
+	{"id": "zhenyue_seal_stamp", "name": "镇岳落印", "key": "J", "spirit_cost": 0, "cooldown": 0.70, "range": 245.0, "description": "悬印在前方落下，形成一记方正山纹冲击，擅长稳定压迫近中距离。"},
+	{"id": "zhenyue_binding_mountain", "name": "镇岳缚灵", "key": "K", "spirit_cost": 25, "cooldown": 5.0, "range": 300.0, "damage_base": 24, "attack_ratio": 0.45, "mana_ratio": 34.0, "visual": "seal_slam", "description": "法印引来更重的岳纹落下，在较远位置形成更大的镇压印痕。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -173,6 +178,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = QINGLU_CAULDRON_SKILLS
 	elif item_name == "沧澜引灵珠":
 		weapon_skills = CANGLAN_PEARL_SKILLS
+	elif item_name == "镇岳缚灵印":
+		weapon_skills = ZHENYUE_SEAL_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -236,3 +243,6 @@ static func is_cauldron_skill_set(item_name: String) -> bool:
 
 static func is_pearl_skill_set(item_name: String) -> bool:
 	return item_name == "沧澜引灵珠"
+
+static func is_seal_skill_set(item_name: String) -> bool:
+	return item_name == "镇岳缚灵印"

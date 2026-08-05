@@ -31,6 +31,7 @@ const ArrayDiskMotionScript = preload("res://src/animation/array_disk_motion_con
 const PuppetMotionScript = preload("res://src/animation/puppet_motion_controller.gd")
 const CauldronMotionScript = preload("res://src/animation/cauldron_motion_controller.gd")
 const PearlMotionScript = preload("res://src/animation/pearl_motion_controller.gd")
+const SealMotionScript = preload("res://src/animation/seal_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -167,6 +168,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = CauldronMotionScript.new()
 	elif motion == "canglan_pearl":
 		pivot = PearlMotionScript.new()
+	elif motion == "zhenyue_seal":
+		pivot = SealMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -280,6 +283,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.054, 0.054)
 		sprite.position = Vector2(0, 0)
 		sprite.rotation = 0.0
+	elif motion == "zhenyue_seal":
+		# Keep the underside of the seal visible just above the hand; its own
+		# controller provides the heavy rise-and-stamp rhythm.
+		sprite.scale = Vector2(0.050, 0.050)
+		sprite.position = Vector2(0, 0)
+		sprite.rotation = deg_to_rad(-5.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins
