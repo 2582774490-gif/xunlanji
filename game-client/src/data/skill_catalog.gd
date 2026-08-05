@@ -81,6 +81,11 @@ const QINGZHU_STAFF_SKILLS := [
 	{"id": "qingzhu_whirl_guard", "name": "青竹回风", "key": "K", "spirit_cost": 18, "cooldown": 3.9, "range": 252.0, "damage_base": 20, "attack_ratio": 0.47, "mana_ratio": 28.0, "visual": "staff_whirl", "description": "旋棍引风，连续扫开身前近处目标，攻势轻快而非重击。"},
 ]
 
+const SUIYING_WHIP_SKILLS := [
+	{"id": "suiying_whip_crack", "name": "碎影鞭梢", "key": "J", "spirit_cost": 0, "cooldown": 0.54, "range": 318.0, "description": "挥出弯曲鞭梢，在中距离点出一记迅疾的牵制。"},
+	{"id": "suiying_bindback", "name": "碎影回缚", "key": "K", "spirit_cost": 20, "cooldown": 4.4, "range": 348.0, "damage_base": 19, "attack_ratio": 0.46, "mana_ratio": 29.0, "visual": "whip_lash", "description": "岚息沿鞭节疾走，鞭梢弯折回抽，适合压制试图拉开距离的敌手。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -103,6 +108,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = HANYUE_HAMMER_SKILLS
 	elif item_name == "青竹练气棍":
 		weapon_skills = QINGZHU_STAFF_SKILLS
+	elif item_name == "碎影练气鞭":
+		weapon_skills = SUIYING_WHIP_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -136,3 +143,6 @@ static func is_hammer_skill_set(item_name: String) -> bool:
 
 static func is_staff_skill_set(item_name: String) -> bool:
 	return item_name == "青竹练气棍"
+
+static func is_whip_skill_set(item_name: String) -> bool:
+	return item_name == "碎影练气鞭"

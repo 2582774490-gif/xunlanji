@@ -21,6 +21,7 @@ const HalberdMotionScript = preload("res://src/animation/halberd_motion_controll
 const AxeMotionScript = preload("res://src/animation/axe_motion_controller.gd")
 const HammerMotionScript = preload("res://src/animation/hammer_motion_controller.gd")
 const StaffMotionScript = preload("res://src/animation/staff_motion_controller.gd")
+const WhipMotionScript = preload("res://src/animation/whip_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -137,6 +138,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = HammerMotionScript.new()
 	elif motion == "bamboo_staff":
 		pivot = StaffMotionScript.new()
+	elif motion == "shadow_whip":
+		pivot = WhipMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -190,6 +193,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.058, 0.058)
 		sprite.position = Vector2(39, -43)
 		sprite.rotation = deg_to_rad(-12.0)
+	elif motion == "shadow_whip":
+		# The handle sits at the lower-left of the source while the flexible body
+		# rises outward; pin that handle near the hand for the snap-and-recoil pose.
+		sprite.scale = Vector2(0.063, 0.063)
+		sprite.position = Vector2(37, -43)
+		sprite.rotation = deg_to_rad(-8.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins
