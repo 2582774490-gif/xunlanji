@@ -64,3 +64,14 @@
 | 源图 | `game-client/assets/art/techniques/hundred_herbs_breath_regulation_manual/source/hundred_herbs_breath_regulation_manual_v01_chromakey.png` |
 | 透明游戏图 | `game-client/assets/art/techniques/hundred_herbs_breath_regulation_manual/processed_alpha/hundred_herbs_breath_regulation_manual_v01_alpha.png` |
 | 实装位置 | 功法图鉴卡片、百草谷路线数据与自动资源验收。 |
+
+## 六、本轮 Image 2 交付：沉雾舟纹袍
+
+| 项目 | 内容 |
+|---|---|
+| 装备定位 | 沉舷遗府的灵品胸甲；常规 PVE 减伤 4%，水系 PVE 额外减伤 10%。 |
+| 掉落逻辑 | 沉舷遗府首领“沉舷残灵·鸣濯”的随机掉落；可交易、可升级、可装备。 |
+| PVP 规则 | 当前本地 1v1 PVP 不调用护具减伤，保持装备外观和副本选择不压制对战。 |
+| 源图 | `game-client/assets/art/armor/sunken_mist_vessel_robe/source/sunken_mist_vessel_robe_v01_chromakey.png` |
+| 透明游戏图 | `game-client/assets/art/armor/sunken_mist_vessel_robe/processed_alpha/sunken_mist_vessel_robe_v01_alpha.png` |
+| 实装位置 | 护具档案、角色独立护具层、沉舷遗府掉落池和自动验收。 |

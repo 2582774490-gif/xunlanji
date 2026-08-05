@@ -198,3 +198,9 @@ Avoid: duplicated objects, cropped edges, photorealistic photography, muddy silh
 | 条目 | 透明运行时资源 | 验收状态 |
 |---|---|---|
 | 百草调息篇秘卷 | `assets/art/techniques/hundred_herbs_breath_regulation_manual/processed_alpha/hundred_herbs_breath_regulation_manual_v01_alpha.png` | 抠图检查通过；已登记功法图鉴、百草谷内门传功路线与自动资源验收；不复用云岚、剑修、符修或风系秘卷封面。 |
+
+## 沉雾舟纹袍运行时资产
+
+| 条目 | 透明运行时资源 | 验收状态 |
+|---|---|---|
+| 沉雾舟纹袍 | `assets/art/armor/sunken_mist_vessel_robe/processed_alpha/sunken_mist_vessel_robe_v01_alpha.png` | 抠图检查通过；已登记护具档案、角色独立护具层、沉舷遗府随机掉落与水系 PVE 减伤验收；不参与 PVP 减伤。 |

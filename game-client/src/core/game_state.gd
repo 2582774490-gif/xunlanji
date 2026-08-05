@@ -824,9 +824,15 @@ func armor_pve_damage_reduction() -> float:
 	return clampf(base_reduction + upgrade_bonus, 0.0, 0.25)
 
 
+func armor_elemental_damage_reduction(element: String) -> float:
+	var profile := equipped_armor_profile()
+	return clampf(float(profile.get("%s_damage_reduction" % element, 0.0)), 0.0, 0.25)
+
+
 func pve_damage_after_equipment(raw_damage: int, element: String) -> int:
 	var after_artifact := elemental_damage_after_artifact(raw_damage, element)
-	return maxi(1, ceili(float(after_artifact) * (1.0 - armor_pve_damage_reduction())))
+	var armor_reduction := armor_pve_damage_reduction() + armor_elemental_damage_reduction(element)
+	return maxi(1, ceili(float(after_artifact) * (1.0 - clampf(armor_reduction, 0.0, 0.35))))
 
 
 func weapon_basic_damage(base_damage: int) -> int:

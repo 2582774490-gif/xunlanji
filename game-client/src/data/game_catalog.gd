@@ -430,6 +430,15 @@ const ARMOR_PROFILES := {
 		"render_scale": 0.055,
 		"runtime_asset": "res://assets/art/armor/mist_forest_light_armor/processed_alpha/mist_forest_light_armor_v01_alpha.png",
 	},
+	"沉雾舟纹袍": {
+		"slot": "胸甲",
+		"quality": "灵品",
+		"trait": "沉舷遗府打捞出的舟纹胸甲；常规 PVE 伤害降低 4%，水系 PVE 伤害额外降低 10%，不参与 PVP 减伤。",
+		"pve_damage_reduction": 0.04,
+		"water_damage_reduction": 0.10,
+		"render_scale": 0.090,
+		"runtime_asset": "res://assets/art/armor/sunken_mist_vessel_robe/processed_alpha/sunken_mist_vessel_robe_v01_alpha.png",
+	},
 }
 
 

@@ -5,6 +5,7 @@ const SUNKEN_VESSEL_DROPS := [
 	{"item": "古舷木芯", "stones": 34, "cultivation": 40},
 	{"item": "沉舟阵枢", "stones": 38, "cultivation": 36},
 	{"item": "雾港引潮盘", "stones": 30, "cultivation": 46},
+	{"item": "沉雾舟纹袍", "stones": 42, "cultivation": 38},
 ]
 
 func _ready() -> void:
@@ -31,6 +32,9 @@ func _perform_boss_water_blade() -> void:
 	var water_reduction := GameState.artifact_damage_reduction("water")
 	if water_reduction > 0.0:
 		mitigation_notes.append("%s凝出水幕，抵去%d%%水系伤害。" % [str(GameState.player.get("equipped_artifact", "法宝")), roundi(water_reduction * 100.0)])
+	var armor_water_reduction := GameState.armor_elemental_damage_reduction("water")
+	if armor_water_reduction > 0.0:
+		mitigation_notes.append("%s的舟纹卸去了%d%%水系冲击。" % [str(GameState.player.get("equipped_armor", "护具")), roundi(armor_water_reduction * 100.0)])
 	if guard_time_left > 0.0:
 		damage = ceili(float(damage) * 0.45)
 		guard_time_left = 0.0

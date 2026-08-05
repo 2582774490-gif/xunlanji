@@ -47,6 +47,7 @@ func _run() -> void:
 	await _check_tide_breath_jade_pendant_runtime_rules()
 	await _check_mist_general_talisman_runtime_rules()
 	await _check_mist_forest_light_armor_runtime_rules()
+	await _check_sunken_mist_vessel_robe_runtime_rules()
 	await _check_mist_tide_pearl_render_slot()
 	await _check_mist_tide_pearl_combat_rules()
 	await _check_earthseal_render_and_combat_rules()
@@ -1214,6 +1215,27 @@ func _check_mist_pattern_bracers_armor_rules() -> void:
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
+
+func _check_sunken_mist_vessel_robe_runtime_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("沉雾舟纹袍"):
+		GameState.player.inventory.append("沉雾舟纹袍")
+	GameState.player.equipped_artifact = ""
+	GameState.equip_armor("沉雾舟纹袍")
+	_expect(is_equal_approx(GameState.armor_pve_damage_reduction(), 0.04), "Sunken Mist Vessel Robe should expose its declared 4% general PVE reduction.")
+	_expect(is_equal_approx(GameState.armor_elemental_damage_reduction("water"), 0.10), "Sunken Mist Vessel Robe should expose its declared 10% water PVE reduction.")
+	_expect(GameState.pve_damage_after_equipment(17, "water") == 15, "Sunken Mist Vessel Robe did not apply its combined water-dungeon PVE protection.")
+	_expect(is_zero_approx(GameState.armor_elemental_damage_reduction("earth")), "Sunken Mist Vessel Robe must not gain undeclared elemental protection.")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	var armor_sprite: Sprite2D = port.player.get_node("ArmorPivot/ArmorSprite")
+	_expect(armor_sprite.texture != null and armor_sprite.texture.resource_path.contains("sunken_mist_vessel_robe"), "Sunken Mist Vessel Robe did not create its own runtime armor layer.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
 
 func _check_water_palace_spirit_boots_runtime_slot() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
