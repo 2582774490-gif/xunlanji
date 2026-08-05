@@ -393,14 +393,32 @@ func _show_codex() -> void:
 	var art_profile := Catalog.technique_art_profile_for_name(current_technique)
 	if art_profile.is_empty():
 		_text("当前主修《%s》已记录规则与悟性进度；独立秘卷图尚未验收，因此不复用其他功法图。" % current_technique, 16, Color("a7d5ca"))
-		return
+	else:
+		_add_technique_codex_card(current_technique, art_profile, true)
+	var illustrated_names: Array[String] = []
+	for technique_name in Catalog.TECHNIQUE_ART_PROFILES:
+		var name := str(technique_name)
+		illustrated_names.append(name)
+		if name != current_technique:
+			_add_technique_codex_card(name, Catalog.technique_art_profile_for_name(name))
+	var pending_names: Array[String] = []
+	for school in Catalog.CULTIVATION_SCHOOLS:
+		for technique_name in school.techniques:
+			var name := str(technique_name)
+			if not illustrated_names.has(name):
+				pending_names.append(name)
+	_heading("已设定、待单独出图的功法")
+	_text("、".join(pending_names), 16, Color("a7d5ca"))
+
+
+func _add_technique_codex_card(technique_name: String, art_profile: Dictionary, show_insight := false) -> void:
 	var card := HBoxContainer.new()
-	card.custom_minimum_size = Vector2(0, 176)
+	card.custom_minimum_size = Vector2(0, 152)
 	card.add_theme_constant_override("separation", 18)
 	content.add_child(card)
 	var manual := TextureRect.new()
 	manual.texture = load(str(art_profile.card_asset)) as Texture2D
-	manual.custom_minimum_size = Vector2(150, 166)
+	manual.custom_minimum_size = Vector2(134, 142)
 	manual.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	manual.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	card.add_child(manual)
@@ -408,16 +426,17 @@ func _show_codex() -> void:
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.add_child(details)
 	var title := Label.new()
-	title.text = "《%s》" % current_technique
+	title.text = "《%s》" % technique_name
 	title.add_theme_font_size_override("font_size", 22)
 	title.modulate = Color("f2d79c")
 	details.add_child(title)
-	var affinity := Catalog.technique_affinity_for(current_technique)
+	var affinity := Catalog.technique_affinity_for(technique_name)
 	var description := Label.new()
-	description.text = "%s\n%s\n%s" % [str(art_profile.caption), "适配：%s / %s" % [str(affinity.root), str(affinity.physique)], GameState.technique_insight_text()]
+	var insight_line := GameState.technique_insight_text() if show_insight else "已登记独立秘卷美术，规则可供自由修行切换。"
+	description.text = "%s\n%s\n%s" % [str(art_profile.caption), "适配：%s / %s" % [str(affinity.root), str(affinity.physique)], insight_line]
 	description.add_theme_font_size_override("font_size", 16)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description.custom_minimum_size = Vector2(0, 120)
+	description.custom_minimum_size = Vector2(0, 108)
 	details.add_child(description)
 
 func _show_settings() -> void:
