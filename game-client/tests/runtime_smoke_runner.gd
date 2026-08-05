@@ -136,6 +136,8 @@ func _check_local_profile_payload() -> void:
 	GameState.selected_dungeon_id = dungeon_before
 
 func _check_optional_world_guidance() -> void:
+	var shen_card := GameCatalog.npc_card_profile_for_name("沈衍")
+	_expect(not shen_card.is_empty() and ResourceLoader.exists(str(shen_card.card_asset)), "South Gate guide NPC card must be registered with a runtime portrait.")
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.world_guidance = {"steps": [], "skipped": false}
 	_expect(not GameState.is_world_guidance_complete(), "Fresh world orientation should be optional but initially incomplete.")
@@ -206,7 +208,7 @@ func _check_codex_registry_ui() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var rendered_text := _collect_label_text(codex_ui)
-	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿"), "Codex UI must render approved technique, artifact, weapon and NPC card registry sections.")
+	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿") and rendered_text.contains("沈衍") and rendered_text.contains("岚息"), "Codex UI must render approved technique, artifact, weapon and NPC card registry sections.")
 	codex_ui.queue_free()
 	GameState.player.inventory = ["雾港引潮盘", "沉雾舟纹袍"]
 	GameState.player.equipped_artifact = "雾港引潮盘"

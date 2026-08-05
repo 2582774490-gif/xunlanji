@@ -270,7 +270,7 @@ const SECT_RANKS := [
 ]
 
 const NPCS := [
-	{"name": "沈砚舟", "role": "宗门接引使", "place": "云岚村"},
+	{"name": "沈衍", "role": "南门引路人", "place": "云岚村南门"},
 	{"name": "陆青禾", "role": "药材商", "place": "云岚村"},
 	{"name": "温行客", "role": "行脚鉴宝人", "place": "雾溪渡口"},
 	{"name": "祝铁山", "role": "炼器师", "place": "村北工坊"},
@@ -292,6 +292,13 @@ const NPC_CARD_PROFILES := {
 		"relationship": "初识 · 可委托强化",
 		"service": "说明首发装备强化所需的雾潮晶簇、流火矿与境界门槛；已强化的装备状态会随交易转移。",
 		"lead": "他会收集古战残魂与地火材料，并可引出炼器、武器大分支和地火洞的传闻。",
+	},
+	"沈衍": {
+		"card_asset": "res://assets/art/npcs/shen_yan/processed_alpha/shen_yan_card_v01_alpha.png",
+		"faction": "云岚村 · 南门引路人",
+		"relationship": "初识 · 世界引导",
+		"service": "说明岚息、灵根与吐纳的基础关系；与他交谈会记录“认识岚息”，但不会强制接取任务、发放境界经验或限制探索。",
+		"lead": "他留意南门外雾潮的涨落，提醒新人从雾溪药草、散修传闻与可见地标开始自行探索；后续可牵出各宗门的入门去向。",
 	},
 }
 
