@@ -3,6 +3,7 @@ extends Node2D
 
 const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
 const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
+const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
 
 const RIDGE_EVENTS := [
 	{"name": "地火余温", "item": "赤焰精金", "cultivation": 22, "description": "地火裂缝退去后，岩层露出可炼器的精金。"},
@@ -35,6 +36,7 @@ func _ready() -> void:
 	GameState.current_region_id = "ancient_ridge"
 	player.map_bounds = Rect2(70, 70, 11860, 7860)
 	player.position = Vector2(460, 1660)
+	_setup_environment_depth()
 	_setup_world_minimap()
 	chunk_streamer.configure(player, [
 		{"id": "ancient_ridge_earthfire", "node": $Terrain, "bounds": Rect2(0, 0, 3072, 2048)},
@@ -71,6 +73,13 @@ func _setup_world_minimap() -> void:
 		PackedVector2Array([Vector2(460, 1660), Vector2(2600, 1220), Vector2(5750, 430)]),
 		PackedVector2Array([Vector2(5750, 430), Vector2(6800, 620), Vector2(7320, 350), Vector2(7840, 920)]),
 	])
+
+
+func _setup_environment_depth() -> void:
+	var depth_layer: RegionalEnvironmentDepthLayer = RegionalEnvironmentDepthLayerScript.new()
+	depth_layer.name = "EnvironmentDepthLayer"
+	depth_layer.region_style = "ancient_ridge"
+	add_child(depth_layer)
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():

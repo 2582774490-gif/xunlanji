@@ -3,6 +3,7 @@ extends Node2D
 
 const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
 const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
+const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
 
 @onready var player: CharacterBody2D = $Player
 @onready var return_interaction: Area2D = $RuinedCheckpoint/Interaction
@@ -35,6 +36,7 @@ func _ready() -> void:
 	# continuous region. Future chunks attach to the same 12 km x 8 km space.
 	player.map_bounds = Rect2(80, 80, 11840, 7840)
 	player.position = Vector2(520, 1570)
+	_setup_environment_depth()
 	_setup_world_minimap()
 	chunk_streamer.configure(player, [
 		{"id": "border_checkpoint", "node": $Terrain, "bounds": Rect2(0, 0, 3072, 2048)},
@@ -91,6 +93,13 @@ func _setup_world_minimap() -> void:
 		PackedVector2Array([Vector2(760, 1100), Vector2(1600, 840), Vector2(2640, 1370), Vector2(2940, 900)]),
 		PackedVector2Array([Vector2(2940, 900), Vector2(5000, 1060), Vector2(6980, 1370), Vector2(8170, 760)]),
 	])
+
+
+func _setup_environment_depth() -> void:
+	var depth_layer: RegionalEnvironmentDepthLayer = RegionalEnvironmentDepthLayerScript.new()
+	depth_layer.name = "EnvironmentDepthLayer"
+	depth_layer.region_style = "mist_border"
+	add_child(depth_layer)
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
