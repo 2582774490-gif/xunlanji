@@ -85,7 +85,7 @@ func _on_player_attack_impact(_direction: String) -> void:
 		status.text = "%s未及对手：贴近后再出招。" % str(_skill(0)["name"])
 		return
 	var profile := GameCatalog.weapon_profile_for_item(GameState.player.equipped_weapon)
-	var damage := maxi(8, int(GameState.derived_stats()["攻击"]) / 3 + int(profile.get("bonus", 0)) + 5)
+	var damage := maxi(8, int(GameState.derived_stats()["攻击"]) / 3 + int(profile.get("bonus", 0)) + 5 + GameState.equipment_power_bonus(GameState.player.equipped_weapon))
 	opponent.take_damage(damage)
 	status.text = "%s 命中试剑使，造成 %d 点伤害。" % [GameState.player.equipped_weapon, damage]
 	_refresh_hud()

@@ -12,6 +12,7 @@ func _run() -> void:
 	await _check_cultivation_affinity()
 	await _check_fair_attribute_and_technique_growth()
 	await _check_alchemy_and_medicine_rules()
+	await _check_equipment_upgrade_rules()
 	await _check_sect_progression()
 	await _check_wanted_patrol()
 	await _check_weapon_combat_profiles()
@@ -208,6 +209,40 @@ func _check_alchemy_and_medicine_rules() -> void:
 	_expect(not GameState.use_pill("凝息丹") and GameState.player.inventory.has("凝息丹"), "High-realm players should not consume ineffective low-realm pills.")
 	GameState.player.gold = 100
 	_expect(GameState.list_item_for_market("凝息丹", 31), "Crafted pills should remain freely tradeable through the market boundary.")
+	GameState.player = profile_before
+	GameState.local_market_listings = listings_before
+	GameState.profile_changed.emit()
+
+
+func _check_equipment_upgrade_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var listings_before: Array = GameState.local_market_listings.duplicate(true)
+	GameState.player.realm_index = 0
+	GameState.player.minor_stage = 1
+	GameState.player.inventory = ["练气木剑", "青篁练气剑", "雾潮晶簇", "雾潮晶簇", "雾潮晶簇", "雾潮晶簇", "雾潮晶簇", "雾潮晶簇", "流火矿", "流火矿"]
+	GameState.player.equipped_weapon = "练气木剑"
+	GameState.player.equipped_artifact = "纳灵玉佩"
+	GameState.player.equipment_upgrades = {}
+	var base_combat := CombatState.new()
+	base_combat.begin("测试", "木桩")
+	base_combat.normal_attack()
+	var base_damage := 100 - base_combat.enemy_hp
+	_expect(GameState.upgrade_equipment("青篁练气剑"), "Qi Refining equipment should upgrade when its first material requirement is present.")
+	_expect(GameState.equipment_upgrade_level("青篁练气剑") == 1 and GameState.equipment_power_bonus("青篁练气剑") == 2, "Equipment upgrade did not record its first power level.")
+	GameState.equip_weapon("青篁练气剑")
+	var upgraded_combat := CombatState.new()
+	upgraded_combat.begin("测试", "木桩")
+	upgraded_combat.normal_attack()
+	_expect(100 - upgraded_combat.enemy_hp > base_damage, "Equipment upgrades should affect combat damage rather than only inventory text.")
+	_expect(GameState.upgrade_equipment("青篁练气剑"), "Qi Refining should be able to complete the second mundane upgrade tier with crystal materials.")
+	_expect(not GameState.upgrade_equipment("青篁练气剑"), "The first spirit-quality upgrade must be Foundation-gated and must not consume materials at Qi Refining.")
+	GameState.equip_weapon("练气木剑")
+	GameState.player.gold = 100
+	_expect(GameState.list_item_for_market("青篁练气剑", 20), "An unequipped upgraded weapon should be tradeable.")
+	_expect(GameState.equipment_upgrade_level("青篁练气剑") == 0, "Listing an upgraded item should move its upgrade state out of the seller profile.")
+	var listing_index := GameState.local_market_listings.size() - 1
+	_expect(GameState.buy_market_listing(listing_index), "A listed upgraded weapon should remain purchasable.")
+	_expect(GameState.equipment_upgrade_level("青篁练气剑") == 2, "Buying an upgraded weapon should restore its transferred upgrade state.")
 	GameState.player = profile_before
 	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()

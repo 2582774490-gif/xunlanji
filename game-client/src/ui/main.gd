@@ -270,6 +270,13 @@ func _show_inventory() -> void:
 		if not Catalog.artifact_profile_for_item(item_name).is_empty():
 			artifact_equips.append(["装备法宝 %s" % item_name, func(): GameState.equip_artifact(item_name), 220])
 	if not artifact_equips.is_empty(): _buttons(artifact_equips)
+	_text("装备强化：同类基础器型可用材料升级，升级属性可随交易一并转移；强化受境界限制。", 16, Color("a7d5ca"))
+	var upgrade_buttons: Array = []
+	for item_name in GameState.player.inventory:
+		if GameState.is_upgradeable_equipment(str(item_name)):
+			_text(GameState.equipment_upgrade_text(str(item_name)), 15)
+			upgrade_buttons.append(["强化 %s" % str(item_name), func(): GameState.upgrade_equipment(str(item_name)), 210])
+	if not upgrade_buttons.is_empty(): _buttons(upgrade_buttons)
 	if GameState.player.inventory.has("凝息丹"):
 		_buttons([["服用凝息丹（+15 修为）", _use_condensing_pill, 230]])
 

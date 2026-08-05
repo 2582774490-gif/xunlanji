@@ -50,7 +50,7 @@ func _counter_attack(damage: int) -> void:
 
 func _player_attack_damage(base_damage: int) -> int:
 	var stats: Dictionary = GameState.derived_stats()
-	return base_damage + int(int(stats["攻击"]) / 3.0)
+	return base_damage + int(int(stats["攻击"]) / 3.0) + GameState.equipment_power_bonus(GameState.player.equipped_weapon)
 
 func _weapon_profile() -> Dictionary:
 	var catalog := preload("res://src/data/game_catalog.gd")

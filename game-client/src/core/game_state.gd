@@ -32,6 +32,7 @@ const ECOLOGY_RESPAWN_SECONDS := {"resource": 420, "beast": 540, "bandit": 600}
 const INITIAL_ATTRIBUTE_POINTS := 4
 const BASE_ATTRIBUTE_TOTAL := 20
 const TECHNIQUE_INSIGHT_THRESHOLDS := [60, 180, 360]
+const EQUIPMENT_MAX_UPGRADE := 10
 const LOCAL_SAVE_PATH := "user://xunlanji_local_profile.json"
 const LOCAL_SAVE_VERSION := 1
 var local_market_listings: Array[Dictionary] = [
@@ -67,6 +68,7 @@ var player := {
 	"ecology_cooldowns": {},
 	"equipped_weapon": "练气木剑",
 	"equipped_artifact": "纳灵玉佩",
+	"equipment_upgrades": {},
 	"inventory": ["练气木剑", "凝气符", "雾溪草", "纳灵玉佩"],
 	"codex": ["云岚村", "雾溪水府"],
 	"opportunity_log": [],
@@ -147,13 +149,23 @@ func list_item_for_market(item_name: String, price: int) -> bool:
 	if not player.inventory.has(item_name):
 		notify("行囊中没有可上架的 %s。" % item_name)
 		return false
+	if item_name == str(player.get("equipped_weapon", "")) or item_name == str(player.get("equipped_artifact", "")):
+		notify("已装备的武器或法宝不能直接上架，请先更换装备。")
+		return false
 	var fee := market_fee(price)
 	if player.gold < fee:
 		notify("上架手续费不足：需要 %d 金钱。" % fee)
 		return false
 	player.inventory.erase(item_name)
 	player.gold -= fee
-	local_market_listings.append({"id": "player_%d" % Time.get_ticks_msec(), "name": item_name, "type": "玩家寄售", "price": price, "seller": "本地修士"})
+	var listing := {"id": "player_%d" % Time.get_ticks_msec(), "name": item_name, "type": "玩家寄售", "price": price, "seller": "本地修士"}
+	if is_upgradeable_equipment(item_name):
+		var states: Dictionary = player.get("equipment_upgrades", {})
+		if states.has(item_name):
+			listing["equipment_state"] = (states[item_name] as Dictionary).duplicate(true)
+			states.erase(item_name)
+			player.equipment_upgrades = states
+	local_market_listings.append(listing)
 	notify("已上架 %s，标价 %d，手续费 %d。真实玩家交易将改由服务器结算。" % [item_name, price, fee])
 	profile_changed.emit()
 	return true
@@ -168,6 +180,10 @@ func buy_market_listing(index: int) -> bool:
 		return false
 	player.gold -= price
 	add_item(str(listing.name))
+	if listing.get("equipment_state", null) is Dictionary:
+		var states: Dictionary = player.get("equipment_upgrades", {})
+		states[str(listing.name)] = (listing.equipment_state as Dictionary).duplicate(true)
+		player.equipment_upgrades = states
 	local_market_listings.remove_at(index)
 	notify("成交：获得 %s，支付 %d 金钱。" % [listing.name, price])
 	profile_changed.emit()
@@ -182,6 +198,10 @@ func cancel_market_listing(index: int) -> bool:
 		return false
 	local_market_listings.remove_at(index)
 	add_item(str(listing.name))
+	if listing.get("equipment_state", null) is Dictionary:
+		var states: Dictionary = player.get("equipment_upgrades", {})
+		states[str(listing.name)] = (listing.equipment_state as Dictionary).duplicate(true)
+		player.equipment_upgrades = states
 	notify("已撤回 %s；已收取的上架手续费不返还。" % listing.name)
 	profile_changed.emit()
 	return true
@@ -653,6 +673,85 @@ func equip_artifact(item_name: String) -> void:
 	notify("已装备法宝：%s｜%s" % [item_name, str(profile.trait)])
 	profile_changed.emit()
 
+
+func is_upgradeable_equipment(item_name: String) -> bool:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	for family in catalog.WEAPON_FAMILIES:
+		if item_name == str(family.starter):
+			return true
+	return not catalog.artifact_profile_for_item(item_name).is_empty()
+
+
+func equipment_upgrade_level(item_name: String) -> int:
+	_normalize_player_schema()
+	var states: Dictionary = player.equipment_upgrades
+	var state: Dictionary = states.get(item_name, {})
+	return clampi(int(state.get("level", 0)), 0, EQUIPMENT_MAX_UPGRADE)
+
+
+func equipment_quality(item_name: String) -> String:
+	var level := equipment_upgrade_level(item_name)
+	if level >= 9:
+		return "地品"
+	if level >= 6:
+		return "玄品"
+	if level >= 3:
+		return "灵品"
+	return "凡品"
+
+
+func equipment_power_bonus(item_name: String) -> int:
+	return equipment_upgrade_level(item_name) * 2
+
+
+func equipment_upgrade_requirement(item_name: String) -> Dictionary:
+	if not is_upgradeable_equipment(item_name):
+		return {}
+	var next_level := equipment_upgrade_level(item_name) + 1
+	if next_level > EQUIPMENT_MAX_UPGRADE:
+		return {}
+	var material := "雾潮晶簇" if next_level <= 2 else ("流火矿" if next_level <= 5 else ("古战残魂" if next_level <= 8 else "天隙晶"))
+	var count := next_level if next_level <= 2 else maxi(2, next_level - 2)
+	var realm_required := 0 if next_level <= 2 else (1 if next_level <= 5 else (2 if next_level <= 8 else 3))
+	return {"next_level": next_level, "material": material, "count": count, "realm_index": realm_required}
+
+
+func equipment_upgrade_text(item_name: String) -> String:
+	var requirement := equipment_upgrade_requirement(item_name)
+	if requirement.is_empty():
+		return "%s +%d｜%s（已达当前强化上限）" % [item_name, equipment_upgrade_level(item_name), equipment_quality(item_name)]
+	return "%s +%d｜%s｜下次需 %s × %d｜境界 %s" % [item_name, equipment_upgrade_level(item_name), equipment_quality(item_name), str(requirement.material), int(requirement.count), _realm_name_for_index(int(requirement.realm_index))]
+
+
+func upgrade_equipment(item_name: String) -> bool:
+	if not is_upgradeable_equipment(item_name) or not player.inventory.has(item_name):
+		return false
+	var requirement := equipment_upgrade_requirement(item_name)
+	if requirement.is_empty():
+		notify("%s 已达首发强化上限。" % item_name)
+		return false
+	if int(player.realm_index) < int(requirement.realm_index):
+		notify("强化%s需要至少%s，不能提前用材料跳过境界。" % [item_name, _realm_name_for_index(int(requirement.realm_index))])
+		return false
+	var materials: Array[String] = []
+	for _index in int(requirement.count):
+		materials.append(str(requirement.material))
+	if not consume_items(materials):
+		notify("强化材料不足：需要%s × %d。" % [str(requirement.material), int(requirement.count)])
+		return false
+	var states: Dictionary = player.equipment_upgrades
+	states[item_name] = {"level": int(requirement.next_level)}
+	player.equipment_upgrades = states
+	notify("强化成功：%s +%d，品级进度为%s。" % [item_name, int(requirement.next_level), equipment_quality(item_name)])
+	profile_changed.emit()
+	return true
+
+
+func _realm_name_for_index(realm_index: int) -> String:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var bounded := clampi(realm_index, 0, catalog.REALMS.size() - 1)
+	return str(catalog.REALMS[bounded].name)
+
 func join_sect(sect_id: String) -> bool:
 	if not str(player.get("sect_id", "")).is_empty():
 		notify("请先退出当前宗门，再自由选择新的去处。")
@@ -804,6 +903,17 @@ func _normalize_player_schema() -> void:
 		player.medicine_tolerance = tolerance
 	if not player.has("alchemy_history") or not player.alchemy_history is Array:
 		player.alchemy_history = []
+	if not player.has("equipment_upgrades") or not player.equipment_upgrades is Dictionary:
+		player.equipment_upgrades = {}
+	else:
+		var equipment_states: Dictionary = player.equipment_upgrades
+		for item_name in equipment_states.keys():
+			var raw_state: Variant = equipment_states[item_name]
+			if raw_state is Dictionary:
+				equipment_states[item_name] = {"level": clampi(int(raw_state.get("level", 0)), 0, EQUIPMENT_MAX_UPGRADE)}
+			else:
+				equipment_states.erase(item_name)
+		player.equipment_upgrades = equipment_states
 	if not player.has("world_guidance") or not player.world_guidance is Dictionary:
 		player.world_guidance = {"steps": [], "skipped": false}
 	else:

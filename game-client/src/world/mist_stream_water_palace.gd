@@ -107,7 +107,7 @@ func _on_player_attack(_direction: String) -> void:
 		return
 	hit_spark.play_burst(boss.position + Vector2(0, -90), Vector2.UP)
 	var weapon_profile := GameCatalog.weapon_profile_for_item(GameState.player.equipped_weapon)
-	var damage := 8 + int(int(GameState.derived_stats()["攻击"]) / 3.0) + int(weapon_profile.get("bonus", 0))
+	var damage := 8 + int(int(GameState.derived_stats()["攻击"]) / 3.0) + int(weapon_profile.get("bonus", 0)) + GameState.equipment_power_bonus(GameState.player.equipped_weapon)
 	boss_health = max(0, boss_health - damage)
 	status.text = "潮妃·兰纱受击，造成 %d 点伤害。属性分配已影响本次攻击。" % damage
 	_refresh_boss_hp()
