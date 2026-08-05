@@ -26,7 +26,7 @@ func normal_attack() -> void:
 		battle_log = "本场已结束，请返回选择下一场挑战。"
 		return
 	var profile := _weapon_profile()
-	var damage := _player_attack_damage(8 + int(profile.bonus))
+	var damage := _player_attack_damage(8)
 	enemy_hp = maxi(0, enemy_hp - damage)
 	_counter_attack(maxi(0, 3 - int(profile.counter_reduction)))
 	battle_log = "%s·%s 普攻命中，造成 %d 点伤害。%s" % [GameState.player.equipped_weapon, profile.trait, damage, _result_suffix()]
@@ -49,8 +49,7 @@ func _counter_attack(damage: int) -> void:
 		player_hp = maxi(0, player_hp - damage)
 
 func _player_attack_damage(base_damage: int) -> int:
-	var stats: Dictionary = GameState.derived_stats()
-	return base_damage + int(int(stats["攻击"]) / 3.0) + GameState.equipment_power_bonus(GameState.player.equipped_weapon)
+	return GameState.weapon_basic_damage(base_damage)
 
 func _weapon_profile() -> Dictionary:
 	var catalog := preload("res://src/data/game_catalog.gd")

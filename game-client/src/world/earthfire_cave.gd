@@ -44,7 +44,7 @@ func _on_player_attack(_direction: String) -> void:
 	if not near_boss or boss_health <= 0:
 		return
 	hit_spark.play_burst(boss.position + Vector2(0, -108), Vector2.UP)
-	var damage := 16 + int(int(GameState.derived_stats()["攻击"]) / 3.0)
+	var damage := GameState.weapon_basic_damage(16)
 	boss_health = max(0, boss_health - damage)
 	status.text = "地火灵兽·炽甲受击，造成 %d 点伤害。" % damage
 	_refresh_boss_hp()

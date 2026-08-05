@@ -77,7 +77,7 @@ func _on_player_attack_impact(_direction: String) -> void:
 	if _player.global_position.distance_to(enemy_position) > MELEE_RANGE:
 		_status.text = "攻击落空：%s 不在近战范围内。" % _target_name
 		return
-	var damage := 9 + int(int(GameState.derived_stats()["攻击"]) / 3.0) + GameState.equipment_power_bonus(GameState.player.equipped_weapon)
+	var damage := GameState.weapon_basic_damage(9)
 	_target_health = max(0, _target_health - damage)
 	_refresh_target_label()
 	_status.text = "%s 受击，造成 %d 点伤害。" % [_target_name, damage]

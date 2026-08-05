@@ -106,8 +106,7 @@ func _on_player_attack(_direction: String) -> void:
 	if not near_boss or boss_health <= 0:
 		return
 	hit_spark.play_burst(boss.position + Vector2(0, -90), Vector2.UP)
-	var weapon_profile := GameCatalog.weapon_profile_for_item(GameState.player.equipped_weapon)
-	var damage := 8 + int(int(GameState.derived_stats()["攻击"]) / 3.0) + int(weapon_profile.get("bonus", 0)) + GameState.equipment_power_bonus(GameState.player.equipped_weapon)
+	var damage := GameState.weapon_basic_damage(8)
 	boss_health = max(0, boss_health - damage)
 	status.text = "潮妃·兰纱受击，造成 %d 点伤害。属性分配已影响本次攻击。" % damage
 	_refresh_boss_hp()
@@ -153,9 +152,8 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 	await get_tree().create_timer(0.24).timeout
 	if defeated or not near_boss or boss_health <= 0:
 		return
-	var stats: Dictionary = GameState.derived_stats()
 	var tuned_base := int(primary.get("damage_base", 20)) + (base_damage - 20)
-	var damage := tuned_base + int(float(stats["攻击"]) * float(primary.get("attack_ratio", 0.5))) + int(float(stats["灵力"]) / float(primary.get("mana_ratio", 30.0)))
+	var damage := GameState.weapon_skill_damage(tuned_base, float(primary.get("attack_ratio", 0.5)), player_max_mana, float(primary.get("mana_ratio", 30.0)))
 	boss_health = max(0, boss_health - damage)
 	hit_spark.play_burst(boss.position + hit_offset, Vector2.UP)
 	status.text = "%s命中%s，造成 %d 点伤害。%s" % [str(primary["name"]), target_name, damage, "伞阵保留了一层短暂护持。" if umbrella else ""]

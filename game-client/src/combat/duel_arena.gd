@@ -84,8 +84,7 @@ func _on_player_attack_impact(_direction: String) -> void:
 	if player.global_position.distance_to(opponent.global_position) > 178.0:
 		status.text = "%s未及对手：贴近后再出招。" % str(_skill(0)["name"])
 		return
-	var profile := GameCatalog.weapon_profile_for_item(GameState.player.equipped_weapon)
-	var damage := maxi(8, int(GameState.derived_stats()["攻击"]) / 3 + int(profile.get("bonus", 0)) + 5 + GameState.equipment_power_bonus(GameState.player.equipped_weapon))
+	var damage := maxi(8, GameState.weapon_basic_damage(5))
 	opponent.take_damage(damage)
 	status.text = "%s 命中试剑使，造成 %d 点伤害。" % [GameState.player.equipped_weapon, damage]
 	_refresh_hud()
@@ -156,8 +155,7 @@ func _cast_ningxi_sword_art() -> void:
 	await get_tree().create_timer(0.22).timeout
 	if finished or opponent.hp <= 0 or player.global_position.distance_to(opponent.global_position) > float(primary.get("range", 300.0)) + 30.0:
 		return
-	var stats: Dictionary = GameState.derived_stats()
-	var damage := int(primary.get("damage_base", 20)) + int(float(stats["攻击"]) * float(primary.get("attack_ratio", 0.5))) + int(player_max_mana / float(primary.get("mana_ratio", 30.0)))
+	var damage := GameState.weapon_skill_damage(int(primary.get("damage_base", 20)), float(primary.get("attack_ratio", 0.5)), player_max_mana, float(primary.get("mana_ratio", 30.0)))
 	opponent.take_damage(damage)
 	status.text = "%s命中试剑使，造成 %d 点灵力伤害。%s" % [str(primary["name"]), damage, "伞阵留下一层短暂护持。" if umbrella else ""]
 	_refresh_hud()

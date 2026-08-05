@@ -704,6 +704,21 @@ func equipment_power_bonus(item_name: String) -> int:
 	return equipment_upgrade_level(item_name) * 2
 
 
+func weapon_basic_damage(base_damage: int) -> int:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var profile: Dictionary = catalog.weapon_profile_for_item(str(player.get("equipped_weapon", "")))
+	var stats := derived_stats()
+	return base_damage + int(int(stats["攻击"]) / 3.0) + int(profile.get("bonus", 0)) + equipment_power_bonus(str(player.get("equipped_weapon", "")))
+
+
+func weapon_skill_damage(base_damage: int, attack_ratio: float, spirit_value: float, mana_ratio: float) -> int:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var profile: Dictionary = catalog.weapon_profile_for_item(str(player.get("equipped_weapon", "")))
+	var stats := derived_stats()
+	var safe_mana_ratio := maxf(1.0, mana_ratio)
+	return base_damage + int(float(stats["攻击"]) * attack_ratio) + int(spirit_value / safe_mana_ratio) + int(profile.get("skill_bonus", 0)) + equipment_power_bonus(str(player.get("equipped_weapon", "")))
+
+
 func equipment_upgrade_requirement(item_name: String) -> Dictionary:
 	if not is_upgradeable_equipment(item_name):
 		return {}

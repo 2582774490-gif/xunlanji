@@ -268,17 +268,21 @@ func _check_weapon_combat_profiles() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	_expect(GameCatalog.WEAPON_COMBAT_PROFILES.size() == GameCatalog.WEAPON_FAMILIES.size(), "Every launch weapon family needs a combat profile.")
 	GameState.player.inventory = ["青篁练气剑", "开山练气斧", "回云练气伞"]
+	GameState.player.equipment_upgrades = {}
 	GameState.equip_weapon("青篁练气剑")
 	var sword_combat := CombatState.new()
 	sword_combat.begin("测试", "木桩")
 	sword_combat.normal_attack()
 	var sword_damage := 100 - sword_combat.enemy_hp
+	_expect(sword_damage == GameState.weapon_basic_damage(8), "Menu combat must use the same weapon basic-damage rule as playable scenes.")
+	var sword_skill_damage := GameState.weapon_skill_damage(20, 0.5, 100.0, 30.0)
 	GameState.equip_weapon("开山练气斧")
 	var axe_combat := CombatState.new()
 	axe_combat.begin("测试", "木桩")
 	axe_combat.normal_attack()
 	var axe_damage := 100 - axe_combat.enemy_hp
 	_expect(axe_damage > sword_damage, "Heavy axe profile should deal more opening damage than sword profile.")
+	_expect(GameState.weapon_skill_damage(20, 0.5, 100.0, 30.0) < sword_skill_damage, "Weapon skill damage should use its own skill bonus rather than the generic basic-attack bonus.")
 	GameState.equip_weapon("回云练气伞")
 	var umbrella_combat := CombatState.new()
 	umbrella_combat.begin("测试", "木桩")
