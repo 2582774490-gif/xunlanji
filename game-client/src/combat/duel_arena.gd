@@ -26,6 +26,7 @@ const CauldronFlameEffectScript = preload("res://src/combat/cauldron_flame_effec
 const PearlTideProjectileScript = preload("res://src/combat/pearl_tide_projectile.gd")
 const SealSlamEffectScript = preload("res://src/combat/seal_slam_effect.gd")
 const MirrorRayEffectScript = preload("res://src/combat/mirror_ray_effect.gd")
+const TowerWardImpactEffectScript = preload("res://src/combat/tower_ward_impact_effect.gd")
 
 @onready var player: SpatialTestPlayer = $Player
 @onready var opponent: DuelOpponent = $Opponent
@@ -146,6 +147,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_seal_slam(player.global_position + (opponent.global_position - player.global_position).normalized() * 146.0 + Vector2(0, -38), 40.0)
 	elif SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon):
 		_spawn_mirror_ray(player.global_position + Vector2(28, -56), (opponent.global_position - player.global_position).normalized(), 190.0, 4.0)
+	elif SKILL_CATALOG.is_tower_skill_set(GameState.player.equipped_weapon):
+		_spawn_tower_ward_impact(player.global_position + (opponent.global_position - player.global_position).normalized() * 150.0 + Vector2(0, -42), 42.0)
 	opponent.take_damage(damage)
 	status.text = "%s 命中试剑使，造成 %d 点伤害。" % [GameState.player.equipped_weapon, damage]
 	_refresh_hud()
@@ -228,6 +231,7 @@ func _cast_ningxi_sword_art() -> void:
 	var pearl := SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon)
 	var seal := SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon)
 	var mirror := SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon)
+	var tower := SKILL_CATALOG.is_tower_skill_set(GameState.player.equipped_weapon)
 	if umbrella:
 		_spawn_umbrella_ward(player.global_position + Vector2(0, -54), facing)
 		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
@@ -273,6 +277,8 @@ func _cast_ningxi_sword_art() -> void:
 		_spawn_seal_slam(player.global_position + facing * 210.0 + Vector2(0, -40), 68.0)
 	elif mirror:
 		_spawn_mirror_ray(player.global_position + Vector2(28, -58), facing, 260.0, 7.0)
+	elif tower:
+		_spawn_tower_ward_impact(player.global_position + facing * 218.0 + Vector2(0, -44), 74.0)
 	else:
 		_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
 	await get_tree().create_timer(0.22).timeout
@@ -475,6 +481,12 @@ func _spawn_mirror_ray(origin: Vector2, direction: Vector2, reach := 180.0, thic
 	ray.name = "MirrorRayEffect"
 	add_child(ray)
 	ray.reflect(origin, direction, reach, thickness)
+
+func _spawn_tower_ward_impact(origin: Vector2, radius := 48.0) -> void:
+	var impact: TowerWardImpactEffect = TowerWardImpactEffectScript.new()
+	impact.name = "TowerWardImpactEffect"
+	add_child(impact)
+	impact.invoke(origin, radius)
 
 func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
 	# This is a defensive canopy, not recolored sword VFX: two offset arcs imply

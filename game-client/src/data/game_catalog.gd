@@ -154,6 +154,7 @@ const WEAPON_RUNTIME_PROFILES := {
 	"沧澜引灵珠": {"motion": "canglan_pearl", "asset": "res://assets/art/weapons/canglan_spirit_pearl/processed_alpha/canglan_spirit_pearl_v01_alpha.png"},
 	"镇岳缚灵印": {"motion": "zhenyue_seal", "asset": "res://assets/art/weapons/zhenyue_spirit_seal/processed_alpha/zhenyue_spirit_seal_v01_alpha.png"},
 	"寒照破妄镜": {"motion": "hanzhao_mirror", "asset": "res://assets/art/weapons/hanzhao_truth_mirror/processed_alpha/hanzhao_truth_mirror_v01_alpha.png"},
+	"浮屠镇妖塔": {"motion": "futu_tower", "asset": "res://assets/art/weapons/futu_demon_tower/processed_alpha/futu_demon_tower_v01_alpha.png"},
 }
 
 static func weapon_runtime_profile_for_item(item_name: String) -> Dictionary:

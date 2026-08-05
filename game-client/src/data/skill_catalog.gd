@@ -141,6 +141,11 @@ const HANZHAO_MIRROR_SKILLS := [
 	{"id": "hanzhao_reflection", "name": "寒照回映", "key": "K", "spirit_cost": 23, "cooldown": 4.8, "range": 400.0, "damage_base": 20, "attack_ratio": 0.41, "mana_ratio": 37.0, "visual": "mirror_ray", "description": "镜面凝出更长的破妄光束，在折返点形成一次更强的回映冲击。"},
 ]
 
+const FUTU_TOWER_SKILLS := [
+	{"id": "futu_tower_press", "name": "浮屠镇妖", "key": "J", "spirit_cost": 0, "cooldown": 0.72, "range": 255.0, "description": "令浮屠塔在前方显出一层塔纹，稳住近中距离的妖煞与敌手。"},
+	{"id": "futu_tower_layers", "name": "浮屠三镇", "key": "K", "spirit_cost": 26, "cooldown": 5.3, "range": 312.0, "damage_base": 24, "attack_ratio": 0.44, "mana_ratio": 35.0, "visual": "tower_ward_impact", "description": "三层镇妖塔纹依次投落，在前方形成连续震荡，适合压制一处战场。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -187,6 +192,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = ZHENYUE_SEAL_SKILLS
 	elif item_name == "寒照破妄镜":
 		weapon_skills = HANZHAO_MIRROR_SKILLS
+	elif item_name == "浮屠镇妖塔":
+		weapon_skills = FUTU_TOWER_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -256,3 +263,6 @@ static func is_seal_skill_set(item_name: String) -> bool:
 
 static func is_mirror_skill_set(item_name: String) -> bool:
 	return item_name == "寒照破妄镜"
+
+static func is_tower_skill_set(item_name: String) -> bool:
+	return item_name == "浮屠镇妖塔"

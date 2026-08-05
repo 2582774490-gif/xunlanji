@@ -39,6 +39,7 @@ func _run() -> void:
 	await _check_canglan_pearl_runtime_layer_and_skill_set()
 	await _check_zhenyue_seal_runtime_layer_and_skill_set()
 	await _check_hanzhao_mirror_runtime_layer_and_skill_set()
+	await _check_futu_tower_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -878,6 +879,33 @@ func _check_hanzhao_mirror_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("MirrorRayEffect"), "Hanzhao Truth Mirror basic attack did not spawn its own reflected ray effect in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_futu_tower_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["浮屠镇妖塔"]
+	GameState.player.equipped_weapon = "浮屠镇妖塔"
+	var port := SpatialTestPort.new()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Futu Demon Tower did not create an independent floating tower render slot.")
+	_expect(port.player.weapon_motion is TowerMotionController, "Futu Demon Tower did not use its dedicated projected-ward motion controller.")
+	var tower_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(tower_sprite.texture != null and "futu_demon_tower" in tower_sprite.texture.resource_path, "Futu Demon Tower was substituted with another weapon texture.")
+	var tower_skills := SkillCatalog.skills_for_weapon("浮屠镇妖塔")
+	_expect(str(tower_skills[0].name) == "浮屠镇妖" and float(tower_skills[0].get("range", 0.0)) >= 250.0, "Futu Demon Tower needs its own projected ward basic skill.")
+	_expect(str(tower_skills[1].name) == "浮屠三镇" and str(tower_skills[1].get("visual", "")) == "tower_ward_impact", "Futu Demon Tower needs its own layered ward primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := MistStreamWaterPalace.new()
+	GameState.player.equipped_weapon = "浮屠镇妖塔"
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("TowerWardImpactEffect"), "Futu Demon Tower basic attack did not spawn its own tower ward impact in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before
