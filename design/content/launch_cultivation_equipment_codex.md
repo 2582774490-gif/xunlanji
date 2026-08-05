@@ -76,7 +76,7 @@
 | 雾纹护腕 | 护腕 | 凡品 | 近战防护，PVE伤害降低 8% | 雾溪水府 | 运行掉落、独立护具栏与美术层已接入；不参与PVP减伤 |
 | 水府灵靴 | 靴 | 凡品 | 移速、浅水行走 | 雾溪水府 | 已完成独立源图、透明运行图与足部栏位；移动速度 +18 |
 | 潮息玉佩 | 护身法宝 | 凡品 | 灵力恢复 | 雾港行商、玩家交易 | 可用：独立法宝图、悬浮层与温和灵力恢复 |
-| 雾林轻甲 | 胸甲 | 灵品 | 闪避、雾林抗性 | 雾林妖径 | 待美术 |
+| 雾林轻甲 | 胸甲 | 灵品 | 雾林抗性、PVE减伤 11% | 雾林妖径 | 可用：独立胸甲图、角色护具层与随机掉落 |
 | 妖将护符 | 饰品 | 灵品 | 对妖类伤害与抵抗 | 雾林妖径 | 运行掉落，待装备卡 |
 | 沉舟航纹袍 | 胸甲 | 灵品 | 水域探索、遗府机关抗性 | 沉舟遗府 | 世界预留 |
 | 流火护臂 | 护腕 | 玄品 | 炼器、火伤抵抗 | 赤枫古道 | 世界预留 |
@@ -152,5 +152,6 @@
 | 逐岚练气轮 | `assets/art/weapons/zhulan_rift_wheel/processed_alpha/zhulan_rift_wheel_v01_alpha.png` | 已完成原创青玉风轮图、独立旋轮动作、去回双弧轮刃与副本/野外/本地论剑接入；不复用箭矢、弩矢或珠类水岚弹道 |
 | 驭风游身诀秘卷 | `assets/art/techniques/wind_wandering_body_manual/processed_alpha/wind_wandering_body_manual_v01_alpha.png` | 已完成原创风系游身秘卷图；已登记至功法图鉴，不复用云岚吐纳诀或朱砂引灵书的封面 |
 | 潮息玉佩 | `assets/art/artifacts/tide_breath_jade_pendant/processed_alpha/tide_breath_jade_pendant_v01_alpha.png` | 已完成原创潮纹玉佩图、独立法宝悬浮层与温和灵力恢复；不复用纳灵玉佩或雾潮练气珠的素材和数值 |
+| 雾林轻甲 | `assets/art/armor/mist_forest_light_armor/processed_alpha/mist_forest_light_armor_v01_alpha.png` | 已完成原创雾林胸甲图、独立护具层与PVE减伤；作为雾林妖径随机掉落，不参与PVP减伤 |
 
 这三张均由 Image 2 生成，采用纯洋红底图后本地抠图。它们是原创的游戏道具概念资源；不使用任何现有动漫或游戏的角色、道具或画面素材。

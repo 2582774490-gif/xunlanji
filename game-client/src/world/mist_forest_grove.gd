@@ -5,6 +5,7 @@ const MIST_FOREST_DROPS := [
 	{"item": "雾木灵芯", "stones": 22, "cultivation": 38},
 	{"item": "妖将护符", "stones": 28, "cultivation": 32},
 	{"item": "炼气雾纹佩", "stones": 18, "cultivation": 44},
+	{"item": "雾林轻甲", "stones": 26, "cultivation": 36},
 ]
 
 func _ready() -> void:

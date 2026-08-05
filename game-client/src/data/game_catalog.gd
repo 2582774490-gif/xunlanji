@@ -388,6 +388,14 @@ const ARMOR_PROFILES := {
 		"render_scale": 0.045,
 		"runtime_asset": "res://assets/art/armor/mist_pattern_bracers/processed_alpha/mist_pattern_bracers_v01_alpha.png",
 	},
+	"雾林轻甲": {
+		"slot": "胸甲",
+		"quality": "灵品",
+		"trait": "雾林行装以层叠织甲与护肩分散雾刃冲击，PVE伤害降低 11%；不参与PVP减伤。",
+		"pve_damage_reduction": 0.11,
+		"render_scale": 0.055,
+		"runtime_asset": "res://assets/art/armor/mist_forest_light_armor/processed_alpha/mist_forest_light_armor_v01_alpha.png",
+	},
 }
 
 

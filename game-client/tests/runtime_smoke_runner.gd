@@ -44,6 +44,7 @@ func _run() -> void:
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_tide_breath_jade_pendant_runtime_rules()
+	await _check_mist_forest_light_armor_runtime_rules()
 	await _check_mist_tide_pearl_render_slot()
 	await _check_mist_tide_pearl_combat_rules()
 	await _check_earthseal_render_and_combat_rules()
@@ -995,6 +996,23 @@ func _check_tide_breath_jade_pendant_runtime_rules() -> void:
 	_expect(port.player.has_node("ArtifactPivot/ArtifactSprite"), "Tide-Breath Jade Pendant did not create an independent artifact runtime layer.")
 	var pendant_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
 	_expect(pendant_sprite.texture != null and "tide_breath_jade_pendant" in pendant_sprite.texture.resource_path, "Tide-Breath Jade Pendant did not use its approved dedicated texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_mist_forest_light_armor_runtime_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("雾林轻甲"):
+		GameState.player.inventory.append("雾林轻甲")
+	GameState.equip_armor("雾林轻甲")
+	_expect(is_equal_approx(GameState.armor_pve_damage_reduction(), 0.11), "Mist Forest Light Armor should expose its declared PVE-only mitigation.")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("ArmorPivot/ArmorSprite"), "Mist Forest Light Armor did not create an independent body-armor runtime layer.")
+	var armor_sprite: Sprite2D = port.player.get_node("ArmorPivot/ArmorSprite")
+	_expect(armor_sprite.texture != null and "mist_forest_light_armor" in armor_sprite.texture.resource_path, "Mist Forest Light Armor did not use its dedicated approved texture.")
 	port.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

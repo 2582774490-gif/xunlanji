@@ -99,7 +99,7 @@
 | 雾纹护腕 | 护腕 | 凡品 | PVE 常规伤害降低 8% | 可用 |
 | 水府灵靴 | 靴 | 凡品 | 浅水行走、移动表现 | 可用：独立足部栏位与移动速度 +18 |
 | 潮息玉佩 | 护身法宝 | 凡品 | 温和灵力恢复 | 可用：独立玉佩图、法宝层与本地交易 |
-| 雾林轻甲 | 胸甲 | 灵品 | 雾林闪避、抗性 | 待制作 |
+| 雾林轻甲 | 胸甲 | 灵品 | 雾林抗性、PVE减伤 11% | 可用：独立胸甲图、角色护具层与雾林妖径掉落 |
 | 妖将护符 | 饰品 | 灵品 | 对妖类伤害与抵抗 | 待制作 |
 | 沉舷舟纹袍 | 胸甲 | 灵品 | 水域与机关抗性 | 世界预留 |
 | 流火护臂 | 护臂 | 玄品 | 炼器、火伤抵抗 | 世界预留 |
@@ -163,6 +163,7 @@
 | 逐岚练气轮 | `assets/art/weapons/zhulan_rift_wheel/processed_alpha/zhulan_rift_wheel_v01_alpha.png` | 抠图检查通过，独立旋轮层、远掷回转与副本/野外/本地论剑均已验证 |
 | 驭风游身诀秘卷 | `assets/art/techniques/wind_wandering_body_manual/processed_alpha/wind_wandering_body_manual_v01_alpha.png` | 抠图检查通过，已登记至功法图鉴；后续只需补充获取事件，不复用其他功法封面 |
 | 潮息玉佩 | `assets/art/artifacts/tide_breath_jade_pendant/processed_alpha/tide_breath_jade_pendant_v01_alpha.png` | 抠图检查通过，独立法宝层与温和灵力恢复已验证；可经雾港行商或玩家交易获得 |
+| 雾林轻甲 | `assets/art/armor/mist_forest_light_armor/processed_alpha/mist_forest_light_armor_v01_alpha.png` | 抠图检查通过，独立胸甲层与PVE减伤已验证；作为雾林妖径随机掉落，不参与PVP减伤 |
 
 ## F. 通用 Image 2 单体提示词模板
 
