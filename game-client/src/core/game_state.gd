@@ -70,6 +70,7 @@ var player := {
 	"equipped_artifact": "纳灵玉佩",
 	"equipped_armor": "",
 	"equipment_upgrades": {},
+	"weapon_trial_claimed": false,
 	"inventory": ["练气木剑", "凝气符", "雾溪草", "纳灵玉佩"],
 	"codex": ["云岚村", "雾溪水府"],
 	"opportunity_log": [],
@@ -465,6 +466,29 @@ func add_item(item_name: String) -> void:
 	if not player.codex.has(item_name):
 		player.codex.append(item_name)
 	profile_changed.emit()
+
+func claim_starter_weapon_trials(item_names: Array[String]) -> Array[String]:
+	# This one-off village rack is a launch-prototype testing route.  It grants
+	# only real runtime weapons, once per local profile, so it cannot become an
+	# infinite market mint once normal drops and crafting are expanded.
+	_normalize_player_schema()
+	var granted: Array[String] = []
+	if bool(player.get("weapon_trial_claimed", false)):
+		notify("云岚试兵架已记录你的试用资格；试用灵器不可重复领取。")
+		return granted
+	for item_name in item_names:
+		if not player.inventory.has(item_name):
+			player.inventory.append(item_name)
+			granted.append(item_name)
+		if not player.codex.has(item_name):
+			player.codex.append(item_name)
+	player.weapon_trial_claimed = true
+	if str(player.get("equipped_weapon", "")) == "练气木剑" and not granted.is_empty():
+		player.equipped_weapon = granted[0]
+	player.opportunity_log.append({"region": "starter_village", "name": "云岚试兵", "kind": "starter_weapon_trial", "items": granted.duplicate()})
+	profile_changed.emit()
+	notify("云岚试兵架交付了 %d 件首发试用灵器。按 Q 可无冷却切换已完成的武器。" % granted.size())
+	return granted
 
 func add_spirit_stones(amount: int) -> void:
 	player.spirit_stones += max(amount, 0)
@@ -980,6 +1004,10 @@ func _normalize_player_schema() -> void:
 			else:
 				equipment_states.erase(item_name)
 		player.equipment_upgrades = equipment_states
+	if not player.has("weapon_trial_claimed"):
+		player.weapon_trial_claimed = false
+	else:
+		player.weapon_trial_claimed = bool(player.weapon_trial_claimed)
 	if not player.has("equipped_armor"):
 		player.equipped_armor = ""
 	else:

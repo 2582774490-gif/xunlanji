@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_village.gd" id="1_world"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/terrain/yunlan_village_center_ground_v01.png" id="2_ground"]
@@ -31,6 +31,9 @@ radius = 92.0
 
 [sub_resource type="CircleShape2D" id="MistBorderRange"]
 radius = 120.0
+
+[sub_resource type="CircleShape2D" id="WeaponRackRange"]
+radius = 92.0
 
 [node name="YunlanVillage" type="Node2D"]
 y_sort_enabled = true
@@ -175,6 +178,42 @@ prompt_text = "进入雾溪水府（炼气副本）"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WaterPalaceEntrance/Interaction"]
 position = Vector2(0, -105)
 shape = SubResource("WaterPalaceRange")
+
+[node name="WeaponTrialRack" type="Node2D" parent="."]
+position = Vector2(815, 850)
+
+[node name="RackBase" type="Polygon2D" parent="WeaponTrialRack"]
+polygon = PackedVector2Array(-94, 0, 94, 0, 72, -24, -72, -24)
+color = Color(0.16, 0.10, 0.07, 1)
+
+[node name="RackFrame" type="Polygon2D" parent="WeaponTrialRack"]
+polygon = PackedVector2Array(-76, -18, -58, -18, -46, -132, -28, -132, -40, -18, 40, -18, 28, -132, 46, -132, 58, -18, 76, -18, 76, 2, -76, 2)
+color = Color(0.46, 0.29, 0.14, 1)
+
+[node name="WeaponGlow" type="Polygon2D" parent="WeaponTrialRack"]
+polygon = PackedVector2Array(-46, -40, 46, -40, 34, -96, -34, -96)
+color = Color(0.26, 0.68, 0.70, 0.72)
+
+[node name="Name" type="Label" parent="WeaponTrialRack"]
+offset_left = -112.0
+offset_top = -178.0
+offset_right = 112.0
+offset_bottom = -150.0
+theme_override_colors/font_color = Color(0.72, 0.94, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.1, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "云岚试兵架"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="WeaponTrialRack"]
+script = ExtResource("8_interaction")
+interaction_id = "weapon_trial_rack"
+prompt_text = "查看云岚试兵架"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponTrialRack/Interaction"]
+position = Vector2(0, -80)
+shape = SubResource("WeaponRackRange")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(330, 760)

@@ -569,14 +569,29 @@ func _check_world_menu_does_not_fabricate_opportunity_rewards() -> void:
 	GameState.current_region_id = region_before
 
 func _check_village_routes() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["练气木剑"]
+	GameState.player.equipped_weapon = "练气木剑"
+	GameState.player.weapon_trial_claimed = false
 	var village := preload("res://scenes/yunlan_village.tscn").instantiate()
 	add_child(village)
 	await get_tree().process_frame
 	_expect(village.sect_envoy != null, "Village is missing the physical sect envoy route.")
+	_expect(village.weapon_rack != null, "Village is missing the physical Yunlan weapon-trial rack.")
 	village._set_context("sect", "test")
 	_expect(village.active_interaction_id == "sect", "Village sect route did not use the shared contextual interaction path.")
+	village._set_context("weapon_rack", "test")
+	village._activate_contextual()
+	for weapon_name in village.STARTER_TRIAL_WEAPONS:
+		_expect(GameState.player.inventory.has(weapon_name), "Weapon-trial rack did not grant %s." % weapon_name)
+	_expect(GameState.player.weapon_trial_claimed and GameState.player.equipped_weapon == "青篁练气剑", "Weapon-trial rack did not record its one-time claim or equip the first available weapon.")
+	var inventory_after_first_claim: Array = GameState.player.inventory.duplicate(true)
+	village._activate_contextual()
+	_expect(GameState.player.inventory == inventory_after_first_claim, "Weapon-trial rack must not duplicate items after its one-time claim.")
 	village.queue_free()
 	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
 
 func _check_water_palace_loop() -> void:
 	var runs_before: int = GameState.player.dungeon_runs.size()

@@ -5,10 +5,12 @@ extends Node2D
 @onready var sect_envoy: Area2D = $SectEnvoyNingYuan/Interaction
 @onready var mist_border: Area2D = $MistBorderPassage/Interaction
 @onready var water_palace: Area2D = $WaterPalaceEntrance/Interaction
+@onready var weapon_rack: Area2D = $WeaponTrialRack/Interaction
 @onready var prompt: Label = $HUD/Prompt
 @onready var touch_controls: Node = $HUD/TouchControls
 
 var active_interaction_id := ""
+const STARTER_TRIAL_WEAPONS: Array[String] = ["青篁练气剑", "回云练气伞", "朱砂练气符笔", "流云练气枪", "逐风练气弓"]
 
 func _ready() -> void:
 	GameState.current_region_id = "starter_village"
@@ -22,6 +24,8 @@ func _ready() -> void:
 	mist_border.unfocused.connect(func(_interaction): _clear_context("mist_border"))
 	water_palace.focused.connect(func(_interaction): _set_context("water_palace", "进入雾溪水府（炼气副本）"))
 	water_palace.unfocused.connect(func(_interaction): _clear_context("water_palace"))
+	weapon_rack.focused.connect(func(_interaction): _set_context("weapon_rack", "查看云岚试兵架（领取首发试用灵器）"))
+	weapon_rack.unfocused.connect(func(_interaction): _clear_context("weapon_rack"))
 	touch_controls.action_requested.connect(_on_touch_action_requested)
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -67,3 +71,9 @@ func _activate_contextual() -> void:
 		"water_palace":
 			GameState.selected_dungeon_id = "mist_stream_palace"
 			get_tree().change_scene_to_file("res://scenes/mist_stream_water_palace.tscn")
+		"weapon_rack":
+			var granted := GameState.claim_starter_weapon_trials(STARTER_TRIAL_WEAPONS)
+			if not granted.is_empty():
+				prompt.text = "已领取：%s\n按 Q 切换武器；可前往雾溪水府或山门论剑试用。" % "、".join(granted)
+			else:
+				prompt.text = "试兵资格已记录。按 Q 可切换已完成的专属武器。"
