@@ -163,3 +163,4 @@
 | 条目 | 透明运行资源 | 已接入位置 |
 |---|---|---|
 | 凝息丹 | `assets/art/pills/condensing_breath_pill/processed_alpha/condensing_breath_pill_v01_alpha.png` | 炼丹工坊图卡、丹药规则与自动验收 |
+| 三折剑经秘卷 | `assets/art/techniques/threefold_sword_sutra/processed_alpha/threefold_sword_sutra_v01_alpha.png` | 功法图鉴、剑修路线自动验收 |

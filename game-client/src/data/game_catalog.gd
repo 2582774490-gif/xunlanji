@@ -242,6 +242,10 @@ const TECHNIQUE_ART_PROFILES := {
 		"card_asset": "res://assets/art/techniques/wind_wandering_body_manual/processed_alpha/wind_wandering_body_manual_v01_alpha.png",
 		"caption": "驭风游身诀秘卷｜以风息调身、穿行与闪避为核心的游身法门。",
 	},
+	"三折剑经": {
+		"card_asset": "res://assets/art/techniques/threefold_sword_sutra/processed_alpha/threefold_sword_sutra_v01_alpha.png",
+		"caption": "三折剑经秘卷｜雾隐剑宗的入门剑修法门，以折势、续势与归势三段养成剑势。",
+	},
 }
 
 static func technique_art_profile_for_name(path_name: String) -> Dictionary:

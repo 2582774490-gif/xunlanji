@@ -184,3 +184,4 @@ Avoid: duplicated objects, cropped edges, photorealistic photography, muddy silh
 | 条目 | 透明运行资源 | 验收状态 |
 |---|---|---|
 | 凝息丹 | `assets/art/pills/condensing_breath_pill/processed_alpha/condensing_breath_pill_v01_alpha.png` | 抠图检查通过；已登记炼丹工坊图卡、药性承受和自由交易规则；不复用功法、法宝或装备图。 |
+| 三折剑经秘卷 | `assets/art/techniques/threefold_sword_sutra/processed_alpha/threefold_sword_sutra_v01_alpha.png` | 抠图检查通过；已登记功法图鉴，剑宗路线不复用岚潮、符修或风系秘卷封面。 |
