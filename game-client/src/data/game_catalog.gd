@@ -335,6 +335,15 @@ const ARTIFACT_PROFILES := {
 		"render_scale": 0.116,
 		"runtime_asset": "res://assets/art/artifacts/eightfold_qi_array/processed_alpha/eightfold_qi_array_v01_alpha.png",
 	},
+	"妖将护符": {
+		"slot": "妖猎护符",
+		"quality": "灵品",
+		"trait": "以雾兽纹镇定胆气；对妖类首领的 PVE 伤害降低 12%，不参与 PVP 减伤。",
+		"mana_regen_bonus": 0.0,
+		"demon_damage_reduction": 0.12,
+		"render_scale": 0.068,
+		"runtime_asset": "res://assets/art/artifacts/mist_general_talisman/processed_alpha/mist_general_talisman_v01_alpha.png",
+	},
 }
 
 # A reveal artifact does not provide combat reduction. Its exploration route is

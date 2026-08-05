@@ -45,6 +45,7 @@ func _run() -> void:
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_tide_breath_jade_pendant_runtime_rules()
+	await _check_mist_general_talisman_runtime_rules()
 	await _check_mist_forest_light_armor_runtime_rules()
 	await _check_mist_tide_pearl_render_slot()
 	await _check_mist_tide_pearl_combat_rules()
@@ -1040,6 +1041,26 @@ func _check_tide_breath_jade_pendant_runtime_rules() -> void:
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
+
+func _check_mist_general_talisman_runtime_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("妖将护符"):
+		GameState.player.inventory.append("妖将护符")
+	GameState.equip_artifact("妖将护符")
+	_expect(is_equal_approx(GameState.artifact_damage_reduction("demon"), 0.12), "Mist General Talisman should reduce only declared demon PVE damage by 12%.")
+	_expect(GameState.pve_damage_after_equipment(14, "demon") == 13, "Mist General Talisman did not reduce the Mist Forest demon attack through the shared PVE calculation.")
+	_expect(is_zero_approx(GameState.artifact_damage_reduction("neutral")), "Mist General Talisman must not receive generic neutral or PVP mitigation.")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("ArtifactPivot/ArtifactSprite"), "Mist General Talisman did not create an independent artifact runtime layer.")
+	var talisman_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
+	_expect(talisman_sprite.texture != null and "mist_general_talisman" in talisman_sprite.texture.resource_path, "Mist General Talisman did not use its dedicated approved texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
 
 func _check_mist_forest_light_armor_runtime_rules() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)

@@ -26,7 +26,7 @@ func _perform_boss_water_blade() -> void:
 	await get_tree().create_timer(0.22).timeout
 	if defeated or not boss_engaged or not _boss_can_reach_player() or boss_health <= 0:
 		return
-	var damage := GameState.pve_damage_after_equipment(14, "neutral")
+	var damage := GameState.pve_damage_after_equipment(14, "demon")
 	var array_ward := _show_eightfold_array_ward("neutral")
 	if guard_time_left > 0.0:
 		damage = ceili(float(damage) * 0.45)
