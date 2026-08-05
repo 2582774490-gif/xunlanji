@@ -1,6 +1,8 @@
 class_name LargeRegionBackdrop
 extends Node2D
 
+const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
+
 ## A large region is assembled from many art chunks.  This node is the
 ## low-detail terrain base between those chunks, so the playable world is not
 ## limited to the size of a single painted background image.
@@ -13,6 +15,7 @@ func _ready() -> void:
 func _draw() -> void:
 	var palette := _palette()
 	draw_rect(Rect2(Vector2.ZERO, region_size), palette.ground)
+	_draw_sector_washes(palette)
 	_draw_rivers(palette)
 	_draw_long_roads(palette)
 	_draw_landform_clusters(palette)
@@ -58,6 +61,19 @@ func _palette() -> Dictionary:
 			}
 
 func _draw_rivers(palette: Dictionary) -> void:
+	if region_style == "ancient_ridge":
+		# Ancient Ridge has no coast-like river.  Its visible flow is the unstable
+		# earthfire vein that originates in the ravine, then fades into ash basins.
+		var earthfire := PackedVector2Array([
+			Vector2(2440, 640), Vector2(3320, 890), Vector2(4120, 720), Vector2(5060, 1080),
+			Vector2(5840, 1640), Vector2(6760, 1870),
+		])
+		draw_polyline(earthfire, palette.mountain.darkened(0.5), 76.0, true)
+		draw_polyline(earthfire, palette.landmark.darkened(0.32), 32.0, true)
+		for point in earthfire:
+			draw_circle(point, 34.0, palette.landmark.darkened(0.45))
+			draw_circle(point, 14.0, palette.landmark)
+		return
 	var river := PackedVector2Array([
 		Vector2(-80, 740), Vector2(1500, 940), Vector2(2900, 730), Vector2(4350, 1090),
 		Vector2(6080, 780), Vector2(7720, 1180), Vector2(9400, 860), Vector2(12080, 1120),
@@ -69,41 +85,92 @@ func _draw_rivers(palette: Dictionary) -> void:
 		draw_line(Vector2(x, y), Vector2(x + 150, y + 12), palette.mist.lightened(0.18), 3.0)
 
 func _draw_long_roads(palette: Dictionary) -> void:
+	if region_style == "ancient_ridge":
+		var ridge_road := PackedVector2Array([
+			Vector2(300, 1660), Vector2(1420, 1490), Vector2(2360, 1320), Vector2(3480, 1430),
+			Vector2(4680, 1280), Vector2(5860, 1620), Vector2(7080, 1490), Vector2(8460, 1730),
+			Vector2(10480, 1430), Vector2(11700, 1620),
+		])
+		_draw_road_pair(ridge_road, palette, 126.0, 84.0)
+		var fire_branch := PackedVector2Array([
+			Vector2(2360, 1320), Vector2(3060, 980), Vector2(4320, 820), Vector2(5750, 430),
+		])
+		_draw_road_pair(fire_branch, palette, 90.0, 56.0)
+		var battlefield_branch := PackedVector2Array([
+			Vector2(7080, 1490), Vector2(7320, 850), Vector2(7320, 350), Vector2(8400, 640),
+		])
+		_draw_road_pair(battlefield_branch, palette, 90.0, 56.0)
+		return
 	var main_road := PackedVector2Array([
 		Vector2(300, 1600), Vector2(1520, 1480), Vector2(2780, 1690), Vector2(4220, 1410),
 		Vector2(5580, 1880), Vector2(7050, 1540), Vector2(8510, 1900), Vector2(10100, 1510), Vector2(11700, 1720),
 	])
-	draw_polyline(main_road, palette.road_edge, 132.0, true)
-	draw_polyline(main_road, palette.road, 94.0, true)
+	_draw_road_pair(main_road, palette, 132.0, 94.0)
 	var north_branch := PackedVector2Array([
 		Vector2(4220, 1410), Vector2(4680, 2790), Vector2(5900, 3360), Vector2(7150, 3100), Vector2(8450, 3850),
 	])
-	draw_polyline(north_branch, palette.road_edge, 96.0, true)
-	draw_polyline(north_branch, palette.road, 62.0, true)
+	_draw_road_pair(north_branch, palette, 96.0, 62.0)
 	var south_branch := PackedVector2Array([
 		Vector2(7050, 1540), Vector2(7600, 2910), Vector2(9000, 3650), Vector2(10900, 3520),
 	])
-	draw_polyline(south_branch, palette.road_edge, 96.0, true)
-	draw_polyline(south_branch, palette.road, 62.0, true)
+	_draw_road_pair(south_branch, palette, 96.0, 62.0)
+
+func _draw_road_pair(points: PackedVector2Array, palette: Dictionary, edge_width: float, road_width: float) -> void:
+	draw_polyline(points, palette.road_edge, edge_width, true)
+	draw_polyline(points, palette.road, road_width, true)
 
 func _draw_landform_clusters(palette: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 912023 if region_style == "mist_border" else 618603
-	for i in 96:
+	for i in 150:
 		var x := rng.randf_range(120.0, region_size.x - 120.0)
 		var y := rng.randf_range(560.0, region_size.y - 160.0)
-		# Keep the central road network readable.  Dense terrain gathers at its
-		# edges instead of being evenly scattered over every tile.
-		if y < 2250.0 and rng.randf() < 0.55:
-			y += 2100.0
+		var sector := RegionalSectorCatalogScript.sector_at(region_style, Vector2(x, y))
+		var terrain_kind := str(sector.get("terrain", "highland"))
+		# Geographic bands control density.  Roads, stable checkpoints and broad
+		# resources stay readable; highlands and old battlefields carry the dense
+		# silhouette, rather than using an even scatter across the whole map.
+		if rng.randf() > _landform_density(terrain_kind):
+			continue
 		var radius := rng.randf_range(80.0, 250.0)
 		var hill := PackedVector2Array([
 			Vector2(x - radius, y + radius * 0.55), Vector2(x - radius * 0.35, y - radius),
 			Vector2(x + radius * 0.22, y - radius * 0.48), Vector2(x + radius, y + radius * 0.55),
 		])
 		draw_colored_polygon(hill, palette.mountain.lightened(rng.randf_range(0.0, 0.16)))
-		if i % 3 == 0:
+		if i % 3 == 0 and terrain_kind != "settled":
 			draw_circle(Vector2(x, y - radius * 0.22), radius * 0.44, palette.mist.darkened(0.18))
+
+func _draw_sector_washes(palette: Dictionary) -> void:
+	for sector in RegionalSectorCatalogScript.sectors_for(region_style):
+		var bounds: Rect2 = sector.get("bounds", Rect2())
+		var fill := _sector_color(str(sector.get("terrain", "highland")), palette)
+		fill.a = 0.42
+		draw_rect(bounds, fill, true)
+		var rim := fill.lightened(0.14)
+		rim.a = 0.32
+		draw_rect(bounds.grow(-16.0), rim, false, 2.0)
+
+func _landform_density(terrain_kind: String) -> float:
+	match terrain_kind:
+		"settled": return 0.15
+		"water": return 0.22
+		"resource": return 0.28
+		"forest", "marsh": return 0.48
+		"fire", "battlefield", "relic": return 0.58
+		_: return 0.72
+
+func _sector_color(terrain_kind: String, palette: Dictionary) -> Color:
+	match terrain_kind:
+		"settled": return palette.road.darkened(0.28)
+		"water": return palette.water.lightened(0.12)
+		"resource": return palette.mist.lightened(0.08)
+		"forest": return palette.mountain.lightened(0.10)
+		"marsh": return palette.mist.darkened(0.08)
+		"fire": return palette.landmark.darkened(0.46)
+		"battlefield": return palette.mountain.lightened(0.06)
+		"relic": return palette.road.darkened(0.18)
+		_: return palette.mountain.lightened(0.08)
 
 func _draw_chunk_blending(palette: Dictionary) -> void:
 	# Fine painted backgrounds are placed on top as chunk art.  These soft

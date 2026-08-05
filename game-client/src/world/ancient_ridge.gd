@@ -2,6 +2,7 @@ class_name AncientRidge
 extends Node2D
 
 const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
+const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
 
 const RIDGE_EVENTS := [
 	{"name": "地火余温", "item": "赤焰精金", "cultivation": 22, "description": "地火裂缝退去后，岩层露出可炼器的精金。"},
@@ -28,6 +29,7 @@ var relic_examined := false
 var event_resolved := false
 var earthfire_cave_discovered := false
 var battlefield_memorial_examined := false
+var current_sector_id := ""
 
 func _ready() -> void:
 	GameState.current_region_id = "ancient_ridge"
@@ -77,6 +79,20 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		_activate_contextual()
 	elif event.keycode == KEY_ESCAPE or event.keycode == KEY_H:
 		_return_to_border()
+
+
+func _process(_delta: float) -> void:
+	_update_sector_presence()
+
+
+func _update_sector_presence() -> void:
+	var sector := RegionalSectorCatalogScript.sector_at("ancient_ridge", player.position)
+	var sector_id := str(sector.get("id", ""))
+	if sector_id.is_empty() or sector_id == current_sector_id:
+		return
+	current_sector_id = sector_id
+	if active_interaction == null:
+		status.text = "进入%s：%s" % [str(sector.get("name", "古脊岭")), str(sector.get("description", ""))]
 
 func _focus_interaction(interaction: Area2D) -> void:
 	active_interaction = interaction

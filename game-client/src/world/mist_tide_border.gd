@@ -2,6 +2,7 @@ class_name MistTideBorder
 extends Node2D
 
 const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
+const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
 
 @onready var player: CharacterBody2D = $Player
 @onready var return_interaction: Area2D = $RuinedCheckpoint/Interaction
@@ -26,6 +27,7 @@ const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
 var active_interaction: Area2D
 var scout_dialogue_stage := 0
 var crystal_collected := false
+var current_sector_id := ""
 
 func _ready() -> void:
 	GameState.current_region_id = "mist_border"
@@ -97,6 +99,22 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		_activate_contextual()
 	elif event.keycode == KEY_ESCAPE or event.keycode == KEY_H:
 		_return_to_village()
+
+
+func _process(_delta: float) -> void:
+	_update_sector_presence()
+
+
+func _update_sector_presence() -> void:
+	var sector := RegionalSectorCatalogScript.sector_at("mist_border", player.position)
+	var sector_id := str(sector.get("id", ""))
+	if sector_id.is_empty() or sector_id == current_sector_id:
+		return
+	current_sector_id = sector_id
+	# A sector notice explains the terrain's role but never turns it into a
+	# quest marker or claims that every part of the sector contains an encounter.
+	if active_interaction == null:
+		status.text = "进入%s：%s" % [str(sector.get("name", "雾潮边境")), str(sector.get("description", ""))]
 
 func _focus_interaction(interaction: Area2D) -> void:
 	active_interaction = interaction
