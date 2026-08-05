@@ -23,6 +23,7 @@ const BellSonicSealEffectScript = preload("res://src/combat/bell_sonic_seal_effe
 const ArrayLatticeEffectScript = preload("res://src/combat/array_lattice_effect.gd")
 const PuppetDashEffectScript = preload("res://src/combat/puppet_dash_effect.gd")
 const CauldronFlameEffectScript = preload("res://src/combat/cauldron_flame_effect.gd")
+const PearlTideProjectileScript = preload("res://src/combat/pearl_tide_projectile.gd")
 
 @onready var player: SpatialTestPlayer = $Player
 @onready var opponent: DuelOpponent = $Opponent
@@ -137,6 +138,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_puppet_dash(player.global_position + Vector2(38, -54), opponent.global_position + Vector2(0, -52), 0.044)
 	elif SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon):
 		_spawn_cauldron_flame(player.global_position + Vector2(30, -58), (opponent.global_position - player.global_position).normalized(), 160.0, 14.0)
+	elif SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon):
+		_spawn_pearl_tide(player.global_position + Vector2(30, -56), opponent.global_position + Vector2(0, -52), 12.0, 0.30)
 	opponent.take_damage(damage)
 	status.text = "%s 命中试剑使，造成 %d 点伤害。" % [GameState.player.equipped_weapon, damage]
 	_refresh_hud()
@@ -216,6 +219,7 @@ func _cast_ningxi_sword_art() -> void:
 	var array_disk := SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon)
 	var puppet := SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon)
 	var cauldron := SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon)
+	var pearl := SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon)
 	if umbrella:
 		_spawn_umbrella_ward(player.global_position + Vector2(0, -54), facing)
 		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
@@ -255,6 +259,8 @@ func _cast_ningxi_sword_art() -> void:
 		_spawn_puppet_dash(player.global_position + Vector2(38, -56), opponent.global_position + Vector2(0, -56), 0.062)
 	elif cauldron:
 		_spawn_cauldron_flame(player.global_position + Vector2(30, -60), facing, 232.0, 24.0)
+	elif pearl:
+		_spawn_pearl_tide(player.global_position + Vector2(30, -58), opponent.global_position + Vector2(0, -56), 16.0, 0.24)
 	else:
 		_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
 	await get_tree().create_timer(0.22).timeout
@@ -439,6 +445,12 @@ func _spawn_cauldron_flame(origin: Vector2, direction: Vector2, reach := 160.0, 
 	flame.name = "CauldronFlameEffect"
 	add_child(flame)
 	flame.pour(origin, direction, reach, width)
+
+func _spawn_pearl_tide(origin: Vector2, target: Vector2, radius := 13.0, duration := 0.30) -> void:
+	var pearl: PearlTideProjectile = PearlTideProjectileScript.new()
+	pearl.name = "PearlTideProjectile"
+	add_child(pearl)
+	pearl.launch(origin, target, radius, duration)
 
 func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
 	# This is a defensive canopy, not recolored sword VFX: two offset arcs imply

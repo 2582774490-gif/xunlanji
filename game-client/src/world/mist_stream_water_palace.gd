@@ -18,6 +18,7 @@ const BellSonicSealEffectScript = preload("res://src/combat/bell_sonic_seal_effe
 const ArrayLatticeEffectScript = preload("res://src/combat/array_lattice_effect.gd")
 const PuppetDashEffectScript = preload("res://src/combat/puppet_dash_effect.gd")
 const CauldronFlameEffectScript = preload("res://src/combat/cauldron_flame_effect.gd")
+const PearlTideProjectileScript = preload("res://src/combat/pearl_tide_projectile.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 const BOSS_RETALIATION_RANGE := 650.0
 
@@ -175,6 +176,8 @@ func _on_player_attack_started(direction: String) -> void:
 		_spawn_puppet_dash(player.position + Vector2(38, -54), boss.position + Vector2(0, -70), 0.044)
 	elif SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon):
 		_spawn_cauldron_flame(player.position + Vector2(30, -58), facing, 160.0, 14.0)
+	elif SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon):
+		_spawn_pearl_tide(player.position + Vector2(30, -56), boss.position + Vector2(0, -72), 12.0, 0.30)
 	elif not SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon):
 		slash_trail.play_burst(player.position + facing * 46.0 + Vector2(0, -34), facing)
 
@@ -212,6 +215,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 	var array_disk := SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon)
 	var puppet := SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon)
 	var cauldron := SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon)
+	var pearl := SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon)
 	boss_engaged = true
 	player_mana -= float(primary["spirit_cost"])
 	ningxi_cooldown = float(primary["cooldown"])
@@ -255,6 +259,8 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 		_spawn_puppet_dash(player.position + Vector2(38, -56), boss.position + hit_offset, 0.062)
 	elif cauldron:
 		_spawn_cauldron_flame(player.position + Vector2(30, -60), facing, 232.0, 24.0)
+	elif pearl:
+		_spawn_pearl_tide(player.position + Vector2(30, -58), boss.position + hit_offset, 16.0, 0.24)
 	else:
 		ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
 	status.text = "%s结印中……灵力 -%d。" % [str(primary["name"]), int(primary["spirit_cost"])]
@@ -273,7 +279,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 func _can_hit_boss_with_basic() -> bool:
 	if near_boss:
 		return true
-	var ranged_weapon := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_staff_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_whip_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon)
+	var ranged_weapon := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_staff_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_whip_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon)
 	if not ranged_weapon:
 		return false
 	return player.position.distance_to(boss.position) <= float(_skill(0).get("range", 205.0))
@@ -313,6 +319,8 @@ func _play_basic_weapon_effect() -> void:
 		_spawn_puppet_dash(player.position + Vector2(38, -54), boss.position + Vector2(0, -70), 0.044)
 	elif SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon):
 		_spawn_cauldron_flame(player.position + Vector2(30, -58), (boss.position - player.position).normalized(), 160.0, 14.0)
+	elif SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon):
+		_spawn_pearl_tide(player.position + Vector2(30, -56), boss.position + Vector2(0, -72), 12.0, 0.30)
 
 func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
 	var talisman: TalismanProjectile = TalismanProjectileScript.new()
@@ -411,6 +419,12 @@ func _spawn_cauldron_flame(origin: Vector2, direction: Vector2, reach := 160.0, 
 	flame.name = "CauldronFlameEffect"
 	add_child(flame)
 	flame.pour(origin, direction, reach, width)
+
+func _spawn_pearl_tide(origin: Vector2, target: Vector2, radius := 13.0, duration := 0.30) -> void:
+	var pearl: PearlTideProjectile = PearlTideProjectileScript.new()
+	pearl.name = "PearlTideProjectile"
+	add_child(pearl)
+	pearl.launch(origin, target, radius, duration)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":

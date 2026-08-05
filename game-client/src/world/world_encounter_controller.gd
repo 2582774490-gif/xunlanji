@@ -23,6 +23,7 @@ const BellSonicSealEffectScript = preload("res://src/combat/bell_sonic_seal_effe
 const ArrayLatticeEffectScript = preload("res://src/combat/array_lattice_effect.gd")
 const PuppetDashEffectScript = preload("res://src/combat/puppet_dash_effect.gd")
 const CauldronFlameEffectScript = preload("res://src/combat/cauldron_flame_effect.gd")
+const PearlTideProjectileScript = preload("res://src/combat/pearl_tide_projectile.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 
 var _player: CharacterBody2D
@@ -139,6 +140,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_puppet_dash(_player.global_position + Vector2(38, -54), enemy_position + Vector2(0, -52), 0.044)
 	elif SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon):
 		_spawn_cauldron_flame(_player.global_position + Vector2(30, -58), (enemy_position - _player.global_position).normalized(), 160.0, 14.0)
+	elif SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon):
+		_spawn_pearl_tide(_player.global_position + Vector2(30, -56), enemy_position + Vector2(0, -52), 12.0, 0.30)
 	_target_health = max(0, _target_health - damage)
 	_refresh_target_label()
 	_status.text = "%s 受击，造成 %d 点伤害。" % [_target_name, damage]
@@ -255,6 +258,12 @@ func _spawn_cauldron_flame(origin: Vector2, direction: Vector2, reach := 160.0, 
 	flame.name = "CauldronFlameEffect"
 	add_child(flame)
 	flame.pour(origin, direction, reach, width)
+
+func _spawn_pearl_tide(origin: Vector2, target: Vector2, radius := 13.0, duration := 0.30) -> void:
+	var pearl: PearlTideProjectile = PearlTideProjectileScript.new()
+	pearl.name = "PearlTideProjectile"
+	add_child(pearl)
+	pearl.launch(origin, target, radius, duration)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":

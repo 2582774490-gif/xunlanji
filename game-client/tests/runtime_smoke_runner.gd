@@ -36,6 +36,7 @@ func _run() -> void:
 	await _check_eightfold_array_disk_runtime_layer_and_skill_set()
 	await _check_moxu_puppet_runtime_layer_and_skill_set()
 	await _check_qinglu_cauldron_runtime_layer_and_skill_set()
+	await _check_canglan_pearl_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -794,6 +795,33 @@ func _check_qinglu_cauldron_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("CauldronFlameEffect"), "Qinglu Qi Cauldron basic attack did not spawn its own furnace flame effect in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_canglan_pearl_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["沧澜引灵珠"]
+	GameState.player.equipped_weapon = "沧澜引灵珠"
+	var port := SpatialTestPort.new()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Canglan Spirit Pearl did not create an independent floating focus render slot.")
+	_expect(port.player.weapon_motion is PearlMotionController, "Canglan Spirit Pearl did not use its dedicated orbit motion controller.")
+	var pearl_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(pearl_sprite.texture != null and "canglan_spirit_pearl" in pearl_sprite.texture.resource_path, "Canglan Spirit Pearl was substituted with another weapon texture.")
+	var pearl_skills := SkillCatalog.skills_for_weapon("沧澜引灵珠")
+	_expect(str(pearl_skills[0].name) == "沧澜珠击" and float(pearl_skills[0].get("range", 0.0)) >= 340.0, "Canglan Spirit Pearl needs its own long water-pearl basic skill.")
+	_expect(str(pearl_skills[1].name) == "沧澜回潮" and str(pearl_skills[1].get("visual", "")) == "pearl_tide", "Canglan Spirit Pearl needs its own tide pearl primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := MistStreamWaterPalace.new()
+	GameState.player.equipped_weapon = "沧澜引灵珠"
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("PearlTideProjectile"), "Canglan Spirit Pearl basic attack did not spawn its own tide projectile in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

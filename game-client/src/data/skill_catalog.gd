@@ -126,6 +126,11 @@ const QINGLU_CAULDRON_SKILLS := [
 	{"id": "qinglu_furnace_echo", "name": "炉火回震", "key": "K", "spirit_cost": 26, "cooldown": 5.2, "range": 300.0, "damage_base": 23, "attack_ratio": 0.43, "mana_ratio": 36.0, "visual": "cauldron_flame", "description": "以岚息催旺炉心，连续喷出更长的丹火余焰，适合封锁正面近中距离。"},
 ]
 
+const CANGLAN_PEARL_SKILLS := [
+	{"id": "canglan_pearl_shot", "name": "沧澜珠击", "key": "J", "spirit_cost": 0, "cooldown": 0.54, "range": 350.0, "description": "引动沧澜灵珠沿水岚曲线射出，适合稳定牵制远处目标。"},
+	{"id": "canglan_tide_return", "name": "沧澜回潮", "key": "K", "spirit_cost": 22, "cooldown": 4.6, "range": 425.0, "damage_base": 20, "attack_ratio": 0.40, "mana_ratio": 38.0, "visual": "pearl_tide", "description": "灵珠裹挟回潮水岚飞得更远，在命中处泛起一圈珠潮，不以直线箭矢取胜。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -166,6 +171,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = MOXU_PUPPET_SKILLS
 	elif item_name == "青炉练气鼎":
 		weapon_skills = QINGLU_CAULDRON_SKILLS
+	elif item_name == "沧澜引灵珠":
+		weapon_skills = CANGLAN_PEARL_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -226,3 +233,6 @@ static func is_puppet_skill_set(item_name: String) -> bool:
 
 static func is_cauldron_skill_set(item_name: String) -> bool:
 	return item_name == "青炉练气鼎"
+
+static func is_pearl_skill_set(item_name: String) -> bool:
+	return item_name == "沧澜引灵珠"
