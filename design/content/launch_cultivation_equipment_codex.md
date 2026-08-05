@@ -155,3 +155,11 @@
 | 雾林轻甲 | `assets/art/armor/mist_forest_light_armor/processed_alpha/mist_forest_light_armor_v01_alpha.png` | 已完成原创雾林胸甲图、独立护具层与PVE减伤；作为雾林妖径随机掉落，不参与PVP减伤 |
 
 这三张均由 Image 2 生成，采用纯洋红底图后本地抠图。它们是原创的游戏道具概念资源；不使用任何现有动漫或游戏的角色、道具或画面素材。
+
+## 六、凝息丹（已入库运行时美术）
+
+凝息丹拥有独立 Image 2 源图、透明运行时图和炼丹工坊图卡。它限炼气一至三层有效：修为 +15、当日药负 +5；可炼制、可交易，高境界服用无效。
+
+| 条目 | 透明运行资源 | 已接入位置 |
+|---|---|---|
+| 凝息丹 | `assets/art/pills/condensing_breath_pill/processed_alpha/condensing_breath_pill_v01_alpha.png` | 炼丹工坊图卡、丹药规则与自动验收 |

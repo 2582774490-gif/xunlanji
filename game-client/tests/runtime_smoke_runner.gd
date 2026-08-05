@@ -248,6 +248,8 @@ func _check_alchemy_and_medicine_rules() -> void:
 	_expect(not GameState.use_pill("凝息丹") and GameState.player.inventory.has("凝息丹"), "High-realm players should not consume ineffective low-realm pills.")
 	GameState.player.gold = 100
 	_expect(GameState.list_item_for_market("凝息丹", 31), "Crafted pills should remain freely tradeable through the market boundary.")
+	var condensing_art: Dictionary = GameCatalog.pill_art_profile_for_item("凝息丹")
+	_expect(not condensing_art.is_empty() and ResourceLoader.exists(str(condensing_art.card_asset)), "Condensing Breath Pill must point to its own approved alchemy art asset.")
 	GameState.player = profile_before
 	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()

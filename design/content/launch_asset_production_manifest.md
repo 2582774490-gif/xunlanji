@@ -178,3 +178,9 @@ Lighting/mood: even studio-like rim light on the object only
 Constraints: no character, no hands, no text, no Chinese characters, no icon frame, no watermark, no UI, no floor plane, no cast shadow, no reflection, no particles extending beyond the object
 Avoid: duplicated objects, cropped edges, photorealistic photography, muddy silhouette, borrowed franchise designs
 ```
+
+## 凝息丹运行时资产
+
+| 条目 | 透明运行资源 | 验收状态 |
+|---|---|---|
+| 凝息丹 | `assets/art/pills/condensing_breath_pill/processed_alpha/condensing_breath_pill_v01_alpha.png` | 抠图检查通过；已登记炼丹工坊图卡、药性承受和自由交易规则；不复用功法、法宝或装备图。 |

@@ -355,6 +355,15 @@ const PILL_PROFILES := {
 	"归元丹": {"name": "归元丹", "cultivation": 30, "burden": 9, "max_realm": 0, "max_stage": 9, "kind": "炼气丹"},
 }
 
+# Runtime art is deliberately independent from pill balance data. This lets a
+# future pill add a unique card without accidentally inheriting another item.
+const PILL_ART_PROFILES := {
+	"凝息丹": {
+		"card_asset": "res://assets/art/pills/condensing_breath_pill/processed_alpha/condensing_breath_pill_v01_alpha.png",
+		"caption": "炼气一至三层的温和调息丹；修为 +15，药负 +5。",
+	},
+}
+
 const ALCHEMY_RECIPES := {
 	"ningxi": {
 		"name": "凝息丹", "output": "凝息丹", "materials": ["雾溪灵草", "雾溪药"],
@@ -374,6 +383,10 @@ static func artifact_profile_for_item(item_name: String) -> Dictionary:
 	if item_name == "照影练气镜":
 		return ZHAOYING_QI_MIRROR_PROFILE.duplicate(true)
 	return ARTIFACT_PROFILES.get(item_name, {}).duplicate(true)
+
+
+static func pill_art_profile_for_item(item_name: String) -> Dictionary:
+	return PILL_ART_PROFILES.get(item_name, {}).duplicate(true)
 
 
 # Armor is an independent body slot. Body protection is deliberately mild PVE

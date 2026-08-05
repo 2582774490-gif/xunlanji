@@ -331,6 +331,24 @@ func _show_market() -> void:
 
 func _show_alchemy() -> void:
 	_heading("云岚村 · 炼丹工坊")
+	var pill_art := Catalog.pill_art_profile_for_item("凝息丹")
+	if not pill_art.is_empty():
+		var pill_card := HBoxContainer.new()
+		pill_card.custom_minimum_size = Vector2(0, 104)
+		pill_card.add_theme_constant_override("separation", 14)
+		content.add_child(pill_card)
+		var pill_texture := TextureRect.new()
+		pill_texture.texture = load(str(pill_art.card_asset)) as Texture2D
+		pill_texture.custom_minimum_size = Vector2(96, 96)
+		pill_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		pill_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		pill_card.add_child(pill_texture)
+		var pill_details := Label.new()
+		pill_details.text = "《凝息丹》\n%s" % str(pill_art.caption)
+		pill_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		pill_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		pill_details.add_theme_font_size_override("font_size", 16)
+		pill_card.add_child(pill_details)
 	_text("所有修士都能炼丹；丹修将拥有更高成丹率与更深药性控制。高阶修士服用低阶丹药不会获得有效提升。", 17, Color("f2d79c"))
 	_text("初阶配方：雾溪灵草 × 1 + 雾溪药 × 1 → 凝息丹（炼气一至三层有效，使用后 +15 修为）")
 	_text("筑基丹方：雾林妖丹 × 1 + 雾潮晶簇 × 3 + 临渊准备材料 × 1（临渊露 / 御崖石屑 / 护脉阵片任选）→ 筑基丹", 18, Color("f2d79c"))
