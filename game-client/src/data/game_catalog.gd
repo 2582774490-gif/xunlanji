@@ -150,6 +150,7 @@ const WEAPON_RUNTIME_PROFILES := {
 	"玄霜摄魂铃": {"motion": "xuanshuang_bell", "asset": "res://assets/art/weapons/xuanshuang_soul_bell/processed_alpha/xuanshuang_soul_bell_v01_alpha.png"},
 	"八方引岚阵盘": {"motion": "eightfold_array_disk", "asset": "res://assets/art/weapons/eightfold_wind_array_disk/processed_alpha/eightfold_wind_array_disk_v01_alpha.png"},
 	"墨枢练气傀儡": {"motion": "moxu_puppet", "asset": "res://assets/art/weapons/moxu_qi_puppet/processed_alpha/moxu_qi_puppet_v01_alpha.png"},
+	"青炉练气鼎": {"motion": "qinglu_cauldron", "asset": "res://assets/art/weapons/qinglu_qi_cauldron/processed_alpha/qinglu_qi_cauldron_v01_alpha.png"},
 }
 
 static func weapon_runtime_profile_for_item(item_name: String) -> Dictionary:

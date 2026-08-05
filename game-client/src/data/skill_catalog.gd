@@ -121,6 +121,11 @@ const MOXU_PUPPET_SKILLS := [
 	{"id": "moxu_puppet_chain", "name": "墨枢连机", "key": "K", "spirit_cost": 25, "cooldown": 5.1, "range": 390.0, "damage_base": 22, "attack_ratio": 0.44, "mana_ratio": 35.0, "visual": "puppet_dash", "description": "傀儡由灵线牵引作一次更远的连机突进，擅长打断中距离目标的节奏。"},
 ]
 
+const QINGLU_CAULDRON_SKILLS := [
+	{"id": "qinglu_fire_pour", "name": "青炉丹火", "key": "J", "spirit_cost": 0, "cooldown": 0.66, "range": 250.0, "description": "青炉倾出一缕丹火，稳定灼烧中距离前方目标。"},
+	{"id": "qinglu_furnace_echo", "name": "炉火回震", "key": "K", "spirit_cost": 26, "cooldown": 5.2, "range": 300.0, "damage_base": 23, "attack_ratio": 0.43, "mana_ratio": 36.0, "visual": "cauldron_flame", "description": "以岚息催旺炉心，连续喷出更长的丹火余焰，适合封锁正面近中距离。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -159,6 +164,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = EIGHTFOLD_ARRAY_DISK_SKILLS
 	elif item_name == "墨枢练气傀儡":
 		weapon_skills = MOXU_PUPPET_SKILLS
+	elif item_name == "青炉练气鼎":
+		weapon_skills = QINGLU_CAULDRON_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -216,3 +223,6 @@ static func is_array_disk_skill_set(item_name: String) -> bool:
 
 static func is_puppet_skill_set(item_name: String) -> bool:
 	return item_name == "墨枢练气傀儡"
+
+static func is_cauldron_skill_set(item_name: String) -> bool:
+	return item_name == "青炉练气鼎"

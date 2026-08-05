@@ -29,6 +29,7 @@ const XiaoMotionScript = preload("res://src/animation/xiao_motion_controller.gd"
 const BellMotionScript = preload("res://src/animation/bell_motion_controller.gd")
 const ArrayDiskMotionScript = preload("res://src/animation/array_disk_motion_controller.gd")
 const PuppetMotionScript = preload("res://src/animation/puppet_motion_controller.gd")
+const CauldronMotionScript = preload("res://src/animation/cauldron_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -161,6 +162,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = ArrayDiskMotionScript.new()
 	elif motion == "moxu_puppet":
 		pivot = PuppetMotionScript.new()
+	elif motion == "qinglu_cauldron":
+		pivot = CauldronMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -262,6 +265,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.061, 0.061)
 		sprite.position = Vector2(0, 0)
 		sprite.rotation = 0.0
+	elif motion == "qinglu_cauldron":
+		# The compact furnace hovers near the shoulder, keeping its lid and flame
+		# silhouette clear before the controller tips it forward to cast.
+		sprite.scale = Vector2(0.055, 0.055)
+		sprite.position = Vector2(0, 0)
+		sprite.rotation = deg_to_rad(-3.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins

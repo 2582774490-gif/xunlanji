@@ -17,6 +17,7 @@ const XiaoSoundstreamEffectScript = preload("res://src/combat/xiao_soundstream_e
 const BellSonicSealEffectScript = preload("res://src/combat/bell_sonic_seal_effect.gd")
 const ArrayLatticeEffectScript = preload("res://src/combat/array_lattice_effect.gd")
 const PuppetDashEffectScript = preload("res://src/combat/puppet_dash_effect.gd")
+const CauldronFlameEffectScript = preload("res://src/combat/cauldron_flame_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 const BOSS_RETALIATION_RANGE := 650.0
 
@@ -172,6 +173,8 @@ func _on_player_attack_started(direction: String) -> void:
 		_spawn_array_lattice(player.position + facing * 145.0 + Vector2(0, -40), 42.0)
 	elif SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon):
 		_spawn_puppet_dash(player.position + Vector2(38, -54), boss.position + Vector2(0, -70), 0.044)
+	elif SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon):
+		_spawn_cauldron_flame(player.position + Vector2(30, -58), facing, 160.0, 14.0)
 	elif not SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon):
 		slash_trail.play_burst(player.position + facing * 46.0 + Vector2(0, -34), facing)
 
@@ -208,6 +211,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 	var bell := SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon)
 	var array_disk := SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon)
 	var puppet := SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon)
+	var cauldron := SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon)
 	boss_engaged = true
 	player_mana -= float(primary["spirit_cost"])
 	ningxi_cooldown = float(primary["cooldown"])
@@ -249,6 +253,8 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 		_spawn_array_lattice(player.position + facing * 205.0 + Vector2(0, -44), 70.0)
 	elif puppet:
 		_spawn_puppet_dash(player.position + Vector2(38, -56), boss.position + hit_offset, 0.062)
+	elif cauldron:
+		_spawn_cauldron_flame(player.position + Vector2(30, -60), facing, 232.0, 24.0)
 	else:
 		ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
 	status.text = "%s结印中……灵力 -%d。" % [str(primary["name"]), int(primary["spirit_cost"])]
@@ -267,7 +273,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 func _can_hit_boss_with_basic() -> bool:
 	if near_boss:
 		return true
-	var ranged_weapon := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_staff_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_whip_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon)
+	var ranged_weapon := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_staff_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_whip_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon)
 	if not ranged_weapon:
 		return false
 	return player.position.distance_to(boss.position) <= float(_skill(0).get("range", 205.0))
@@ -305,6 +311,8 @@ func _play_basic_weapon_effect() -> void:
 		_spawn_array_lattice(player.position + (boss.position - player.position).normalized() * 145.0 + Vector2(0, -40), 42.0)
 	elif SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon):
 		_spawn_puppet_dash(player.position + Vector2(38, -54), boss.position + Vector2(0, -70), 0.044)
+	elif SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon):
+		_spawn_cauldron_flame(player.position + Vector2(30, -58), (boss.position - player.position).normalized(), 160.0, 14.0)
 
 func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
 	var talisman: TalismanProjectile = TalismanProjectileScript.new()
@@ -397,6 +405,12 @@ func _spawn_puppet_dash(origin: Vector2, target: Vector2, size := 0.052) -> void
 	puppet.name = "PuppetDashEffect"
 	add_child(puppet)
 	puppet.launch(origin, target, size)
+
+func _spawn_cauldron_flame(origin: Vector2, direction: Vector2, reach := 160.0, width := 16.0) -> void:
+	var flame: CauldronFlameEffect = CauldronFlameEffectScript.new()
+	flame.name = "CauldronFlameEffect"
+	add_child(flame)
+	flame.pour(origin, direction, reach, width)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":
