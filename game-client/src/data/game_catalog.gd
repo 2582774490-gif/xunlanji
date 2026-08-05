@@ -137,6 +137,7 @@ const WEAPON_RUNTIME_PROFILES := {
 	"朱砂练气符笔": {"motion": "rune_brush", "asset": "res://assets/art/weapons/vermilion_qi_talisman_brush/processed_alpha/vermilion_qi_talisman_brush_v01_alpha.png"},
 	"流云练气枪": {"motion": "long_spear", "asset": "res://assets/art/weapons/liuyun_qi_spear/processed_alpha/liuyun_qi_spear_v01_alpha.png"},
 	"逐风练气弓": {"motion": "wind_bow", "asset": "res://assets/art/weapons/zhufeng_qi_bow/processed_alpha/zhufeng_qi_bow_v01_alpha.png"},
+	"断雾练气刀": {"motion": "mist_dao", "asset": "res://assets/art/weapons/duanwu_qi_dao/processed_alpha/duanwu_qi_dao_v01_alpha.png"},
 }
 
 static func weapon_runtime_profile_for_item(item_name: String) -> Dictionary:

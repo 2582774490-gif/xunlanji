@@ -22,6 +22,7 @@ func _run() -> void:
 	await _check_talisman_brush_runtime_layer_and_skill_set()
 	await _check_liuyun_spear_runtime_layer_and_skill_set()
 	await _check_zhufeng_bow_runtime_layer_and_skill_set()
+	await _check_duanwu_dao_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -416,6 +417,33 @@ func _check_zhufeng_bow_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
+
+func _check_duanwu_dao_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["断雾练气刀"]
+	GameState.equip_weapon("断雾练气刀")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Duanwu Qi Dao did not create an independent player weapon render slot.")
+	_expect(port.player.weapon_motion is DaoMotionController, "Duanwu Qi Dao did not use its dedicated saber motion controller.")
+	var dao_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(dao_sprite.texture != null and "duanwu_qi_dao" in dao_sprite.texture.resource_path, "Duanwu Qi Dao was substituted with another weapon texture.")
+	var dao_skills := SkillCatalog.skills_for_weapon("断雾练气刀")
+	_expect(str(dao_skills[0].name) == "断雾刀斩" and float(dao_skills[0].get("range", 0.0)) <= 220.0, "Duanwu Qi Dao must remain a close-range saber basic skill.")
+	_expect(str(dao_skills[1].name) == "断雾横斩" and int(dao_skills[1].get("damage_base", 0)) >= 26, "Duanwu Qi Dao needs a high-impact close-range primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := preload("res://scenes/mist_stream_water_palace.tscn").instantiate()
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("DaoCrescentSlash"), "Duanwu Qi Dao basic attack did not spawn its own crescent effect in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
 
 func _check_runtime_weapon_quick_switch() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)

@@ -56,6 +56,11 @@ const ZHUFENG_BOW_SKILLS := [
 	{"id": "zhufeng_piercing_arrow", "name": "逐风贯矢", "key": "K", "spirit_cost": 19, "cooldown": 4.5, "range": 620.0, "damage_base": 19, "attack_ratio": 0.42, "mana_ratio": 30.0, "visual": "wind_arrow", "description": "凝风为矢，射出一支更远的贯穿灵箭。"},
 ]
 
+const DUANWU_DAO_SKILLS := [
+	{"id": "duanwu_dao_cut", "name": "断雾刀斩", "key": "J", "spirit_cost": 0, "cooldown": 0.58, "range": 220.0, "description": "以厚背弧刃近身横斩，伤害高于轻剑但必须贴近目标。"},
+	{"id": "duanwu_cleaving_mist", "name": "断雾横斩", "key": "K", "spirit_cost": 24, "cooldown": 4.7, "range": 235.0, "damage_base": 26, "attack_ratio": 0.56, "mana_ratio": 24.0, "visual": "dao_crescent", "description": "蓄入岚息后斩出一轮宽刀弧，只有近身时才能完整命中。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -68,6 +73,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = LIUYUN_SPEAR_SKILLS
 	elif item_name == "逐风练气弓":
 		weapon_skills = ZHUFENG_BOW_SKILLS
+	elif item_name == "断雾练气刀":
+		weapon_skills = DUANWU_DAO_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -86,3 +93,6 @@ static func is_spear_skill_set(item_name: String) -> bool:
 
 static func is_bow_skill_set(item_name: String) -> bool:
 	return item_name == "逐风练气弓"
+
+static func is_dao_skill_set(item_name: String) -> bool:
+	return item_name == "断雾练气刀"

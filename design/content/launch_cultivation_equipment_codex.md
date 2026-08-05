@@ -94,6 +94,7 @@
 6. **流云练气枪**：单体长兵武器图；已生成并抠图，已接入独立长兵动作、刺击距离、枪势特效与无冷却切换。
 7. **逐风练气弓**：单体远程武器图；已生成并抠图，已接入持弓动作、箭矢弹道、远射技能与无冷却切换。
 8. **八角练气阵盘**：单体法宝图标卡；已生成、抠图并接入独立法宝层。石窟塌方洞首探必得，中性 PVE 伤害降低 16%，不参与 PVP 减伤。
+9. **断雾练气刀**：单体近战武器图；已生成、抠图并接入独立持刀层、重斩动作与青灰刀弧。“断雾刀斩”保持近身高伤，“断雾横斩”扩大近距离压迫，不借用剑波、枪势或箭矢。
 
 每张原图必须：主体居中、留出 12% 以上边距、背景为无阴影纯洋红 `#ff00ff` 便于抠图、无文字、无水印、无角色、无场景。导入后生成透明 PNG，再单独制作 UI 图标裁切和游戏内展示尺寸；不会把概念图直接当作可装备资源。
 
@@ -112,5 +113,6 @@
 | 照影练气镜 | `assets/art/artifacts/zhaoying_qi_mirror/processed_alpha/zhaoying_qi_mirror_v01_alpha.png` | 已完成原创鉴别法宝单体图、透明抠图、独立法宝层与雾潮石窟“镜影裂隙”机缘；沉舷遗府首通获得 |
 | 云岚吐纳诀秘卷 | `assets/art/techniques/cloud_mist_breathing_manual/processed_alpha/cloud_mist_breathing_manual_v01_alpha.png` | 已登记功法图，待功法图鉴界面接入 |
 | 朱砂引灵书秘卷 | `assets/art/techniques/vermilion_spirit_guidance_manual/processed_alpha/vermilion_spirit_guidance_manual_v01_alpha.png` | 已完成原创秘卷图、透明抠图与功法图鉴资源登记；与朱砂练气符笔对应，待世界获得事件 |
+| 断雾练气刀 | `assets/art/weapons/duanwu_qi_dao/processed_alpha/duanwu_qi_dao_v01_alpha.png` | 已完成原创刀体图、独立持刀层、重斩动作、刀弧效果与副本/野外/本地论剑接入；不复用剑类贴图或剑波 |
 
 这三张均由 Image 2 生成，采用纯洋红底图后本地抠图。它们是原创的游戏道具概念资源；不使用任何现有动漫或游戏的角色、道具或画面素材。

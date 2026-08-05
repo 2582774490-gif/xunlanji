@@ -16,6 +16,7 @@ const WeaponMotionScript = preload("res://src/animation/weapon_motion_controller
 const UmbrellaMotionScript = preload("res://src/animation/umbrella_motion_controller.gd")
 const SpearMotionScript = preload("res://src/animation/spear_motion_controller.gd")
 const BowMotionScript = preload("res://src/animation/bow_motion_controller.gd")
+const DaoMotionScript = preload("res://src/animation/dao_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -122,6 +123,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = SpearMotionScript.new()
 	elif motion == "wind_bow":
 		pivot = BowMotionScript.new()
+	elif motion == "mist_dao":
+		pivot = DaoMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -146,6 +149,11 @@ func _configure_equipped_weapon_visual() -> void:
 	elif motion == "wind_bow":
 		sprite.scale = Vector2(0.084, 0.084)
 		sprite.position = Vector2(20, -54)
+	elif motion == "mist_dao":
+		# The hilt lives in the lower-left of its single-item source image, so it
+		# is pinned near the hand while the long curved blade remains readable.
+		sprite.scale = Vector2(0.065, 0.065)
+		sprite.position = Vector2(44, -45)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins

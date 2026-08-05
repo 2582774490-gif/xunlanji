@@ -4,6 +4,7 @@ const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
 const TalismanProjectileScript = preload("res://src/combat/talisman_projectile.gd")
 const SpearThrustEffectScript = preload("res://src/combat/spear_thrust_effect.gd")
 const WindArrowProjectileScript = preload("res://src/combat/wind_arrow_projectile.gd")
+const DaoCrescentSlashScript = preload("res://src/combat/dao_crescent_slash.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 const BOSS_RETALIATION_RANGE := 650.0
 
@@ -133,6 +134,8 @@ func _on_player_attack_started(direction: String) -> void:
 	var facing := _direction_vector(direction)
 	if SKILL_CATALOG.is_umbrella_skill_set(GameState.player.equipped_weapon):
 		_spawn_umbrella_ward(player.position + facing * 34.0 + Vector2(0, -34), facing)
+	elif SKILL_CATALOG.is_dao_skill_set(GameState.player.equipped_weapon):
+		_spawn_dao_crescent(player.position + Vector2(0, -48), facing, 72.0, 7.0)
 	elif not SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon):
 		slash_trail.play_burst(player.position + facing * 46.0 + Vector2(0, -34), facing)
 
@@ -156,6 +159,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 	var brush := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon)
 	var spear := SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon)
 	var bow := SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon)
+	var dao := SKILL_CATALOG.is_dao_skill_set(GameState.player.equipped_weapon)
 	boss_engaged = true
 	player_mana -= float(primary["spirit_cost"])
 	ningxi_cooldown = float(primary["cooldown"])
@@ -169,6 +173,8 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 		_spawn_spear_thrust(player.position + Vector2(0, -48), boss.position + hit_offset, 8.0)
 	elif bow:
 		_spawn_wind_arrow(player.position + Vector2(0, -52), boss.position + hit_offset, 0.34)
+	elif dao:
+		_spawn_dao_crescent(player.position + Vector2(0, -50), facing, 118.0, 11.0)
 	else:
 		ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
 	status.text = "%s结印中……灵力 -%d。" % [str(primary["name"]), int(primary["spirit_cost"])]
@@ -199,6 +205,8 @@ func _play_basic_weapon_effect() -> void:
 		_spawn_spear_thrust(player.position + Vector2(0, -42), boss.position + Vector2(0, -88), 5.0)
 	elif SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon):
 		_spawn_wind_arrow(player.position + Vector2(0, -52), boss.position + Vector2(0, -88))
+	elif SKILL_CATALOG.is_dao_skill_set(GameState.player.equipped_weapon):
+		_spawn_dao_crescent(player.position + Vector2(0, -48), (boss.position - player.position).normalized(), 72.0, 7.0)
 
 func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
 	var talisman: TalismanProjectile = TalismanProjectileScript.new()
@@ -214,6 +222,11 @@ func _spawn_wind_arrow(origin: Vector2, target: Vector2, travel_time := 0.30) ->
 	var arrow: WindArrowProjectile = WindArrowProjectileScript.new()
 	add_child(arrow)
 	arrow.launch(origin, target, Color(0.70, 0.94, 1.0), travel_time)
+
+func _spawn_dao_crescent(origin: Vector2, direction: Vector2, radius := 72.0, thickness := 7.0) -> void:
+	var slash: DaoCrescentSlash = DaoCrescentSlashScript.new()
+	add_child(slash)
+	slash.launch(origin, direction, radius, thickness)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":

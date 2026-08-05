@@ -67,7 +67,7 @@
 | 类别 | 练气基础器 | 三条大分支 | 当前接入 |
 |---|---|---|---|
 | 剑 | 青篁练气剑 | 剑气、御剑、剑阵 | 可用：独立挥击 |
-| 刀 | 断雾练气刀 | 斩击、血煞、重锋 | 待制作 |
+| 刀 | 断雾练气刀 | 斩击、血煞、重锋 | 可用：独立弧斩动作、刀弧特效与近战主技能 |
 | 枪 | 流云练气枪 | 破阵、游龙、守势 | 可用：刺击与枪势 |
 | 戟 | 玄月练气戟 | 钩斩、镇压、战阵 | 待制作 |
 | 斧 | 开山练气斧 | 破甲、震地、蓄力 | 待制作 |
@@ -112,7 +112,7 @@
 2. **照影练气镜**：已完成源图、透明抠图、独立法宝层与石窟破幻线索；沉舷遗府首通获得。
 3. **朱砂引灵书秘卷**：已完成源图、透明抠图和功法图鉴资源登记；已可与朱砂练气符笔形成明确归属。
 4. **雾林轻甲**：补全雾林地区的护具掉落与可替换身体层。
-5. **断雾练气刀**：启动第六种有真实动作的武器，形成近战斩击路线。
+5. **断雾练气刀**：已完成源图、透明抠图、独立弧斩动作、刀弧特效与“断雾横斩”；第六种可用器型。
 
 每次只生成一件的源图；经过抠图、边缘检查和游戏内尺度检查后，再生成下一件。通过的源图与透明 PNG 必须落在 `game-client/assets/art/<类别>/<名称>/` 下。
 
@@ -123,6 +123,7 @@
 | 水府灵靴 | `assets/art/armor/water_palace_spirit_boots/processed_alpha/water_palace_spirit_boots_v01_alpha.png` | 抠图检查通过，独立足部栏位、角色层与移动效果已验证 |
 | 照影练气镜 | `assets/art/artifacts/zhaoying_qi_mirror/processed_alpha/zhaoying_qi_mirror_v01_alpha.png` | 抠图检查通过，独立法宝层与“镜影裂隙”可选机缘已验证 |
 | 朱砂引灵书秘卷 | `assets/art/techniques/vermilion_spirit_guidance_manual/processed_alpha/vermilion_spirit_guidance_manual_v01_alpha.png` | 抠图检查通过，已登记至功法图鉴；待秘卷获得事件 |
+| 断雾练气刀 | `assets/art/weapons/duanwu_qi_dao/processed_alpha/duanwu_qi_dao_v01_alpha.png` | 抠图检查通过，独立刀体层、重斩动作、刀弧特效、副本/野外/本地论剑均已验证 |
 
 ## F. 通用 Image 2 单体提示词模板
 
