@@ -21,6 +21,7 @@ const GuqinNoteEffectScript = preload("res://src/combat/guqin_note_effect.gd")
 const XiaoSoundstreamEffectScript = preload("res://src/combat/xiao_soundstream_effect.gd")
 const BellSonicSealEffectScript = preload("res://src/combat/bell_sonic_seal_effect.gd")
 const ArrayLatticeEffectScript = preload("res://src/combat/array_lattice_effect.gd")
+const PuppetDashEffectScript = preload("res://src/combat/puppet_dash_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 
 var _player: CharacterBody2D
@@ -133,6 +134,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_bell_sonic_seal(_player.global_position + Vector2(0, -54), (enemy_position - _player.global_position).normalized(), 170.0, 18.0)
 	elif SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon):
 		_spawn_array_lattice(_player.global_position + (enemy_position - _player.global_position).normalized() * 145.0 + Vector2(0, -40), 42.0)
+	elif SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon):
+		_spawn_puppet_dash(_player.global_position + Vector2(38, -54), enemy_position + Vector2(0, -52), 0.044)
 	_target_health = max(0, _target_health - damage)
 	_refresh_target_label()
 	_status.text = "%s 受击，造成 %d 点伤害。" % [_target_name, damage]
@@ -237,6 +240,12 @@ func _spawn_array_lattice(origin: Vector2, radius := 52.0) -> void:
 	lattice.name = "ArrayLatticeEffect"
 	add_child(lattice)
 	lattice.deploy(origin, radius)
+
+func _spawn_puppet_dash(origin: Vector2, target: Vector2, size := 0.052) -> void:
+	var puppet: PuppetDashEffect = PuppetDashEffectScript.new()
+	puppet.name = "PuppetDashEffect"
+	add_child(puppet)
+	puppet.launch(origin, target, size)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":

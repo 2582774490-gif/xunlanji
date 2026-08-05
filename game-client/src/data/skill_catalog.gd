@@ -116,6 +116,11 @@ const EIGHTFOLD_ARRAY_DISK_SKILLS := [
 	{"id": "eightfold_array_lock", "name": "八方锁岚", "key": "K", "spirit_cost": 24, "cooldown": 5.0, "range": 308.0, "damage_base": 21, "attack_ratio": 0.41, "mana_ratio": 37.0, "visual": "array_lattice", "description": "阵盘旋转展开，八条岚纹在落点交错锁合，适合限制前方区域而非贴身斩击。"},
 ]
 
+const MOXU_PUPPET_SKILLS := [
+	{"id": "moxu_puppet_command", "name": "墨枢点杀", "key": "J", "spirit_cost": 0, "cooldown": 0.60, "range": 330.0, "description": "以灵线催动墨枢傀儡突进一击，保留施术者与目标的安全距离。"},
+	{"id": "moxu_puppet_chain", "name": "墨枢连机", "key": "K", "spirit_cost": 25, "cooldown": 5.1, "range": 390.0, "damage_base": 22, "attack_ratio": 0.44, "mana_ratio": 35.0, "visual": "puppet_dash", "description": "傀儡由灵线牵引作一次更远的连机突进，擅长打断中距离目标的节奏。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -152,6 +157,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = XUANSHUANG_BELL_SKILLS
 	elif item_name == "八方引岚阵盘":
 		weapon_skills = EIGHTFOLD_ARRAY_DISK_SKILLS
+	elif item_name == "墨枢练气傀儡":
+		weapon_skills = MOXU_PUPPET_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -206,3 +213,6 @@ static func is_bell_skill_set(item_name: String) -> bool:
 
 static func is_array_disk_skill_set(item_name: String) -> bool:
 	return item_name == "八方引岚阵盘"
+
+static func is_puppet_skill_set(item_name: String) -> bool:
+	return item_name == "墨枢练气傀儡"
