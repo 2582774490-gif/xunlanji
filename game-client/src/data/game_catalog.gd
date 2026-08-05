@@ -274,6 +274,15 @@ const ARTIFACT_PROFILES := {
 		"render_scale": 0.112,
 		"runtime_asset": "res://assets/art/artifacts/mist_tide_qi_pearl/processed_alpha/mist_tide_qi_pearl_v01_alpha.png",
 	},
+	"玄土练气印": {
+		"slot": "护身法宝",
+		"quality": "灵品",
+		"trait": "以山纹镇住来势；土岩伤害降低 32%，只在土岩首领与地形危险中生效。",
+		"mana_regen_bonus": 0.0,
+		"earth_damage_reduction": 0.32,
+		"render_scale": 0.118,
+		"runtime_asset": "res://assets/art/artifacts/earthseal_qi_stamp/processed_alpha/earthseal_qi_stamp_v01_alpha.png",
+	},
 }
 
 # Pill data is separate from breakthrough material checks.  Lower-realm pills

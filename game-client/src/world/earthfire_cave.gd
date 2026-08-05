@@ -27,12 +27,17 @@ func _perform_boss_water_blade() -> void:
 	if defeated or not near_boss or boss_health <= 0:
 		return
 	var damage := 20
+	var mitigation_notes: Array[String] = []
+	var earth_reduction := GameState.artifact_damage_reduction("earth")
+	if earth_reduction > 0.0:
+		damage = ceili(float(damage) * (1.0 - earth_reduction))
+		mitigation_notes.append("%s镇住岩势，抵去%d%%土岩伤害。" % [str(GameState.player.get("equipped_artifact", "法宝")), roundi(earth_reduction * 100.0)])
 	if guard_time_left > 0.0:
 		damage = ceili(float(damage) * 0.45)
 		guard_time_left = 0.0
-		status.text = "岚息护体挡下了大半地火爪焰。"
+		mitigation_notes.append("岚息护体挡下了大半地火爪焰。")
 	player_health = max(0, player_health - damage)
-	status.text = "地火灵兽·炽甲拍出地火爪焰，造成 %d 点伤害。" % damage
+	status.text = "地火灵兽·炽甲拍出地火爪焰，造成 %d 点伤害。%s" % [damage, " ".join(mitigation_notes)]
 	_refresh_player_hp()
 	if player_health == 0:
 		defeated = true
@@ -60,8 +65,11 @@ func _defeat_boss() -> void:
 	defeated = true
 	boss.visible = false
 	boss.set_deferred("monitoring", false)
+	var first_clear_seal := not GameState.player.inventory.has("玄土练气印")
 	last_drop = EARTHFIRE_DROPS.pick_random().duplicate()
 	GameState.add_item(str(last_drop.item))
+	if first_clear_seal:
+		GameState.add_item("玄土练气印")
 	GameState.add_spirit_stones(int(last_drop.stones))
 	GameState.gain_cultivation(int(last_drop.cultivation))
 	GameState.record_dungeon_run({
@@ -73,7 +81,8 @@ func _defeat_boss() -> void:
 	})
 	status.text = "地火洞试炼完成：奖励已进入行囊，可从结算面板返回古脊岭。"
 	prompt.text = ""
-	clear_summary.text = "地火灵兽·炽甲沉入熄火的岩池。\n\n获得：%s\n灵石 +%d　修为 +%d\n\n地火洞保留为固定副本；后续会增加洞内深层、火脉锻台与掉落分支。" % [str(last_drop.item), int(last_drop.stones), int(last_drop.cultivation)]
+	var seal_reward := "、玄土练气印（首通护身法宝）" if first_clear_seal else ""
+	clear_summary.text = "地火灵兽·炽甲沉入熄火的岩池。\n\n获得：%s%s\n灵石 +%d　修为 +%d\n\n地火洞保留为固定副本；后续会增加洞内深层、火脉锻台与掉落分支。" % [str(last_drop.item), seal_reward, int(last_drop.stones), int(last_drop.cultivation)]
 	clear_panel.visible = true
 
 func _return_to_village() -> void:

@@ -22,6 +22,7 @@ func _run() -> void:
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
 	await _check_mist_tide_pearl_combat_rules()
+	await _check_earthseal_render_and_combat_rules()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
@@ -388,6 +389,35 @@ func _check_mist_tide_pearl_combat_rules() -> void:
 	GameState.player.equipped_artifact = "纳灵玉佩"
 	_expect(GameState.artifact_mana_regen_bonus() > 0.0, "Naling Jade Pendant should retain its own mana-regeneration effect.")
 	_expect(is_zero_approx(GameState.artifact_damage_reduction("water")), "Naling Jade Pendant should not gain the Pearl water-defense effect.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_earthseal_render_and_combat_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("玄土练气印"):
+		GameState.player.inventory.append("玄土练气印")
+	GameState.equip_artifact("玄土练气印")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	var artifact_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
+	_expect(artifact_sprite.texture != null, "Earthseal Qi Stamp runtime layer has no approved dedicated texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	_expect(is_equal_approx(GameState.artifact_damage_reduction("earth"), 0.32), "Earthseal Qi Stamp should reduce only declared earth damage by 32%.")
+	_expect(is_zero_approx(GameState.artifact_damage_reduction("water")), "Earthseal Qi Stamp must not reduce water damage.")
+	var cave := preload("res://scenes/earthfire_cave.tscn").instantiate()
+	add_child(cave)
+	await get_tree().process_frame
+	cave.near_boss = true
+	cave.player_health = 100
+	cave.guard_time_left = 0.0
+	cave._perform_boss_water_blade()
+	await get_tree().create_timer(0.30).timeout
+	_expect(cave.player_health == 86, "Earthfire Cave did not apply the Earthseal Qi Stamp only to its earth-impact attack.")
+	cave.queue_free()
+	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
@@ -976,6 +1006,7 @@ func _check_earthfire_cave() -> void:
 	var stage_before: int = GameState.player.minor_stage
 	var inventory_before: int = GameState.player.inventory.size()
 	var runs_before: int = GameState.player.dungeon_runs.size()
+	var had_earthseal := GameState.player.inventory.has("玄土练气印")
 	GameState.player.realm_index = 3
 	GameState.player.minor_stage = 1
 	var cave := preload("res://scenes/earthfire_cave.tscn").instantiate()
@@ -990,7 +1021,9 @@ func _check_earthfire_cave() -> void:
 	cave._defeat_boss()
 	await get_tree().process_frame
 	_expect(cave.clear_panel.visible, "Earthfire Cave clear did not show a settlement panel.")
-	_expect(GameState.player.inventory.size() == inventory_before + 1, "Earthfire Cave clear did not grant one fixed-dungeon reward.")
+	var expected_item_count := 1 if had_earthseal else 2
+	_expect(GameState.player.inventory.size() == inventory_before + expected_item_count, "Earthfire Cave clear did not grant its fixed-dungeon reward and first-clear Earthseal reward.")
+	_expect(GameState.player.inventory.has("玄土练气印"), "First Earthfire Cave clear did not grant the Earthseal Qi Stamp.")
 	_expect(GameState.player.dungeon_runs.size() == runs_before + 1, "Earthfire Cave clear did not record a dungeon run.")
 	cave.queue_free()
 	await get_tree().process_frame
