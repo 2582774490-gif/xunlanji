@@ -104,10 +104,14 @@ func _search_collapsed_tunnel() -> void:
 	$CollapsedTunnel.visible = false
 	tunnel_interaction.set_deferred("monitoring", false)
 	GameState.add_item("塌方残匣")
+	var first_array: bool = not GameState.player.inventory.has("八角练气阵盘")
+	if first_array:
+		GameState.add_item("八角练气阵盘")
 	GameState.add_spirit_stones(12)
 	GameState.gain_cultivation(9)
-	GameState.record_opportunity({"region": "mist_tide_stone_grotto", "name": "塌方洞探查", "item": "塌方残匣", "cultivation": 9})
-	status.text = "塌方洞中找到残匣：未来可通过机关、体修破障或交易线索进一步开发；修为 +9。"
+	GameState.record_opportunity({"region": "mist_tide_stone_grotto", "name": "塌方洞探查", "item": "八角练气阵盘" if first_array else "塌方残匣", "cultivation": 9})
+	var artifact_note := "另获八角练气阵盘（首个石窟阵修法宝）。" if first_array else "阵盘已被你收录，此次只保留残匣线索。"
+	status.text = "塌方洞中找到残匣：%s 修为 +9。" % artifact_note
 	_close_interaction()
 
 func _close_interaction() -> void:

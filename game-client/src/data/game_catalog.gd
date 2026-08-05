@@ -286,6 +286,15 @@ const ARTIFACT_PROFILES := {
 		"render_scale": 0.118,
 		"runtime_asset": "res://assets/art/artifacts/earthseal_qi_stamp/processed_alpha/earthseal_qi_stamp_v01_alpha.png",
 	},
+	"八角练气阵盘": {
+		"slot": "阵势法宝",
+		"quality": "灵品",
+		"trait": "展开护阵分散常规冲击；中性 PVE 伤害降低 16%，不参与 PVP 减伤。",
+		"mana_regen_bonus": 0.0,
+		"neutral_damage_reduction": 0.16,
+		"render_scale": 0.116,
+		"runtime_asset": "res://assets/art/artifacts/eightfold_qi_array/processed_alpha/eightfold_qi_array_v01_alpha.png",
+	},
 }
 
 # Pill data is separate from breakthrough material checks.  Lower-realm pills

@@ -27,6 +27,7 @@ func _run() -> void:
 	await _check_mist_tide_pearl_render_slot()
 	await _check_mist_tide_pearl_combat_rules()
 	await _check_earthseal_render_and_combat_rules()
+	await _check_eightfold_array_render_and_combat_rules()
 	await _check_mist_pattern_bracers_armor_rules()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
@@ -512,6 +513,25 @@ func _check_earthseal_render_and_combat_rules() -> void:
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
+func _check_eightfold_array_render_and_combat_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("八角练气阵盘"):
+		GameState.player.inventory.append("八角练气阵盘")
+	GameState.equip_artifact("八角练气阵盘")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("ArtifactPivot/ArtifactSprite"), "Eightfold Qi Array did not create an independent runtime artifact layer.")
+	var artifact_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
+	_expect(artifact_sprite.texture != null and "eightfold_qi_array" in artifact_sprite.texture.resource_path, "Eightfold Qi Array runtime layer used no approved dedicated texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	_expect(is_equal_approx(GameState.artifact_damage_reduction("neutral"), 0.16), "Eightfold Qi Array should reduce only its declared neutral PVE damage.")
+	_expect(GameState.elemental_damage_after_artifact(20, "neutral") == 17, "Eightfold Qi Array did not use the shared neutral damage calculation.")
+	_expect(is_zero_approx(GameState.artifact_damage_reduction("water")), "Eightfold Qi Array must not inherit water reduction from the Pearl.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
 
 func _check_mist_pattern_bracers_armor_rules() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
@@ -831,6 +851,7 @@ func _check_mist_tide_stone_grotto() -> void:
 	var realm_before: int = GameState.player.realm_index
 	var stage_before: int = GameState.player.minor_stage
 	var inventory_before: int = GameState.player.inventory.size()
+	var had_array: bool = GameState.player.inventory.has("八角练气阵盘")
 	var log_before: int = GameState.player.opportunity_log.size()
 	GameState.player.realm_index = 0
 	GameState.player.minor_stage = 5
@@ -846,7 +867,9 @@ func _check_mist_tide_stone_grotto() -> void:
 	grotto.active_interaction = grotto.tunnel_interaction
 	grotto._activate_contextual()
 	_expect(grotto.mineral_collected and grotto.tide_resolved and grotto.tunnel_searched, "Mist Tide Stone Grotto did not resolve all independent routes.")
-	_expect(GameState.player.inventory.size() == inventory_before + 3, "Mist Tide Stone Grotto should grant one result from each optional route.")
+	var expected_item_count := 3 if had_array else 4
+	_expect(GameState.player.inventory.size() == inventory_before + expected_item_count, "Mist Tide Stone Grotto should grant one result from each optional route plus its first array-artifact discovery.")
+	_expect(GameState.player.inventory.has("八角练气阵盘"), "Mist Tide Stone Grotto did not grant its first array-artifact discovery.")
 	_expect(GameState.player.opportunity_log.size() == log_before + 3, "Mist Tide Stone Grotto did not record all three open-world discoveries.")
 	grotto.queue_free()
 	await get_tree().process_frame
