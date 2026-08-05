@@ -38,6 +38,7 @@ func _run() -> void:
 	await _check_qinglu_cauldron_runtime_layer_and_skill_set()
 	await _check_canglan_pearl_runtime_layer_and_skill_set()
 	await _check_zhenyue_seal_runtime_layer_and_skill_set()
+	await _check_hanzhao_mirror_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -850,6 +851,33 @@ func _check_zhenyue_seal_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("SealSlamEffect"), "Zhenyue Spirit Seal basic attack did not spawn its own seal-slam effect in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_hanzhao_mirror_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["寒照破妄镜"]
+	GameState.player.equipped_weapon = "寒照破妄镜"
+	var port := SpatialTestPort.new()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Hanzhao Truth Mirror did not create an independent floating mirror render slot.")
+	_expect(port.player.weapon_motion is MirrorMotionController, "Hanzhao Truth Mirror did not use its dedicated reflection gesture motion controller.")
+	var mirror_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(mirror_sprite.texture != null and "hanzhao_truth_mirror" in mirror_sprite.texture.resource_path, "Hanzhao Truth Mirror was substituted with another weapon texture.")
+	var mirror_skills := SkillCatalog.skills_for_weapon("寒照破妄镜")
+	_expect(str(mirror_skills[0].name) == "寒照破妄" and float(mirror_skills[0].get("range", 0.0)) >= 320.0, "Hanzhao Truth Mirror needs its own refracted ray basic skill.")
+	_expect(str(mirror_skills[1].name) == "寒照回映" and str(mirror_skills[1].get("visual", "")) == "mirror_ray", "Hanzhao Truth Mirror needs its own reflected-ray primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := MistStreamWaterPalace.new()
+	GameState.player.equipped_weapon = "寒照破妄镜"
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("MirrorRayEffect"), "Hanzhao Truth Mirror basic attack did not spawn its own reflected ray effect in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

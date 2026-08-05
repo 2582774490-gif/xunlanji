@@ -136,6 +136,11 @@ const ZHENYUE_SEAL_SKILLS := [
 	{"id": "zhenyue_binding_mountain", "name": "镇岳缚灵", "key": "K", "spirit_cost": 25, "cooldown": 5.0, "range": 300.0, "damage_base": 24, "attack_ratio": 0.45, "mana_ratio": 34.0, "visual": "seal_slam", "description": "法印引来更重的岳纹落下，在较远位置形成更大的镇压印痕。"},
 ]
 
+const HANZHAO_MIRROR_SKILLS := [
+	{"id": "hanzhao_mirror_ray", "name": "寒照破妄", "key": "J", "spirit_cost": 0, "cooldown": 0.56, "range": 330.0, "description": "灵镜偏转，放出一束折向的寒照光线，以两段光路远击目标。"},
+	{"id": "hanzhao_reflection", "name": "寒照回映", "key": "K", "spirit_cost": 23, "cooldown": 4.8, "range": 400.0, "damage_base": 20, "attack_ratio": 0.41, "mana_ratio": 37.0, "visual": "mirror_ray", "description": "镜面凝出更长的破妄光束，在折返点形成一次更强的回映冲击。"},
+]
+
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
@@ -180,6 +185,8 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = CANGLAN_PEARL_SKILLS
 	elif item_name == "镇岳缚灵印":
 		weapon_skills = ZHENYUE_SEAL_SKILLS
+	elif item_name == "寒照破妄镜":
+		weapon_skills = HANZHAO_MIRROR_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
 		result.append(skill.duplicate(true))
@@ -246,3 +253,6 @@ static func is_pearl_skill_set(item_name: String) -> bool:
 
 static func is_seal_skill_set(item_name: String) -> bool:
 	return item_name == "镇岳缚灵印"
+
+static func is_mirror_skill_set(item_name: String) -> bool:
+	return item_name == "寒照破妄镜"

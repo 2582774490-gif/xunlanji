@@ -20,6 +20,7 @@ const PuppetDashEffectScript = preload("res://src/combat/puppet_dash_effect.gd")
 const CauldronFlameEffectScript = preload("res://src/combat/cauldron_flame_effect.gd")
 const PearlTideProjectileScript = preload("res://src/combat/pearl_tide_projectile.gd")
 const SealSlamEffectScript = preload("res://src/combat/seal_slam_effect.gd")
+const MirrorRayEffectScript = preload("res://src/combat/mirror_ray_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 const BOSS_RETALIATION_RANGE := 650.0
 
@@ -181,6 +182,8 @@ func _on_player_attack_started(direction: String) -> void:
 		_spawn_pearl_tide(player.position + Vector2(30, -56), boss.position + Vector2(0, -72), 12.0, 0.30)
 	elif SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon):
 		_spawn_seal_slam(player.position + facing * 146.0 + Vector2(0, -38), 40.0)
+	elif SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon):
+		_spawn_mirror_ray(player.position + Vector2(28, -56), facing, 190.0, 4.0)
 	elif not SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon):
 		slash_trail.play_burst(player.position + facing * 46.0 + Vector2(0, -34), facing)
 
@@ -220,6 +223,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 	var cauldron := SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon)
 	var pearl := SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon)
 	var seal := SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon)
+	var mirror := SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon)
 	boss_engaged = true
 	player_mana -= float(primary["spirit_cost"])
 	ningxi_cooldown = float(primary["cooldown"])
@@ -267,6 +271,8 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 		_spawn_pearl_tide(player.position + Vector2(30, -58), boss.position + hit_offset, 16.0, 0.24)
 	elif seal:
 		_spawn_seal_slam(player.position + facing * 210.0 + Vector2(0, -40), 68.0)
+	elif mirror:
+		_spawn_mirror_ray(player.position + Vector2(28, -58), facing, 260.0, 7.0)
 	else:
 		ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
 	status.text = "%s结印中……灵力 -%d。" % [str(primary["name"]), int(primary["spirit_cost"])]
@@ -285,7 +291,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 func _can_hit_boss_with_basic() -> bool:
 	if near_boss:
 		return true
-	var ranged_weapon := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_staff_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_whip_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon)
+	var ranged_weapon := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_staff_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_whip_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_crossbow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_fan_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_guqin_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_xiao_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bell_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_array_disk_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_puppet_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_cauldron_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_pearl_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon)
 	if not ranged_weapon:
 		return false
 	return player.position.distance_to(boss.position) <= float(_skill(0).get("range", 205.0))
@@ -329,6 +335,8 @@ func _play_basic_weapon_effect() -> void:
 		_spawn_pearl_tide(player.position + Vector2(30, -56), boss.position + Vector2(0, -72), 12.0, 0.30)
 	elif SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon):
 		_spawn_seal_slam(player.position + (boss.position - player.position).normalized() * 146.0 + Vector2(0, -38), 40.0)
+	elif SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon):
+		_spawn_mirror_ray(player.position + Vector2(28, -56), (boss.position - player.position).normalized(), 190.0, 4.0)
 
 func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
 	var talisman: TalismanProjectile = TalismanProjectileScript.new()
@@ -439,6 +447,12 @@ func _spawn_seal_slam(origin: Vector2, size := 44.0) -> void:
 	seal.name = "SealSlamEffect"
 	add_child(seal)
 	seal.slam(origin, size)
+
+func _spawn_mirror_ray(origin: Vector2, direction: Vector2, reach := 180.0, thickness := 4.0) -> void:
+	var ray: MirrorRayEffect = MirrorRayEffectScript.new()
+	ray.name = "MirrorRayEffect"
+	add_child(ray)
+	ray.reflect(origin, direction, reach, thickness)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":

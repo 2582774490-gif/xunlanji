@@ -25,6 +25,7 @@ const PuppetDashEffectScript = preload("res://src/combat/puppet_dash_effect.gd")
 const CauldronFlameEffectScript = preload("res://src/combat/cauldron_flame_effect.gd")
 const PearlTideProjectileScript = preload("res://src/combat/pearl_tide_projectile.gd")
 const SealSlamEffectScript = preload("res://src/combat/seal_slam_effect.gd")
+const MirrorRayEffectScript = preload("res://src/combat/mirror_ray_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 
 var _player: CharacterBody2D
@@ -145,6 +146,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_pearl_tide(_player.global_position + Vector2(30, -56), enemy_position + Vector2(0, -52), 12.0, 0.30)
 	elif SKILL_CATALOG.is_seal_skill_set(GameState.player.equipped_weapon):
 		_spawn_seal_slam(_player.global_position + (enemy_position - _player.global_position).normalized() * 146.0 + Vector2(0, -38), 40.0)
+	elif SKILL_CATALOG.is_mirror_skill_set(GameState.player.equipped_weapon):
+		_spawn_mirror_ray(_player.global_position + Vector2(28, -56), (enemy_position - _player.global_position).normalized(), 190.0, 4.0)
 	_target_health = max(0, _target_health - damage)
 	_refresh_target_label()
 	_status.text = "%s 受击，造成 %d 点伤害。" % [_target_name, damage]
@@ -273,6 +276,12 @@ func _spawn_seal_slam(origin: Vector2, size := 44.0) -> void:
 	seal.name = "SealSlamEffect"
 	add_child(seal)
 	seal.slam(origin, size)
+
+func _spawn_mirror_ray(origin: Vector2, direction: Vector2, reach := 180.0, thickness := 4.0) -> void:
+	var ray: MirrorRayEffect = MirrorRayEffectScript.new()
+	ray.name = "MirrorRayEffect"
+	add_child(ray)
+	ray.reflect(origin, direction, reach, thickness)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":
