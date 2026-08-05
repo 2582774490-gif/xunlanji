@@ -7,6 +7,7 @@ extends Node2D
 
 const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
 const TalismanProjectileScript = preload("res://src/combat/talisman_projectile.gd")
+const SpearThrustEffectScript = preload("res://src/combat/spear_thrust_effect.gd")
 
 @onready var player: SpatialTestPlayer = $Player
 @onready var opponent: DuelOpponent = $Opponent
@@ -89,6 +90,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 	var damage := maxi(8, GameState.weapon_basic_damage(5))
 	if SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon):
 		_spawn_brush_talisman(player.global_position + Vector2(0, -46), opponent.global_position + Vector2(0, -56))
+	elif SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon):
+		_spawn_spear_thrust(player.global_position + Vector2(0, -42), opponent.global_position + Vector2(0, -54), 5.0)
 	opponent.take_damage(damage)
 	status.text = "%s 命中试剑使，造成 %d 点伤害。" % [GameState.player.equipped_weapon, damage]
 	_refresh_hud()
@@ -152,11 +155,14 @@ func _cast_ningxi_sword_art() -> void:
 	var facing := (opponent.global_position - player.global_position).normalized()
 	var umbrella := SKILL_CATALOG.is_umbrella_skill_set(GameState.player.equipped_weapon)
 	var brush := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon)
+	var spear := SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon)
 	if umbrella:
 		_spawn_umbrella_ward(player.global_position + Vector2(0, -54), facing)
 		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
 	elif brush:
 		_spawn_brush_talisman(player.global_position + Vector2(0, -54), opponent.global_position + Vector2(0, -56))
+	elif spear:
+		_spawn_spear_thrust(player.global_position + Vector2(0, -50), opponent.global_position + Vector2(0, -54), 8.0)
 	else:
 		_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
 	await get_tree().create_timer(0.22).timeout
@@ -248,6 +254,11 @@ func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
 	var talisman: TalismanProjectile = TalismanProjectileScript.new()
 	add_child(talisman)
 	talisman.launch(origin, target)
+
+func _spawn_spear_thrust(origin: Vector2, target: Vector2, width := 5.0) -> void:
+	var thrust: SpearThrustEffect = SpearThrustEffectScript.new()
+	add_child(thrust)
+	thrust.launch(origin, target, width)
 
 func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
 	# This is a defensive canopy, not recolored sword VFX: two offset arcs imply

@@ -14,6 +14,7 @@ const FEMALE_WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/
 const FEMALE_ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_attack_south_6f_v01_alpha.png")
 const WeaponMotionScript = preload("res://src/animation/weapon_motion_controller.gd")
 const UmbrellaMotionScript = preload("res://src/animation/umbrella_motion_controller.gd")
+const SpearMotionScript = preload("res://src/animation/spear_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -107,7 +108,11 @@ func _configure_equipped_weapon_visual() -> void:
 	var weapon_texture := load(asset_path) as Texture2D
 	if motion.is_empty() or weapon_texture == null:
 		return
-	var pivot: WeaponMotionController = UmbrellaMotionScript.new() if motion == "defense_umbrella" else WeaponMotionScript.new()
+	var pivot: WeaponMotionController = WeaponMotionScript.new()
+	if motion == "defense_umbrella":
+		pivot = UmbrellaMotionScript.new()
+	elif motion == "long_spear":
+		pivot = SpearMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -123,6 +128,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.105, 0.105)
 		sprite.position = Vector2(38, -44)
 		sprite.rotation = deg_to_rad(-28.0)
+	elif motion == "long_spear":
+		# The source weapon's lower-left butt is pinned near the hand; this keeps
+		# the full shaft readable during movement and during the thrust controller.
+		sprite.scale = Vector2(0.075, 0.075)
+		sprite.position = Vector2(37, -43)
+		sprite.rotation = deg_to_rad(-45.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins

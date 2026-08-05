@@ -7,6 +7,7 @@ const MELEE_RANGE := 205.0
 const ENEMY_ATTACK_RANGE := 225.0
 const SKILL_CATALOG = preload("res://src/data/skill_catalog.gd")
 const TalismanProjectileScript = preload("res://src/combat/talisman_projectile.gd")
+const SpearThrustEffectScript = preload("res://src/combat/spear_thrust_effect.gd")
 
 var _player: CharacterBody2D
 var _population: Node
@@ -79,12 +80,16 @@ func _on_player_attack_impact(_direction: String) -> void:
 	var attack_range := MELEE_RANGE
 	if SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon):
 		attack_range = float(SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)[0].get("range", MELEE_RANGE))
+	elif SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon):
+		attack_range = float(SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)[0].get("range", MELEE_RANGE))
 	if _player.global_position.distance_to(enemy_position) > attack_range:
 		_status.text = "攻击落空：%s 不在近战范围内。" % _target_name
 		return
 	var damage := GameState.weapon_basic_damage(9)
 	if SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon):
 		_spawn_brush_talisman(_player.global_position + Vector2(0, -46), enemy_position + Vector2(0, -52))
+	elif SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon):
+		_spawn_spear_thrust(_player.global_position + Vector2(0, -42), enemy_position + Vector2(0, -52), 5.0)
 	_target_health = max(0, _target_health - damage)
 	_refresh_target_label()
 	_status.text = "%s 受击，造成 %d 点伤害。" % [_target_name, damage]
@@ -108,3 +113,8 @@ func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
 	var talisman: TalismanProjectile = TalismanProjectileScript.new()
 	add_child(talisman)
 	talisman.launch(origin, target)
+
+func _spawn_spear_thrust(origin: Vector2, target: Vector2, width := 5.0) -> void:
+	var thrust: SpearThrustEffect = SpearThrustEffectScript.new()
+	add_child(thrust)
+	thrust.launch(origin, target, width)
