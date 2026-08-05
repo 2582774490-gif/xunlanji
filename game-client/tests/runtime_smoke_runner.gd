@@ -43,6 +43,7 @@ func _run() -> void:
 	await _check_zhulan_wheel_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
+	await _check_tide_breath_jade_pendant_runtime_rules()
 	await _check_mist_tide_pearl_render_slot()
 	await _check_mist_tide_pearl_combat_rules()
 	await _check_earthseal_render_and_combat_rules()
@@ -976,6 +977,24 @@ func _check_artifact_render_slot() -> void:
 	_expect(port.player.has_node("ArtifactPivot/ArtifactSprite"), "Equipped Naling Jade Pendant did not create an independent player artifact render slot.")
 	var artifact_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
 	_expect(artifact_sprite.texture != null, "Equipped Naling Jade Pendant render slot has no pendant texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_tide_breath_jade_pendant_runtime_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("潮息玉佩"):
+		GameState.player.inventory.append("潮息玉佩")
+	GameState.equip_artifact("潮息玉佩")
+	_expect(is_equal_approx(GameState.artifact_mana_regen_bonus(), 0.70), "Tide-Breath Jade Pendant should expose its declared modest mana regeneration.")
+	_expect(is_zero_approx(GameState.artifact_damage_reduction("water")), "Tide-Breath Jade Pendant must not receive water-defense value from the Pearl route.")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("ArtifactPivot/ArtifactSprite"), "Tide-Breath Jade Pendant did not create an independent artifact runtime layer.")
+	var pendant_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
+	_expect(pendant_sprite.texture != null and "tide_breath_jade_pendant" in pendant_sprite.texture.resource_path, "Tide-Breath Jade Pendant did not use its approved dedicated texture.")
 	port.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

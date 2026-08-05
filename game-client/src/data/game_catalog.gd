@@ -295,6 +295,15 @@ const ARTIFACT_PROFILES := {
 		"render_scale": 0.075,
 		"runtime_asset": "res://assets/art/artifacts/naling_jade_pendant/processed_alpha/naling_jade_pendant_v01_alpha.png",
 	},
+	"潮息玉佩": {
+		"slot": "护身法宝",
+		"quality": "凡品",
+		"trait": "以潮息温养经脉，灵力恢复略高于纳灵玉佩；不提供元素减伤或PVP数值压制。",
+		"mana_regen_bonus": 0.70,
+		"water_damage_reduction": 0.0,
+		"render_scale": 0.068,
+		"runtime_asset": "res://assets/art/artifacts/tide_breath_jade_pendant/processed_alpha/tide_breath_jade_pendant_v01_alpha.png",
+	},
 	"雾潮练气珠": {
 		"slot": "御水法宝",
 		"quality": "灵品",
