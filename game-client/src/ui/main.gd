@@ -226,6 +226,7 @@ func _show_realm() -> void:
 	_buttons([["主动冲关", func(): GameState.try_breakthrough(), 180, not GameState.can_attempt_breakthrough()]])
 	var attributes: Dictionary = GameState.player.attributes
 	var stats: Dictionary = GameState.derived_stats()
+	_text(GameState.attribute_point_summary() + "｜所有角色创角点池相同；身法会影响大世界移动。", 16, Color("a7d5ca"))
 	_text("可分配属性点：%d｜体魄 %d · 灵识 %d · 身法 %d · 根骨 %d" % [GameState.player.unspent_points, attributes["体魄"], attributes["灵识"], attributes["身法"], attributes["根骨"]], 18, Color("a7d5ca"))
 	_text("派生：气血 %d · 灵力 %d · 攻击 %d · 移速 %d · 修行效率 %d%%" % [stats["气血"], stats["灵力"], stats["攻击"], stats["移速"], stats["修行效率"]], 16)
 	_buttons([["体魄 +1", func(): _allocate_attribute("体魄"), 120], ["灵识 +1", func(): _allocate_attribute("灵识"), 120], ["身法 +1", func(): _allocate_attribute("身法"), 120], ["根骨 +1", func(): _allocate_attribute("根骨"), 120]])
@@ -237,6 +238,7 @@ func _show_realm() -> void:
 	_line()
 	_text("功法派系：已学功法可自由切换。所有线路都能玩；适配灵根与体质只提供温和的修行效率加成，不封死其他玩法。", 17, Color("f2d79c"))
 	_text(GameState.cultivation_efficiency_text(), 16, Color("a7d5ca"))
+	_text(GameState.technique_insight_text(), 16, Color("a7d5ca"))
 	for school in Catalog.CULTIVATION_SCHOOLS:
 		_text("【%s】%s" % [school.faction, "、".join(school.techniques)], 16)
 		for technique_name in school.techniques:

@@ -29,6 +29,9 @@ const MARKET_MAX_PRICE := 99999
 const FOUNDATION_PREPARATION_ITEMS := ["临渊露", "御崖石屑", "护脉阵片"]
 const WORLD_GUIDANCE_STEPS := ["lan_breath", "resource_ecology", "path_choice"]
 const ECOLOGY_RESPAWN_SECONDS := {"resource": 420, "beast": 540, "bandit": 600}
+const INITIAL_ATTRIBUTE_POINTS := 4
+const BASE_ATTRIBUTE_TOTAL := 20
+const TECHNIQUE_INSIGHT_THRESHOLDS := [60, 180, 360]
 const LOCAL_SAVE_PATH := "user://xunlanji_local_profile.json"
 const LOCAL_SAVE_VERSION := 1
 var local_market_listings: Array[Dictionary] = [
@@ -48,8 +51,10 @@ var player := {
 	"cultivation": 0,
 	"meditation_sessions": 3,
 	"meditation_day": "",
-	"unspent_points": 4,
+	"unspent_points": INITIAL_ATTRIBUTE_POINTS,
+	"attribute_points_earned": INITIAL_ATTRIBUTE_POINTS,
 	"attributes": {"体魄": 5, "灵识": 5, "身法": 5, "根骨": 5},
+	"technique_insight": {"云岚吐纳诀": {"progress": 0, "awards_claimed": 0}},
 	"spirit_stones": 120,
 	"gold": 80,
 	"sect_id": "",
@@ -191,10 +196,12 @@ func update_innate(spirit_root: String, physique: String) -> void:
 	profile_changed.emit()
 
 func choose_cultivation_path(path_name: String) -> void:
+	_normalize_player_schema()
 	if not player.get("learned_techniques", []).has(path_name):
 		var learned: Array = player.get("learned_techniques", [])
 		learned.append(path_name)
 		player.learned_techniques = learned
+		_ensure_technique_insight_entry(path_name)
 	player.cultivation_path = path_name
 	notify("已切换主修功法：%s。功法可随时转换，灵根与体质只影响效率。" % path_name)
 	profile_changed.emit()
@@ -287,11 +294,11 @@ func try_breakthrough() -> bool:
 	var stage_count: int = catalog.REALMS[player.realm_index].minor_stages.size()
 	if player.minor_stage < stage_count:
 		player.minor_stage += 1
-		player.unspent_points += 1
+		_grant_attribute_points(1)
 	else:
 		player.realm_index += 1
 		player.minor_stage = 1
-		player.unspent_points += 3
+		_grant_attribute_points(3)
 	player.cultivation = 0
 	notify("冲关成功：%s → %s" % [previous_name, realm_name()])
 	profile_changed.emit()
@@ -314,16 +321,81 @@ func meditate() -> bool:
 		return false
 	player.meditation_sessions -= 1
 	gain_cultivation(8)
+	var insight_awards := gain_technique_insight(4)
+	if insight_awards > 0:
+		notify("功法悟性突破：%s 获得 %d 点属性点。" % [str(player.cultivation_path), insight_awards])
+	else:
+		notify("静坐完成：%s 的功法悟性缓慢增长。" % str(player.cultivation_path))
+	profile_changed.emit()
 	return true
 
 func allocate_attribute(attribute_name: String) -> bool:
-	if player.unspent_points <= 0 or not player.attributes.has(attribute_name):
+	_normalize_player_schema()
+	if int(player.unspent_points) <= 0 or not player.attributes.has(attribute_name):
 		return false
-	player.unspent_points -= 1
 	player.attributes[attribute_name] += 1
+	_refresh_attribute_budget()
 	notify("%s +1，剩余属性点 %d" % [attribute_name, player.unspent_points])
 	profile_changed.emit()
 	return true
+
+
+func attribute_points_spent() -> int:
+	_normalize_player_schema()
+	var total := 0
+	for value in (player.attributes as Dictionary).values():
+		total += int(value)
+	return max(0, total - BASE_ATTRIBUTE_TOTAL)
+
+
+func attribute_point_budget() -> int:
+	_normalize_player_schema()
+	return int(player.attribute_points_earned)
+
+
+func attribute_point_summary() -> String:
+	_normalize_player_schema()
+	return "公平点池 %d｜已投入 %d｜可分配 %d" % [attribute_point_budget(), attribute_points_spent(), int(player.unspent_points)]
+
+
+func technique_insight_progress(path_name: String = "") -> Dictionary:
+	_normalize_player_schema()
+	var technique := path_name if not path_name.is_empty() else str(player.cultivation_path)
+	return _ensure_technique_insight_entry(technique).duplicate(true)
+
+
+func technique_insight_text() -> String:
+	var insight := technique_insight_progress()
+	var awards := int(insight.awards_claimed)
+	if awards >= TECHNIQUE_INSIGHT_THRESHOLDS.size():
+		return "%s：悟性已完成首轮参悟（%d / %d 属性奖励）。" % [str(player.cultivation_path), awards, TECHNIQUE_INSIGHT_THRESHOLDS.size()]
+	return "%s：悟性 %d / %d；达到后获得 1 点属性。" % [str(player.cultivation_path), int(insight.progress), int(TECHNIQUE_INSIGHT_THRESHOLDS[awards])]
+
+
+func gain_technique_insight(amount: int) -> int:
+	_normalize_player_schema()
+	if amount <= 0:
+		return 0
+	var technique := str(player.cultivation_path)
+	var insight := _ensure_technique_insight_entry(technique)
+	var awards_before := int(insight.awards_claimed)
+	insight.progress = min(int(insight.progress) + amount, int(TECHNIQUE_INSIGHT_THRESHOLDS.back()))
+	while int(insight.awards_claimed) < TECHNIQUE_INSIGHT_THRESHOLDS.size() and int(insight.progress) >= int(TECHNIQUE_INSIGHT_THRESHOLDS[int(insight.awards_claimed)]):
+		insight.awards_claimed = int(insight.awards_claimed) + 1
+	var all_insight: Dictionary = player.technique_insight
+	all_insight[technique] = insight
+	player.technique_insight = all_insight
+	var awarded := int(insight.awards_claimed) - awards_before
+	if awarded > 0:
+		_grant_attribute_points(awarded)
+	return awarded
+
+
+func world_move_speed() -> float:
+	# Base 5 body-movement yields the original 250 px/s prototype pace. Every
+	# point adds a modest 2.34 px/s, so mobility is meaningful but never lets one
+	# build erase the scale of a 12 km region.
+	return clampf(160.0 + float(derived_stats()["移速"]) * 0.78, 220.0, 380.0)
 
 func derived_stats() -> Dictionary:
 	var a: Dictionary = player.attributes
@@ -591,6 +663,21 @@ func _realm_requirement_text(requirement: Dictionary) -> String:
 	return "%s·%s" % [str(realm.name), str(realm.minor_stages[int(requirement.minor_stage) - 1])]
 
 func _normalize_player_schema() -> void:
+	if not player.has("attributes") or not player.attributes is Dictionary:
+		player.attributes = {"体魄": 5, "灵识": 5, "身法": 5, "根骨": 5}
+	else:
+		var attributes: Dictionary = player.attributes
+		for attribute_name in ["体魄", "灵识", "身法", "根骨"]:
+			if not attributes.has(attribute_name):
+				attributes[attribute_name] = 5
+			else:
+				attributes[attribute_name] = max(0, int(attributes[attribute_name]))
+		player.attributes = attributes
+	if not player.has("attribute_points_earned"):
+		player.attribute_points_earned = max(INITIAL_ATTRIBUTE_POINTS, _attribute_points_spent_raw() + max(0, int(player.get("unspent_points", 0))))
+	else:
+		player.attribute_points_earned = max(INITIAL_ATTRIBUTE_POINTS, int(player.attribute_points_earned), _attribute_points_spent_raw())
+	_refresh_attribute_budget()
 	if not player.has("sect_rank"):
 		player.sect_rank = 0
 	if not player.has("sect_contribution"):
@@ -599,6 +686,10 @@ func _normalize_player_schema() -> void:
 		player.sect_wanted_by = []
 	if not player.has("learned_techniques"):
 		player.learned_techniques = [str(player.get("cultivation_path", "云岚吐纳诀"))]
+	if not player.has("technique_insight") or not player.technique_insight is Dictionary:
+		player.technique_insight = {}
+	for technique_name in player.learned_techniques:
+		_ensure_technique_insight_entry(str(technique_name))
 	if not player.has("world_guidance") or not player.world_guidance is Dictionary:
 		player.world_guidance = {"steps": [], "skipped": false}
 	else:
@@ -610,6 +701,42 @@ func _normalize_player_schema() -> void:
 		player.world_guidance = guidance
 	if not player.has("ecology_cooldowns") or not player.ecology_cooldowns is Dictionary:
 		player.ecology_cooldowns = {}
+
+
+func _attribute_points_spent_raw() -> int:
+	var total := 0
+	var attributes: Dictionary = player.get("attributes", {})
+	for value in attributes.values():
+		total += int(value)
+	return max(0, total - BASE_ATTRIBUTE_TOTAL)
+
+
+func _refresh_attribute_budget() -> void:
+	var spent := _attribute_points_spent_raw()
+	var earned := max(INITIAL_ATTRIBUTE_POINTS, int(player.get("attribute_points_earned", INITIAL_ATTRIBUTE_POINTS)), spent)
+	player.attribute_points_earned = earned
+	player.unspent_points = max(0, earned - spent)
+
+
+func _grant_attribute_points(amount: int) -> void:
+	if amount <= 0:
+		return
+	_normalize_player_schema()
+	player.attribute_points_earned = int(player.attribute_points_earned) + amount
+	_refresh_attribute_budget()
+
+
+func _ensure_technique_insight_entry(technique_name: String) -> Dictionary:
+	var all_insight: Dictionary = player.get("technique_insight", {})
+	var entry: Variant = all_insight.get(technique_name, {})
+	if not entry is Dictionary:
+		entry = {}
+	var insight: Dictionary = entry
+	insight.progress = clampi(int(insight.get("progress", 0)), 0, int(TECHNIQUE_INSIGHT_THRESHOLDS.back()))
+	insight.awards_claimed = clampi(int(insight.get("awards_claimed", 0)), 0, TECHNIQUE_INSIGHT_THRESHOLDS.size())
+	all_insight[technique_name] = insight
+	player.technique_insight = all_insight
+	return insight
 
 func is_ecology_profile_available(region_id: String, profile_id: String, now_unix: int = -1) -> bool:
 	_normalize_player_schema()

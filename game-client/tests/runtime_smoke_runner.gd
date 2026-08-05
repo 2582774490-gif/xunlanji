@@ -10,6 +10,7 @@ func _run() -> void:
 	await _check_local_profile_payload()
 	await _check_optional_world_guidance()
 	await _check_cultivation_affinity()
+	await _check_fair_attribute_and_technique_growth()
 	await _check_sect_progression()
 	await _check_wanted_patrol()
 	await _check_weapon_combat_profiles()
@@ -141,6 +142,33 @@ func _check_cultivation_affinity() -> void:
 	GameState.choose_cultivation_path("三折剑经")
 	_expect(GameState.player.learned_techniques.has("三折剑经") and GameState.player.cultivation_path == "三折剑经", "Player should be able to learn and switch to another cultivation path.")
 	_expect(GameState.cultivation_efficiency_multiplier() >= 1.0, "Mismatched paths must remain playable rather than being blocked.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_fair_attribute_and_technique_growth() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.attributes = {"体魄": 5, "灵识": 5, "身法": 5, "根骨": 5}
+	GameState.player.unspent_points = 4
+	GameState.player.attribute_points_earned = 4
+	GameState.player.learned_techniques = ["云岚吐纳诀"]
+	GameState.player.cultivation_path = "云岚吐纳诀"
+	GameState.player.technique_insight = {"云岚吐纳诀": {"progress": 0, "awards_claimed": 0}}
+	_expect(GameState.attribute_point_budget() == 4 and GameState.attribute_points_spent() == 0, "Every new character should begin with the same four-point allocation pool.")
+	_expect(GameState.allocate_attribute("身法"), "A starting free point should be allocatable to body movement.")
+	var speed_after_first_point := GameState.world_move_speed()
+	GameState.player.attributes["身法"] = 9
+	GameState.player.attribute_points_earned = 8
+	_expect(GameState.world_move_speed() > speed_after_first_point, "Body-movement allocation should raise actual overworld movement speed.")
+	GameState.player.attributes = {"体魄": 5, "灵识": 5, "身法": 5, "根骨": 5}
+	GameState.player.attribute_points_earned = 4
+	GameState.player.unspent_points = 4
+	var awards_before: int = GameState.gain_technique_insight(59)
+	_expect(awards_before == 0 and int(GameState.player.unspent_points) == 4, "Technique insight should not award a point before its first slow-growth threshold.")
+	var awards_at_threshold: int = GameState.gain_technique_insight(1)
+	_expect(awards_at_threshold == 1 and GameState.attribute_point_budget() == 5 and int(GameState.player.unspent_points) == 5, "Technique insight should award one point exactly at the first threshold.")
+	GameState.choose_cultivation_path("三折剑经")
+	_expect(GameState.attribute_point_budget() == 5, "Learning or switching a technique must not directly mint attribute points.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 

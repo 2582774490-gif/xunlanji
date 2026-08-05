@@ -139,7 +139,7 @@ func _configure_equipped_artifact_visual() -> void:
 
 func _physics_process(delta: float) -> void:
 	var movement := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	velocity = movement * move_speed
+	velocity = movement * effective_move_speed()
 	move_and_slide()
 	position = position.clamp(map_bounds.position, map_bounds.end)
 	_moving = movement.length_squared() > 0.001
@@ -193,7 +193,11 @@ func trigger_basic_attack() -> void:
 func perform_dash(facing: Vector2, distance := 116.0) -> void:
 	var direction := facing.normalized() if facing.length_squared() > 0.001 else Vector2.DOWN
 	position = (position + direction * distance).clamp(map_bounds.position, map_bounds.end)
-	velocity = direction * move_speed
+	velocity = direction * effective_move_speed()
+
+
+func effective_move_speed() -> float:
+	return GameState.world_move_speed()
 
 
 func _emit_attack_impact(direction: String) -> void:
