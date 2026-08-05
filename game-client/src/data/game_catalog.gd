@@ -203,6 +203,20 @@ const TECHNIQUE_AFFINITIES := {
 static func technique_affinity_for(path_name: String) -> Dictionary:
 	return TECHNIQUE_AFFINITIES.get(path_name, {"root": "", "physique": "", "label": "自由修行"}).duplicate(true)
 
+
+# Technique art is separate from the rules data. A manual image may enter the
+# codex only after its own source and alpha asset have been reviewed; no other
+# technique is allowed to borrow this cover as a stand-in.
+const TECHNIQUE_ART_PROFILES := {
+	"云岚吐纳诀": {
+		"card_asset": "res://assets/art/techniques/cloud_mist_breathing_manual/processed_alpha/cloud_mist_breathing_manual_v01_alpha.png",
+		"caption": "云岚吐纳诀秘卷｜岚潮一脉的基础吐纳法门。",
+	},
+}
+
+static func technique_art_profile_for_name(path_name: String) -> Dictionary:
+	return TECHNIQUE_ART_PROFILES.get(path_name, {}).duplicate(true)
+
 const SECTS := [
 	{"id": "mist_sword", "name": "雾隐剑宗", "trait": "重视守序、剑阵与护山", "rule": "擅离驻守任务将扣除功勋；内门后叛离山门会触发通缉。", "technique": "三折剑经", "exit_wanted_rank": 1, "exit_penalty": "雾隐剑宗已记录你的离宗，山道与驻地附近可能出现追查。"},
 	{"id": "cloud_market", "name": "云市会", "trait": "重视商路、鉴宝与契约", "rule": "恶意毁约将失去交易权限，并可能被悬赏追讨。", "technique": "镜心守识篇", "exit_wanted_rank": 3, "exit_penalty": "云市会冻结了你的会内契约信用；正常离会不构成通缉。"},

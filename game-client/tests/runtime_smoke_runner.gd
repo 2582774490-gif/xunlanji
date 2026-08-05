@@ -145,6 +145,9 @@ func _check_cultivation_affinity() -> void:
 	GameState.choose_cultivation_path("三折剑经")
 	_expect(GameState.player.learned_techniques.has("三折剑经") and GameState.player.cultivation_path == "三折剑经", "Player should be able to learn and switch to another cultivation path.")
 	_expect(GameState.cultivation_efficiency_multiplier() >= 1.0, "Mismatched paths must remain playable rather than being blocked.")
+	var manual_art: Dictionary = GameCatalog.technique_art_profile_for_name("云岚吐纳诀")
+	_expect(not manual_art.is_empty() and ResourceLoader.exists(str(manual_art.card_asset)), "Yunlan Breathing Manual must point to its own approved codex art asset.")
+	_expect(GameCatalog.technique_art_profile_for_name("三折剑经").is_empty(), "Unapproved technique art must not silently reuse the Yunlan manual cover.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
