@@ -14,7 +14,6 @@ const FEMALE_WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/
 const FEMALE_ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_attack_south_6f_v01_alpha.png")
 const QINGHUANG_SWORD_TEXTURE: Texture2D = preload("res://assets/art/weapons/qinghuang_qi_sword/processed_alpha/qinghuang_qi_sword_v01_alpha.png")
 const HUIYUN_UMBRELLA_TEXTURE: Texture2D = preload("res://assets/art/weapons/huiyun_qi_umbrella/processed_alpha/huiyun_qi_umbrella_v01_alpha.png")
-const NALING_JADE_PENDANT_TEXTURE: Texture2D = preload("res://assets/art/artifacts/naling_jade_pendant/processed_alpha/naling_jade_pendant_v01_alpha.png")
 const WeaponMotionScript = preload("res://src/animation/weapon_motion_controller.gd")
 const UmbrellaMotionScript = preload("res://src/animation/umbrella_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
@@ -121,10 +120,15 @@ func _configure_equipped_weapon_visual() -> void:
 	pivot.add_child(sprite)
 
 func _configure_equipped_artifact_visual() -> void:
-	# A defensive artifact is its own child layer and can be removed/replaced
-	# independently.  We render only the approved Naling pendant; no other
-	# artifact is silently substituted with this image.
-	if GameState.player.equipped_artifact != "纳灵玉佩":
+	# An artifact is its own child layer and can be removed or swapped without
+	# altering the body/weapon layers. Every item must name its own approved
+	# runtime asset; an unknown artifact is never substituted with another one.
+	var artifact_profile := GameCatalog.artifact_profile_for_item(GameState.player.equipped_artifact)
+	var asset_path := str(artifact_profile.get("runtime_asset", ""))
+	if asset_path.is_empty():
+		return
+	var artifact_texture := load(asset_path) as Texture2D
+	if artifact_texture == null:
 		return
 	var pivot: ArtifactMotionController = ArtifactMotionScript.new()
 	pivot.name = "ArtifactPivot"
@@ -133,8 +137,9 @@ func _configure_equipped_artifact_visual() -> void:
 	artifact_motion = pivot
 	var sprite := Sprite2D.new()
 	sprite.name = "ArtifactSprite"
-	sprite.texture = NALING_JADE_PENDANT_TEXTURE
-	sprite.scale = Vector2(0.075, 0.075)
+	sprite.texture = artifact_texture
+	var render_scale := float(artifact_profile.get("render_scale", 0.075))
+	sprite.scale = Vector2(render_scale, render_scale)
 	pivot.add_child(sprite)
 
 func _physics_process(delta: float) -> void:

@@ -20,6 +20,7 @@ func _run() -> void:
 	await _check_umbrella_render_slot()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
+	await _check_mist_tide_pearl_render_slot()
 	await _check_local_market_loop()
 	await _check_random_opportunity()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
@@ -351,6 +352,23 @@ func _check_artifact_render_slot() -> void:
 	_expect(port.player.has_node("ArtifactPivot/ArtifactSprite"), "Equipped Naling Jade Pendant did not create an independent player artifact render slot.")
 	var artifact_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
 	_expect(artifact_sprite.texture != null, "Equipped Naling Jade Pendant render slot has no pendant texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_mist_tide_pearl_render_slot() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("雾潮练气珠"):
+		GameState.player.inventory.append("雾潮练气珠")
+	GameState.equip_artifact("雾潮练气珠")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("ArtifactPivot/ArtifactSprite"), "Mist-Tide Qi Pearl did not create its own runtime artifact layer.")
+	var artifact_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
+	_expect(artifact_sprite.texture != null, "Mist-Tide Qi Pearl runtime layer has no approved dedicated texture.")
 	port.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

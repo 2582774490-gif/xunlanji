@@ -244,8 +244,17 @@ const MARKET_LISTINGS := [
 const ARTIFACT_PROFILES := {
 	"纳灵玉佩": {
 		"slot": "护身法宝",
+		"quality": "凡品",
 		"trait": "缓慢聚拢游离岚息，适合炼气期稳定吐纳。",
+		"render_scale": 0.075,
 		"runtime_asset": "res://assets/art/artifacts/naling_jade_pendant/processed_alpha/naling_jade_pendant_v01_alpha.png",
+	},
+	"雾潮练气珠": {
+		"slot": "御水法宝",
+		"quality": "灵品",
+		"trait": "以潮息凝出一层短暂水幕，适合水域探索与抵御一次轻型水系伤害。",
+		"render_scale": 0.112,
+		"runtime_asset": "res://assets/art/artifacts/mist_tide_qi_pearl/processed_alpha/mist_tide_qi_pearl_v01_alpha.png",
 	},
 }
 
