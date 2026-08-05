@@ -51,7 +51,7 @@
 | 炼气 | 纳灵玉佩 | 护身 | 稳定吐纳、聚拢游离岚息 | 水府、云市 | 运行中 |
 | 炼气 | 雾潮练气珠 | 御水 | 受击后凝出一层短暂水幕 | 雾渠水口、潮穴妖材 | 运行中；灵品 |
 | 炼气 | 玄土练气印 | 镇压 | 小范围震退、压制轻型敌人 | 矿滩、土修交易 | 运行中；灵品 |
-| 炼气 | 照影练气镜 | 鉴别 | 识别幻雾、宝材真伪 | 沉舟遗府 | 已完成源图与透明运行图；待接入专属鉴别探索效果 |
+| 炼气 | 照影练气镜 | 鉴别 | 识别幻雾、宝材真伪 | 沉舟遗府 | 已完成独立法宝层；首通获得，雾潮石窟可揭示镜影裂隙 |
 | 炼气 | 八角练气阵盘 | 阵势 | 展开护阵，常规 PVE 伤害降低 16% | 雾潮石窟塌方洞 | 运行中；灵品 |
 | 筑基 | 归潮白螺 | 御水 | 水域位移后回灵 | 雾港航路 | 世界预留 |
 | 筑基 | 青阙养魂灯 | 守识 | 抵抗心神和残魂侵扰 | 古战遗址 | 世界预留 |
@@ -109,7 +109,7 @@
 | 流云练气枪 | `assets/art/weapons/liuyun_qi_spear/processed_alpha/liuyun_qi_spear_v01_alpha.png` | 已完成原创长兵图、独立长兵动作、直线枪势特效与“流云枪刺 / 破雾枪势”技能；野外、固定副本与本地论剑均可用 |
 | 逐风练气弓 | `assets/art/weapons/zhufeng_qi_bow/processed_alpha/zhufeng_qi_bow_v01_alpha.png` | 已完成原创弓图、独立持弓动作、风箭弹道与“逐风箭 / 逐风贯矢”技能；野外、固定副本与本地论剑均可用 |
 | 八角练气阵盘 | `assets/art/artifacts/eightfold_qi_array/processed_alpha/eightfold_qi_array_v01_alpha.png` | 已完成原创阵盘图、独立法宝层、中性 PVE 防护与受击时的八角护阵动画；雾潮石窟塌方洞首探必得 |
-| 照影练气镜 | `assets/art/artifacts/zhaoying_qi_mirror/processed_alpha/zhaoying_qi_mirror_v01_alpha.png` | 已完成原创鉴别法宝单体图与透明抠图；待接入幻雾/隐藏材料提示，不提前承诺未实现效果 |
+| 照影练气镜 | `assets/art/artifacts/zhaoying_qi_mirror/processed_alpha/zhaoying_qi_mirror_v01_alpha.png` | 已完成原创鉴别法宝单体图、透明抠图、独立法宝层与雾潮石窟“镜影裂隙”机缘；沉舷遗府首通获得 |
 | 云岚吐纳诀秘卷 | `assets/art/techniques/cloud_mist_breathing_manual/processed_alpha/cloud_mist_breathing_manual_v01_alpha.png` | 已登记功法图，待功法图鉴界面接入 |
 | 朱砂引灵书秘卷 | `assets/art/techniques/vermilion_spirit_guidance_manual/processed_alpha/vermilion_spirit_guidance_manual_v01_alpha.png` | 已完成原创秘卷图、透明抠图与功法图鉴资源登记；与朱砂练气符笔对应，待世界获得事件 |
 

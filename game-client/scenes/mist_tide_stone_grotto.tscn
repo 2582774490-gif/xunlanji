@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://src/world/mist_tide_stone_grotto.gd" id="1_scene"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_stone_grotto/terrain/mist_tide_stone_grotto_ground_v01.png" id="2_ground"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://src/world/ground_shadow.gd" id="7_shadow"]
 [ext_resource type="Script" path="res://src/world/world_interaction.gd" id="8_interaction"]
 [ext_resource type="Script" path="res://src/ui/virtual_touch_controls.gd" id="9_touch"]
+[ext_resource type="Script" path="res://src/world/mirror_echo_marker.gd" id="10_mirror"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -24,6 +25,9 @@ radius = 98.0
 
 [sub_resource type="CircleShape2D" id="TunnelShape"]
 radius = 94.0
+
+[sub_resource type="CircleShape2D" id="MirrorEchoShape"]
+radius = 86.0
 
 [node name="MistTideStoneGrotto" type="Node2D"]
 y_sort_enabled = true
@@ -155,6 +159,36 @@ prompt_text = "探查塌方洞"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CollapsedTunnel/Interaction"]
 position = Vector2(0, -56)
 shape = SubResource("TunnelShape")
+
+[node name="MirrorEcho" type="Node2D" parent="."]
+visible = false
+position = Vector2(2125, 1320)
+
+[node name="Visual" type="Node2D" parent="MirrorEcho"]
+position = Vector2(0, -66)
+script = ExtResource("10_mirror")
+
+[node name="Name" type="Label" parent="MirrorEcho"]
+offset_left = -116.0
+offset_top = -142.0
+offset_right = 116.0
+offset_bottom = -116.0
+theme_override_colors/font_color = Color(0.74, 0.94, 1, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "镜影裂隙"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="MirrorEcho"]
+monitoring = false
+script = ExtResource("8_interaction")
+interaction_id = "mirror_echo"
+prompt_text = "以照影镜探查镜影裂隙"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MirrorEcho/Interaction"]
+position = Vector2(0, -62)
+shape = SubResource("MirrorEchoShape")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 groups = ["player_actor"]

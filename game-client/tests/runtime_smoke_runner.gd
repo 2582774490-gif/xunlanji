@@ -40,6 +40,7 @@ func _run() -> void:
 	await _check_mist_bone_creek()
 	await _check_mist_forest_grove()
 	await _check_sunken_vessel_manor()
+	await _check_zhaoying_qi_mirror_exploration_route()
 	await _check_mist_tide_stone_grotto()
 	await _check_red_maple_ancient_road()
 	await _check_world_population_encounter()
@@ -879,12 +880,49 @@ func _check_sunken_vessel_manor() -> void:
 	manor._defeat_boss()
 	await get_tree().process_frame
 	_expect(manor.clear_panel.visible, "Sunken Vessel clear did not show the settlement panel.")
+	_expect(GameState.player.inventory.has("照影练气镜"), "Sunken Vessel first clear did not grant Zhaoying Qi Mirror.")
 	_expect(GameState.player.inventory.has("沉舟航图残页") and GameState.player.inventory.size() >= inventory_before + 2, "Sunken Vessel clear did not grant a random drop plus the navigation clue.")
 	_expect(GameState.player.dungeon_runs.size() == runs_before + 1, "Sunken Vessel clear did not record its separate dungeon run.")
 	manor.queue_free()
 	await get_tree().process_frame
 	GameState.player.realm_index = realm_before
 	GameState.player.minor_stage = stage_before
+
+func _check_zhaoying_qi_mirror_exploration_route() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("照影练气镜"):
+		GameState.player.inventory.append("照影练气镜")
+	GameState.player.equipped_artifact = ""
+	var hidden_grotto := preload("res://scenes/mist_tide_stone_grotto.tscn").instantiate()
+	add_child(hidden_grotto)
+	await get_tree().process_frame
+	_expect(not hidden_grotto.mirror_echo_revealed and not hidden_grotto.mirror_echo.visible, "Stone Grotto should not reveal the mirror echo without the correct artifact equipped.")
+	hidden_grotto.queue_free()
+	await get_tree().process_frame
+	GameState.equip_artifact("照影练气镜")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	var artifact_sprite: Sprite2D = port.player.get_node("ArtifactPivot/ArtifactSprite")
+	_expect(artifact_sprite.texture != null and "zhaoying_qi_mirror" in artifact_sprite.texture.resource_path, "Zhaoying Qi Mirror did not use its own approved runtime artifact texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	var inventory_before: int = GameState.player.inventory.size()
+	var log_before: int = GameState.player.opportunity_log.size()
+	var grotto := preload("res://scenes/mist_tide_stone_grotto.tscn").instantiate()
+	add_child(grotto)
+	await get_tree().process_frame
+	_expect(grotto.mirror_echo_revealed and grotto.mirror_echo.visible, "Equipped Zhaoying Qi Mirror did not reveal the contextual Stone Grotto mirror echo.")
+	grotto.active_interaction = grotto.mirror_interaction
+	grotto._activate_contextual()
+	_expect(grotto.mirror_echo_resolved and not grotto.mirror_echo.visible, "Zhaoying mirror echo did not resolve through the normal interaction path.")
+	_expect(GameState.player.inventory.size() == inventory_before + 1 and GameState.player.inventory.has("镜影碎晶"), "Zhaoying mirror echo did not grant its distinct exploration material.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 1, "Zhaoying mirror echo did not record its discovery.")
+	grotto.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
 
 func _check_mist_tide_stone_grotto() -> void:
 	var realm_before: int = GameState.player.realm_index

@@ -63,6 +63,9 @@ func _defeat_boss() -> void:
 	boss.visible = false
 	boss.set_deferred("monitoring", false)
 	last_drop = SUNKEN_VESSEL_DROPS.pick_random().duplicate()
+	var first_mirror: bool = not GameState.player.inventory.has("照影练气镜")
+	if first_mirror:
+		GameState.add_item("照影练气镜")
 	GameState.add_item(str(last_drop.item))
 	GameState.add_item("沉舟航图残页")
 	GameState.add_spirit_stones(int(last_drop.stones))
@@ -77,6 +80,9 @@ func _defeat_boss() -> void:
 	status.text = "沉舷遗府已探索：获得随机舟材与航图残页，可从结算面板返回雾潮边境。"
 	prompt.text = ""
 	clear_summary.text = "沉舷残灵·鸣濯收回锚影。\n\n获得：%s、沉舟航图残页\n灵石 +%d　修为 +%d\n\n航图残页会成为后续归墟雾港与交易线索的一部分。" % [str(last_drop.item), int(last_drop.stones), int(last_drop.cultivation)]
+	if first_mirror:
+		status.text += " 另获照影练气镜，可在幻雾区寻找被遮掩的线索。"
+		clear_summary.text += "\n\n首次击败额外获得：照影练气镜。装备后可在特定区域映出隐藏机缘。"
 	clear_panel.visible = true
 
 func _return_to_village() -> void:

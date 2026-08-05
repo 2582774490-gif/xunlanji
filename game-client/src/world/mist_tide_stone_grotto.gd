@@ -6,6 +6,8 @@ extends Node2D
 @onready var mineral_interaction: Area2D = $MineralShelf/Interaction
 @onready var tide_interaction: Area2D = $TidePool/Interaction
 @onready var tunnel_interaction: Area2D = $CollapsedTunnel/Interaction
+@onready var mirror_echo: Node2D = $MirrorEcho
+@onready var mirror_interaction: Area2D = $MirrorEcho/Interaction
 @onready var prompt: Label = $HUD/Prompt
 @onready var status: Label = $HUD/StatusPanel/Status
 @onready var touch_controls: Node = $HUD/TouchControls
@@ -14,6 +16,8 @@ var active_interaction: Area2D
 var mineral_collected := false
 var tide_resolved := false
 var tunnel_searched := false
+var mirror_echo_revealed := false
+var mirror_echo_resolved := false
 var chosen_tide_event: Dictionary = {}
 
 const TIDE_EVENTS := [
@@ -37,7 +41,11 @@ func _ready() -> void:
 	tide_interaction.unfocused.connect(_unfocus_interaction)
 	tunnel_interaction.focused.connect(_focus_interaction)
 	tunnel_interaction.unfocused.connect(_unfocus_interaction)
+	mirror_interaction.focused.connect(_focus_interaction)
+	mirror_interaction.unfocused.connect(_unfocus_interaction)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
+	if str(GameState.player.get("equipped_artifact", "")) == "照影练气镜":
+		_reveal_mirror_echo()
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
@@ -72,6 +80,8 @@ func _activate_contextual() -> void:
 		_resolve_tide_event()
 	elif active_interaction == tunnel_interaction and not tunnel_searched:
 		_search_collapsed_tunnel()
+	elif active_interaction == mirror_interaction and mirror_echo_revealed and not mirror_echo_resolved:
+		_resolve_mirror_echo()
 
 func _collect_mineral_shelf() -> void:
 	mineral_collected = true
@@ -113,6 +123,32 @@ func _search_collapsed_tunnel() -> void:
 	var artifact_note := "另获八角练气阵盘（首个石窟阵修法宝）。" if first_array else "阵盘已被你收录，此次只保留残匣线索。"
 	status.text = "塌方洞中找到残匣：%s 修为 +9。" % artifact_note
 	_close_interaction()
+
+func _reveal_mirror_echo() -> void:
+	if mirror_echo_revealed:
+		return
+	mirror_echo_revealed = true
+	mirror_echo.visible = true
+	mirror_interaction.monitoring = true
+	status.text = "照影练气镜映出石窟深处的一道镜影裂隙。它只是可选机缘，不妨碍其余三处探索。"
+
+
+func _resolve_mirror_echo() -> void:
+	mirror_echo_resolved = true
+	mirror_echo.visible = false
+	mirror_interaction.set_deferred("monitoring", false)
+	GameState.add_item("镜影碎晶")
+	GameState.add_spirit_stones(16)
+	GameState.gain_cultivation(12)
+	GameState.record_opportunity({
+		"region": "mist_tide_stone_grotto",
+		"name": "镜影裂隙",
+		"item": "镜影碎晶",
+		"cultivation": 12,
+	})
+	status.text = "照影镜破开了薄雾：获得镜影碎晶、灵石 +16，修为 +12。"
+	_close_interaction()
+
 
 func _close_interaction() -> void:
 	active_interaction = null

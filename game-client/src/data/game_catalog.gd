@@ -301,6 +301,18 @@ const ARTIFACT_PROFILES := {
 	},
 }
 
+# A reveal artifact does not provide combat reduction. Its exploration route is
+# attached per map, beginning with the Mist Tide Stone Grotto.
+const ZHAOYING_QI_MIRROR_PROFILE := {
+	"slot": "鉴别法宝",
+	"quality": "灵品",
+	"trait": "映出被幻雾遮掩的局部机缘；当前可在雾潮石窟揭示镜影裂隙。",
+	"mana_regen_bonus": 0.0,
+	"reveal_radius": 220.0,
+	"render_scale": 0.094,
+	"runtime_asset": "res://assets/art/artifacts/zhaoying_qi_mirror/processed_alpha/zhaoying_qi_mirror_v01_alpha.png",
+}
+
 # Pill data is separate from breakthrough material checks.  Lower-realm pills
 # can still be crafted and traded by high-realm players, but their medicinal
 # effect does not remain useful after the stated realm range.
@@ -327,6 +339,8 @@ const ALCHEMY_RECIPES := {
 }
 
 static func artifact_profile_for_item(item_name: String) -> Dictionary:
+	if item_name == "照影练气镜":
+		return ZHAOYING_QI_MIRROR_PROFILE.duplicate(true)
 	return ARTIFACT_PROFILES.get(item_name, {}).duplicate(true)
 
 
