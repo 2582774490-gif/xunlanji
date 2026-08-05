@@ -19,6 +19,7 @@ const BowMotionScript = preload("res://src/animation/bow_motion_controller.gd")
 const DaoMotionScript = preload("res://src/animation/dao_motion_controller.gd")
 const HalberdMotionScript = preload("res://src/animation/halberd_motion_controller.gd")
 const AxeMotionScript = preload("res://src/animation/axe_motion_controller.gd")
+const HammerMotionScript = preload("res://src/animation/hammer_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -131,6 +132,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = HalberdMotionScript.new()
 	elif motion == "mountain_axe":
 		pivot = AxeMotionScript.new()
+	elif motion == "mountain_hammer":
+		pivot = HammerMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -172,6 +175,12 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.068, 0.068)
 		sprite.position = Vector2(39, -45)
 		sprite.rotation = deg_to_rad(-10.0)
+	elif motion == "mountain_hammer":
+		# The compact hammer head is held closer to the shoulder; its controller
+		# creates the overhead drop without borrowing the axe's long cleave pose.
+		sprite.scale = Vector2(0.066, 0.066)
+		sprite.position = Vector2(37, -42)
+		sprite.rotation = deg_to_rad(-16.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins

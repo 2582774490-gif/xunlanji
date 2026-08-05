@@ -12,6 +12,7 @@ const WindArrowProjectileScript = preload("res://src/combat/wind_arrow_projectil
 const DaoCrescentSlashScript = preload("res://src/combat/dao_crescent_slash.gd")
 const HalberdSweepEffectScript = preload("res://src/combat/halberd_sweep_effect.gd")
 const AxeGroundCleaveEffectScript = preload("res://src/combat/axe_ground_cleave_effect.gd")
+const HammerShockwaveEffectScript = preload("res://src/combat/hammer_shockwave_effect.gd")
 
 @onready var player: SpatialTestPlayer = $Player
 @onready var opponent: DuelOpponent = $Opponent
@@ -104,6 +105,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_halberd_sweep(player.global_position + Vector2(0, -48), (opponent.global_position - player.global_position).normalized(), 96.0, 8.0)
 	elif SKILL_CATALOG.is_axe_skill_set(GameState.player.equipped_weapon):
 		_spawn_axe_ground_cleave(player.global_position + (opponent.global_position - player.global_position).normalized() * 20.0 + Vector2(0, -38), (opponent.global_position - player.global_position).normalized(), 70.0, 9.0)
+	elif SKILL_CATALOG.is_hammer_skill_set(GameState.player.equipped_weapon):
+		_spawn_hammer_shockwave(player.global_position + (opponent.global_position - player.global_position).normalized() * 22.0 + Vector2(0, -34), 60.0, 8.0)
 	opponent.take_damage(damage)
 	status.text = "%s 命中试剑使，造成 %d 点伤害。" % [GameState.player.equipped_weapon, damage]
 	_refresh_hud()
@@ -172,6 +175,7 @@ func _cast_ningxi_sword_art() -> void:
 	var dao := SKILL_CATALOG.is_dao_skill_set(GameState.player.equipped_weapon)
 	var halberd := SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon)
 	var axe := SKILL_CATALOG.is_axe_skill_set(GameState.player.equipped_weapon)
+	var hammer := SKILL_CATALOG.is_hammer_skill_set(GameState.player.equipped_weapon)
 	if umbrella:
 		_spawn_umbrella_ward(player.global_position + Vector2(0, -54), facing)
 		guard_time_left = maxf(guard_time_left, float(primary.get("guard_seconds", 0.0)))
@@ -187,6 +191,8 @@ func _cast_ningxi_sword_art() -> void:
 		_spawn_halberd_sweep(player.global_position + Vector2(0, -50), facing, 142.0, 12.0)
 	elif axe:
 		_spawn_axe_ground_cleave(player.global_position + facing * 30.0 + Vector2(0, -40), facing, 112.0, 13.0)
+	elif hammer:
+		_spawn_hammer_shockwave(player.global_position + facing * 26.0 + Vector2(0, -36), 104.0, 13.0)
 	else:
 		_spawn_skill_ripple(player.global_position + Vector2(0, -56), Color(0.46, 0.92, 1.0), 34.0, facing)
 	await get_tree().create_timer(0.22).timeout
@@ -305,6 +311,12 @@ func _spawn_axe_ground_cleave(origin: Vector2, direction: Vector2, radius := 70.
 	cleave.name = "AxeGroundCleaveEffect"
 	add_child(cleave)
 	cleave.launch(origin, direction, radius, width)
+
+func _spawn_hammer_shockwave(origin: Vector2, radius := 60.0, thickness := 8.0) -> void:
+	var shockwave: HammerShockwaveEffect = HammerShockwaveEffectScript.new()
+	shockwave.name = "HammerShockwaveEffect"
+	add_child(shockwave)
+	shockwave.launch(origin, radius, thickness)
 
 func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
 	# This is a defensive canopy, not recolored sword VFX: two offset arcs imply
