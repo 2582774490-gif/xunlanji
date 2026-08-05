@@ -576,7 +576,7 @@ func alchemy_success_rate(recipe_id: String) -> float:
 		return 0.0
 	var rate := float(recipe.get("base_success", 0.0))
 	var technique := str(player.get("cultivation_path", ""))
-	if technique == "百草调息录":
+	if technique == "百草调息篇":
 		rate += 0.18
 	elif technique == "炉火化元法":
 		rate += 0.12

@@ -268,10 +268,15 @@ func _check_alchemy_and_medicine_rules() -> void:
 	_expect(medicine_listing_index >= 0, "Yunlan medicine vendor must provide the first Condensing Breath Pill ingredient.")
 	_expect(GameState.buy_market_listing(medicine_listing_index) and GameState.player.inventory.has("雾溪药"), "A new player must be able to buy the missing first alchemy ingredient from the local vendor.")
 	var ordinary_rate := GameState.alchemy_success_rate("ningxi")
-	GameState.player.cultivation_path = "百草调息录"
+	GameState.player.cultivation_path = "百草调息篇"
 	GameState.player.spirit_root = "木灵根"
 	GameState.player.physique = "青木灵胎"
 	_expect(GameState.alchemy_success_rate("ningxi") > ordinary_rate, "Dan cultivation, matching roots and physique should improve alchemy success rate.")
+	var hundred_herbs_rate := GameState.alchemy_success_rate("guiyuan")
+	GameState.player.cultivation_path = "云岚吐纳诀"
+	var matching_baseline_rate := GameState.alchemy_success_rate("guiyuan")
+	_expect(is_equal_approx(hundred_herbs_rate - matching_baseline_rate, 0.18), "Hundred Herbs Breath-Regulating Chapter should independently grant its documented 18% alchemy stability bonus.")
+	GameState.player.cultivation_path = "百草调息篇"
 	_expect(GameState.craft_alchemy_recipe("ningxi", 0.0), "A valid recipe should craft when its controlled roll is within the success rate.")
 	_expect(GameState.player.inventory.has("凝息丹") and not GameState.player.inventory.has("雾溪灵草"), "Successful alchemy should consume materials and produce the named pill.")
 	GameState.player.cultivation_path = "云岚吐纳诀"
