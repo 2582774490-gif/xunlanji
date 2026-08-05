@@ -23,6 +23,7 @@ func _run() -> void:
 	await _check_liuyun_spear_runtime_layer_and_skill_set()
 	await _check_zhufeng_bow_runtime_layer_and_skill_set()
 	await _check_duanwu_dao_runtime_layer_and_skill_set()
+	await _check_xuanyue_halberd_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -439,6 +440,32 @@ func _check_duanwu_dao_runtime_layer_and_skill_set() -> void:
 	await get_tree().process_frame
 	palace._play_basic_weapon_effect()
 	_expect(palace.has_node("DaoCrescentSlash"), "Duanwu Qi Dao basic attack did not spawn its own crescent effect in a dungeon.")
+	palace.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_xuanyue_halberd_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["玄月练气戟"]
+	GameState.equip_weapon("玄月练气戟")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Xuanyue Qi Halberd did not create an independent player weapon render slot.")
+	_expect(port.player.weapon_motion is HalberdMotionController, "Xuanyue Qi Halberd did not use its dedicated hook-sweep motion controller.")
+	var halberd_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(halberd_sprite.texture != null and "xuanyue_qi_ji" in halberd_sprite.texture.resource_path, "Xuanyue Qi Halberd was substituted with another weapon texture.")
+	var halberd_skills := SkillCatalog.skills_for_weapon("玄月练气戟")
+	_expect(str(halberd_skills[0].name) == "玄月钩斩" and float(halberd_skills[0].get("range", 0.0)) >= 260.0, "Xuanyue Qi Halberd needs its own medium-range hook cut.")
+	_expect(str(halberd_skills[1].name) == "玄月横扫" and str(halberd_skills[1].get("visual", "")) == "halberd_sweep", "Xuanyue Qi Halberd needs its own wide hook-sweep primary skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	var palace := preload("res://scenes/mist_stream_water_palace.tscn").instantiate()
+	add_child(palace)
+	await get_tree().process_frame
+	palace._play_basic_weapon_effect()
+	_expect(palace.has_node("HalberdSweepEffect"), "Xuanyue Qi Halberd basic attack did not spawn its own hooked sweep in a dungeon.")
 	palace.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

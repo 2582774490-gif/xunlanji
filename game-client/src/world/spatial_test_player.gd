@@ -17,6 +17,7 @@ const UmbrellaMotionScript = preload("res://src/animation/umbrella_motion_contro
 const SpearMotionScript = preload("res://src/animation/spear_motion_controller.gd")
 const BowMotionScript = preload("res://src/animation/bow_motion_controller.gd")
 const DaoMotionScript = preload("res://src/animation/dao_motion_controller.gd")
+const HalberdMotionScript = preload("res://src/animation/halberd_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -125,6 +126,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = BowMotionScript.new()
 	elif motion == "mist_dao":
 		pivot = DaoMotionScript.new()
+	elif motion == "moon_halberd":
+		pivot = HalberdMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -154,6 +157,12 @@ func _configure_equipped_weapon_visual() -> void:
 		# is pinned near the hand while the long curved blade remains readable.
 		sprite.scale = Vector2(0.065, 0.065)
 		sprite.position = Vector2(44, -45)
+	elif motion == "moon_halberd":
+		# The butt is lower-left and the hook opens at the upper-right; anchoring
+		# this long diagonal source at the grip keeps the full silhouette legible.
+		sprite.scale = Vector2(0.060, 0.060)
+		sprite.position = Vector2(42, -46)
+		sprite.rotation = deg_to_rad(-12.0)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins

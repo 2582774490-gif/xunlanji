@@ -5,6 +5,7 @@ const TalismanProjectileScript = preload("res://src/combat/talisman_projectile.g
 const SpearThrustEffectScript = preload("res://src/combat/spear_thrust_effect.gd")
 const WindArrowProjectileScript = preload("res://src/combat/wind_arrow_projectile.gd")
 const DaoCrescentSlashScript = preload("res://src/combat/dao_crescent_slash.gd")
+const HalberdSweepEffectScript = preload("res://src/combat/halberd_sweep_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 const BOSS_RETALIATION_RANGE := 650.0
 
@@ -136,6 +137,8 @@ func _on_player_attack_started(direction: String) -> void:
 		_spawn_umbrella_ward(player.position + facing * 34.0 + Vector2(0, -34), facing)
 	elif SKILL_CATALOG.is_dao_skill_set(GameState.player.equipped_weapon):
 		_spawn_dao_crescent(player.position + Vector2(0, -48), facing, 72.0, 7.0)
+	elif SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon):
+		_spawn_halberd_sweep(player.position + Vector2(0, -48), facing, 96.0, 8.0)
 	elif not SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) and not SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon):
 		slash_trail.play_burst(player.position + facing * 46.0 + Vector2(0, -34), facing)
 
@@ -160,6 +163,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 	var spear := SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon)
 	var bow := SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon)
 	var dao := SKILL_CATALOG.is_dao_skill_set(GameState.player.equipped_weapon)
+	var halberd := SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon)
 	boss_engaged = true
 	player_mana -= float(primary["spirit_cost"])
 	ningxi_cooldown = float(primary["cooldown"])
@@ -175,6 +179,8 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 		_spawn_wind_arrow(player.position + Vector2(0, -52), boss.position + hit_offset, 0.34)
 	elif dao:
 		_spawn_dao_crescent(player.position + Vector2(0, -50), facing, 118.0, 11.0)
+	elif halberd:
+		_spawn_halberd_sweep(player.position + Vector2(0, -50), facing, 142.0, 12.0)
 	else:
 		ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
 	status.text = "%s结印中……灵力 -%d。" % [str(primary["name"]), int(primary["spirit_cost"])]
@@ -193,7 +199,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 func _can_hit_boss_with_basic() -> bool:
 	if near_boss:
 		return true
-	var ranged_weapon := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon)
+	var ranged_weapon := SKILL_CATALOG.is_talisman_brush_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon)
 	if not ranged_weapon:
 		return false
 	return player.position.distance_to(boss.position) <= float(_skill(0).get("range", 205.0))
@@ -207,6 +213,8 @@ func _play_basic_weapon_effect() -> void:
 		_spawn_wind_arrow(player.position + Vector2(0, -52), boss.position + Vector2(0, -88))
 	elif SKILL_CATALOG.is_dao_skill_set(GameState.player.equipped_weapon):
 		_spawn_dao_crescent(player.position + Vector2(0, -48), (boss.position - player.position).normalized(), 72.0, 7.0)
+	elif SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon):
+		_spawn_halberd_sweep(player.position + Vector2(0, -48), (boss.position - player.position).normalized(), 96.0, 8.0)
 
 func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
 	var talisman: TalismanProjectile = TalismanProjectileScript.new()
@@ -227,6 +235,12 @@ func _spawn_dao_crescent(origin: Vector2, direction: Vector2, radius := 72.0, th
 	var slash: DaoCrescentSlash = DaoCrescentSlashScript.new()
 	add_child(slash)
 	slash.launch(origin, direction, radius, thickness)
+
+func _spawn_halberd_sweep(origin: Vector2, direction: Vector2, radius := 96.0, thickness := 8.0) -> void:
+	var sweep: HalberdSweepEffect = HalberdSweepEffectScript.new()
+	sweep.name = "HalberdSweepEffect"
+	add_child(sweep)
+	sweep.launch(origin, direction, radius, thickness)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":

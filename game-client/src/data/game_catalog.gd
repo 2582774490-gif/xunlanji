@@ -69,7 +69,7 @@ const WEAPON_FAMILIES := [
 	{"name": "剑", "branches": "飞剑、重剑、阵剑", "starter": "青篁练气剑", "school": "剑修"},
 	{"name": "刀", "branches": "长刀、双刃、灵刃", "starter": "赤纹练气刀", "school": "兵修"},
 	{"name": "枪", "branches": "长枪、短枪、御枪", "starter": "流云练气枪", "school": "兵修"},
-	{"name": "戟", "branches": "长戟、钩戟、月戟", "starter": "沉岳练气戟", "school": "体修"},
+	{"name": "戟", "branches": "长戟、钩戟、月戟", "starter": "玄月练气戟", "school": "体修"},
 	{"name": "斧", "branches": "战斧、双斧、破阵斧", "starter": "开山练气斧", "school": "体修"},
 	{"name": "锤", "branches": "重锤、双锤、雷锤", "starter": "镇石练气锤", "school": "体修"},
 	{"name": "棍", "branches": "长棍、短棍、禅杖", "starter": "青铜练气棍", "school": "体修"},
@@ -138,6 +138,7 @@ const WEAPON_RUNTIME_PROFILES := {
 	"流云练气枪": {"motion": "long_spear", "asset": "res://assets/art/weapons/liuyun_qi_spear/processed_alpha/liuyun_qi_spear_v01_alpha.png"},
 	"逐风练气弓": {"motion": "wind_bow", "asset": "res://assets/art/weapons/zhufeng_qi_bow/processed_alpha/zhufeng_qi_bow_v01_alpha.png"},
 	"断雾练气刀": {"motion": "mist_dao", "asset": "res://assets/art/weapons/duanwu_qi_dao/processed_alpha/duanwu_qi_dao_v01_alpha.png"},
+	"玄月练气戟": {"motion": "moon_halberd", "asset": "res://assets/art/weapons/xuanyue_qi_ji/processed_alpha/xuanyue_qi_ji_v01_alpha.png"},
 }
 
 static func weapon_runtime_profile_for_item(item_name: String) -> Dictionary:

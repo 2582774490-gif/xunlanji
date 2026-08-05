@@ -10,6 +10,7 @@ const TalismanProjectileScript = preload("res://src/combat/talisman_projectile.g
 const SpearThrustEffectScript = preload("res://src/combat/spear_thrust_effect.gd")
 const WindArrowProjectileScript = preload("res://src/combat/wind_arrow_projectile.gd")
 const DaoCrescentSlashScript = preload("res://src/combat/dao_crescent_slash.gd")
+const HalberdSweepEffectScript = preload("res://src/combat/halberd_sweep_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 
 var _player: CharacterBody2D
@@ -86,7 +87,7 @@ func _on_player_attack_impact(_direction: String) -> void:
 		attack_range = float(SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)[0].get("range", MELEE_RANGE))
 	elif SKILL_CATALOG.is_spear_skill_set(GameState.player.equipped_weapon):
 		attack_range = float(SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)[0].get("range", MELEE_RANGE))
-	elif SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon):
+	elif SKILL_CATALOG.is_bow_skill_set(GameState.player.equipped_weapon) or SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon):
 		attack_range = float(SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)[0].get("range", MELEE_RANGE))
 	if _player.global_position.distance_to(enemy_position) > attack_range:
 		_status.text = "攻击落空：%s 不在近战范围内。" % _target_name
@@ -100,6 +101,8 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_spawn_wind_arrow(_player.global_position + Vector2(0, -52), enemy_position + Vector2(0, -52))
 	elif SKILL_CATALOG.is_dao_skill_set(GameState.player.equipped_weapon):
 		_spawn_dao_crescent(_player.global_position + Vector2(0, -48), (enemy_position - _player.global_position).normalized(), 72.0, 7.0)
+	elif SKILL_CATALOG.is_halberd_skill_set(GameState.player.equipped_weapon):
+		_spawn_halberd_sweep(_player.global_position + Vector2(0, -48), (enemy_position - _player.global_position).normalized(), 96.0, 8.0)
 	_target_health = max(0, _target_health - damage)
 	_refresh_target_label()
 	_status.text = "%s 受击，造成 %d 点伤害。" % [_target_name, damage]
@@ -138,6 +141,12 @@ func _spawn_dao_crescent(origin: Vector2, direction: Vector2, radius := 72.0, th
 	var slash: DaoCrescentSlash = DaoCrescentSlashScript.new()
 	add_child(slash)
 	slash.launch(origin, direction, radius, thickness)
+
+func _spawn_halberd_sweep(origin: Vector2, direction: Vector2, radius := 96.0, thickness := 8.0) -> void:
+	var sweep: HalberdSweepEffect = HalberdSweepEffectScript.new()
+	sweep.name = "HalberdSweepEffect"
+	add_child(sweep)
+	sweep.launch(origin, direction, radius, thickness)
 
 func _show_eightfold_array_ward(element: String) -> bool:
 	if str(GameState.player.get("equipped_artifact", "")) != "八角练气阵盘":
