@@ -88,11 +88,11 @@ func _perform_boss_water_blade() -> void:
 	await get_tree().create_timer(0.22).timeout
 	if defeated or not near_boss or boss_health <= 0:
 		return
-	var damage := 9
+	var raw_damage := 9
+	var damage := GameState.elemental_damage_after_artifact(raw_damage, "water")
 	var mitigation_notes: Array[String] = []
 	var water_reduction := GameState.artifact_damage_reduction("water")
 	if water_reduction > 0.0:
-		damage = ceili(float(damage) * (1.0 - water_reduction))
 		mitigation_notes.append("%s凝出水幕，抵去%d%%水系伤害。" % [str(GameState.player.get("equipped_artifact", "法宝")), roundi(water_reduction * 100.0)])
 	if guard_time_left > 0.0:
 		damage = ceili(float(damage) * 0.45)

@@ -384,6 +384,7 @@ func _check_mist_tide_pearl_combat_rules() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.equipped_artifact = "雾潮练气珠"
 	_expect(is_equal_approx(GameState.artifact_damage_reduction("water"), 0.35), "Mist-Tide Qi Pearl should reduce only declared water damage by 35%.")
+	_expect(GameState.elemental_damage_after_artifact(9, "water") == 6, "Mist-Tide Qi Pearl did not use the shared elemental damage calculation.")
 	_expect(is_zero_approx(GameState.artifact_damage_reduction("fire")), "Mist-Tide Qi Pearl must not reduce non-water damage.")
 	_expect(is_zero_approx(GameState.artifact_mana_regen_bonus()), "Mist-Tide Qi Pearl should not inherit the Jade Pendant mana regeneration.")
 	GameState.player.equipped_artifact = "纳灵玉佩"
@@ -406,6 +407,7 @@ func _check_earthseal_render_and_combat_rules() -> void:
 	port.queue_free()
 	await get_tree().process_frame
 	_expect(is_equal_approx(GameState.artifact_damage_reduction("earth"), 0.32), "Earthseal Qi Stamp should reduce only declared earth damage by 32%.")
+	_expect(GameState.elemental_damage_after_artifact(20, "earth") == 14, "Earthseal Qi Stamp did not use the shared elemental damage calculation.")
 	_expect(is_zero_approx(GameState.artifact_damage_reduction("water")), "Earthseal Qi Stamp must not reduce water damage.")
 	var cave := preload("res://scenes/earthfire_cave.tscn").instantiate()
 	add_child(cave)
@@ -846,6 +848,7 @@ func _check_local_duel_arena() -> void:
 	if not GameState.player.inventory.has("青篁练气剑"):
 		GameState.player.inventory.append("青篁练气剑")
 	GameState.equip_weapon("青篁练气剑")
+	GameState.player.equipped_artifact = "雾潮练气珠"
 	var arena := preload("res://scenes/duel_arena.tscn").instantiate()
 	add_child(arena)
 	await get_tree().process_frame
@@ -871,6 +874,11 @@ func _check_local_duel_arena() -> void:
 	_expect(arena.player_mana > 0.0 and arena.nourish_cooldown > 0.0, "Local-duel touch skill path did not restore spirit power and start Nourish cooldown.")
 	arena._on_opponent_attack(12)
 	_expect(arena.player_hp < 100, "Local-duel opponent attack did not damage the player.")
+	arena.player_hp = 100
+	arena.guard_time_left = 0.0
+	var pvp_counter := int(GameCatalog.weapon_profile_for_item(GameState.player.equipped_weapon).get("counter_reduction", 0))
+	arena._on_opponent_attack(12)
+	_expect(arena.player_hp == 100 - maxi(2, 12 - pvp_counter), "Elemental artifacts must not reduce neutral PVP opponent attacks.")
 	arena.opponent.take_damage(999)
 	_expect(arena.finished, "Local duel arena did not resolve when one participant reached zero HP.")
 	arena.queue_free()

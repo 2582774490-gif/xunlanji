@@ -718,6 +718,11 @@ func artifact_damage_reduction(element: String) -> float:
 	return clampf(float(equipped_artifact_profile().get(field, 0.0)), 0.0, 0.75)
 
 
+func elemental_damage_after_artifact(raw_damage: int, element: String) -> int:
+	var reduction := artifact_damage_reduction(element)
+	return maxi(1, ceili(float(raw_damage) * (1.0 - reduction)))
+
+
 func weapon_basic_damage(base_damage: int) -> int:
 	var catalog := preload("res://src/data/game_catalog.gd")
 	var profile: Dictionary = catalog.weapon_profile_for_item(str(player.get("equipped_weapon", "")))

@@ -25,13 +25,18 @@ func _perform_boss_water_blade() -> void:
 	await get_tree().create_timer(0.24).timeout
 	if defeated or not near_boss or boss_health <= 0:
 		return
-	var damage := 17
+	var raw_damage := 17
+	var damage := GameState.elemental_damage_after_artifact(raw_damage, "water")
+	var mitigation_notes: Array[String] = []
+	var water_reduction := GameState.artifact_damage_reduction("water")
+	if water_reduction > 0.0:
+		mitigation_notes.append("%s凝出水幕，抵去%d%%水系伤害。" % [str(GameState.player.get("equipped_artifact", "法宝")), roundi(water_reduction * 100.0)])
 	if guard_time_left > 0.0:
 		damage = ceili(float(damage) * 0.45)
 		guard_time_left = 0.0
-		status.text = "岚息护体偏开了锚影锁潮的大半冲击。"
+		mitigation_notes.append("岚息护体偏开了锚影锁潮的大半冲击。")
 	player_health = max(0, player_health - damage)
-	status.text = "沉舷残灵·鸣濯挥出锚影锁潮，造成 %d 点伤害。" % damage
+	status.text = "沉舷残灵·鸣濯挥出锚影锁潮，造成 %d 点伤害。%s" % [damage, " ".join(mitigation_notes)]
 	_refresh_player_hp()
 	if player_health == 0:
 		defeated = true
@@ -43,7 +48,7 @@ func _on_player_attack(_direction: String) -> void:
 	if not near_boss or boss_health <= 0:
 		return
 	hit_spark.play_burst(boss.position + Vector2(0, -104), Vector2.UP)
-	var damage := 11 + int(int(GameState.derived_stats()["攻击"]) / 3.0)
+	var damage := GameState.weapon_basic_damage(11)
 	boss_health = max(0, boss_health - damage)
 	status.text = "沉舷残灵·鸣濯受击，造成 %d 点伤害。" % damage
 	_refresh_boss_hp()

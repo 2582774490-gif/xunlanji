@@ -92,7 +92,7 @@
 
 | 内容 | 透明游戏资源 | 当前接入 |
 |---|---|---|
-| 雾潮练气珠 | `assets/art/artifacts/mist_tide_qi_pearl/processed_alpha/mist_tide_qi_pearl_v01_alpha.png` | 已在法宝资料、角色独立法宝层与水府水系减伤验证；水府首通必得 |
+| 雾潮练气珠 | `assets/art/artifacts/mist_tide_qi_pearl/processed_alpha/mist_tide_qi_pearl_v01_alpha.png` | 已在法宝资料、角色独立法宝层与水府、沉舷遗府的水系减伤验证；水府首通必得 |
 | 玄土练气印 | `assets/art/artifacts/earthseal_qi_stamp/processed_alpha/earthseal_qi_stamp_v01_alpha.png` | 已完成原创法宝图、角色独立法宝层与地火洞土岩减伤验证；地火洞首通必得 |
 | 朱砂练气符笔 | `assets/art/weapons/vermilion_qi_talisman_brush/processed_alpha/vermilion_qi_talisman_brush_v01_alpha.png` | 已登记美术，待专属动作、攻击特效与武器卡 |
 | 云岚吐纳诀秘卷 | `assets/art/techniques/cloud_mist_breathing_manual/processed_alpha/cloud_mist_breathing_manual_v01_alpha.png` | 已登记功法图，待功法图鉴界面接入 |
