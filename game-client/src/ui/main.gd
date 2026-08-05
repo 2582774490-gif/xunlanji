@@ -409,6 +409,18 @@ func _show_codex() -> void:
 				pending_names.append(name)
 	_heading("已设定、待单独出图的功法")
 	_text("、".join(pending_names), 16, Color("a7d5ca"))
+	_line()
+	_heading("法宝与护具图鉴")
+	for item_name in Catalog.ARTIFACT_PROFILES:
+		_add_equipment_codex_card(str(item_name), Catalog.artifact_profile_for_item(str(item_name)), "法宝")
+	_add_equipment_codex_card("照影练气镜", Catalog.artifact_profile_for_item("照影练气镜"), "鉴别法宝")
+	for item_name in Catalog.ARMOR_PROFILES:
+		_add_equipment_codex_card(str(item_name), Catalog.armor_profile_for_item(str(item_name)), "护具")
+	for item_name in Catalog.FOOTWEAR_PROFILES:
+		_add_equipment_codex_card(str(item_name), Catalog.footwear_profile_for_item(str(item_name)), "足部护具")
+	_line()
+	_heading("首发基础器型（均已有独立动作与运行时素材）")
+	_text("、".join(Catalog.WEAPON_RUNTIME_PROFILES.keys()), 16, Color("a7d5ca"))
 
 
 func _add_technique_codex_card(technique_name: String, art_profile: Dictionary, show_insight := false) -> void:
@@ -438,6 +450,29 @@ func _add_technique_codex_card(technique_name: String, art_profile: Dictionary, 
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	description.custom_minimum_size = Vector2(0, 108)
 	details.add_child(description)
+
+
+func _add_equipment_codex_card(item_name: String, profile: Dictionary, category: String) -> void:
+	var runtime_asset := str(profile.get("runtime_asset", ""))
+	if runtime_asset.is_empty() or not ResourceLoader.exists(runtime_asset):
+		_text("《%s》｜%s｜尚待独立美术验收。" % [item_name, category], 16, Color("a7d5ca"))
+		return
+	var card := HBoxContainer.new()
+	card.custom_minimum_size = Vector2(0, 112)
+	card.add_theme_constant_override("separation", 14)
+	content.add_child(card)
+	var prop_image := TextureRect.new()
+	prop_image.texture = load(runtime_asset) as Texture2D
+	prop_image.custom_minimum_size = Vector2(98, 102)
+	prop_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	prop_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	card.add_child(prop_image)
+	var details := Label.new()
+	details.text = "《%s》｜%s｜%s\n%s" % [item_name, category, str(profile.get("quality", "凡品")), str(profile.get("trait", "已登记运行时规则。"))]
+	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_theme_font_size_override("font_size", 16)
+	card.add_child(details)
 
 func _show_settings() -> void:
 	_heading("设置与开发状态")

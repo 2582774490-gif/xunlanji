@@ -10,6 +10,7 @@ func _run() -> void:
 	await _check_local_profile_payload()
 	await _check_optional_world_guidance()
 	await _check_cultivation_affinity()
+	await _check_codex_registry_ui()
 	await _check_fair_attribute_and_technique_growth()
 	await _check_alchemy_and_medicine_rules()
 	await _check_equipment_upgrade_rules()
@@ -186,6 +187,32 @@ func _check_cultivation_affinity() -> void:
 	_expect(not threefold_manual_art.is_empty() and ResourceLoader.exists(str(threefold_manual_art.card_asset)), "Threefold Sword Sutra must point to its own approved codex art asset.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
+
+
+func _check_codex_registry_ui() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var screen_before := GameState.current_screen
+	GameState.player.cultivation_path = "三折剑经"
+	GameState.current_screen = GameState.Screen.CODEX
+	var codex_ui := preload("res://scenes/main.tscn").instantiate()
+	add_child(codex_ui)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var rendered_text := _collect_label_text(codex_ui)
+	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型"), "Codex UI must render approved technique, artifact and weapon registry sections.")
+	codex_ui.queue_free()
+	GameState.player = profile_before
+	GameState.current_screen = screen_before
+	GameState.profile_changed.emit()
+
+
+func _collect_label_text(node: Node) -> String:
+	var result := ""
+	if node is Label:
+		result += "%s\n" % (node as Label).text
+	for child in node.get_children():
+		result += _collect_label_text(child)
+	return result
 
 
 func _check_fair_attribute_and_technique_growth() -> void:
