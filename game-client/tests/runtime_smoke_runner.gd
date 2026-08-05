@@ -210,7 +210,7 @@ func _check_codex_registry_ui() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var rendered_text := _collect_label_text(codex_ui)
-	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("完整修行路线") and rendered_text.contains("丹器百工") and rendered_text.contains("炉火化元法") and rendered_text.contains("炼气丹药图鉴") and rendered_text.contains("归元丹") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿") and rendered_text.contains("沈衍") and rendered_text.contains("岚息"), "Codex UI must render full cultivation, pill, equipment and NPC registry sections.")
+	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("完整修行路线") and rendered_text.contains("丹器百工") and rendered_text.contains("炉火化元法") and rendered_text.contains("炼气丹药图鉴") and rendered_text.contains("归元丹") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿") and rendered_text.contains("沈衍") and rendered_text.contains("岚息") and rendered_text.contains("温行客") and rendered_text.contains("雾港货物"), "Codex UI must render full cultivation, pill, equipment and NPC registry sections.")
 	codex_ui.queue_free()
 	GameState.player.inventory = ["雾港引潮盘", "沉雾舟纹袍"]
 	GameState.player.equipped_artifact = "雾港引潮盘"
@@ -231,6 +231,14 @@ func _check_codex_registry_ui() -> void:
 	var alchemy_text := _collect_label_text(alchemy_ui)
 	_expect(alchemy_text.contains("凝息丹") and alchemy_text.contains("养元丹") and alchemy_text.contains("归元丹"), "Alchemy UI must render every approved Qi-refining pill with its independent card.")
 	alchemy_ui.queue_free()
+	GameState.current_screen = GameState.Screen.MARKET
+	var market_ui := preload("res://scenes/main.tscn").instantiate()
+	add_child(market_ui)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var market_text := _collect_label_text(market_ui)
+	_expect(market_text.contains("温行客") and market_text.contains("雾潮矿芯") and market_text.contains("潮息玉佩"), "Market UI must link Wen Xingke to his appraiser inventory instead of a generic merchant.")
+	market_ui.queue_free()
 	GameState.player = profile_before
 	GameState.current_screen = screen_before
 	GameState.profile_changed.emit()

@@ -231,3 +231,4 @@ Avoid: duplicated objects, cropped edges, photorealistic photography, muddy silh
 
 | 祝铁山 | `assets/art/npcs/zhu_tieshan/processed_alpha/zhu_tieshan_card_v01_alpha.png` | 抠图检查通过；已登记万物图鉴 NPC 卡、行囊强化区的工坊指引与界面验收；不复用角色模板或其他 NPC 人物图。 |
 | 沈衍 | `assets/art/npcs/shen_yan/processed_alpha/shen_yan_card_v01_alpha.png` | 抠图检查通过；已登记万物图鉴 NPC 卡、南门“认识岚息”可选引导与运行时资源验收；不复用角色模板或其他 NPC 人物图。 |
+| 温行客 | `assets/art/npcs/wen_xingke/processed_alpha/wen_xingke_card_v01_alpha.png` | 抠图检查通过；已登记万物图鉴 NPC 卡、市集的雾潮矿芯与潮息玉佩卖家、拍卖行线索与自动界面验收；不复用角色模板或其他 NPC 人物图。 |

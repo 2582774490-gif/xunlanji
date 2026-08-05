@@ -362,6 +362,7 @@ func _show_sect() -> void:
 
 func _show_market() -> void:
 	_heading("云市 · 自由交易与拍卖行")
+	_text("温行客常驻雾溪渡口：他会解释货物保护价、鉴别标记与归墟雾港的拍卖行消息。", 16, Color("a7d5ca"))
 	_text("当前金钱：%d｜手续费：5%%（最低 1 金）。当前为本地模拟；真实玩家交易将由服务器校验所有权、上架、成交和反作弊。" % GameState.player.gold, 17, Color("f2d79c"))
 	for index in GameState.local_market_listings.size():
 		var listing: Dictionary = GameState.local_market_listings[index]

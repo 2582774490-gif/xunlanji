@@ -37,9 +37,9 @@ const LOCAL_SAVE_PATH := "user://xunlanji_local_profile.json"
 const LOCAL_SAVE_VERSION := 1
 var local_market_listings: Array[Dictionary] = [
 	{"id": "npc_mist_stream_medicine", "name": "雾溪药", "type": "药材", "price": 14, "seller": "陆青禾"},
-	{"id": "npc_ore", "name": "雾潮矿芯", "type": "材料", "price": 32, "seller": "雾港行商"},
+	{"id": "npc_ore", "name": "雾潮矿芯", "type": "材料", "price": 32, "seller": "温行客"},
 	{"id": "npc_talisman", "name": "雷纹符材", "type": "符材", "price": 45, "seller": "候雷符修"},
-	{"id": "npc_tide_pendant", "name": "潮息玉佩", "type": "法宝", "price": 86, "seller": "雾港行商"},
+	{"id": "npc_tide_pendant", "name": "潮息玉佩", "type": "法宝", "price": 86, "seller": "温行客"},
 ]
 var player := {
 	"gender": "男",

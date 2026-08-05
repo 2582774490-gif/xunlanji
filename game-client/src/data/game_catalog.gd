@@ -262,7 +262,7 @@ static func technique_art_profile_for_name(path_name: String) -> Dictionary:
 const SECTS := [
 	{"id": "mist_sword", "name": "雾隐剑宗", "trait": "重视守序、剑阵与护山", "rule": "擅离驻守任务将扣除功勋；内门后叛离山门会触发通缉。", "technique": "三折剑经", "exit_wanted_rank": 1, "exit_penalty": "雾隐剑宗已记录你的离宗，山道与驻地附近可能出现追查。"},
 	{"id": "cloud_market", "name": "云市会", "trait": "重视商路、鉴宝与契约", "rule": "恶意毁约将失去交易权限，并可能被悬赏追讨。", "technique": "镜心守识篇", "exit_wanted_rank": 3, "exit_penalty": "云市会冻结了你的会内契约信用；正常离会不构成通缉。"},
-	{"id": "wild_herb", "name": "百草谷", "trait": "重视丹药、采集与救治", "rule": "私占宗门药圃会降低声望；可用贡献修复关系。", "technique": "百草调息录", "exit_wanted_rank": 99, "exit_penalty": "百草谷保留了离谷记录，但不会因正常离开而通缉。"},
+	{"id": "wild_herb", "name": "百草谷", "trait": "重视丹药、采集与救治", "rule": "私占宗门药圃会降低声望；可用贡献修复关系。", "technique": "百草调息篇", "exit_wanted_rank": 99, "exit_penalty": "百草谷保留了离谷记录，但不会因正常离开而通缉。"},
 ]
 
 const SECT_RANKS := [
@@ -288,8 +288,6 @@ const NPC_CARD_PROFILES := {
 		"service": "出售雾溪药；它与雾溪灵草共同构成凝息丹的首个可自由取得配方。",
 		"lead": "她会留意雨后溪路的药草变化，并可能提供雾泽灵草与百草谷的传闻。",
 	},
-}
-
 	"祝铁山": {
 		"card_asset": "res://assets/art/npcs/zhu_tieshan/processed_alpha/zhu_tieshan_card_v01_alpha.png",
 		"faction": "云岚村 · 村北工坊",
@@ -303,6 +301,13 @@ const NPC_CARD_PROFILES := {
 		"relationship": "初识 · 世界引导",
 		"service": "说明岚息、灵根与吐纳的基础关系；与他交谈会记录“认识岚息”，但不会强制接取任务、发放境界经验或限制探索。",
 		"lead": "他留意南门外雾潮的涨落，提醒新人从雾溪药草、散修传闻与可见地标开始自行探索；后续可牵出各宗门的入门去向。",
+	},
+	"温行客": {
+		"card_asset": "res://assets/art/npcs/wen_xingke/processed_alpha/wen_xingke_card_v01_alpha.png",
+		"faction": "云市会 · 雾溪渡口",
+		"relationship": "初识 · 可鉴宝",
+		"service": "说明雾港货物、法宝与材料的保护价区间；他的货单提供雾潮矿芯与潮息玉佩，并指向归墟雾港的拍卖行。",
+		"lead": "他会根据潮期收集残舟货签与古物传闻；这些线索可引向雾港航路、沉舷遗府和后续玩家交易。",
 	},
 }
 
