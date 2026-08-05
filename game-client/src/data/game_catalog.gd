@@ -279,6 +279,7 @@ const NPCS := [
 	{"name": "温行客", "role": "行脚鉴宝人", "place": "雾溪渡口"},
 	{"name": "祝铁山", "role": "炼器师", "place": "村北工坊"},
 	{"name": "白蘅", "role": "百草谷执事", "place": "雾泽药庐"},
+	{"name": "宁远", "role": "宗门接引使", "place": "云岚村"},
 ]
 
 const NPC_CARD_PROFILES := {
@@ -316,6 +317,13 @@ const NPC_CARD_PROFILES := {
 		"relationship": "初识 · 丹修传功",
 		"service": "说明药性承受、灵植分区与百草谷门规；玩家自由加入百草谷并晋升内门后，会登记《百草调息篇》，但不会强制切换主修。",
 		"lead": "她会记录雨后灵泉、雾泽灵草与妖丹成熟期，后续可延展为药圃事件、高阶丹方和采集生态线索。",
+	},
+	"宁远": {
+		"card_asset": "res://assets/art/npcs/ning_yuan/processed_alpha/ning_yuan_card_v01_alpha.png",
+		"faction": "云岚村 · 宗门接引台",
+		"relationship": "初识 · 宗门引导",
+		"service": "说明雾隐剑宗、云市会与百草谷的加入方式、贡献晋升与离宗后果；只开启可选的“选择道路”引导，不替玩家指定宗门或功法。",
+		"lead": "他保管各宗门的入门帖与门规摘要。商路契约、药圃规约和剑宗驻守都能从此分流为不同的自由探索方向。",
 	},
 }
 
