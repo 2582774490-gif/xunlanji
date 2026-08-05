@@ -23,7 +23,7 @@ func _perform_boss_water_blade() -> void:
 	var facing := (player.position - boss.position).normalized()
 	demon_water_blade.play_burst(boss.position + Vector2(0, -92) + facing * 46.0, facing)
 	await get_tree().create_timer(0.22).timeout
-	if defeated or not near_boss or boss_health <= 0:
+	if defeated or not boss_engaged or not _boss_can_reach_player() or boss_health <= 0:
 		return
 	var damage := GameState.pve_damage_after_equipment(14, "neutral")
 	if guard_time_left > 0.0:

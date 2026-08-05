@@ -20,6 +20,7 @@ func _run() -> void:
 	await _check_umbrella_render_slot()
 	await _check_talisman_brush_runtime_layer_and_skill_set()
 	await _check_liuyun_spear_runtime_layer_and_skill_set()
+	await _check_zhufeng_bow_runtime_layer_and_skill_set()
 	await _check_runtime_weapon_quick_switch()
 	await _check_artifact_render_slot()
 	await _check_mist_tide_pearl_render_slot()
@@ -369,9 +370,28 @@ func _check_liuyun_spear_runtime_layer_and_skill_set() -> void:
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
+func _check_zhufeng_bow_runtime_layer_and_skill_set() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.inventory = ["逐风练气弓"]
+	GameState.equip_weapon("逐风练气弓")
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Zhufeng Bow did not create an independent player weapon render slot.")
+	_expect(port.player.weapon_motion is BowMotionController, "Zhufeng Bow did not use its dedicated bow motion controller.")
+	var bow_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
+	_expect(bow_sprite.texture != null and "zhufeng_qi_bow" in bow_sprite.texture.resource_path, "Zhufeng Bow was substituted with another weapon texture.")
+	var bow_skills := SkillCatalog.skills_for_weapon("逐风练气弓")
+	_expect(str(bow_skills[0].name) == "逐风箭" and float(bow_skills[0].get("range", 0.0)) >= 470.0, "Zhufeng Bow needs an actual long-range basic arrow.")
+	_expect(str(bow_skills[1].name) == "逐风贯矢" and float(bow_skills[1].get("range", 0.0)) >= 620.0, "Zhufeng Bow needs a longer dedicated primary arrow skill.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
 func _check_runtime_weapon_quick_switch() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
-	GameState.player.inventory = ["青篁练气剑", "流云练气枪", "回云练气伞"]
+	GameState.player.inventory = ["青篁练气剑", "流云练气枪", "逐风练气弓", "回云练气伞"]
 	GameState.equip_weapon("青篁练气剑")
 	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
 	add_child(port)
@@ -383,7 +403,10 @@ func _check_runtime_weapon_quick_switch() -> void:
 	_expect(port.player.weapon_motion is SpearMotionController, "Runtime weapon switch did not replace the sword motion layer with the spear controller.")
 	_expect(GameState.equip_next_runtime_weapon(), "Runtime weapon switch should continue through all approved weapon assets.")
 	await get_tree().process_frame
-	_expect(GameState.player.equipped_weapon == "回云练气伞" and port.player.weapon_motion is UmbrellaMotionController, "Runtime weapon switch did not continue from the spear to the umbrella controller.")
+	_expect(GameState.player.equipped_weapon == "逐风练气弓" and port.player.weapon_motion is BowMotionController, "Runtime weapon switch did not continue from the spear to the bow controller.")
+	_expect(GameState.equip_next_runtime_weapon(), "Runtime weapon switch should include the bow before returning to defensive weapons.")
+	await get_tree().process_frame
+	_expect(GameState.player.equipped_weapon == "回云练气伞" and port.player.weapon_motion is UmbrellaMotionController, "Runtime weapon switch did not continue from the bow to the umbrella controller.")
 	port.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

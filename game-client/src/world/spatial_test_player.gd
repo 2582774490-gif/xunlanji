@@ -15,6 +15,7 @@ const FEMALE_ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/character
 const WeaponMotionScript = preload("res://src/animation/weapon_motion_controller.gd")
 const UmbrellaMotionScript = preload("res://src/animation/umbrella_motion_controller.gd")
 const SpearMotionScript = preload("res://src/animation/spear_motion_controller.gd")
+const BowMotionScript = preload("res://src/animation/bow_motion_controller.gd")
 const ArtifactMotionScript = preload("res://src/animation/artifact_motion_controller.gd")
 
 signal attack_started(direction: String)
@@ -113,6 +114,8 @@ func _configure_equipped_weapon_visual() -> void:
 		pivot = UmbrellaMotionScript.new()
 	elif motion == "long_spear":
 		pivot = SpearMotionScript.new()
+	elif motion == "wind_bow":
+		pivot = BowMotionScript.new()
 	pivot.name = "WeaponPivot"
 	pivot.z_index = 2 if motion == "defense_umbrella" else 3
 	add_child(pivot)
@@ -134,6 +137,9 @@ func _configure_equipped_weapon_visual() -> void:
 		sprite.scale = Vector2(0.075, 0.075)
 		sprite.position = Vector2(37, -43)
 		sprite.rotation = deg_to_rad(-45.0)
+	elif motion == "wind_bow":
+		sprite.scale = Vector2(0.084, 0.084)
+		sprite.position = Vector2(20, -54)
 	else:
 		sprite.scale = Vector2(0.13, 0.13)
 		# The source image holds the hilt in its lower-left quadrant. This pins
