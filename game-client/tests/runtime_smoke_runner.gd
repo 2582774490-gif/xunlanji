@@ -150,14 +150,14 @@ func _check_costume_wardrobe_rules() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	var costume: Dictionary = GameCatalog.costume_profile_for_id("liulan_wayfarer")
 	_expect(not costume.is_empty() and ResourceLoader.exists(str(costume.concept_asset)), "Liulan Wayfarer costume must reference its approved original concept asset.")
-	_expect(ResourceLoader.exists(str(costume.get("idle_south_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_south_west_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_west_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_north_west_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_north_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_north_east_asset", ""))), "Approved south, south-west, west, north-west, north, and north-east costume source frames must remain project-local resources.")
+	_expect(ResourceLoader.exists(str(costume.get("idle_south_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_south_west_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_west_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_north_west_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_north_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_north_east_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_east_asset", ""))), "Approved south, south-west, west, north-west, north, north-east, and east costume source frames must remain project-local resources.")
 	GameState.player.owned_costumes = ["liulan_wayfarer"]
 	GameState.player.equipped_costume = ""
 	var stats_before: Dictionary = GameState.derived_stats().duplicate(true)
 	_expect(GameState.equip_costume("liulan_wayfarer"), "Owned costume should be selectable from the wardrobe.")
 	_expect(str(GameState.player.equipped_costume) == "liulan_wayfarer", "Costume selection did not persist in player state.")
 	_expect(GameState.derived_stats() == stats_before, "Costume selection must not alter any combat or movement stat.")
-	_expect(GameState.costume_runtime_status_text("liulan_wayfarer").contains("正南、西南、正西、西北、正北、东北待机透明源图已通过"), "A partially produced costume must report its approved source frames without being presented as a map-ready runtime asset.")
+	_expect(GameState.costume_runtime_status_text("liulan_wayfarer").contains("正南、西南、正西、西北、正北、东北、正东待机透明源图已通过"), "A partially produced costume must report its approved source frames without being presented as a map-ready runtime asset.")
 	var saved := GameState.export_local_profile()
 	_expect((saved.player.get("owned_costumes", []) as Array).has("liulan_wayfarer") and str(saved.player.get("equipped_costume", "")) == "liulan_wayfarer", "Wardrobe ownership and selected costume must enter local save payload.")
 	_expect(not GameState.equip_costume("unknown_costume"), "Unowned or unknown costumes must not be equipable.")
