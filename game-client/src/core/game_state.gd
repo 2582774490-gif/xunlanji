@@ -936,11 +936,11 @@ func try_award_monthly_card_common_material(dungeon_id: String, common_materials
 	# 只可额外产出明确传入的常规材料；首领装备、功法、法宝、丹药和稀有掉落绝不进入此池。
 	if dungeon_id.is_empty() or common_materials.is_empty():
 		return ""
-	var chance := float(monthly_card_benefits().get("common_bonus_chance", 0.0))
-	var resolved_roll := randf() if roll < 0.0 else roll
+	var chance: float = float(monthly_card_benefits().get("common_bonus_chance", 0.0))
+	var resolved_roll: float = randf() if roll < 0.0 else roll
 	if chance <= 0.0 or resolved_roll >= chance:
 		return ""
-	var reward := common_materials.pick_random()
+	var reward: String = common_materials.pick_random()
 	add_item(reward)
 	return reward
 
@@ -949,8 +949,14 @@ func set_local_monthly_card_test_entitlement(tier: String, now_unix: int = -1) -
 	# Local-only verification hook. It neither charges money nor represents a purchase.
 	if not MONTHLY_CARD_BENEFITS.has(tier):
 		return false
-	var now := int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
-	player.monthly_card = {"tier": tier, "expires_at": now + MONTHLY_CARD_DURATION_DAYS * 24 * 60 * 60 if tier != "none" else 0}
+	var now: int = now_unix
+	if now_unix < 0:
+		now = int(Time.get_unix_time_from_system())
+	var expires_at: int = 0
+	if tier != "none":
+		expires_at = now + MONTHLY_CARD_DURATION_DAYS * 24 * 60 * 60
+	var monthly_card: Dictionary = {"tier": tier, "expires_at": expires_at}
+	player.monthly_card = monthly_card
 	profile_changed.emit()
 	return true
 
