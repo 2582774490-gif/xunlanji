@@ -837,7 +837,7 @@ func _refresh_fixed_dungeon_attempt_day(now_unix: int = -1) -> void:
 
 func monthly_card_tier(now_unix: int = -1) -> String:
 	_normalize_player_schema()
-	var now := int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
+	var now: int = int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
 	var card: Dictionary = player.monthly_card
 	var tier := str(card.get("tier", "none"))
 	if not MONTHLY_CARD_BENEFITS.has(tier) or tier == "none" or int(card.get("expires_at", 0)) <= now:
