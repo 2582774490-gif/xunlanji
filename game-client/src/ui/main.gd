@@ -215,7 +215,7 @@ func _show_overworld() -> void:
 	var region: Dictionary = _current_region()
 	_text("固定副本：%s" % _dungeon_names(region.dungeons), 18, Color("f2d79c"))
 	_text("副本只能从大地图的真实入口进入；此页不提供绕过地图的直接传送。", 15, Color("a7d5ca"))
-	_buttons([["进入可运行大地图", _open_playable_world, 240]])
+	_buttons([["进入可运行大地图", _open_playable_world, 240], ["验收时装动作", _open_costume_animation_preview, 200]])
 	_buttons([["查看区域探索要点", _explore, 220], ["返回洞府", func(): GameState.enter_screen(GameState.Screen.HOME), 160]])
 
 func _show_dungeon() -> void:
@@ -719,6 +719,10 @@ func _open_playable_world() -> void:
 	# The menu must resume the player's actual region.  Always reopening the
 	# starter gate made the large-world regions feel like disconnected demos.
 	get_tree().change_scene_to_file(_playable_scene_for_current_region())
+
+
+func _open_costume_animation_preview() -> void:
+	get_tree().change_scene_to_file("res://scenes/costume_animation_preview.tscn")
 
 func _playable_scene_for_current_region() -> String:
 	var scene_by_region := {

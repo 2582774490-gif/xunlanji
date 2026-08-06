@@ -9,6 +9,7 @@ func _run() -> void:
 	await _check_manual_progression()
 	await _check_local_profile_payload()
 	await _check_costume_wardrobe_rules()
+	await _check_costume_animation_preview()
 	await _check_monthly_card_fairness_rules()
 	await _check_optional_world_guidance()
 	await _check_cultivation_affinity()
@@ -2364,6 +2365,18 @@ func _check_world_menu_region_resume() -> void:
 	var main_script := preload("res://src/ui/main.gd")
 	var main := main_script.new()
 	add_child(main)
+	await get_tree().process_frame
+
+
+func _check_costume_animation_preview() -> void:
+	var preview := preload("res://scenes/costume_animation_preview.tscn").instantiate()
+	add_child(preview)
+	await get_tree().process_frame
+	_expect(preview.avatar.sprite_frames.get_frame_count("idle_south_east") == 1, "Costume animation preview must expose the approved south-east idle source.")
+	_expect(preview.avatar.sprite_frames.get_frame_count("walk_east") == 6, "Costume animation preview must expose the approved east six-frame walking source.")
+	_expect(preview.avatar.sprite_frames.get_frame_count("walk_south_east") == 6, "Costume animation preview must expose the approved south-east six-frame walking source.")
+	_expect(preview.avatar.sprite_frames.get_frame_count("attack_south") == 6, "Costume animation preview must expose Qinghuang Qi Sword's independent six-frame south attack source.")
+	preview.queue_free()
 	await get_tree().process_frame
 	GameState.current_region_id = "starter_village"
 	_expect(main._playable_scene_for_current_region() == "res://scenes/yunlan_outskirts.tscn", "World menu did not resume the continuous Yunlan Outskirts starting region.")
