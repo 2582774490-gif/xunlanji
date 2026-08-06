@@ -13,6 +13,7 @@ const WALK_NORTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_
 const WALK_NORTH_EAST_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_walk_north_east_6f_v01_alpha.png")
 const WALK_NORTH_WEST_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_walk_north_west_6f_v01_alpha.png")
 const WALK_SOUTH_EAST_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_walk_south_east_6f_v01_alpha.png")
+const WALK_SOUTH_WEST_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_walk_south_west_6f_v01_alpha.png")
 const ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_attack_south_6f_v01_alpha.png")
 const FEMALE_IDLE_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_idle_8dir_v01_alpha.png")
 const FEMALE_WALK_KEY_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_walk_keypose_8dir_v01_alpha.png")
@@ -96,8 +97,8 @@ func _ready() -> void:
 	})
 	# Both launch templates have real eastward, westward and northward six-frame
 	# cycles. Both launch templates also have native north-east and north-west
-	# cycles. Both launch templates also have native south-east cycles. Remaining
-	# directions retain their approved key-pose fallback until their
+	# cycles. Both launch templates also have native south-east cycles; the male
+	# template has a native south-west cycle. Remaining directions retain their
 	# own animation sheets are produced; no mirrored body art is fabricated.
 	var east_walk_sheet := FEMALE_WALK_EAST_SHEET if GameState.player.gender == "女" else WALK_EAST_SHEET
 	body.append_grid_clips(east_walk_sheet, 6, 1, {
@@ -123,6 +124,10 @@ func _ready() -> void:
 	body.append_grid_clips(south_east_walk_sheet, 6, 1, {
 		"walk_south_east": {"frames": [0, 1, 2, 3, 4, 5], "fps": 10.0, "loop": true},
 	})
+	if GameState.player.gender != "女":
+		body.append_grid_clips(WALK_SOUTH_WEST_SHEET, 6, 1, {
+			"walk_south_west": {"frames": [0, 1, 2, 3, 4, 5], "fps": 10.0, "loop": true},
+		})
 	body.append_grid_clips(south_attack_sheet, 6, 1, {
 		"attack_south": {"frames": [0, 1, 2, 3, 4, 5], "fps": 14.0, "loop": false},
 	})
