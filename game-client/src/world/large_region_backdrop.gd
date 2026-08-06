@@ -24,6 +24,13 @@ func _draw() -> void:
 
 func _palette() -> Dictionary:
 	match region_style:
+		"yunlan_outskirts":
+			return {
+				"ground": Color("284535"), "water": Color("377784"),
+				"road_edge": Color("273129"), "road": Color("a58a5d"),
+				"mountain": Color("1c392e"), "mist": Color("6aa59a"),
+				"landmark": Color("d6c172"),
+			}
 		"thunder_cliff":
 			return {
 				"ground": Color("192331"), "water": Color("1c405a"),
@@ -61,6 +68,17 @@ func _palette() -> Dictionary:
 			}
 
 func _draw_rivers(palette: Dictionary) -> void:
+	if region_style == "yunlan_outskirts":
+		var mist_stream := PackedVector2Array([
+			Vector2(-80, 480), Vector2(1320, 700), Vector2(2620, 540), Vector2(3780, 880),
+			Vector2(4980, 720), Vector2(6420, 1080), Vector2(7860, 860), Vector2(9300, 1180),
+			Vector2(12080, 1020), Vector2(12080, 0), Vector2(-80, 0),
+		])
+		draw_colored_polygon(mist_stream, palette.water)
+		for x in range(160, int(region_size.x), 420):
+			var y := 360.0 + float((x * 23) % 580)
+			draw_line(Vector2(x, y), Vector2(x + 126, y + 16), palette.mist.lightened(0.2), 3.0)
+		return
 	if region_style == "ancient_ridge":
 		# Ancient Ridge has no coast-like river.  Its visible flow is the unstable
 		# earthfire vein that originates in the ravine, then fades into ash basins.
@@ -85,6 +103,21 @@ func _draw_rivers(palette: Dictionary) -> void:
 		draw_line(Vector2(x, y), Vector2(x + 150, y + 12), palette.mist.lightened(0.18), 3.0)
 
 func _draw_long_roads(palette: Dictionary) -> void:
+	if region_style == "yunlan_outskirts":
+		var south_gate_road := PackedVector2Array([
+			Vector2(360, 1700), Vector2(1440, 1530), Vector2(2600, 1740), Vector2(3840, 1460),
+			Vector2(5140, 1770), Vector2(6460, 1500), Vector2(7860, 1710), Vector2(9320, 1460), Vector2(11700, 1680),
+		])
+		_draw_road_pair(south_gate_road, palette, 138.0, 96.0)
+		var highland_path := PackedVector2Array([
+			Vector2(2600, 1740), Vector2(2320, 2840), Vector2(3180, 3600), Vector2(4100, 4260),
+		])
+		_draw_road_pair(highland_path, palette, 92.0, 58.0)
+		var cloudfoot_path := PackedVector2Array([
+			Vector2(5140, 1770), Vector2(5480, 2820), Vector2(6760, 3600), Vector2(8300, 4050),
+		])
+		_draw_road_pair(cloudfoot_path, palette, 92.0, 58.0)
+		return
 	if region_style == "ancient_ridge":
 		var ridge_road := PackedVector2Array([
 			Vector2(300, 1660), Vector2(1420, 1490), Vector2(2360, 1320), Vector2(3480, 1430),

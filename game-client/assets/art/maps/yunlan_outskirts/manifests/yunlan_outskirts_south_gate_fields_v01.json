@@ -1,0 +1,13 @@
+{
+  "asset_id": "yunlan_outskirts_south_gate_fields_v01",
+  "kind": "terrain_chunk",
+  "region": "yunlan_outskirts",
+  "sector": "south_gate_fields",
+  "created_with": "GPT Image 2 built-in image generation",
+  "source_file": "source_magic2/yunlan_outskirts_south_gate_fields_v01.png",
+  "processed_file": "terrain/yunlan_outskirts_south_gate_fields_v01.png",
+  "runtime_scale": 2,
+  "world_bounds": "Rect2(0, 0, 3072, 2048)",
+  "purpose": "First authored high-detail terrain slice inside the 12km x 8km Yunlan Outskirts region.",
+  "prompt_summary": "Original refined Chinese-animation 2D mountain-foot xianxia terrain with a broad clear road, spirit fields, mist stream, stone terraces and no characters or text."
+}

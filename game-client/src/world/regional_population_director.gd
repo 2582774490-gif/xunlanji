@@ -143,7 +143,7 @@ func interaction_for_profile_id(profile_id: String) -> Area2D:
 func _clear_population() -> void:
 	for interaction in _entries.keys():
 		if is_instance_valid(interaction):
-			var root := interaction.get_parent()
+			var root: Node = interaction.get_parent()
 			if is_instance_valid(root):
 				root.queue_free()
 	_entries.clear()

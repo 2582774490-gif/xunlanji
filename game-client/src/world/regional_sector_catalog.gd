@@ -7,6 +7,8 @@ extends RefCounted
 
 static func sectors_for(region_style: String) -> Array[Dictionary]:
 	match region_style:
+		"yunlan_outskirts":
+			return _yunlan_outskirts_sectors()
 		"return_abyss_mist_port":
 			return _return_abyss_mist_port_sectors()
 		"thunder_listening_cliff":
@@ -19,6 +21,37 @@ static func sectors_for(region_style: String) -> Array[Dictionary]:
 			return _mist_border_sectors()
 		_:
 			return []
+
+
+static func _yunlan_outskirts_sectors() -> Array[Dictionary]:
+	# 云岚外野是新手聚落外真正可延展的第一大区；村庄本身只是
+	# 其中一个稳定聚落，不应被误当成整张新手地图。
+	return [
+		{
+			"id": "south_gate_fields", "name": "南门灵田", "bounds": Rect2(80, 760, 2640, 1960),
+			"description": "云岚村南门外的灵田、晒药坪与商路驿站。人流集中在道路和田埂，野兽不会闯进村口。", "terrain": "settled",
+		},
+		{
+			"id": "mist_stream_banks", "name": "雾溪浅岸", "bounds": Rect2(2360, 120, 2460, 1780),
+			"description": "雾溪从云岚山脚流过，低阶灵草只沿着石岸与浅水交界出现。", "terrain": "resource",
+		},
+		{
+			"id": "cloudfoot_wood", "name": "云麓疏林", "bounds": Rect2(4680, 600, 2600, 2660),
+			"description": "树冠稀疏、山风稳定的林地。采药人和迷路散修会循山径活动，并不会覆盖整个林区。", "terrain": "forest",
+		},
+		{
+			"id": "stonebud_highland", "name": "石芽高地", "bounds": Rect2(80, 2920, 4240, 4960),
+			"description": "云岚山脚抬升成宽阔岩台，只有背风岩隙适合生长石芽，适合练气期慢慢探路。", "terrain": "highland",
+		},
+		{
+			"id": "old_caravan_road", "name": "旧商道", "bounds": Rect2(7040, 1040, 4820, 2240),
+			"description": "连接雾潮边境的旧商道，路边偶有行脚人与盗匪踪迹；两者都只会依附道路与驿点。", "terrain": "settled",
+		},
+		{
+			"id": "lan_echo_hills", "name": "岚息丘陵", "bounds": Rect2(4440, 3500, 7480, 4360),
+			"description": "雾与山风相交的大片丘陵。此处保留给后续洞府、宗门外驻地与随机机缘，不预先填满怪物。", "terrain": "highland",
+		},
+	]
 
 
 static func sector_at(region_style: String, world_position: Vector2) -> Dictionary:

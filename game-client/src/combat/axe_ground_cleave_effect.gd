@@ -39,6 +39,6 @@ func _draw() -> void:
 	draw_polyline(PackedVector2Array([Vector2.ZERO, impact - side * 4.0, impact + _direction * 15.0]), Color(1.0, 0.90, 0.55, 0.94), maxf(2.0, _width * 0.30), true)
 	var crack_extent := _radius * (0.34 + progress * 0.66)
 	for sign in [-1.0, 1.0]:
-		var bend := side * sign * _width * 1.7
+		var bend: Vector2 = side * sign * _width * 1.7
 		var crack := PackedVector2Array([impact - _direction * 5.0, impact + _direction * crack_extent * 0.48 + bend, impact + _direction * crack_extent + bend * 0.55])
 		draw_polyline(crack, Color(0.64, 0.32, 0.12, 0.90), maxf(2.0, _width * 0.26), true)

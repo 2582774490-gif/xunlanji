@@ -639,7 +639,7 @@ func _open_playable_world() -> void:
 
 func _playable_scene_for_current_region() -> String:
 	var scene_by_region := {
-		"starter_village": "res://scenes/yunlan_south_gate.tscn",
+		"starter_village": "res://scenes/yunlan_outskirts.tscn",
 		"mist_border": "res://scenes/mist_tide_border.tscn",
 		"red_maple_ancient_road": "res://scenes/red_maple_ancient_road.tscn",
 		"thunder_listening_cliff": "res://scenes/thunder_listening_cliff.tscn",
@@ -647,7 +647,7 @@ func _playable_scene_for_current_region() -> String:
 		"abysswatch_terrace": "res://scenes/abysswatch_terrace.tscn",
 		"ancient_ridge": "res://scenes/ancient_ridge.tscn",
 	}
-	return scene_by_region.get(GameState.current_region_id, "res://scenes/yunlan_south_gate.tscn")
+	return scene_by_region.get(GameState.current_region_id, "res://scenes/yunlan_outskirts.tscn")
 
 func _explore() -> void:
 	# Menu actions cannot mint cultivation or materials. Real opportunities are

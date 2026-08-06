@@ -60,6 +60,7 @@ func _run() -> void:
 	await _check_random_opportunity()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
 	await _check_village_routes()
+	await _check_yunlan_outskirts_scene()
 	await _check_female_east_walk_cycle()
 	await _check_water_palace_loop()
 	await _check_umbrella_weapon_skill_sets()
@@ -1433,6 +1434,41 @@ func _check_village_routes() -> void:
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
+
+func _check_yunlan_outskirts_scene() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var region_before: String = GameState.current_region_id
+	var log_before: int = GameState.player.opportunity_log.size()
+	var outskirts := preload("res://scenes/yunlan_outskirts.tscn").instantiate()
+	add_child(outskirts)
+	await get_tree().process_frame
+	_expect(GameState.current_region_id == "starter_village", "Yunlan Outskirts must remain the starting region rather than become a menu-only destination.")
+	_expect(outskirts.player.map_bounds.size.x >= 11000.0 and outskirts.player.map_bounds.size.y >= 7000.0, "Yunlan Outskirts still behaves like a small starter background instead of a full launch-region map.")
+	_expect(outskirts.village_gate != null and outskirts.mist_border_gate != null, "Yunlan Outskirts is missing its physical village and Mist Tide Border routes.")
+	_expect(outskirts.has_node("HUD/WorldMinimap"), "Yunlan Outskirts is missing its large-region orientation map.")
+	_expect(outskirts.has_node("EnvironmentDepthLayer"), "Yunlan Outskirts is missing its independent depth-layer environment props.")
+	var depth: RegionalEnvironmentDepthLayer = outskirts.get_node("EnvironmentDepthLayer")
+	_expect(depth.y_sort_enabled and depth.prop_count >= 17 and depth.foreground_prop_count >= 4, "Yunlan Outskirts depth layer did not place enough terrain-bound foreground and midground elements.")
+	var minimap: WorldMinimap = outskirts.get_node("HUD/WorldMinimap")
+	_expect(minimap.world_bounds.size.x >= 11000.0 and minimap.landmarks.size() >= 5, "Yunlan Outskirts minimap does not represent the new continuous regional layout.")
+	_expect(outskirts.chunk_streamer.loaded_chunk_count() >= 1, "Yunlan Outskirts did not load its authored South Gate terrain chunk.")
+	var terrain: Sprite2D = outskirts.get_node("SouthGateChunk")
+	_expect(terrain.texture.resource_path.ends_with("yunlan_outskirts_south_gate_fields_v01.png"), "Yunlan Outskirts must use its own Image 2 terrain chunk instead of reusing the small South Gate background.")
+	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", Vector2(3560, 770)).get("id", "") == "mist_stream_banks", "Yunlan stream herbs were not anchored inside the stream-bank ecology sector.")
+	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", Vector2(5900, 2050)).get("id", "") == "cloudfoot_wood", "Yunlan wandering herbalist was not anchored inside the cloudfoot woodland ecology sector.")
+	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", Vector2(9440, 1660)).get("id", "") == "old_caravan_road", "Yunlan road threat was not anchored to the old caravan road.")
+	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", outskirts.mist_border_gate.get_parent().position).get("id", "") == "old_caravan_road", "Mist Tide Border route must occupy the terminal old-caravan road rather than an arbitrary field.")
+	var profiles: Array[Dictionary] = outskirts._population_profiles()
+	_expect(profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "yunlan_bank_herb") and profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "yunlan_oldroad_bandit"), "Yunlan Outskirts is missing its terrain-specific resource and road-threat ecology profiles.")
+	outskirts.active_interaction = outskirts.echo_stone
+	outskirts._activate_contextual()
+	_expect(outskirts.echo_stone_observed and GameState.player.opportunity_log.size() == log_before + 1, "Yunlan Outskirts fixed highland landmark did not record a physical opportunity.")
+	outskirts.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.current_region_id = region_before
+	GameState.profile_changed.emit()
+
 func _check_water_palace_loop() -> void:
 	var runs_before: int = GameState.player.dungeon_runs.size()
 	var inventory_before: int = GameState.player.inventory.size()
@@ -2108,6 +2144,8 @@ func _check_world_menu_region_resume() -> void:
 	var main := main_script.new()
 	add_child(main)
 	await get_tree().process_frame
+	GameState.current_region_id = "starter_village"
+	_expect(main._playable_scene_for_current_region() == "res://scenes/yunlan_outskirts.tscn", "World menu did not resume the continuous Yunlan Outskirts starting region.")
 	GameState.current_region_id = "return_abyss_mist_port"
 	_expect(main._playable_scene_for_current_region() == "res://scenes/return_abyss_mist_port.tscn", "World menu did not resume Return Abyss Mist Port.")
 	GameState.current_region_id = "thunder_listening_cliff"

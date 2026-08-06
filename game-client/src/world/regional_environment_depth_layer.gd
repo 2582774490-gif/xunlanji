@@ -6,6 +6,7 @@ extends Node2D
 ## walking south brings the player in front, instead of treating a map as one poster.
 
 const MIST_PINES: Texture2D = preload("res://assets/art/maps/mist_tide_border/props/processed_alpha/mist_tide_border_mist_pines_v01_alpha.png")
+const JADE_PINE: Texture2D = preload("res://assets/art/maps/yunlan_south_gate/props/processed_alpha/yunlan_south_gate_jade_pine_v01_alpha.png")
 
 @export var region_style := "mist_border"
 
@@ -16,10 +17,56 @@ var foreground_prop_count := 0
 func _ready() -> void:
 	y_sort_enabled = true
 	match region_style:
+		"yunlan_outskirts":
+			_build_yunlan_outskirts_depth()
 		"mist_border":
 			_build_mist_border_depth()
 		"ancient_ridge":
 			_build_ancient_ridge_depth()
+
+
+func _build_yunlan_outskirts_depth() -> void:
+	# 林木只压在山径、溪岸与丘陵转折处，给大世界留下可望见的空地。
+	var placements: Array[Dictionary] = [
+		{"at": Vector2(980, 1050), "scale": 0.36, "flip": false},
+		{"at": Vector2(2880, 1120), "scale": 0.42, "flip": true},
+		{"at": Vector2(4700, 1780), "scale": 0.46, "flip": false},
+		{"at": Vector2(5600, 2400), "scale": 0.54, "flip": true},
+		{"at": Vector2(6800, 2060), "scale": 0.40, "flip": false},
+		{"at": Vector2(7960, 2620), "scale": 0.48, "flip": true},
+		{"at": Vector2(9700, 2160), "scale": 0.42, "flip": false},
+		{"at": Vector2(11140, 2620), "scale": 0.50, "flip": true},
+		{"at": Vector2(1280, 3600), "scale": 0.50, "flip": false},
+		{"at": Vector2(3120, 4140), "scale": 0.56, "flip": true},
+		{"at": Vector2(5900, 4560), "scale": 0.48, "flip": false},
+		{"at": Vector2(8740, 4920), "scale": 0.58, "flip": true},
+		{"at": Vector2(10800, 4480), "scale": 0.52, "flip": false},
+	]
+	for index in placements.size():
+		var placement := placements[index]
+		_add_jade_pine(placement.at, float(placement.scale), bool(placement.flip), index % 4 == 0)
+	for point in [Vector2(3640, 720), Vector2(6120, 2200), Vector2(7420, 3720), Vector2(10040, 3660)]:
+		_add_mist_bank(point)
+
+
+func _add_jade_pine(foot_position: Vector2, scale_amount: float, flipped: bool, foreground: bool) -> void:
+	var root := Node2D.new()
+	root.name = "DepthJadePine_%02d" % prop_count
+	root.position = foot_position
+	root.y_sort_enabled = true
+	add_child(root)
+	var sprite := Sprite2D.new()
+	sprite.texture = JADE_PINE
+	sprite.centered = false
+	sprite.offset = Vector2(-627.0, -1254.0)
+	sprite.scale = Vector2.ONE * scale_amount
+	sprite.flip_h = flipped
+	sprite.modulate = Color(0.82, 0.96, 0.80) if foreground else Color(0.63, 0.82, 0.68)
+	root.add_child(sprite)
+	_add_foot_shadow(root, 62.0 * scale_amount)
+	prop_count += 1
+	if foreground:
+		foreground_prop_count += 1
 
 
 func _build_mist_border_depth() -> void:
@@ -122,27 +169,27 @@ func _add_stone_spire(foot_position: Vector2, size_amount: float, kind: String, 
 	add_child(root)
 	var colors := _spire_colors(kind)
 	var shadow := Polygon2D.new()
-	shadow.polygon = PackedVector2Array([Vector2(-62, -4), Vector2(-14, -22), Vector2(98, -2), Vector2(26, 13)]) * size_amount
+	shadow.polygon = _scaled_points([Vector2(-62, -4), Vector2(-14, -22), Vector2(98, -2), Vector2(26, 13)], size_amount)
 	shadow.color = Color(0.03, 0.025, 0.025, 0.48)
 	root.add_child(shadow)
 	var rock := Polygon2D.new()
-	rock.polygon = PackedVector2Array([
+	rock.polygon = _scaled_points([
 		Vector2(-52, -8), Vector2(-42, -118), Vector2(-10, -204), Vector2(24, -136),
 		Vector2(54, -82), Vector2(44, -8),
-	]) * size_amount
+	], size_amount)
 	rock.color = colors.base
 	root.add_child(rock)
 	var edge := Polygon2D.new()
-	edge.polygon = PackedVector2Array([
+	edge.polygon = _scaled_points([
 		Vector2(-42, -118), Vector2(-10, -204), Vector2(3, -128), Vector2(-14, -42),
-	]) * size_amount
+	], size_amount)
 	edge.color = colors.rim
 	root.add_child(edge)
 	if foreground:
 		var banner := Polygon2D.new()
-		banner.polygon = PackedVector2Array([
+		banner.polygon = _scaled_points([
 			Vector2(3, -128), Vector2(58, -110), Vector2(12, -82), Vector2(2, -74),
-		]) * size_amount
+		], size_amount)
 		banner.color = colors.banner
 		root.add_child(banner)
 	prop_count += 1
@@ -157,6 +204,13 @@ func _add_foot_shadow(root: Node2D, radius: float) -> void:
 	])
 	shadow.color = Color(0.02, 0.05, 0.06, 0.42)
 	root.add_child(shadow)
+
+
+func _scaled_points(points: Array[Vector2], amount: float) -> PackedVector2Array:
+	var scaled := PackedVector2Array()
+	for point in points:
+		scaled.append(point * amount)
+	return scaled
 
 
 func _spire_colors(kind: String) -> Dictionary:

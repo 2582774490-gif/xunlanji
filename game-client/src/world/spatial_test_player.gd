@@ -177,8 +177,10 @@ func _configure_equipped_weapon_visual() -> void:
 	var runtime_profile := GameCatalog.weapon_runtime_profile_for_item(GameState.player.equipped_weapon)
 	var motion := str(runtime_profile.get("motion", ""))
 	var asset_path := str(runtime_profile.get("asset", ""))
+	if motion.is_empty() or asset_path.is_empty():
+		return
 	var weapon_texture := load(asset_path) as Texture2D
-	if motion.is_empty() or weapon_texture == null:
+	if weapon_texture == null:
 		return
 	var pivot: WeaponMotionController = WeaponMotionScript.new()
 	if motion == "defense_umbrella":
