@@ -38,6 +38,21 @@ const FIELD_CLUES := {
 	},
 }
 
+const OPENING_PAGES := [
+	{
+		"title": "云岚外野 · 初见",
+		"body": "云岚村外，山风贴着雾溪而过。\n\n此世所谓“岚”，并非单一灵气：它是山势、水汽、地脉与生灵吐纳交汇后，能被修士感知、引导与炼化的余息。",
+	},
+	{
+		"title": "修行不只有一条路",
+		"body": "你可以先沿溪采药，也可以试不同武器、入宗门、做散修、炼丹、交易，或只是向远处走。\n\n灵根、体质和功法会改变适配与效率，却不会封死任何修行路径。",
+	},
+	{
+		"title": "踏入外野",
+		"body": "方向键或左摇杆行走；靠近地标按 E 或“交”互动。右侧五个技能分别对应普攻、武器主技、云步、护体与润灵。\n\n雾溪水府在云麓疏林深处，炼气一层可入；但它不是你的任务终点。去哪里，由你自己决定。",
+	},
+]
+
 @onready var player: CharacterBody2D = $Player
 @onready var village_gate: Area2D = $YunlanVillageGate/Interaction
 @onready var mist_border_gate: Area2D = $MistBorderPass/Interaction
@@ -53,12 +68,19 @@ const FIELD_CLUES := {
 @onready var prompt: Label = $HUD/Prompt
 @onready var status: Label = $HUD/StatusPanel/Status
 @onready var touch_controls: Node = $HUD/TouchControls
+@onready var opening_overlay: Control = $HUD/OpeningLore
+@onready var opening_title: Label = $HUD/OpeningLore/Card/Title
+@onready var opening_body: Label = $HUD/OpeningLore/Card/Body
+@onready var opening_progress: Label = $HUD/OpeningLore/Card/Progress
+@onready var opening_continue: Button = $HUD/OpeningLore/Card/Continue
 
 var active_interaction: Area2D
 var echo_stone_observed := false
 var chance_trace_resolved := false
 var chosen_chance_trace: Dictionary = {}
 var current_sector_id := ""
+var opening_active := false
+var opening_page_index := 0
 
 
 func _ready() -> void:
@@ -84,6 +106,7 @@ func _ready() -> void:
 	regional_population.populate(_population_seed(), _population_profiles())
 	world_encounter.configure(player, regional_population, status, $HUD/EncounterTarget, $HUD/EncounterPlayer)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
+	_setup_opening_lore()
 
 
 func _setup_environment_depth() -> void:
@@ -115,6 +138,11 @@ func _setup_world_minimap() -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
+		return
+	if opening_active:
+		if event.keycode == KEY_SPACE or event.keycode == KEY_ENTER or event.keycode == KEY_E or event.keycode == KEY_ESCAPE:
+			_advance_opening_lore()
+			get_viewport().set_input_as_handled()
 		return
 	if event.keycode >= KEY_1 and event.keycode <= KEY_5:
 		world_encounter.use_action(["attack", "ningxi", "cloud_step", "guard", "nourish"][event.keycode - KEY_1])
@@ -227,6 +255,41 @@ func _resolve_chance_trace() -> void:
 	]
 	$YunlanChanceTrace.visible = false
 	_close_interaction()
+
+
+func _setup_opening_lore() -> void:
+	opening_continue.pressed.connect(_advance_opening_lore)
+	if GameState.has_seen_opening_lore():
+		opening_overlay.hide()
+		return
+	opening_active = true
+	opening_overlay.show()
+	player.set_physics_process(false)
+	player.set_process_unhandled_key_input(false)
+	_render_opening_page()
+
+
+func _advance_opening_lore() -> void:
+	if not opening_active:
+		return
+	opening_page_index += 1
+	if opening_page_index < OPENING_PAGES.size():
+		_render_opening_page()
+		return
+	opening_active = false
+	opening_overlay.hide()
+	player.set_physics_process(true)
+	player.set_process_unhandled_key_input(true)
+	GameState.complete_opening_lore()
+	status.text = "你踏出云岚村南门。外野没有强制任务线：沿路、溪、林与高地探索，观察地貌与修行机会。"
+
+
+func _render_opening_page() -> void:
+	var page: Dictionary = OPENING_PAGES[opening_page_index]
+	opening_title.text = str(page.title)
+	opening_body.text = str(page.body)
+	opening_progress.text = "%d / %d" % [opening_page_index + 1, OPENING_PAGES.size()]
+	opening_continue.text = "踏入外野" if opening_page_index == OPENING_PAGES.size() - 1 else "继续"
 
 
 func _read_field_clue(clue_id: String) -> void:

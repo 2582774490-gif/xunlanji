@@ -1448,6 +1448,11 @@ func _check_yunlan_outskirts_scene() -> void:
 	add_child(outskirts)
 	await get_tree().process_frame
 	_expect(GameState.current_region_id == "starter_village", "Yunlan Outskirts must remain the starting region rather than become a menu-only destination.")
+	_expect(outskirts.opening_active and outskirts.get_node("HUD/OpeningLore").visible, "First Yunlan entry must show the optional three-page world opening instead of dropping the player into unexplained terrain.")
+	outskirts._advance_opening_lore()
+	outskirts._advance_opening_lore()
+	outskirts._advance_opening_lore()
+	_expect(not outskirts.opening_active and GameState.has_seen_opening_lore(), "World opening should close after its final page and persist as a one-time lore view.")
 	_expect(outskirts.player.map_bounds.size.x >= 11000.0 and outskirts.player.map_bounds.size.y >= 7000.0, "Yunlan Outskirts still behaves like a small starter background instead of a full launch-region map.")
 	_expect(outskirts.village_gate != null and outskirts.mist_border_gate != null and outskirts.water_palace_gate != null, "Yunlan Outskirts is missing its physical village, initial dungeon, or Mist Tide Border route.")
 	_expect(outskirts.stream_stair_cairn != null and outskirts.caravan_milestone != null and outskirts.wind_etched_marker != null, "Yunlan Outskirts is missing its physical, non-forced field-clue props.")
@@ -1485,6 +1490,12 @@ func _check_yunlan_outskirts_scene() -> void:
 	outskirts._activate_contextual()
 	_expect(GameState.player.field_clues.size() == clues_before + 1 and GameState.player.opportunity_log.size() == log_before + 3, "Rereading a field clue must not duplicate progress or rewards.")
 	outskirts.queue_free()
+	await get_tree().process_frame
+	var revisited_outskirts := preload("res://scenes/yunlan_outskirts.tscn").instantiate()
+	add_child(revisited_outskirts)
+	await get_tree().process_frame
+	_expect(not revisited_outskirts.opening_active and not revisited_outskirts.get_node("HUD/OpeningLore").visible, "A completed world opening must not interrupt later visits to Yunlan Outskirts.")
+	revisited_outskirts.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.current_region_id = region_before

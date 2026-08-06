@@ -67,6 +67,7 @@ var player := {
 	"sect_contribution": 0,
 	"sect_wanted_by": [],
 	"world_guidance": {"steps": [], "skipped": false},
+	"opening_lore_seen": false,
 	"field_clues": [],
 	"ecology_cooldowns": {},
 	"world_positions": {},
@@ -526,6 +527,20 @@ func add_spirit_stones(amount: int) -> void:
 func record_opportunity(entry: Dictionary) -> void:
 	player.opportunity_log.append(entry)
 	profile_changed.emit()
+
+
+func complete_opening_lore() -> bool:
+	_normalize_player_schema()
+	if bool(player.opening_lore_seen):
+		return false
+	player.opening_lore_seen = true
+	profile_changed.emit()
+	return true
+
+
+func has_seen_opening_lore() -> bool:
+	_normalize_player_schema()
+	return bool(player.opening_lore_seen)
 
 
 func record_field_clue(clue_id: String) -> bool:
@@ -1130,6 +1145,10 @@ func _normalize_player_schema() -> void:
 		player.world_guidance = guidance
 	if not player.has("field_clues") or not player.field_clues is Array:
 		player.field_clues = []
+	if not player.has("opening_lore_seen"):
+		player.opening_lore_seen = false
+	else:
+		player.opening_lore_seen = bool(player.opening_lore_seen)
 	if not player.has("ecology_cooldowns") or not player.ecology_cooldowns is Dictionary:
 		player.ecology_cooldowns = {}
 	if not player.has("world_positions") or not player.world_positions is Dictionary:
