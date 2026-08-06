@@ -43,6 +43,7 @@ func _ready() -> void:
 		{"id": "waterway_ore_flats", "node": $WaterwayOreFlatsChunk, "bounds": Rect2(3072, 0, 3072, 2048)},
 		{"id": "herb_wetland", "node": $HerbWetlandChunk, "bounds": Rect2(6144, 0, 3072, 2048)},
 		{"id": "south_highlands", "node": $SouthHighlandsChunk, "bounds": Rect2(0, 2048, 3072, 2048)},
+		{"id": "tideward_hills", "node": $TidewardHillsChunk, "bounds": Rect2(6144, 4096, 3072, 2048)},
 	])
 	status.text = "雾潮边境：这是第二个大区的首个空间切片。地表、残关与雾木均为独立层；边境探子可提供筑基区域的线索。"
 	return_interaction.focused.connect(_focus_interaction)

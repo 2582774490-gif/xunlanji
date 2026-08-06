@@ -1485,6 +1485,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.chunk_streamer.loaded_chunk_count() >= 1, "Mist Tide Border did not load its nearby high-detail terrain chunk.")
 	_expect(border.has_node("HerbWetlandChunk"), "Mist Tide Border is missing the continuous herb wetland terrain chunk.")
 	_expect(border.has_node("SouthHighlandsChunk"), "Mist Tide Border is missing its authored southern-highlands terrain chunk.")
+	_expect(border.has_node("TidewardHillsChunk"), "Mist Tide Border is missing its authored southeast tideward-hills terrain chunk.")
 	var ecology_profiles: Array[Dictionary] = border._population_profiles()
 	_expect(ecology_profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "wetland_mist_herb"), "Mist Tide Border is missing its wetland-bound herb ecology profile.")
 	_expect(ecology_profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "highland_mist_stonebud"), "Mist Tide Border is missing its low-frequency southern-highland ecology profile.")
@@ -1497,6 +1498,9 @@ func _check_mist_border_scene() -> void:
 	border.player.position = Vector2(1500, 3050)
 	await get_tree().process_frame
 	_expect(border.get_node("SouthHighlandsChunk").visible, "Mist Tide Border did not stream its southern highlands when the player entered that large-world sector.")
+	border.player.position = Vector2(7300, 5300)
+	await get_tree().process_frame
+	_expect(border.get_node("TidewardHillsChunk").visible, "Mist Tide Border did not stream its southeast tideward hills when the player entered that large-world sector.")
 	border.player.position = border_player_start
 	border.player.position = Vector2(11200, 7200)
 	await get_tree().process_frame

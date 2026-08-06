@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://src/world/mist_tide_border.gd" id="1_scene"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/terrain/mist_tide_border_ground_v01.png" id="2_ground"]
@@ -20,6 +20,7 @@
 [ext_resource type="Script" path="res://src/world/world_encounter_controller.gd" id="18_encounter"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/terrain/mist_tide_herb_wetland_v01.png" id="19_wetland"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/terrain/mist_tide_south_highlands_v01.png" id="20_south_highlands"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/terrain/mist_tide_tideward_hills_v01.png" id="21_tideward_hills"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -87,6 +88,13 @@ z_index = -10
 [node name="SouthHighlandsChunk" type="Sprite2D" parent="."]
 position = Vector2(0, 2048)
 texture = ExtResource("20_south_highlands")
+scale = Vector2(2, 2)
+centered = false
+z_index = -10
+
+[node name="TidewardHillsChunk" type="Sprite2D" parent="."]
+position = Vector2(6144, 4096)
+texture = ExtResource("21_tideward_hills")
 scale = Vector2(2, 2)
 centered = false
 z_index = -10
