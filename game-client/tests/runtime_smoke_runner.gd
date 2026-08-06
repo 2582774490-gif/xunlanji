@@ -1490,6 +1490,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.ancient_ridge_gate_interaction != null, "Mist Tide Border is missing the Yuan Infant Ancient Ridge entrance.")
 	_expect(border.player.map_bounds.size.x >= 11000.0, "Mist Tide Border still behaves like a single small background instead of a large region.")
 	_expect(border.player.body.sprite_frames.get_frame_count("walk_east") == 6, "Male player template did not load its approved six-frame eastward walking cycle.")
+	_expect(border.player.body.sprite_frames.get_frame_count("walk_west") == 6, "Male player template did not load its approved six-frame westward walking cycle.")
 	_expect(border.has_node("HUD/WorldMinimap"), "Mist Tide Border is missing its regional orientation map.")
 	_expect(border.has_node("EnvironmentDepthLayer"), "Mist Tide Border is missing its layered environment depth plane.")
 	var border_depth: RegionalEnvironmentDepthLayer = border.get_node("EnvironmentDepthLayer")
