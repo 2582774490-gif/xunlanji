@@ -155,6 +155,8 @@ func _check_costume_wardrobe_rules() -> void:
 	_expect(south_walk_frames.size() == 6 and south_walk_frames.all(func(frame_path: Variant) -> bool: return ResourceLoader.exists(str(frame_path))), "Approved south walk must retain six project-local animation frames.")
 	var south_west_walk_frames: Array = costume.get("walk_south_west_frames", [])
 	_expect(south_west_walk_frames.size() == 6 and south_west_walk_frames.all(func(frame_path: Variant) -> bool: return ResourceLoader.exists(str(frame_path))), "Approved south-west walk must retain six project-local animation frames.")
+	var west_walk_frames: Array = costume.get("walk_west_frames", [])
+	_expect(west_walk_frames.size() == 6 and west_walk_frames.all(func(frame_path: Variant) -> bool: return ResourceLoader.exists(str(frame_path))), "Approved west walk must retain six project-local animation frames.")
 	GameState.player.owned_costumes = ["liulan_wayfarer"]
 	GameState.player.equipped_costume = ""
 	var stats_before: Dictionary = GameState.derived_stats().duplicate(true)
