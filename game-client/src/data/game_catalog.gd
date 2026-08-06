@@ -270,6 +270,7 @@ const COSTUME_PROFILES := {
 		"description": "云白、青碧与银纹交叠的游修外袍，短披与束腕让长途探索时仍保有清晰轮廓。",
 		"concept_asset": "res://assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png",
 		"idle_south_asset": "res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_idle_south_v01_alpha.png",
+		"idle_south_west_asset": "res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_idle_south_west_v01_alpha.png",
 		"runtime_state": "south_idle_ready",
 		"animation_requirement": "需补齐男体八方向待机、八方向行走、南向攻击及武器遮挡测试。",
 	},
