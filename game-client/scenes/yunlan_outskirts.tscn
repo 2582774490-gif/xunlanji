@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_outskirts.gd" id="1_scene"]
 [ext_resource type="Script" path="res://src/world/large_region_backdrop.gd" id="2_backdrop"]
@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://src/world/world_encounter_controller.gd" id="12_encounter"]
 [ext_resource type="Script" path="res://src/ui/virtual_touch_controls.gd" id="13_touch"]
 [ext_resource type="Script" path="res://src/world/yunlan_outskirts_chunk_art.gd" id="15_chunk_art"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_mist_stream_banks_v01.png" id="16_mist_stream"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -50,6 +51,12 @@ position = Vector2(3072, 0)
 z_index = -9
 script = ExtResource("15_chunk_art")
 chunk_kind = "mist_stream_banks"
+
+[node name="TerrainArt" type="Sprite2D" parent="MistStreamBanksChunk"]
+texture = ExtResource("16_mist_stream")
+scale = Vector2(2, 2)
+centered = false
+z_index = 1
 
 [node name="CloudfootWoodChunk" type="Node2D" parent="."]
 position = Vector2(4608, 768)
