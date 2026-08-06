@@ -654,7 +654,7 @@ func costume_runtime_status_text(costume_id: String) -> String:
 	if str(profile.get("runtime_state", "")) == "ready":
 		return "已接入地图角色层"
 	if str(profile.get("runtime_state", "")) == "idle_8dir_ready":
-		return "八方向待机透明源图已通过；行走和攻击帧仍待制作，当前不可接入地图角色层。"
+		return "八方向待机、正南六帧行走透明源图已通过；其余方向行走和攻击帧仍待制作，当前不可接入地图角色层。"
 	if str(profile.get("runtime_state", "")) == "south_idle_ready":
 		return "正南、西南、正西、西北、正北、东北、正东待机透明源图已通过；其余方向、行走和攻击帧仍待制作。"
 	return "概念图已入库；动作帧待制作，当前不会以静态立绘覆盖地图角色。"
