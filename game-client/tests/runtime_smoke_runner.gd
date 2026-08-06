@@ -1620,6 +1620,8 @@ func _check_yunlan_outskirts_scene() -> void:
 	outskirts.player.position = Vector2(5900, 2050)
 	await get_tree().process_frame
 	_expect(outskirts.get_node("CloudfootWoodChunk").visible, "Yunlan Outskirts did not stream the Cloudfoot woodland detail plane at the Water Palace approach.")
+	var cloudfoot_terrain: Sprite2D = outskirts.get_node("CloudfootWoodChunk/TerrainArt")
+	_expect(cloudfoot_terrain.texture.resource_path.ends_with("yunlan_outskirts_cloudfoot_wood_v01.png"), "Yunlan's Cloudfoot woodland detail plane must use its own playable Image 2 terrain painting.")
 	outskirts.player.position = Vector2(9440, 1660)
 	await get_tree().process_frame
 	_expect(outskirts.get_node("OldCaravanRoadChunk").visible, "Yunlan Outskirts did not stream the old-caravan-road detail plane at the road ecology sector.")

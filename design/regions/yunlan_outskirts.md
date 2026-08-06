@@ -61,3 +61,5 @@
 当前的运行时细节层是为了验证大世界构图、分区路网、前后景和流送边界而绘制的原型层；后续应由对应的 Image 2 地形分层资源逐块替换，坐标、玩法入口和生态锚点不变。
 
 雾溪浅岸的首张可运行地形画布已接入：`game-client/assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_mist_stream_banks_v01.png`。它覆盖同一 `3072 × 2048` 流送坐标；水系药材、石函机缘和水灵生态仍由既有的地形锚点决定，而非由画面随机摆放。
+
+云麓疏林的第二张地形画布已接入：`game-client/assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_cloudfoot_wood_v01.png`。水府入口、采药散修与引水堆石仍处于原有云麓坐标，画面不承担碰撞或任务判定，因而可持续替换、扩展并维持世界逻辑。
