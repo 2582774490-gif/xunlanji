@@ -366,6 +366,7 @@ const COSTUME_PROFILES := {
 		"idle_south_candidate_asset": "res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_idle_south_v01_alpha.png",
 		"idle_south_west_candidate_asset": "res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_idle_south_west_v01_alpha.png",
 		"idle_west_candidate_asset": "res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_idle_west_v01_alpha.png",
+		"idle_north_candidate_asset": "res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_idle_north_v01_alpha.png",
 		"walk_south_candidate_frames": [
 			"res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_walk_south_v01_f1_alpha.png",
 			"res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_walk_south_v01_f2_alpha.png",
@@ -383,7 +384,7 @@ const COSTUME_PROFILES := {
 			"res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_walk_south_west_v01_f6_alpha.png",
 		],
 		"runtime_state": "concept_only",
-		"animation_requirement": "需补齐女体八方向待机、八方向行走、南向攻击及发梢与广袖遮挡测试。",
+		"animation_requirement": "已完成女体南、南西、西、北向待机候选，南与南西各六帧行走候选；仍需补齐其余方向行走、八方向待机、独立武器攻击及发梢与广袖遮挡测试。",
 	},
 }
 
