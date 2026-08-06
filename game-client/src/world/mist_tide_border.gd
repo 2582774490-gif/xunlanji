@@ -18,6 +18,7 @@ const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_en
 @onready var mist_port_gate_interaction: Area2D = $MistPortGate/Interaction
 @onready var abysswatch_gate_interaction: Area2D = $AbysswatchGate/Interaction
 @onready var ancient_ridge_gate_interaction: Area2D = $AncientRidgeGate/Interaction
+@onready var tideward_watchstone_interaction: Area2D = $TidewardWatchstone/Interaction
 @onready var regional_population = $RegionalPopulation
 @onready var chunk_streamer = $ChunkStreamer
 @onready var world_encounter = $WorldCombat
@@ -28,6 +29,7 @@ const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_en
 var active_interaction: Area2D
 var scout_dialogue_stage := 0
 var crystal_collected := false
+var tideward_watchstone_observed := false
 var current_sector_id := ""
 
 func _ready() -> void:
@@ -70,6 +72,8 @@ func _ready() -> void:
 	abysswatch_gate_interaction.unfocused.connect(_unfocus_interaction)
 	ancient_ridge_gate_interaction.focused.connect(_focus_interaction)
 	ancient_ridge_gate_interaction.unfocused.connect(_unfocus_interaction)
+	tideward_watchstone_interaction.focused.connect(_focus_interaction)
+	tideward_watchstone_interaction.unfocused.connect(_unfocus_interaction)
 	regional_population.focused.connect(_focus_interaction)
 	regional_population.unfocused.connect(_unfocus_interaction)
 	regional_population.population_resolved.connect(_on_population_resolved)
@@ -88,6 +92,7 @@ func _setup_world_minimap() -> void:
 		{"position": Vector2(2260, 560), "kind": "water"},
 		{"position": Vector2(2860, 650), "kind": "gate"},
 		{"position": Vector2(6980, 1370), "kind": "resource"},
+		{"position": Vector2(7900, 5100), "kind": "relic"},
 		{"position": Vector2(2640, 1370), "kind": "gate"},
 		{"position": Vector2(2940, 900), "kind": "gate"},
 	], [
@@ -170,6 +175,8 @@ func _activate_contextual() -> void:
 		_try_enter_abysswatch_terrace()
 	elif active_interaction == ancient_ridge_gate_interaction:
 		_try_enter_ancient_ridge()
+	elif active_interaction == tideward_watchstone_interaction and not tideward_watchstone_observed:
+		_observe_tideward_watchstone()
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()
@@ -284,6 +291,20 @@ func _collect_crystal() -> void:
 	GameState.add_item("雾潮晶簇")
 	GameState.gain_cultivation(8)
 	status.text = "获得雾潮晶簇：这是边境生态资源，可用于后续炼器、阵法和筑基区域的雾潮探索。修为 +8。"
+	active_interaction = null
+	prompt.text = ""
+	touch_controls.set_interaction_available(false)
+
+
+func _observe_tideward_watchstone() -> void:
+	tideward_watchstone_observed = true
+	$TidewardWatchstone/Interaction.set_deferred("monitoring", false)
+	GameState.add_item("潮痕石片")
+	GameState.gain_cultivation(6)
+	GameState.record_opportunity({
+		"region": "mist_border", "name": "断潮观石", "kind": "highland_landmark", "item": "潮痕石片",
+	})
+	status.text = "断潮观石残留着观海修士的潮汐刻度。你取下可用于炼器辨潮的潮痕石片，修为 +6。这里不会刷成营地：丘陵只留下这一处可辨认的远望地标。"
 	active_interaction = null
 	prompt.text = ""
 	touch_controls.set_interaction_available(false)

@@ -1542,6 +1542,8 @@ func _check_mist_border_scene() -> void:
 	_expect(border.has_node("HerbWetlandChunk"), "Mist Tide Border is missing the continuous herb wetland terrain chunk.")
 	_expect(border.has_node("SouthHighlandsChunk"), "Mist Tide Border is missing its authored southern-highlands terrain chunk.")
 	_expect(border.has_node("TidewardHillsChunk"), "Mist Tide Border is missing its authored southeast tideward-hills terrain chunk.")
+	_expect(border.tideward_watchstone_interaction != null, "Mist Tide Border is missing the tideward-hills exploration landmark.")
+	_expect(RegionalSectorCatalog.sector_at("mist_border", Vector2(7900, 5100)).get("id", "") == "tideward_hills", "Tideward watchstone must remain inside its exposed highland sector.")
 	var ecology_profiles: Array[Dictionary] = border._population_profiles()
 	_expect(ecology_profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "wetland_mist_herb"), "Mist Tide Border is missing its wetland-bound herb ecology profile.")
 	_expect(ecology_profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "highland_mist_stonebud"), "Mist Tide Border is missing its low-frequency southern-highland ecology profile.")
@@ -1606,6 +1608,11 @@ func _check_mist_border_scene() -> void:
 	border._activate_contextual()
 	_expect(border.crystal_collected and not border.get_node("MistTideCrystal").visible, "Border crystal gathering did not remove the resource node.")
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Border crystal gathering did not add its material to inventory.")
+	var opportunity_before_watchstone: int = GameState.player.opportunity_log.size()
+	border.active_interaction = border.tideward_watchstone_interaction
+	border._activate_contextual()
+	_expect(border.tideward_watchstone_observed and GameState.player.inventory.has("潮痕石片"), "Tideward watchstone did not grant its exploration material.")
+	_expect(GameState.player.opportunity_log.size() == opportunity_before_watchstone + 1, "Tideward watchstone did not record its fixed highland discovery.")
 	border.queue_free()
 	await get_tree().process_frame
 
