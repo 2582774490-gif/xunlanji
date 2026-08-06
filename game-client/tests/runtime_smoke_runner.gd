@@ -1493,6 +1493,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.player.body.sprite_frames.get_frame_count("walk_east") == 6, "Male player template did not load its approved six-frame eastward walking cycle.")
 	_expect(border.player.body.sprite_frames.get_frame_count("walk_west") == 6, "Male player template did not load its approved six-frame westward walking cycle.")
 	_expect(border.player.body.sprite_frames.get_frame_count("walk_north") == 6, "Male player template did not load its approved six-frame northward walking cycle.")
+	_expect(border.player.body.sprite_frames.get_frame_count("walk_north_east") == 6, "Male player template did not load its approved six-frame north-east walking cycle.")
 	_expect(border.has_node("HUD/WorldMinimap"), "Mist Tide Border is missing its regional orientation map.")
 	_expect(border.has_node("EnvironmentDepthLayer"), "Mist Tide Border is missing its layered environment depth plane.")
 	var border_depth: RegionalEnvironmentDepthLayer = border.get_node("EnvironmentDepthLayer")
