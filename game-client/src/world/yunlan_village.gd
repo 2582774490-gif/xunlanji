@@ -53,12 +53,15 @@ func _on_touch_action_requested(action_id: String) -> void:
 func _activate_contextual() -> void:
 	match active_interaction_id:
 		"merchant":
+			GameState.meet_npc("洛清")
 			GameState.enter_screen(GameState.Screen.MARKET)
 			get_tree().change_scene_to_file("res://scenes/main.tscn")
 		"alchemy":
+			GameState.meet_npc("陆青禾")
 			GameState.enter_screen(GameState.Screen.ALCHEMY)
 			get_tree().change_scene_to_file("res://scenes/main.tscn")
 		"sect":
+			GameState.meet_npc("宁远")
 			GameState.complete_world_guidance_step("path_choice")
 			GameState.enter_screen(GameState.Screen.SECT)
 			GameState.notify("宁远：可自由选择宗门，但门规、贡献与离宗后果也会随选择而来。")
@@ -72,6 +75,7 @@ func _activate_contextual() -> void:
 			GameState.selected_dungeon_id = "mist_stream_palace"
 			get_tree().change_scene_to_file("res://scenes/mist_stream_water_palace.tscn")
 		"weapon_rack":
+			GameState.meet_npc("祝铁山")
 			var granted := GameState.claim_starter_weapon_trials(STARTER_TRIAL_WEAPONS)
 			if not granted.is_empty():
 				prompt.text = "已领取：%s\n按 Q 切换武器；可前往雾溪水府或山门论剑试用。" % "、".join(granted)

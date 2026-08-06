@@ -373,8 +373,12 @@ func _show_market() -> void:
 	_text("当前金钱：%d｜手续费：5%%（最低 1 金）。当前为本地模拟；真实玩家交易将由服务器校验所有权、上架、成交和反作弊。" % GameState.player.gold, 17, Color("f2d79c"))
 	for index in GameState.local_market_listings.size():
 		var listing: Dictionary = GameState.local_market_listings[index]
-		_text("%s｜%s｜价格 %d 金" % [listing.name, listing.type, listing.price], 18)
-		_buttons([["购买", func(): _buy_market_listing(index), 130, GameState.player.gold < listing.price]])
+		var purchase_price := GameState.market_purchase_price(index)
+		var price_text := "价格 %d 金" % purchase_price
+		if purchase_price != int(listing.price):
+			price_text += "（关系优惠，标价 %d）" % int(listing.price)
+		_text("%s｜%s｜%s" % [listing.name, listing.type, price_text], 18)
+		_buttons([["购买", func(): _buy_market_listing(index), 130, GameState.player.gold < purchase_price]])
 		if str(listing.seller) == "本地修士":
 			_buttons([["撤回上架", func(): _cancel_market_listing(index), 130]])
 	_buttons([["上架行囊首件物品（20 金）", _list_first_inventory_item, 280]])
@@ -512,7 +516,8 @@ func _add_npc_codex_card(npc: Dictionary, profile: Dictionary) -> void:
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	card.add_child(portrait)
 	var details := Label.new()
-	details.text = "《%s》｜%s\n所在地：%s｜势力：%s\n关系：%s\n交易：%s\n线索：%s" % [str(npc.name), str(npc.role), str(npc.place), str(profile.get("faction", "无")), str(profile.get("relationship", "初识")), str(profile.get("service", "暂无")), str(profile.get("lead", "暂无"))]
+	var rapport := GameState.npc_rapport(str(npc.name))
+	details.text = "《%s》｜%s\n所在地：%s｜势力：%s\n关系：%s（好感 %d）\n交易：%s\n线索：%s" % [str(npc.name), str(npc.role), str(npc.place), str(profile.get("faction", "无")), GameState.npc_relationship_title(str(npc.name)), rapport, str(profile.get("service", "暂无")), str(profile.get("lead", "暂无"))]
 	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	details.add_theme_font_size_override("font_size", 16)

@@ -66,6 +66,9 @@ var player := {
 	"sect_rank": 0,
 	"sect_contribution": 0,
 	"sect_wanted_by": [],
+	"npc_relations": {},
+	"npc_met": [],
+	"npc_trade_records": [],
 	"world_guidance": {"steps": [], "skipped": false},
 	"opening_lore_seen": false,
 	"field_clues": [],
@@ -150,6 +153,17 @@ func load_local_profile() -> bool:
 func market_fee(price: int) -> int:
 	return max(1, ceili(float(price) * MARKET_FEE_RATE))
 
+
+func market_purchase_price(index: int) -> int:
+	if index < 0 or index >= local_market_listings.size():
+		return 0
+	var listing: Dictionary = local_market_listings[index]
+	var price := int(listing.get("price", 0))
+	var seller := str(listing.get("seller", ""))
+	if seller.is_empty() or seller == "本地修士":
+		return price
+	return maxi(1, ceili(float(price) * (1.0 - npc_market_discount(seller))))
+
 func list_item_for_market(item_name: String, price: int) -> bool:
 	if price < MARKET_MIN_PRICE or price > MARKET_MAX_PRICE:
 		notify("上架价格超出雾港保护范围。")
@@ -182,7 +196,7 @@ func buy_market_listing(index: int) -> bool:
 	if index < 0 or index >= local_market_listings.size():
 		return false
 	var listing: Dictionary = local_market_listings[index]
-	var price := int(listing.price)
+	var price := market_purchase_price(index)
 	if player.gold < price:
 		notify("金钱不足。")
 		return false
@@ -193,6 +207,7 @@ func buy_market_listing(index: int) -> bool:
 		states[str(listing.name)] = (listing.equipment_state as Dictionary).duplicate(true)
 		player.equipment_upgrades = states
 	local_market_listings.remove_at(index)
+	_record_npc_trade(str(listing.get("seller", "")), str(listing.get("id", "")))
 	notify("成交：获得 %s，支付 %d 金钱。" % [listing.name, price])
 	profile_changed.emit()
 	return true
@@ -529,6 +544,64 @@ func record_opportunity(entry: Dictionary) -> void:
 	profile_changed.emit()
 
 
+func meet_npc(npc_name: String) -> bool:
+	if npc_name.is_empty():
+		return false
+	_normalize_player_schema()
+	var met: Array = player.npc_met
+	if met.has(npc_name):
+		return false
+	met.append(npc_name)
+	player.npc_met = met
+	change_npc_rapport(npc_name, 3, "初识")
+	return true
+
+
+func npc_rapport(npc_name: String) -> int:
+	_normalize_player_schema()
+	return clampi(int((player.npc_relations as Dictionary).get(npc_name, 0)), -100, 100)
+
+
+func npc_relationship_title(npc_name: String) -> String:
+	var rapport := npc_rapport(npc_name)
+	if rapport >= 45:
+		return "信任"
+	if rapport >= 20:
+		return "熟识"
+	if rapport <= -30:
+		return "冷淡"
+	return "初识"
+
+
+func change_npc_rapport(npc_name: String, amount: int, _source := "") -> bool:
+	if npc_name.is_empty() or amount == 0:
+		return false
+	_normalize_player_schema()
+	var relations: Dictionary = player.npc_relations
+	relations[npc_name] = clampi(int(relations.get(npc_name, 0)) + amount, -100, 100)
+	player.npc_relations = relations
+	profile_changed.emit()
+	return true
+
+
+func npc_market_discount(npc_name: String) -> float:
+	var rapport := npc_rapport(npc_name)
+	return 0.10 if rapport >= 45 else (0.05 if rapport >= 20 else 0.0)
+
+
+func _record_npc_trade(npc_name: String, listing_id: String) -> void:
+	if npc_name.is_empty() or npc_name == "本地修士" or listing_id.is_empty():
+		return
+	_normalize_player_schema()
+	var records: Array = player.npc_trade_records
+	var key := "%s::%s" % [npc_name, listing_id]
+	if records.has(key):
+		return
+	records.append(key)
+	player.npc_trade_records = records
+	change_npc_rapport(npc_name, 1, "首笔交易")
+
+
 func complete_opening_lore() -> bool:
 	_normalize_player_schema()
 	if bool(player.opening_lore_seen):
@@ -643,6 +716,8 @@ func alchemy_success_rate(recipe_id: String) -> float:
 		rate += 0.05
 	if str(player.get("physique", "")) == "青木灵胎":
 		rate += 0.08
+	if npc_rapport("白蘅") >= 20:
+		rate += 0.03
 	return clampf(rate, 0.45, 0.95)
 
 
@@ -1096,6 +1171,12 @@ func _normalize_player_schema() -> void:
 		player.sect_contribution = 0
 	if not player.has("sect_wanted_by"):
 		player.sect_wanted_by = []
+	if not player.has("npc_relations") or not player.npc_relations is Dictionary:
+		player.npc_relations = {}
+	if not player.has("npc_met") or not player.npc_met is Array:
+		player.npc_met = []
+	if not player.has("npc_trade_records") or not player.npc_trade_records is Array:
+		player.npc_trade_records = []
 	if not player.has("learned_techniques"):
 		player.learned_techniques = [str(player.get("cultivation_path", "云岚吐纳诀"))]
 	if not player.has("technique_insight") or not player.technique_insight is Dictionary:

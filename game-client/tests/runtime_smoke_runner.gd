@@ -15,6 +15,7 @@ func _run() -> void:
 	await _check_alchemy_and_medicine_rules()
 	await _check_equipment_upgrade_rules()
 	await _check_sect_progression()
+	await _check_npc_relationship_rules()
 	await _check_wanted_patrol()
 	await _check_weapon_combat_profiles()
 	await _check_weapon_render_slot()
@@ -181,6 +182,28 @@ func _check_sect_progression() -> void:
 	_expect(GameState.leave_sect(), "Player should be able to freely leave a sect.")
 	_expect(GameState.is_wanted_by_sect("mist_sword"), "Leaving Mist Sword at inner rank should preserve a sect wanted record.")
 	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_npc_relationship_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var listings_before: Array = GameState.local_market_listings.duplicate(true)
+	GameState.player.npc_relations = {}
+	GameState.player.npc_met = []
+	GameState.player.npc_trade_records = []
+	GameState.player.gold = 100
+	GameState.player.inventory = []
+	_expect(GameState.meet_npc("陆青禾") and GameState.npc_rapport("陆青禾") == 3, "Meeting an NPC should persist an initial non-repeatable rapport record.")
+	_expect(not GameState.meet_npc("陆青禾") and GameState.npc_rapport("陆青禾") == 3, "Repeated NPC meetings must not be farmable rapport.")
+	GameState.change_npc_rapport("陆青禾", 17, "smoke")
+	GameState.local_market_listings = [{"id": "npc_rapport_medicine", "name": "关系测试药材", "type": "药材", "price": 100, "seller": "陆青禾"}]
+	_expect(GameState.market_purchase_price(0) == 95, "Familiar NPC rapport should give only the documented five-percent NPC-listing discount.")
+	_expect(GameState.buy_market_listing(0) and GameState.player.gold == 5 and GameState.player.inventory.has("关系测试药材"), "NPC market purchase should charge its rapport-adjusted price and deliver the item.")
+	var base_rate := GameState.alchemy_success_rate("ningxi")
+	GameState.change_npc_rapport("白蘅", 20, "smoke")
+	_expect(is_equal_approx(GameState.alchemy_success_rate("ningxi") - base_rate, 0.03), "Bai Heng familiarity should add only the documented small alchemy-stability bonus.")
+	GameState.player = profile_before
+	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()
 
 func _check_cultivation_affinity() -> void:
