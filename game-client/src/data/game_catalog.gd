@@ -271,6 +271,7 @@ const COSTUME_PROFILES := {
 		"concept_asset": "res://assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png",
 		"idle_south_asset": "res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_idle_south_v01_alpha.png",
 		"idle_south_west_asset": "res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_idle_south_west_v01_alpha.png",
+		"idle_west_asset": "res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_idle_west_v01_alpha.png",
 		"runtime_state": "south_idle_ready",
 		"animation_requirement": "需补齐男体八方向待机、八方向行走、南向攻击及武器遮挡测试。",
 	},
