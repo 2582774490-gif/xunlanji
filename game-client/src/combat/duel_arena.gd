@@ -60,7 +60,7 @@ func _ready() -> void:
 	touch_controls.action_requested.connect(_on_touch_action_requested)
 	player_max_mana = float(GameState.derived_stats()["灵力"])
 	player_mana = player_max_mana
-	status.text = "本地论剑原型：左侧摇杆/方向键移动；右侧五技能或 J、1–5 手操出招；Q 可无冷却切换已制作专属素材的武器。胜负只在本地结算；联网房间与服务端权威尚未接入。"
+	status.text = "本地双人论剑：P1 用方向键、J、1–5；P2 用 WASD、F 普攻、G 云步、R 护体。Q 可为 P1 无冷却切换已制作专属素材的武器。胜负只在本地结算；联网房间与服务端权威尚未接入。"
 	_refresh_hud()
 
 
@@ -193,7 +193,8 @@ func _finish(player_won: bool) -> void:
 
 func _refresh_hud() -> void:
 	player_hp_label.text = "你 · %s　HP %d / 100" % [GameState.player.equipped_weapon, player_hp]
-	opponent_hp_label.text = "山门试剑使　HP %d / %d" % [opponent.hp, opponent.max_hp]
+	var opponent_mode := "P2 本地手操" if opponent.local_controlled else "山门试剑使 AI"
+	opponent_hp_label.text = "%s　HP %d / %d%s" % [opponent_mode, opponent.hp, opponent.max_hp, "　护体" if opponent.local_guard_active() else ""]
 	var skills := _skills()
 	skill_label.text = "灵力 %.0f / %.0f　%s%s　%s%s　%s%s　%s%s" % [
 		player_mana, player_max_mana,

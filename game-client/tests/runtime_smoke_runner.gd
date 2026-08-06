@@ -2066,7 +2066,20 @@ func _check_local_duel_arena() -> void:
 	add_child(arena)
 	await get_tree().process_frame
 	_expect(arena.player != null and arena.opponent != null, "Local duel arena did not create both duel participants.")
+	_expect(arena.opponent.local_controlled, "Local duel arena must expose a second keyboard-controlled participant before online PVP exists.")
 	_expect(arena.get_node("Terrain").texture != null, "Local duel arena has no authored arena terrain.")
+	var opponent_position_before: Vector2 = arena.opponent.position
+	arena.opponent.move_from_local_input(Vector2.LEFT, 0.1)
+	_expect(arena.opponent.position.x < opponent_position_before.x, "Second local participant did not respond to its independent movement path.")
+	arena.opponent.position = arena.player.position + Vector2(120.0, 0.0)
+	var player_hp_before_p2_attack: int = arena.player_hp
+	arena.opponent.trigger_local_attack()
+	await get_tree().create_timer(0.26).timeout
+	_expect(arena.player_hp < player_hp_before_p2_attack, "Second local participant did not land a manually triggered close-range attack.")
+	arena.opponent.trigger_local_guard()
+	var opponent_hp_before_guard: int = arena.opponent.hp
+	arena.opponent.take_damage(20)
+	_expect(opponent_hp_before_guard - arena.opponent.hp <= 9, "Second local participant guard did not reduce an incoming player hit.")
 	arena.player.position = arena.opponent.position + Vector2(110.0, 0.0)
 	arena.player.trigger_basic_attack()
 	await get_tree().create_timer(0.20).timeout
