@@ -171,6 +171,10 @@ func _check_costume_wardrobe_rules() -> void:
 	var qinghuang_runtime: Dictionary = GameCatalog.weapon_runtime_profile_for_item("青篁练气剑")
 	var qinghuang_attack_frames: Array = qinghuang_runtime.get("attack_frames", [])
 	_expect(qinghuang_runtime.get("attack_direction", "") == "south" and qinghuang_attack_frames.size() == 6 and qinghuang_attack_frames.all(func(frame_path: Variant) -> bool: return ResourceLoader.exists(str(frame_path))), "Qinghuang Qi Sword must own six south-facing source attack frames instead of reusing another weapon family effect.")
+	var jiangyun: Dictionary = GameCatalog.costume_profile_for_id("jiangyun_rainbow")
+	var jiangyun_walk_south: Array = jiangyun.get("walk_south_candidate_frames", [])
+	_expect(ResourceLoader.exists(str(jiangyun.get("idle_south_candidate_asset", ""))) and jiangyun_walk_south.size() == 6 and jiangyun_walk_south.all(func(frame_path: Variant) -> bool: return ResourceLoader.exists(str(frame_path))), "Jiangyun Rainbow must retain its six-frame south walk candidate without being mislabeled runtime-ready.")
+	_expect(str(jiangyun.get("runtime_state", "")) == "concept_only", "Partial female costume assets must not be marked runtime-ready before all directions and attack validation are complete.")
 	GameState.player.owned_costumes = ["liulan_wayfarer"]
 	GameState.player.equipped_costume = ""
 	var stats_before: Dictionary = GameState.derived_stats().duplicate(true)
