@@ -88,17 +88,21 @@ func _setup_world_minimap() -> void:
 	$HUD.add_child(minimap)
 	minimap.configure_region(player, player.map_bounds, "雾潮边境", [
 		{"position": Vector2(760, 1100), "kind": "gate"},
-		{"position": Vector2(1600, 460), "kind": "dungeon"},
-		{"position": Vector2(2260, 560), "kind": "water"},
-		{"position": Vector2(2860, 650), "kind": "gate"},
+		{"position": Vector2(3100, 1300), "kind": "dungeon"},
+		{"position": Vector2(4760, 1300), "kind": "water"},
+		{"position": Vector2(5280, 720), "kind": "water"},
+		{"position": Vector2(2900, 2050), "kind": "dungeon"},
 		{"position": Vector2(6980, 1370), "kind": "resource"},
+		{"position": Vector2(5880, 2800), "kind": "gate"},
+		{"position": Vector2(3980, 3800), "kind": "dungeon"},
 		{"position": Vector2(7900, 5100), "kind": "relic"},
-		{"position": Vector2(2640, 1370), "kind": "gate"},
-		{"position": Vector2(2940, 900), "kind": "gate"},
+		{"position": Vector2(9000, 3900), "kind": "gate"},
+		{"position": Vector2(10450, 1600), "kind": "water"},
+		{"position": Vector2(11000, 5350), "kind": "gate"},
 	], [
-		PackedVector2Array([Vector2(520, 1570), Vector2(1380, 1040), Vector2(2260, 560), Vector2(2860, 650)]),
-		PackedVector2Array([Vector2(760, 1100), Vector2(1600, 840), Vector2(2640, 1370), Vector2(2940, 900)]),
-		PackedVector2Array([Vector2(2940, 900), Vector2(5000, 1060), Vector2(6980, 1370), Vector2(8170, 760)]),
+		PackedVector2Array([Vector2(520, 1570), Vector2(1380, 1040), Vector2(3100, 1300), Vector2(4760, 1300), Vector2(5280, 720)]),
+		PackedVector2Array([Vector2(3100, 1300), Vector2(2900, 2050), Vector2(5880, 2800), Vector2(3980, 3800)]),
+		PackedVector2Array([Vector2(5880, 2800), Vector2(7900, 5100), Vector2(9000, 3900), Vector2(10450, 1600), Vector2(11000, 5350)]),
 	])
 
 

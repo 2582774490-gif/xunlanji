@@ -233,7 +233,7 @@ position = Vector2(0, -88)
 shape = SubResource("CrystalInteractionShape")
 
 [node name="MistForestGate" type="Node2D" parent="."]
-position = Vector2(2860, 650)
+position = Vector2(3100, 1300)
 
 [node name="Art" type="Sprite2D" parent="MistForestGate"]
 texture = ExtResource("12_forest_gate")
@@ -263,7 +263,7 @@ position = Vector2(0, -150)
 shape = SubResource("ForestGateInteractionShape")
 
 [node name="MistBoneCreekGate" type="Node2D" parent="."]
-position = Vector2(2260, 560)
+position = Vector2(4760, 1300)
 
 [node name="Art" type="Sprite2D" parent="MistBoneCreekGate"]
 texture = ExtResource("13_creek_gate")
@@ -293,7 +293,7 @@ position = Vector2(0, -104)
 shape = SubResource("CreekGateInteractionShape")
 
 [node name="SunkenVesselGate" type="Node2D" parent="."]
-position = Vector2(1600, 460)
+position = Vector2(5280, 720)
 
 [node name="Art" type="Sprite2D" parent="SunkenVesselGate"]
 texture = ExtResource("13_creek_gate")
@@ -324,7 +324,7 @@ position = Vector2(0, -98)
 shape = SubResource("VesselGateInteractionShape")
 
 [node name="MistTideGrottoGate" type="Node2D" parent="."]
-position = Vector2(980, 490)
+position = Vector2(2900, 2050)
 
 [node name="Art" type="Sprite2D" parent="MistTideGrottoGate"]
 texture = ExtResource("13_creek_gate")
@@ -355,7 +355,7 @@ position = Vector2(0, -94)
 shape = SubResource("GrottoGateInteractionShape")
 
 [node name="RedMapleRoadGate" type="Node2D" parent="."]
-position = Vector2(1380, 470)
+position = Vector2(5880, 2800)
 
 [node name="Art" type="Sprite2D" parent="RedMapleRoadGate"]
 texture = ExtResource("13_creek_gate")
@@ -386,7 +386,7 @@ position = Vector2(0, -94)
 shape = SubResource("RedMapleGateInteractionShape")
 
 [node name="ThunderCliffGate" type="Node2D" parent="."]
-position = Vector2(1800, 460)
+position = Vector2(3980, 3800)
 
 [node name="Art" type="Sprite2D" parent="ThunderCliffGate"]
 texture = ExtResource("13_creek_gate")
@@ -417,7 +417,7 @@ position = Vector2(0, -94)
 shape = SubResource("ThunderCliffGateInteractionShape")
 
 [node name="MistPortGate" type="Node2D" parent="."]
-position = Vector2(2640, 1370)
+position = Vector2(10450, 1600)
 
 [node name="Art" type="Sprite2D" parent="MistPortGate"]
 texture = ExtResource("13_creek_gate")
@@ -448,7 +448,7 @@ position = Vector2(0, -94)
 shape = SubResource("MistPortGateInteractionShape")
 
 [node name="AbysswatchGate" type="Node2D" parent="."]
-position = Vector2(2870, 520)
+position = Vector2(9000, 3900)
 
 [node name="Art" type="Sprite2D" parent="AbysswatchGate"]
 texture = ExtResource("13_creek_gate")
@@ -479,7 +479,7 @@ position = Vector2(0, -94)
 shape = SubResource("MistPortGateInteractionShape")
 
 [node name="AncientRidgeGate" type="Node2D" parent="."]
-position = Vector2(2940, 900)
+position = Vector2(11000, 5350)
 
 [node name="Art" type="Sprite2D" parent="AncientRidgeGate"]
 texture = ExtResource("13_creek_gate")
