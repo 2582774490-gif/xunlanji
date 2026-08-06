@@ -35,7 +35,7 @@ var current_sector_id := ""
 func _ready() -> void:
 	GameState.current_region_id = "ancient_ridge"
 	player.map_bounds = Rect2(70, 70, 11860, 7860)
-	player.position = Vector2(460, 1660)
+	player.position = GameState.region_position_or("ancient_ridge", Vector2(460, 1660), player.map_bounds)
 	_setup_environment_depth()
 	_setup_world_minimap()
 	chunk_streamer.configure(player, [
@@ -92,6 +92,11 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	_update_sector_presence()
+
+
+func _exit_tree() -> void:
+	if player != null:
+		GameState.remember_region_position("ancient_ridge", player.position)
 
 
 func _update_sector_presence() -> void:

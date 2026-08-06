@@ -68,6 +68,7 @@ var player := {
 	"sect_wanted_by": [],
 	"world_guidance": {"steps": [], "skipped": false},
 	"ecology_cooldowns": {},
+	"world_positions": {},
 	"equipped_weapon": "练气木剑",
 	"equipped_artifact": "纳灵玉佩",
 	"equipped_armor": "",
@@ -524,6 +525,30 @@ func add_spirit_stones(amount: int) -> void:
 func record_opportunity(entry: Dictionary) -> void:
 	player.opportunity_log.append(entry)
 	profile_changed.emit()
+
+
+func remember_region_position(region_id: String, position: Vector2) -> void:
+	if region_id.is_empty():
+		return
+	_normalize_player_schema()
+	var positions: Dictionary = player.world_positions
+	positions[region_id] = {"x": position.x, "y": position.y}
+	player.world_positions = positions
+
+
+func region_position_or(region_id: String, fallback: Vector2, bounds: Rect2) -> Vector2:
+	_normalize_player_schema()
+	var positions: Dictionary = player.world_positions
+	var raw: Variant = positions.get(region_id, {})
+	if not raw is Dictionary:
+		return fallback
+	var stored: Dictionary = raw
+	var candidate := Vector2(float(stored.get("x", fallback.x)), float(stored.get("y", fallback.y)))
+	var safe_min := bounds.position + Vector2(12.0, 12.0)
+	var safe_max := bounds.end - Vector2(12.0, 12.0)
+	if candidate.x < safe_min.x or candidate.y < safe_min.y or candidate.x > safe_max.x or candidate.y > safe_max.y:
+		return fallback
+	return candidate
 
 func record_dungeon_run(entry: Dictionary) -> void:
 	player.dungeon_runs.append(entry)
@@ -1086,6 +1111,8 @@ func _normalize_player_schema() -> void:
 		player.world_guidance = guidance
 	if not player.has("ecology_cooldowns") or not player.ecology_cooldowns is Dictionary:
 		player.ecology_cooldowns = {}
+	if not player.has("world_positions") or not player.world_positions is Dictionary:
+		player.world_positions = {}
 
 
 func _attribute_points_spent_raw() -> int:

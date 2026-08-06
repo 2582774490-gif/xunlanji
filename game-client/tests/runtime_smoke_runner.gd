@@ -61,6 +61,7 @@ func _run() -> void:
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
 	await _check_village_routes()
 	await _check_yunlan_outskirts_scene()
+	await _check_large_region_position_resume()
 	await _check_female_east_walk_cycle()
 	await _check_water_palace_loop()
 	await _check_umbrella_weapon_skill_sets()
@@ -1468,6 +1469,29 @@ func _check_yunlan_outskirts_scene() -> void:
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.current_region_id = region_before
+	GameState.profile_changed.emit()
+
+
+func _check_large_region_position_resume() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.world_positions = {}
+	var outskirts := preload("res://scenes/yunlan_outskirts.tscn").instantiate()
+	add_child(outskirts)
+	await get_tree().process_frame
+	outskirts.player.position = Vector2(4210, 1860)
+	outskirts.queue_free()
+	await get_tree().process_frame
+	var reopened_outskirts := preload("res://scenes/yunlan_outskirts.tscn").instantiate()
+	add_child(reopened_outskirts)
+	await get_tree().process_frame
+	_expect(reopened_outskirts.player.position.distance_to(Vector2(4210, 1860)) < 1.0, "Yunlan Outskirts did not resume the player's last large-world position.")
+	reopened_outskirts.queue_free()
+	await get_tree().process_frame
+	GameState.remember_region_position("mist_border", Vector2(7380, 2400))
+	GameState.remember_region_position("ancient_ridge", Vector2(8080, 2140))
+	_expect(GameState.region_position_or("mist_border", Vector2(520, 1570), Rect2(80, 80, 11840, 7840)) == Vector2(7380, 2400), "Mist Tide Border position persistence did not retain a valid regional coordinate.")
+	_expect(GameState.region_position_or("ancient_ridge", Vector2(460, 1660), Rect2(70, 70, 11860, 7860)) == Vector2(8080, 2140), "Ancient Ridge position persistence did not retain a valid regional coordinate.")
+	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
 func _check_water_palace_loop() -> void:

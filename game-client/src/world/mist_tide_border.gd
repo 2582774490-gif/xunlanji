@@ -37,7 +37,7 @@ func _ready() -> void:
 	# The painted border image is one authored chunk inside a much larger
 	# continuous region. Future chunks attach to the same 12 km x 8 km space.
 	player.map_bounds = Rect2(80, 80, 11840, 7840)
-	player.position = Vector2(520, 1570)
+	player.position = GameState.region_position_or("mist_border", Vector2(520, 1570), player.map_bounds)
 	_setup_environment_depth()
 	_setup_world_minimap()
 	chunk_streamer.configure(player, [
@@ -127,6 +127,11 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	_update_sector_presence()
+
+
+func _exit_tree() -> void:
+	if player != null:
+		GameState.remember_region_position("mist_border", player.position)
 
 
 func _update_sector_presence() -> void:

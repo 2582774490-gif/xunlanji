@@ -25,7 +25,7 @@ var current_sector_id := ""
 func _ready() -> void:
 	GameState.current_region_id = "starter_village"
 	player.map_bounds = Rect2(80, 80, 11840, 7840)
-	player.position = Vector2(860, 1680)
+	player.position = GameState.region_position_or("starter_village", Vector2(860, 1680), player.map_bounds)
 	_setup_environment_depth()
 	_setup_world_minimap()
 	chunk_streamer.configure(player, [
@@ -89,6 +89,11 @@ func _process(_delta: float) -> void:
 	current_sector_id = sector_id
 	if active_interaction == null:
 		status.text = "进入%s：%s" % [str(sector.get("name", "云岚外野")), str(sector.get("description", ""))]
+
+
+func _exit_tree() -> void:
+	if player != null:
+		GameState.remember_region_position("starter_village", player.position)
 
 
 func _focus_interaction(interaction: Area2D) -> void:
