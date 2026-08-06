@@ -12,7 +12,7 @@
 | 时装 ID | 名称 | 适用模板 | 概念图 | 状态 |
 |---|---|---|---|---|
 | `liulan_wayfarer` | 流岚游衣 | 男 | `game-client/assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png` | 概念已审核；八方向待机、八方向各六帧行走透明源图已通过，攻击动作待制作 |
-| `jiangyun_rainbow` | 绛云霓裳 | 女 | `game-client/assets/art/costumes/jiangyun_rainbow/concept/jiangyun_rainbow_concept_v01.png` | 概念已审核；南向待机与六帧行走生产候选已抠图，其余七方向、攻击动作待制作，尚不可接入地图 |
+| `jiangyun_rainbow` | 绛云霓裳 | 女 | `game-client/assets/art/costumes/jiangyun_rainbow/concept/jiangyun_rainbow_concept_v01.png` | 概念已审核；南向、西南向待机与南向六帧行走生产候选已抠图，其余方向、攻击动作待制作，尚不可接入地图 |
 
 概念图生成规范：原创高品质中国动画修仙服装设计；男装为云白、青碧、银纹，女装为绛红、黛紫、云白纱袖；无武器、无文字、无现有 IP 角色或徽标。它只用于确认材质、色彩和服装层次，不用作 2D 游戏人物帧。
 
@@ -54,6 +54,8 @@
 - 青篁练气剑南向攻击透明帧：`game-client/assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_f1_alpha.png` 至 `liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_f6_alpha.png`（6 帧、14 FPS、非循环；仅命中帧使用短促青白剑痕）
 - 绛云霓裳南向待机候选源图：`game-client/assets/art/costumes/jiangyun_rainbow/source_magic2/jiangyun_rainbow_idle_south_v01_key.png`
 - 绛云霓裳南向待机候选透明图：`game-client/assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_idle_south_v01_alpha.png`（仅作方向、服装层次与抠图质量确认；未达到整套时装的运行门槛）
+- 绛云霓裳西南待机候选源图：`game-client/assets/art/costumes/jiangyun_rainbow/source_magic2/jiangyun_rainbow_idle_south_west_v01_key.png`
+- 绛云霓裳西南待机候选透明图：`game-client/assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_idle_south_west_v01_alpha.png`（仅作方向、服装层次与抠图质量确认；未达到整套时装的运行门槛）
 - 绛云霓裳南向行走序列表候选源图：`game-client/assets/art/costumes/jiangyun_rainbow/source_magic2/jiangyun_rainbow_walk_south_v01_sheet.png`
 - 绛云霓裳南向行走候选透明帧：`game-client/assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_walk_south_v01_f1_alpha.png` 至 `jiangyun_rainbow_walk_south_v01_f6_alpha.png`（6 帧、9 FPS、循环、最低脚点已对齐；未达到整套时装的运行门槛）
 - 已拒绝的八方向合图样张：`game-client/assets/art/costumes/liulan_wayfarer/review/rejected/README.md`
