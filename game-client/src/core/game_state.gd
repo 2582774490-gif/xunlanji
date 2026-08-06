@@ -26,6 +26,37 @@ var last_notice := "欢迎来到《寻岚记》首发框架演示。"
 const MARKET_FEE_RATE := 0.05
 const MARKET_MIN_PRICE := 1
 const MARKET_MAX_PRICE := 99999
+const MARKET_REFERENCE_MIN_MULTIPLIER := 0.35
+const MARKET_REFERENCE_MAX_MULTIPLIER := 3.0
+# Reference prices protect the launch economy from accidental or abusive
+# outliers. They are deliberately broad, not a forced fixed price. Unlisted
+# discoveries remain tradeable under the global range until enough trade data
+# exists to give them a reliable reference.
+const MARKET_REFERENCE_PRICES := {
+	"雾溪药": 14,
+	"雾潮晶簇": 32,
+	"雾潮矿芯": 32,
+	"雾林妖丹": 36,
+	"雷纹符材": 45,
+	"临渊露": 45,
+	"御崖石屑": 45,
+	"护脉阵片": 52,
+	"凝气符": 18,
+	"雾溪草": 12,
+	"练气木剑": 24,
+	"练气羽扇": 45,
+	"青篁练气剑": 52,
+	"纳灵玉佩": 60,
+	"潮息玉佩": 86,
+	"凝息丹": 42,
+	"养元丹": 68,
+	"归元丹": 96,
+	"筑基丹": 360,
+	"雾纹护臂": 72,
+	"水府灵靴": 64,
+	"雾林轻甲": 128,
+	"沉雾舟纹袍": 180,
+}
 const FOUNDATION_PREPARATION_ITEMS := ["临渊露", "御崖石屑", "护脉阵片"]
 const WORLD_GUIDANCE_STEPS := ["lan_breath", "resource_ecology", "path_choice"]
 const ECOLOGY_RESPAWN_SECONDS := {"resource": 420, "beast": 540, "bandit": 600}
@@ -154,6 +185,40 @@ func market_fee(price: int) -> int:
 	return max(1, ceili(float(price) * MARKET_FEE_RATE))
 
 
+func market_price_protection(item_name: String) -> Dictionary:
+	var reference := int(MARKET_REFERENCE_PRICES.get(item_name, 0))
+	if reference <= 0:
+		return {
+			"protected": false,
+			"reference": 0,
+			"minimum": MARKET_MIN_PRICE,
+			"maximum": MARKET_MAX_PRICE,
+		}
+	return {
+		"protected": true,
+		"reference": reference,
+		"minimum": maxi(MARKET_MIN_PRICE, ceili(float(reference) * MARKET_REFERENCE_MIN_MULTIPLIER)),
+		"maximum": mini(MARKET_MAX_PRICE, floori(float(reference) * MARKET_REFERENCE_MAX_MULTIPLIER)),
+	}
+
+
+func market_suggested_price(item_name: String) -> int:
+	var protection := market_price_protection(item_name)
+	return int(protection.reference) if bool(protection.protected) else 20
+
+
+func market_price_protection_text(item_name: String) -> String:
+	var protection := market_price_protection(item_name)
+	if not bool(protection.protected):
+		return "新发现物品：暂按全局范围 %d～%d 金寄售；积累交易数据后再设参考价。" % [int(protection.minimum), int(protection.maximum)]
+	return "参考价 %d 金，保护寄售区间 %d～%d 金。" % [int(protection.reference), int(protection.minimum), int(protection.maximum)]
+
+
+func is_market_price_allowed(item_name: String, price: int) -> bool:
+	var protection := market_price_protection(item_name)
+	return price >= int(protection.minimum) and price <= int(protection.maximum)
+
+
 func market_purchase_price(index: int) -> int:
 	if index < 0 or index >= local_market_listings.size():
 		return 0
@@ -165,8 +230,8 @@ func market_purchase_price(index: int) -> int:
 	return maxi(1, ceili(float(price) * (1.0 - npc_market_discount(seller))))
 
 func list_item_for_market(item_name: String, price: int) -> bool:
-	if price < MARKET_MIN_PRICE or price > MARKET_MAX_PRICE:
-		notify("上架价格超出雾港保护范围。")
+	if not is_market_price_allowed(item_name, price):
+		notify("上架价格超出保护范围：%s" % market_price_protection_text(item_name))
 		return false
 	if not player.inventory.has(item_name):
 		notify("行囊中没有可上架的 %s。" % item_name)

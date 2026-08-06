@@ -1391,8 +1391,15 @@ func _check_water_palace_spirit_boots_runtime_slot() -> void:
 func _check_local_market_loop() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	var listings_before: Array = GameState.local_market_listings.duplicate(true)
-	GameState.player.inventory = ["烟测交易材"]
+	GameState.player.inventory = ["雾溪药", "烟测交易材"]
 	GameState.player.gold = 100
+	var medicine_protection := GameState.market_price_protection("雾溪药")
+	_expect(bool(medicine_protection.protected) and int(medicine_protection.reference) == 14 and int(medicine_protection.minimum) < 14 and int(medicine_protection.maximum) > 14, "Known launch materials must expose a broad but finite reference-price protection range.")
+	_expect(not GameState.list_item_for_market("雾溪药", 100), "Known launch materials must reject listings far outside their protected reference range.")
+	_expect(GameState.player.inventory.has("雾溪药") and GameState.player.gold == 100, "A rejected protected-price listing must not consume the item or fee.")
+	_expect(GameState.market_suggested_price("雾溪药") == 14, "Known items should default to their reference price when listed through the market UI.")
+	_expect(not bool(GameState.market_price_protection("烟测交易材").protected), "New discoveries must remain freely tradeable before a reference price has been established.")
+	GameState.player.inventory.erase("雾溪药")
 	_expect(GameState.list_item_for_market("烟测交易材", 20), "Local market should accept an owned item within its protected price range.")
 	_expect(not GameState.player.inventory.has("烟测交易材") and GameState.player.gold == 99, "Market listing should remove the item and charge its minimum fee.")
 	var listing_index := GameState.local_market_listings.size() - 1

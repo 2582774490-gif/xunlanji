@@ -377,11 +377,14 @@ func _show_market() -> void:
 		var price_text := "价格 %d 金" % purchase_price
 		if purchase_price != int(listing.price):
 			price_text += "（关系优惠，标价 %d）" % int(listing.price)
-		_text("%s｜%s｜%s" % [listing.name, listing.type, price_text], 18)
+		_text("%s｜%s｜%s｜%s" % [listing.name, listing.type, price_text, GameState.market_price_protection_text(str(listing.name))], 18)
 		_buttons([["购买", func(): _buy_market_listing(index), 130, GameState.player.gold < purchase_price]])
 		if str(listing.seller) == "本地修士":
 			_buttons([["撤回上架", func(): _cancel_market_listing(index), 130]])
-	_buttons([["上架行囊首件物品（20 金）", _list_first_inventory_item, 280]])
+	if not GameState.player.inventory.is_empty():
+		var first_item := str(GameState.player.inventory[0])
+		_text("行囊首件：%s｜%s" % [first_item, GameState.market_price_protection_text(first_item)], 16, Color("a7d5ca"))
+		_buttons([["按参考价上架行囊首件（%d 金）" % GameState.market_suggested_price(first_item), _list_first_inventory_item, 300]])
 
 func _show_alchemy() -> void:
 	_heading("云岚村 · 炼丹工坊")
@@ -732,7 +735,8 @@ func _list_first_inventory_item() -> void:
 	if GameState.player.inventory.is_empty():
 		GameState.notify("行囊为空，无法上架。")
 		return
-	GameState.list_item_for_market(str(GameState.player.inventory[0]), 20)
+	var item_name := str(GameState.player.inventory[0])
+	GameState.list_item_for_market(item_name, GameState.market_suggested_price(item_name))
 	_render()
 
 func _cancel_market_listing(index: int) -> void:
