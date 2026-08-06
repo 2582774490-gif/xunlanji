@@ -1613,6 +1613,23 @@ func _check_yunlan_outskirts_scene() -> void:
 	_expect(outskirts.chunk_streamer.loaded_chunk_count() >= 1, "Yunlan Outskirts did not load its authored South Gate terrain chunk.")
 	var terrain: Sprite2D = outskirts.get_node("SouthGateChunk")
 	_expect(terrain.texture.resource_path.ends_with("yunlan_outskirts_south_gate_fields_v01.png"), "Yunlan Outskirts must use its own Image 2 terrain chunk instead of reusing the small South Gate background.")
+	_expect(outskirts.has_node("MistStreamBanksChunk") and outskirts.has_node("CloudfootWoodChunk") and outskirts.has_node("StonebudHighlandChunk") and outskirts.has_node("OldCaravanRoadChunk") and outskirts.has_node("LanEchoHillsChunk"), "Yunlan Outskirts must expose its stream, woodland, highland, road and echo-hill detail planes as separate streamed terrain areas.")
+	_expect(outskirts.chunk_streamer.loaded_chunk_count() >= 2, "Yunlan Outskirts must load connected detail areas near the start instead of presenting a single isolated terrain card.")
+	outskirts.player.position = Vector2(5900, 2050)
+	await get_tree().process_frame
+	_expect(outskirts.get_node("CloudfootWoodChunk").visible, "Yunlan Outskirts did not stream the Cloudfoot woodland detail plane at the Water Palace approach.")
+	outskirts.player.position = Vector2(9440, 1660)
+	await get_tree().process_frame
+	_expect(outskirts.get_node("OldCaravanRoadChunk").visible, "Yunlan Outskirts did not stream the old-caravan-road detail plane at the road ecology sector.")
+	outskirts.player.position = Vector2(2520, 3600)
+	await get_tree().process_frame
+	_expect(outskirts.get_node("StonebudHighlandChunk").visible, "Yunlan Outskirts did not stream the stonebud-highland detail plane at the wind-clue sector.")
+	outskirts.player.position = Vector2(7720, 4700)
+	await get_tree().process_frame
+	_expect(outskirts.get_node("LanEchoHillsChunk").visible, "Yunlan Outskirts did not stream the Lan Echo Hills detail plane in its distant hill sector.")
+	outskirts.player.position = Vector2(11200, 7200)
+	await get_tree().process_frame
+	_expect(not outskirts.get_node("SouthGateChunk").visible and not outskirts.get_node("MistStreamBanksChunk").visible, "Yunlan Outskirts did not unload far-away high-detail terrain planes across the large regional bounds.")
 	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", Vector2(3560, 770)).get("id", "") == "mist_stream_banks", "Yunlan stream herbs were not anchored inside the stream-bank ecology sector.")
 	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", Vector2(5900, 2050)).get("id", "") == "cloudfoot_wood", "Yunlan wandering herbalist was not anchored inside the cloudfoot woodland ecology sector.")
 	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", outskirts.water_palace_gate.get_parent().position).get("id", "") == "cloudfoot_wood", "Mist Stream Water Palace must begin from the cloudfoot woodland route in the large starting region.")

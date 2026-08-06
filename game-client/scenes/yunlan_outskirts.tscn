@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_outskirts.gd" id="1_scene"]
 [ext_resource type="Script" path="res://src/world/large_region_backdrop.gd" id="2_backdrop"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://src/world/region_chunk_streamer.gd" id="11_streamer"]
 [ext_resource type="Script" path="res://src/world/world_encounter_controller.gd" id="12_encounter"]
 [ext_resource type="Script" path="res://src/ui/virtual_touch_controls.gd" id="13_touch"]
+[ext_resource type="Script" path="res://src/world/yunlan_outskirts_chunk_art.gd" id="15_chunk_art"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -43,6 +44,40 @@ scale = Vector2(2, 2)
 centered = false
 z_index = -10
 modulate = Color(0.92, 1, 0.92, 1)
+
+[node name="MistStreamBanksChunk" type="Node2D" parent="."]
+position = Vector2(3072, 0)
+z_index = -9
+script = ExtResource("15_chunk_art")
+chunk_kind = "mist_stream_banks"
+
+[node name="CloudfootWoodChunk" type="Node2D" parent="."]
+position = Vector2(4608, 768)
+z_index = -9
+script = ExtResource("15_chunk_art")
+chunk_kind = "cloudfoot_wood"
+chunk_size = Vector2(3328, 2560)
+
+[node name="StonebudHighlandChunk" type="Node2D" parent="."]
+position = Vector2(0, 2816)
+z_index = -9
+script = ExtResource("15_chunk_art")
+chunk_kind = "stonebud_highland"
+chunk_size = Vector2(4096, 2560)
+
+[node name="OldCaravanRoadChunk" type="Node2D" parent="."]
+position = Vector2(7680, 512)
+z_index = -9
+script = ExtResource("15_chunk_art")
+chunk_kind = "old_caravan_road"
+chunk_size = Vector2(4096, 2560)
+
+[node name="LanEchoHillsChunk" type="Node2D" parent="."]
+position = Vector2(4352, 3840)
+z_index = -9
+script = ExtResource("15_chunk_art")
+chunk_kind = "lan_echo_hills"
+chunk_size = Vector2(4096, 2560)
 
 [node name="ChunkStreamer" type="Node" parent="."]
 script = ExtResource("11_streamer")

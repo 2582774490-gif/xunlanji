@@ -97,6 +97,11 @@ func _ready() -> void:
 	_setup_world_minimap()
 	chunk_streamer.configure(player, [
 		{"id": "south_gate_fields", "node": $SouthGateChunk, "bounds": Rect2(0, 0, 3072, 2048)},
+		{"id": "mist_stream_banks", "node": $MistStreamBanksChunk, "bounds": Rect2(3072, 0, 3072, 2048)},
+		{"id": "cloudfoot_wood", "node": $CloudfootWoodChunk, "bounds": Rect2(4608, 768, 3328, 2560)},
+		{"id": "stonebud_highland", "node": $StonebudHighlandChunk, "bounds": Rect2(0, 2816, 4096, 2560)},
+		{"id": "old_caravan_road", "node": $OldCaravanRoadChunk, "bounds": Rect2(7680, 512, 4096, 2560)},
+		{"id": "lan_echo_hills", "node": $LanEchoHillsChunk, "bounds": Rect2(4352, 3840, 4096, 2560)},
 	])
 	status.text = "云岚外野：云岚村只是第一处聚落。沿灵田、雾溪、云麓疏林与旧商道自由探索；资源和人物只会出现在合适地形。"
 	_setup_chance_trace()
