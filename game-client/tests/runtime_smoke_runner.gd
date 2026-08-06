@@ -153,6 +153,8 @@ func _check_costume_wardrobe_rules() -> void:
 	_expect(ResourceLoader.exists(str(costume.get("idle_south_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_south_west_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_west_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_north_west_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_north_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_north_east_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_east_asset", ""))) and ResourceLoader.exists(str(costume.get("idle_south_east_asset", ""))), "Approved eight-direction costume idle source frames must remain project-local resources.")
 	var south_walk_frames: Array = costume.get("walk_south_frames", [])
 	_expect(south_walk_frames.size() == 6 and south_walk_frames.all(func(frame_path: Variant) -> bool: return ResourceLoader.exists(str(frame_path))), "Approved south walk must retain six project-local animation frames.")
+	var south_west_walk_frames: Array = costume.get("walk_south_west_frames", [])
+	_expect(south_west_walk_frames.size() == 6 and south_west_walk_frames.all(func(frame_path: Variant) -> bool: return ResourceLoader.exists(str(frame_path))), "Approved south-west walk must retain six project-local animation frames.")
 	GameState.player.owned_costumes = ["liulan_wayfarer"]
 	GameState.player.equipped_costume = ""
 	var stats_before: Dictionary = GameState.derived_stats().duplicate(true)
