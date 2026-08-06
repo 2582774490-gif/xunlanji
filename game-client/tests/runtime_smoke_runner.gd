@@ -1750,13 +1750,20 @@ func _check_water_palace_loop() -> void:
 	palace._cast_ningxi_sword_art()
 	await get_tree().create_timer(0.35).timeout
 	_expect(palace.boss_health < health_before, "Ningxi Sword Art did not damage the Water Palace boss.")
+	palace.boss_health = 50
+	palace._check_boss_phase()
+	_expect(palace.boss_phase == 2 and palace.boss_hp.text.contains("岚潮回环"), "Water Palace water妖 must enter its readable second-phase tide loop at half health.")
+	var effects_before := palace.get_node("CombatEffects").get_child_count()
+	palace._perform_boss_tide_fan()
+	_expect(palace.get_node("CombatEffects").get_child_count() >= effects_before + 3, "Water Palace second phase must render three visible tide lanes instead of using an unreadable invisible damage check.")
 	palace._defeat_boss()
 	await get_tree().process_frame
 	_expect(palace.defeated and not palace.boss.visible, "Boss clear did not close the encounter.")
 	_expect(palace.clear_panel.visible, "Boss clear did not show a settlement panel.")
-	var expected_item_count := 1 if had_pearl else 2
-	_expect(GameState.player.inventory.size() == inventory_before + expected_item_count, "Boss clear did not grant the random initial-equipment drop and the first-clear Pearl reward.")
+	var expected_item_count := 2 if had_pearl else 3
+	_expect(GameState.player.inventory.size() == inventory_before + expected_item_count, "Boss clear did not grant the random initial-equipment drop, fixed Lansha scale material and first-clear Pearl reward.")
 	_expect(GameState.player.inventory.has("雾潮练气珠"), "First Water Palace clear did not grant the Mist-Tide Qi Pearl.")
+	_expect(GameState.player.inventory.has("岚鲨鳞片"), "Water Palace clear did not grant the shared water妖 material used by introductory water-resistance gear.")
 	_expect(GameState.player.dungeon_runs.size() == runs_before + 1, "Boss clear did not record the dungeon run.")
 	_expect(GameState.is_region_unlocked("mist_border"), "Water Palace clear did not unlock Mist Tide Border.")
 	palace.queue_free()

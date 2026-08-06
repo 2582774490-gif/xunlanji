@@ -26,6 +26,7 @@ const WheelReturnEffectScript = preload("res://src/combat/wheel_return_effect.gd
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 const BossIdleSheet: Texture2D = preload("res://assets/art/characters/boss_xiaochao_lansha/processed_alpha/boss_xiaochao_lansha_idle_south_6f_v01_alpha.png")
 const BOSS_RETALIATION_RANGE := 650.0
+const BOSS_ECHO_NAME := "潇潮岚鲨 · 映潮分身"
 
 @onready var player: CharacterBody2D = $Player
 @onready var boss: Area2D = $Boss
@@ -65,6 +66,8 @@ var guard_time_left := 0.0
 var boss_attack_cooldown := 2.4
 var defeated := false
 var last_drop: Dictionary = {}
+var boss_phase := 1
+var boss_attack_count := 0
 
 const WATER_PALACE_DROPS := [
 	{"item": "雾纹护腕", "stones": 10, "cultivation": 20},
@@ -89,7 +92,7 @@ func _ready() -> void:
 	clear_return.pressed.connect(_return_to_village)
 	boss.body_entered.connect(func(body: Node2D): near_boss = body == player; _refresh_prompt())
 	boss.body_exited.connect(func(body: Node2D): if body == player: near_boss = false; _refresh_prompt())
-	status.text = "雾溪水府：深入内池，击败水妖首领潮妃·兰纱。"
+	status.text = "雾溪水府：深入内池，击败%s。她是归墟雾港稀有水妖在上游留下的映潮分身。" % BOSS_ECHO_NAME
 	_refresh_boss_hp()
 	_refresh_player_hp()
 	_refresh_player_mana()
@@ -109,8 +112,12 @@ func _process(delta: float) -> void:
 	boss_attack_cooldown -= delta
 	if boss_attack_cooldown > 0.0:
 		return
-	boss_attack_cooldown = 2.4
-	_perform_boss_water_blade()
+	boss_attack_cooldown = 1.8 if boss_phase >= 2 else 2.4
+	boss_attack_count += 1
+	if boss_phase >= 2 and boss_attack_count % 2 == 0:
+		_perform_boss_tide_fan()
+	else:
+		_perform_boss_water_blade()
 
 
 func _perform_boss_water_blade() -> void:
@@ -130,7 +137,7 @@ func _perform_boss_water_blade() -> void:
 		guard_time_left = 0.0
 		mitigation_notes.append("岚息护体抵去了大半水刃。")
 	player_health = max(0, player_health - damage)
-	status.text = "潮妃·兰纱掀起水刃，造成 %d 点伤害。%s" % [damage, " ".join(mitigation_notes)]
+	status.text = "%s掀起水刃，造成 %d 点伤害。%s" % [BOSS_ECHO_NAME, damage, " ".join(mitigation_notes)]
 	_refresh_player_hp()
 	if player_health == 0:
 		defeated = true
@@ -146,10 +153,62 @@ func _on_player_attack(_direction: String) -> void:
 	hit_spark.play_burst(boss.position + Vector2(0, -90), Vector2.UP)
 	var damage := GameState.weapon_basic_damage(8)
 	boss_health = max(0, boss_health - damage)
-	status.text = "潮妃·兰纱受击，造成 %d 点伤害。属性分配已影响本次攻击。" % damage
+	status.text = "%s受击，造成 %d 点伤害。属性分配已影响本次攻击。" % [BOSS_ECHO_NAME, damage]
 	_refresh_boss_hp()
+	_check_boss_phase()
 	if boss_health == 0:
 		_defeat_boss()
+
+
+func _perform_boss_tide_fan() -> void:
+	# Phase two deliberately shows three clear lanes rather than speeding up a
+	# single invisible hit.  The player can read the fan and dash out of the
+	# centre lane, which fits the manual-action combat direction.
+	var facing := (player.position - boss.position).normalized()
+	for angle_offset in [-0.42, 0.0, 0.42]:
+		var lane := facing.rotated(angle_offset)
+		_spawn_boss_water_blade(boss.position + Vector2(0, -86) + lane * 42.0, lane, 72.0, 0.28)
+	status.text = "%s以岚潮展开三道水刃；离开扇面即可避开。" % BOSS_ECHO_NAME
+	await get_tree().create_timer(0.29).timeout
+	if defeated or not boss_engaged or not _boss_can_reach_player() or boss_health <= 0:
+		return
+	var to_player := (player.position - boss.position).normalized()
+	if facing.dot(to_player) < 0.84:
+		return
+	var damage := GameState.pve_damage_after_equipment(7, "water")
+	if guard_time_left > 0.0:
+		damage = ceili(float(damage) * 0.45)
+		guard_time_left = 0.0
+	player_health = max(0, player_health - damage)
+	status.text = "%s的岚潮扇面命中，造成 %d 点伤害。" % [BOSS_ECHO_NAME, damage]
+	_refresh_player_hp()
+	if player_health == 0:
+		defeated = true
+		status.text = "你在水府中力竭而退：死亡不掉落，正在返回云岚村。"
+		await get_tree().create_timer(1.2).timeout
+		get_tree().change_scene_to_file("res://scenes/yunlan_outskirts.tscn")
+
+
+func _spawn_boss_water_blade(origin: Vector2, facing: Vector2, distance := 56.0, lifetime := 0.25) -> void:
+	var blade := SpriteSheetBurst.new()
+	blade.texture = demon_water_blade.texture
+	blade.columns = 4
+	blade.frame_count = 4
+	blade.animation_fps = 16.0
+	blade.motion_distance = distance
+	blade.start_scale = Vector2(0.22, 0.22)
+	blade.end_scale = Vector2(0.34, 0.34)
+	$CombatEffects.add_child(blade)
+	blade.play_burst(origin, facing)
+	get_tree().create_timer(lifetime).timeout.connect(blade.queue_free)
+
+
+func _check_boss_phase() -> void:
+	if boss_phase >= 2 or boss_health > 50 or boss_health <= 0:
+		return
+	boss_phase = 2
+	boss_attack_cooldown = minf(boss_attack_cooldown, 0.75)
+	status.text = "%s的水袖与鲛鳞共鸣，映潮分身进入第二重“岚潮回环”；她会放出可见的三道水刃。" % BOSS_ECHO_NAME
 
 
 func _on_player_attack_started(direction: String) -> void:
@@ -201,7 +260,7 @@ func _on_player_attack_started(direction: String) -> void:
 
 
 func _cast_ningxi_sword_art() -> void:
-	_cast_dungeon_weapon_primary(20, "潮妃·兰纱", Vector2(0, -90))
+	_cast_dungeon_weapon_primary(20, BOSS_ECHO_NAME, Vector2(0, -90))
 
 func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_offset: Vector2) -> void:
 	var primary := _skill(1)
@@ -303,6 +362,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 	hit_spark.play_burst(boss.position + hit_offset, Vector2.UP)
 	status.text = "%s命中%s，造成 %d 点伤害。%s" % [str(primary["name"]), target_name, damage, "伞阵保留了一层短暂护持。" if umbrella else ""]
 	_refresh_boss_hp()
+	_check_boss_phase()
 	if boss_health == 0:
 		_defeat_boss()
 
@@ -568,6 +628,7 @@ func _defeat_boss() -> void:
 	var first_clear_pearl: bool = not GameState.player.inventory.has("雾潮练气珠")
 	last_drop = WATER_PALACE_DROPS.pick_random().duplicate()
 	GameState.add_item(str(last_drop.item))
+	GameState.add_item("岚鲨鳞片")
 	if first_clear_pearl:
 		GameState.add_item("雾潮练气珠")
 	GameState.add_spirit_stones(int(last_drop.stones))
@@ -575,8 +636,9 @@ func _defeat_boss() -> void:
 	var monthly_card_bonus := GameState.try_award_monthly_card_common_material("mist_stream_palace", ["雾溪药", "凝气符"])
 	GameState.record_dungeon_run({
 		"dungeon_id": "mist_stream_palace",
-		"boss": "潮妃·兰纱",
+		"boss": BOSS_ECHO_NAME,
 		"drop": last_drop.item,
+		"material": "岚鲨鳞片",
 		"monthly_card_common_bonus": monthly_card_bonus,
 		"spirit_stones": last_drop.stones,
 		"cultivation": last_drop.cultivation,
@@ -586,7 +648,7 @@ func _defeat_boss() -> void:
 	prompt.text = ""
 	var pearl_reward := "、雾潮练气珠（首通御水法宝）" if first_clear_pearl else ""
 	var monthly_bonus_text := "\n月卡常规材料额外产出：%s" % monthly_card_bonus if not monthly_card_bonus.is_empty() else ""
-	clear_summary.text = "潮妃·兰纱已退入水雾。\n\n获得：%s%s\n灵石 +%d　修为 +%d%s\n\n本次掉落已进入行囊，并记入水府试炼记录。" % [str(last_drop.item), pearl_reward, int(last_drop.stones), int(last_drop.cultivation), monthly_bonus_text]
+	clear_summary.text = "%s已退入水雾。\n\n获得：%s、岚鲨鳞片%s\n灵石 +%d　修为 +%d%s\n\n首件装备来自水府试炼随机掉落；岚鲨鳞片可用于后续护具与水系炼器。" % [BOSS_ECHO_NAME, str(last_drop.item), pearl_reward, int(last_drop.stones), int(last_drop.cultivation), monthly_bonus_text]
 	clear_panel.visible = true
 
 func _return_to_village() -> void:
@@ -626,7 +688,8 @@ func _spawn_umbrella_ward(origin: Vector2, direction: Vector2) -> void:
 		tween.chain().tween_callback(arc.queue_free)
 
 func _refresh_boss_hp() -> void:
-	boss_hp.text = "潮妃 · 兰纱  |  气血 %d / 100" % boss_health
+	var phase_name := "第一重 · 潮刃" if boss_phase == 1 else "第二重 · 岚潮回环"
+	boss_hp.text = "%s｜%s｜气血 %d / 100" % [BOSS_ECHO_NAME, phase_name, boss_health]
 
 func _refresh_player_hp() -> void:
 	player_hp_label.text = "气血 %d / %d" % [player_health, int(GameState.derived_stats()["气血"])]
