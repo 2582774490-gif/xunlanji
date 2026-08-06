@@ -151,6 +151,12 @@ func _check_monthly_card_fairness_rules() -> void:
 	GameState.player.fixed_dungeon_attempts = {"day": "", "used": 0}
 	_expect(GameState.set_local_monthly_card_test_entitlement("none", test_time), "Local prototype should be able to clear a test-only monthly-card entitlement.")
 	_expect(GameState.daily_fixed_dungeon_limit(test_time) == 3, "Free players must keep three daily fixed-dungeon attempts.")
+	if not GameState.player.inventory.has(GameState.EXPLORATION_COMPASS_ITEM):
+		GameState.player.inventory.append(GameState.EXPLORATION_COMPASS_ITEM)
+	GameState.player.convenience_cooldowns = {}
+	var free_compass := GameState.use_exploration_compass("starter_village", test_time)
+	_expect(bool(free_compass.get("ok", false)) and is_equal_approx(float(free_compass.get("cooldown_seconds", 0.0)), 120.0), "Free exploration compass should give information only with its 120-second base cooldown.")
+	_expect(not bool(GameState.use_exploration_compass("starter_village", test_time).get("ok", true)), "Exploration compass should obey its active cooldown.")
 	for attempt in 3:
 		_expect(GameState.try_begin_fixed_dungeon("mist_stream_palace", test_time), "Free fixed-dungeon attempt %d should be accepted." % (attempt + 1))
 	_expect(not GameState.try_begin_fixed_dungeon("mist_stream_palace", test_time), "A fourth free fixed-dungeon attempt must be blocked.")
@@ -167,6 +173,9 @@ func _check_monthly_card_fairness_rules() -> void:
 	_expect(GameState.set_local_monthly_card_test_entitlement("large", test_time), "Large monthly-card test entitlement was not accepted.")
 	_expect(GameState.daily_fixed_dungeon_limit(test_time) == 5, "Large monthly card should add exactly two daily fixed-dungeon attempts.")
 	_expect(is_equal_approx(GameState.convenience_cooldown_multiplier("exploration_compass", test_time), 0.80), "Large monthly card should only reduce designated convenience cooldowns by twenty percent.")
+	GameState.player.convenience_cooldowns = {}
+	var large_compass := GameState.use_exploration_compass("mist_border", test_time)
+	_expect(bool(large_compass.get("ok", false)) and is_equal_approx(float(large_compass.get("cooldown_seconds", 0.0)), 96.0), "Large monthly card should reduce the actual exploration-compass cooldown to 96 seconds, without any battle effect.")
 	_expect(GameState.market_fee(100) == 5, "Monthly-card state must not alter the five-percent trade listing fee.")
 	_expect(GameState.try_award_monthly_card_common_material("mist_stream_palace", materials, 0.041).is_empty(), "Even large monthly cards must not exceed the four-percent common-material bonus boundary.")
 	GameState.player = profile_before

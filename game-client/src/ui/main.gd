@@ -198,6 +198,13 @@ func _show_overworld() -> void:
 	_text("当前区域：%s。大区以短暂切换连接；正式联网目标为单区最多 10 名玩家。" % _current_region().name)
 	_text("十人同区原型：%s。仅同步在线名册与位置；背包、交易结算与战斗仍不会交给客户端联网伪造。" % OnlineSession.state_text(), 15, Color("a7d5ca"))
 	_buttons([["连接本机十人房", _connect_local_ten_player_room, 200, OnlineSession.is_room_connected()], ["断开十人房", _disconnect_ten_player_room, 160, not OnlineSession.is_room_connected()]])
+	if GameState.player.inventory.has(GameState.EXPLORATION_COMPASS_ITEM):
+		var compass_remaining := GameState.convenience_cooldown_remaining(GameState.EXPLORATION_COMPASS_ITEM)
+		var compass_text := "探路罗盘可辨识当前区域已有的地形线索；不生成资源、不加修为、不影响战斗。"
+		if compass_remaining > 0.0:
+			compass_text += " 冷却剩余 %.0f 秒。" % ceilf(compass_remaining)
+		_text(compass_text, 16, Color("a7d5ca"))
+		_buttons([["使用探路罗盘", _use_exploration_compass, 190, compass_remaining > 0.0]])
 	var thresholds := [0, 1, 3]
 	for region_index in Catalog.REGIONS.size():
 		var region: Dictionary = Catalog.REGIONS[region_index]
@@ -702,6 +709,13 @@ func _explore() -> void:
 		"ancient_ridge": "古脊岭的地火、战场残魂与石海遗迹各有地貌边界；请在大地图实地探索。",
 	}
 	GameState.notify("%s｜%s" % [str(region.name), str(hint_by_region.get(region.id, "请进入可运行大地图寻找可解释的机缘。"))])
+	_render()
+
+
+func _use_exploration_compass() -> void:
+	var result := GameState.use_exploration_compass(str(_current_region().id))
+	if not bool(result.get("ok", false)):
+		GameState.notify(str(result.get("message", "探路罗盘暂时无法辨向。")))
 	_render()
 
 func _attack() -> void:

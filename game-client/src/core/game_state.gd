@@ -77,6 +77,25 @@ const MONTHLY_CARD_BENEFITS := {
 	"small": {"label": "小月卡", "extra_attempts": 1, "common_bonus_chance": 0.02, "convenience_cooldown_multiplier": 0.90},
 	"large": {"label": "大月卡", "extra_attempts": 2, "common_bonus_chance": 0.04, "convenience_cooldown_multiplier": 0.80},
 }
+const EXPLORATION_COMPASS_ITEM := "探路罗盘"
+const EXPLORATION_COMPASS_BASE_COOLDOWN_SECONDS := 120.0
+const EXPLORATION_COMPASS_HINTS := {
+	"starter_village": [
+		"沿雾溪石阶向北，可见水府潮痕；这是炼气初期可自行尝试的固定入口。",
+		"旧商道的风向指向东侧关隘；完成一次水府探索后，边境旧道会更稳定。",
+		"丘陵草坡的采集点不会均匀分布，溪流弯道和背风石隙更容易见到雾溪灵草。"
+	],
+	"mist_border": [
+		"雾林道的低雾里偶有妖兽；炼气二层后可沿缓坡寻找雾林妖径入口。",
+		"雾骨溪的矿脉在裸露岩层附近，盗匪与散修只会出现在商道、浅滩等合理位置。",
+		"沉舷遗府的潮门在旧港北侧；炼气四层后可从雾林道继续深入。"
+	],
+	"ancient_ridge": [
+		"古脊岭地火裂隙附近能看见锻台遗迹；地火洞是固定入口，不会被随机机缘替代。",
+		"高地风蚀石阵更适合留下古战场线索；危险散修不会出现在主路聚落中央。",
+		"遗址深处的机关路径需要更高境界准备；先观察地形与补给，再决定是否深入。"
+	],
+}
 var local_market_listings: Array[Dictionary] = [
 	{"id": "npc_mist_stream_medicine", "name": "雾溪药", "type": "药材", "price": 14, "seller": "陆青禾"},
 	{"id": "npc_ore", "name": "雾潮矿芯", "type": "材料", "price": 32, "seller": "温行客"},
@@ -122,12 +141,14 @@ var player := {
 	"equipped_footwear": "",
 	"equipment_upgrades": {},
 	"weapon_trial_claimed": false,
-	"inventory": ["练气木剑", "凝气符", "雾溪草", "纳灵玉佩"],
+	"inventory": ["练气木剑", "凝气符", "雾溪草", "纳灵玉佩", EXPLORATION_COMPASS_ITEM],
 	"codex": ["云岚村", "雾溪水府"],
 	"opportunity_log": [],
 	"dungeon_runs": [],
 	"fixed_dungeon_attempts": {"day": "", "used": 0},
 	"monthly_card": {"tier": "none", "expires_at": 0},
+	"convenience_cooldowns": {},
+	"last_exploration_compass_hint": {},
 	"unlocked_regions": ["starter_village"],
 }
 
@@ -828,6 +849,35 @@ func convenience_cooldown_seconds(base_seconds: float, category: String, now_uni
 	return maxf(0.0, base_seconds * convenience_cooldown_multiplier(category, now_unix))
 
 
+func convenience_cooldown_remaining(item_id: String, now_unix: int = -1) -> float:
+	_normalize_player_schema()
+	var now := int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
+	var cooldowns: Dictionary = player.convenience_cooldowns
+	return maxf(0.0, float(int(cooldowns.get(item_id, 0)) - now))
+
+
+func use_exploration_compass(region_id: String, now_unix: int = -1) -> Dictionary:
+	# The compass only turns existing world knowledge into a direction. It creates
+	# no encounter, item, currency, cultivation, map shortcut, or combat effect.
+	_normalize_player_schema()
+	if not player.inventory.has(EXPLORATION_COMPASS_ITEM):
+		return {"ok": false, "message": "行囊中没有探路罗盘。"}
+	var now := int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
+	var remaining := convenience_cooldown_remaining(EXPLORATION_COMPASS_ITEM, now)
+	if remaining > 0.0:
+		return {"ok": false, "message": "探路罗盘还需 %.0f 秒才能再次辨向。" % ceilf(remaining), "remaining": remaining}
+	var hints: Array = EXPLORATION_COMPASS_HINTS.get(region_id, EXPLORATION_COMPASS_HINTS.starter_village)
+	var hint := str(hints.pick_random())
+	var duration := convenience_cooldown_seconds(EXPLORATION_COMPASS_BASE_COOLDOWN_SECONDS, "exploration_compass", now)
+	var cooldowns: Dictionary = player.convenience_cooldowns
+	cooldowns[EXPLORATION_COMPASS_ITEM] = now + ceili(duration)
+	player.convenience_cooldowns = cooldowns
+	player.last_exploration_compass_hint = {"region_id": region_id, "text": hint, "available_at": int(cooldowns[EXPLORATION_COMPASS_ITEM])}
+	profile_changed.emit()
+	notify("探路罗盘：%s" % hint)
+	return {"ok": true, "message": hint, "cooldown_seconds": duration}
+
+
 func try_award_monthly_card_common_material(dungeon_id: String, common_materials: Array[String], roll: float = -1.0) -> String:
 	# 只可额外产出明确传入的常规材料；首领装备、功法、法宝、丹药和稀有掉落绝不进入此池。
 	if dungeon_id.is_empty() or common_materials.is_empty():
@@ -1436,6 +1486,15 @@ func _normalize_player_schema() -> void:
 		monthly_card.tier = card_tier if MONTHLY_CARD_BENEFITS.has(card_tier) else "none"
 		monthly_card.expires_at = max(0, int(monthly_card.get("expires_at", 0)))
 		player.monthly_card = monthly_card
+	if not player.has("convenience_cooldowns") or not player.convenience_cooldowns is Dictionary:
+		player.convenience_cooldowns = {}
+	else:
+		var convenience_cooldowns: Dictionary = player.convenience_cooldowns
+		for item_id in convenience_cooldowns.keys():
+			convenience_cooldowns[item_id] = max(0, int(convenience_cooldowns.get(item_id, 0)))
+		player.convenience_cooldowns = convenience_cooldowns
+	if not player.has("last_exploration_compass_hint") or not player.last_exploration_compass_hint is Dictionary:
+		player.last_exploration_compass_hint = {}
 
 
 func _attribute_points_spent_raw() -> int:
