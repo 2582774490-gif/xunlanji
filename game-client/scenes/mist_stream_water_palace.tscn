@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://src/world/mist_stream_water_palace.gd" id="1_scene"]
 [ext_resource type="Script" path="res://src/world/water_palace_map.gd" id="2_map"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" path="res://src/animation/frame_animation_controller.gd" id="4_animator"]
 [ext_resource type="Script" path="res://src/world/ground_shadow.gd" id="5_shadow"]
 [ext_resource type="Script" path="res://src/animation/weapon_motion_controller.gd" id="6_weapon"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/boss_xiaochao_lansha/slices/boss_xiaochao_lansha_front_v01.png" id="7_boss"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_stream_water_palace/mist_stream_water_palace_base_map_v01.png" id="8_map_art"]
 [ext_resource type="Texture2D" path="res://assets/art/weapons/qinglan_sword/processed_alpha/qinglan_sword_idle_v01_alpha.png" id="9_qinglan_sword"]
 [ext_resource type="Script" path="res://src/combat/sprite_sheet_burst.gd" id="10_effect"]
@@ -39,10 +38,10 @@ z_index = -2
 [node name="Boss" type="Area2D" parent="."]
 position = Vector2(1830, 430)
 
-[node name="Sprite" type="Sprite2D" parent="Boss"]
-texture = ExtResource("7_boss")
+[node name="Sprite" type="AnimatedSprite2D" parent="Boss"]
 scale = Vector2(0.52, 0.52)
 position = Vector2(0, -115)
+script = ExtResource("4_animator")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boss"]
 shape = SubResource("BossShape")

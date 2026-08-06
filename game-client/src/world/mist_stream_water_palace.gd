@@ -24,10 +24,12 @@ const MirrorRayEffectScript = preload("res://src/combat/mirror_ray_effect.gd")
 const TowerWardImpactEffectScript = preload("res://src/combat/tower_ward_impact_effect.gd")
 const WheelReturnEffectScript = preload("res://src/combat/wheel_return_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
+const BossIdleSheet: Texture2D = preload("res://assets/art/characters/boss_xiaochao_lansha/processed_alpha/boss_xiaochao_lansha_idle_south_6f_v01_alpha.png")
 const BOSS_RETALIATION_RANGE := 650.0
 
 @onready var player: CharacterBody2D = $Player
 @onready var boss: Area2D = $Boss
+@onready var boss_sprite: FrameAnimationController = $Boss/Sprite
 @onready var boss_hp: Label = $HUD/BossPanel/BossHP
 @onready var player_hp_label: Label = $HUD/PlayerHP
 @onready var player_mana_label: Label = $HUD/PlayerMana
@@ -71,6 +73,10 @@ const WATER_PALACE_DROPS := [
 ]
 
 func _ready() -> void:
+	boss_sprite.configure_from_grid(BossIdleSheet, 6, 1, {
+		"idle_south": {"frames": [0, 1, 2, 3, 4, 5], "fps": 3.2, "loop": true},
+	})
+	boss_sprite.play_action("idle", "south")
 	player.map_bounds = Rect2(64, 64, 2432, 1408)
 	player.position = Vector2(240, 1250)
 	player_health = int(GameState.derived_stats()["气血"])

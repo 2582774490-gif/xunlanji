@@ -1,0 +1,17 @@
+{
+  "asset_id": "BOSS-WXP-001-IDLE-SOUTH-6F-V01",
+  "character_id": "boss_xiaochao_lansha",
+  "display_name": "潮妃·兰纱",
+  "role": "雾溪水府固定首领（炼气期）",
+  "status": "runtime_approved",
+  "generator": "OpenAI built-in image generation",
+  "source": "source_magic2/boss_xiaochao_lansha_idle_south_6f_v01_key.png",
+  "processed": "processed_alpha/boss_xiaochao_lansha_idle_south_6f_v01_alpha.png",
+  "canvas_px": [2160, 720],
+  "grid": {"columns": 6, "rows": 1, "cell_px": [360, 720]},
+  "animation": {"clip": "idle_south", "frames": [0, 1, 2, 3, 4, 5], "fps": 3.2, "loop": true},
+  "anchor": {"baseline_y": 650, "body_facing": "south"},
+  "background_workflow": "#ff00ff chroma key -> soft matte alpha conversion",
+  "approved_for": ["雾溪水府首领战斗待机", "角色动画预览", "后续水系首领动作锚点"],
+  "not_approved_for": ["移动循环", "攻击动作", "最终静态立绘"]
+}

@@ -1409,6 +1409,7 @@ func _check_water_palace_loop() -> void:
 	var palace := preload("res://scenes/mist_stream_water_palace.tscn").instantiate()
 	add_child(palace)
 	await get_tree().process_frame
+	_expect(palace.boss_sprite.is_playing() and palace.boss_sprite.sprite_frames.get_frame_count("idle_south") == 6, "Water Palace boss did not load the approved six-frame idle animation.")
 	palace.near_boss = true
 	var health_before: int = palace.boss_health
 	palace._cast_ningxi_sword_art()
