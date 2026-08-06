@@ -67,3 +67,5 @@
 旧商道的第三张地形画布已接入：`game-client/assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_old_caravan_road_v01.png`。旧道劫修、货册机缘与雾潮边境关口维持在商道生态区；画面中的废车与歇棚只构成路况叙事，不会被误当成一条强制任务线。
 
 石芽高地的第四张地形画布已接入：`game-client/assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_stonebud_highland_v01.png`。背风石芽与风痕残页保留在高地岩隙、观风台地附近，避免把矿物或机缘均匀撒进雾溪和商道。
+
+岚息丘的第五张地形画布已接入：`game-client/assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_lan_echo_hills_v01.png`。回响石保持为远眺和环境观察点，而不是强制目标；它提供与岚息相关的轻量世界观线索，玩家可自由绕行。

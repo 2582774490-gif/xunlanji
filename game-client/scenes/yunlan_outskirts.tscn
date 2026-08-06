@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_outskirts.gd" id="1_scene"]
 [ext_resource type="Script" path="res://src/world/large_region_backdrop.gd" id="2_backdrop"]
@@ -19,6 +19,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_cloudfoot_wood_v01.png" id="17_cloudfoot"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_old_caravan_road_v01.png" id="18_old_road"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_stonebud_highland_v01.png" id="19_stonebud"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_lan_echo_hills_v01.png" id="20_echo_hills"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -106,6 +107,12 @@ z_index = -9
 script = ExtResource("15_chunk_art")
 chunk_kind = "lan_echo_hills"
 chunk_size = Vector2(4096, 2560)
+
+[node name="TerrainArt" type="Sprite2D" parent="LanEchoHillsChunk"]
+texture = ExtResource("20_echo_hills")
+scale = Vector2(2, 2)
+centered = false
+z_index = 1
 
 [node name="ChunkStreamer" type="Node" parent="."]
 script = ExtResource("11_streamer")

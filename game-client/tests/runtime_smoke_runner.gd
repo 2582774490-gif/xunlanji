@@ -1635,6 +1635,8 @@ func _check_yunlan_outskirts_scene() -> void:
 	outskirts.player.position = Vector2(7720, 4700)
 	await get_tree().process_frame
 	_expect(outskirts.get_node("LanEchoHillsChunk").visible, "Yunlan Outskirts did not stream the Lan Echo Hills detail plane in its distant hill sector.")
+	var echo_hills_terrain: Sprite2D = outskirts.get_node("LanEchoHillsChunk/TerrainArt")
+	_expect(echo_hills_terrain.texture.resource_path.ends_with("yunlan_outskirts_lan_echo_hills_v01.png"), "Yunlan's Lan Echo Hills must use an independent distant-hills terrain painting rather than ending in a generic backdrop.")
 	outskirts.player.position = Vector2(11200, 7200)
 	await get_tree().process_frame
 	_expect(not outskirts.get_node("SouthGateChunk").visible and not outskirts.get_node("MistStreamBanksChunk").visible, "Yunlan Outskirts did not unload far-away high-detail terrain planes across the large regional bounds.")
