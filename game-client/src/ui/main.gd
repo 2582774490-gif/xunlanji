@@ -201,10 +201,7 @@ func _show_overworld() -> void:
 	_line()
 	var region: Dictionary = _current_region()
 	_text("固定副本：%s" % _dungeon_names(region.dungeons), 18, Color("f2d79c"))
-	var dungeon_buttons: Array = []
-	for dungeon_id in region.dungeons:
-		dungeon_buttons.append([Catalog.DUNGEONS[dungeon_id].name, func(): _enter_dungeon(dungeon_id), 180])
-	_buttons(dungeon_buttons)
+	_text("副本只能从大地图的真实入口进入；此页不提供绕过地图的直接传送。", 15, Color("a7d5ca"))
 	_buttons([["进入可运行大地图", _open_playable_world, 240]])
 	_buttons([["查看区域探索要点", _explore, 220], ["返回洞府", func(): GameState.enter_screen(GameState.Screen.HOME), 160]])
 
@@ -654,7 +651,7 @@ func _explore() -> void:
 	# only resolved at physical regional anchors in the playable world.
 	var region := _current_region()
 	var hint_by_region := {
-		"starter_village": "先进入云岚村南门：灵草、引路人和初始遗物都在可到达的位置。",
+		"starter_village": "从云岚外野的灵田、雾溪和云麓疏林探索；雾溪水府位于疏林石阶，村庄只是服务聚落。",
 		"mist_border": "进入雾潮边境后，沿雾渠、矿滩和药湿地观察；不同地貌只会出现相应生态。",
 		"red_maple_ancient_road": "赤枫古道的机缘应在商路、断桥与火窑遗址附近寻找。",
 		"thunder_listening_cliff": "听雷崖的线索集中在崖缘、雷纹石与避风平台，不会平铺在全区。",

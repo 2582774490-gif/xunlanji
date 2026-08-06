@@ -1406,6 +1406,8 @@ func _check_world_menu_does_not_fabricate_opportunity_rewards() -> void:
 	menu._explore()
 	_expect(GameState.player.inventory == inventory_before and GameState.player.cultivation == cultivation_before, "World-menu exploration must not mint rewards without a physical regional interaction.")
 	_expect(GameState.player.opportunity_log.size() == log_before, "World-menu exploration must not log a fabricated opportunity.")
+	var rendered_text := _collect_label_text(menu)
+	_expect(rendered_text.contains("副本只能从大地图的真实入口进入"), "World menu still exposes a direct dungeon shortcut instead of the physical-world entry rule.")
 	menu.queue_free()
 	await get_tree().process_frame
 	GameState.current_region_id = region_before

@@ -11,9 +11,9 @@ const REALMS := [
 
 const REGIONS := [
 	{
-		"id": "starter_village", "name": "云岚村与近郊", "realm": "炼气", "unlocked": true,
-		"description": "新手村、基础采集、宗门接引与可解释的初始机缘。",
-		"dungeons": ["training_cave", "abandoned_mine", "mist_stream_palace"],
+		"id": "starter_village", "name": "云岚外野", "realm": "炼气", "unlocked": true,
+		"description": "云岚村服务聚落、雾溪浅岸、云麓疏林与首个实体副本入口。",
+		"dungeons": ["mist_stream_palace"],
 	},
 	{
 		"id": "mist_border", "name": "宗门边境与雾原", "realm": "炼气二层 / 筑基", "unlocked": false,
