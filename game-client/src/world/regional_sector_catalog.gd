@@ -7,6 +7,12 @@ extends RefCounted
 
 static func sectors_for(region_style: String) -> Array[Dictionary]:
 	match region_style:
+		"return_abyss_mist_port":
+			return _return_abyss_mist_port_sectors()
+		"thunder_listening_cliff":
+			return _thunder_listening_cliff_sectors()
+		"abysswatch_terrace":
+			return _abysswatch_terrace_sectors()
 		"ancient_ridge":
 			return _ancient_ridge_sectors()
 		"mist_border":
@@ -64,6 +70,53 @@ static func _mist_border_sectors() -> Array[Dictionary]:
 		{
 			"id": "tideward_hills", "name": "潮外丘陵", "bounds": Rect2(6200, 3640, 5720, 4240),
 			"description": "风蚀丘陵将湿地与外海隔开；这里保留给后续大型秘境与山门扩展。", "terrain": "highland",
+		},
+	]
+
+
+static func _return_abyss_mist_port_sectors() -> Array[Dictionary]:
+	return [
+		{
+			"id": "tide_ledger_quay", "name": "潮簿泊位", "bounds": Rect2(480, 540, 1360, 980),
+			"description": "有税簿、泊位和往来货单的安全港埠；行商与测潮散修只会在这里交换消息。", "terrain": "settled",
+		},
+		{
+			"id": "wrecked_shallows", "name": "沉桅浅滩", "bounds": Rect2(2180, 500, 980, 1260),
+			"description": "残舟压住暗礁后的危险浅滩；水妖只能在礁群、潮沟与破船之间活动。", "terrain": "water",
+		},
+		{
+			"id": "shipyard_lane", "name": "修船栈道", "bounds": Rect2(3260, 520, 940, 1280),
+			"description": "风浪较缓的维修船坞与工料栈道；修船散修不会出现在外海浅滩。", "terrain": "settled",
+		},
+		{
+			"id": "sea_cave_approach", "name": "海蚀洞潮口", "bounds": Rect2(4480, 500, 980, 1320),
+			"description": "涨潮时被雾水淹没的洞口滩脊，属于潮穴鳞豚的领地而非普通商路。", "terrain": "water",
+		},
+	]
+
+
+static func _thunder_listening_cliff_sectors() -> Array[Dictionary]:
+	return [
+		{
+			"id": "storm_shelter_road", "name": "避雷栈道", "bounds": Rect2(760, 460, 920, 1120),
+			"description": "通往避雷亭的石栈路，候雷符修会在风势可控的位置停留，不会占满崖顶。", "terrain": "settled",
+		},
+		{
+			"id": "lightning_crags", "name": "引雷危崖", "bounds": Rect2(1880, 380, 980, 1140),
+			"description": "雷晶裂缝与断崖组成的高危地带；引雷岩貂只在其巢穴附近出没。", "terrain": "storm",
+		},
+	]
+
+
+static func _abysswatch_terrace_sectors() -> Array[Dictionary]:
+	return [
+		{
+			"id": "observation_path", "name": "观渊石径", "bounds": Rect2(940, 440, 720, 1060),
+			"description": "通向观想台的避风石径；守台散修在这里交流护脉经验，不会被随机投放到断崖外。", "terrain": "settled",
+		},
+		{
+			"id": "windward_cliffs", "name": "裂风崖缘", "bounds": Rect2(2060, 360, 1040, 1180),
+			"description": "受峡风切割的崖缘与岩柱，是裂风岩隼盘旋、筑巢和俯冲的唯一生态带。", "terrain": "highland",
 		},
 	]
 

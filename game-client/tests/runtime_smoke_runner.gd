@@ -1860,6 +1860,8 @@ func _check_thunder_listening_cliff() -> void:
 	add_child(cliff)
 	await get_tree().process_frame
 	_expect(cliff.player.map_bounds.size.x >= 11000.0, "Thunder Listening Cliff did not reserve a large weather-exploration region.")
+	_expect(RegionalSectorCatalog.sector_at("thunder_listening_cliff", Vector2(2250, 760)).get("id", "") == "lightning_crags", "Thunder Listening Cliff did not bind its beast anchor to the lightning-crag ecology sector.")
+	_expect(RegionalSectorCatalog.sector_at("thunder_listening_cliff", Vector2(1280, 840)).get("id", "") == "storm_shelter_road", "Thunder Listening Cliff did not bind its social anchor to the shelter-road sector.")
 	_expect(cliff.thunder_window.size() > 0, "Thunder Listening Cliff did not choose a weather opportunity.")
 	_expect(cliff.chunk_streamer.loaded_chunk_count() >= 1, "Thunder Listening Cliff did not load its nearby terrain chunk.")
 	cliff.active_interaction = cliff.pavilion_interaction
@@ -1887,6 +1889,8 @@ func _check_return_abyss_mist_port() -> void:
 	add_child(port)
 	await get_tree().process_frame
 	_expect(port.player.map_bounds.size.x >= 11000.0, "Return Abyss Mist Port did not reserve a large port exploration region.")
+	_expect(RegionalSectorCatalog.sector_at("return_abyss_mist_port", Vector2(2550, 1020)).get("id", "") == "wrecked_shallows", "Return Abyss Mist Port did not bind water-beast anchors to the wrecked shallows.")
+	_expect(RegionalSectorCatalog.sector_at("return_abyss_mist_port", Vector2(3710, 1020)).get("id", "") == "shipyard_lane", "Return Abyss Mist Port did not bind its repair rogue to the shipyard lane.")
 	_expect(port.port_event.size() > 0, "Return Abyss Mist Port did not choose a free-exploration port event.")
 	_expect(port.chunk_streamer.loaded_chunk_count() >= 1, "Return Abyss Mist Port did not load its nearby authored quay terrain.")
 	_expect(port.get_node("OuterHarborChunk").visible, "Return Abyss Mist Port did not load its connected outer-harbor terrain chunk.")
@@ -1919,6 +1923,8 @@ func _check_abysswatch_terrace() -> void:
 	add_child(terrace)
 	await get_tree().process_frame
 	_expect(terrace.player.map_bounds.size.x >= 11000.0, "Abysswatch Terrace did not reserve a large ninth-layer region.")
+	_expect(RegionalSectorCatalog.sector_at("abysswatch_terrace", Vector2(2430, 720)).get("id", "") == "windward_cliffs", "Abysswatch Terrace did not bind its eagle to the windward-cliff ecology sector.")
+	_expect(RegionalSectorCatalog.sector_at("abysswatch_terrace", Vector2(1280, 820)).get("id", "") == "observation_path", "Abysswatch Terrace did not bind its social NPC to the observation path.")
 	_expect(terrace.terrace_sign.size() > 0, "Abysswatch Terrace did not choose a preparation opportunity.")
 	_expect(terrace.chunk_streamer.loaded_chunk_count() >= 1, "Abysswatch Terrace did not load its authored terrace chunk.")
 	terrace.active_interaction = terrace.observation_interaction

@@ -64,6 +64,14 @@ func _sector_for_profile(profile_id: String) -> String:
 		"wetland_mist_herb", "wetland_herbalist": return "herb_wetland"
 		"earthfire_hound": return "earthfire_ravine"
 		"battlefield_remnant", "relic_seeker": return "ancient_battlefield"
+		"port_merchant", "tide_chart_rogue": return "tide_ledger_quay"
+		"wreck_shallows_beast": return "wrecked_shallows"
+		"shipyard_rogue": return "shipyard_lane"
+		"sea_cave_beast": return "sea_cave_approach"
+		"thunder_crag_beast": return "lightning_crags"
+		"storm_talisman_rogue": return "storm_shelter_road"
+		"terrace_wind_eagle": return "windward_cliffs"
+		"terrace_observer": return "observation_path"
 		_: return ""
 
 func owns(interaction: Area2D) -> bool:
