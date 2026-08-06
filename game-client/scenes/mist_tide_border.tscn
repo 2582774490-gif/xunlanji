@@ -22,6 +22,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/terrain/mist_tide_south_highlands_v01.png" id="20_south_highlands"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/terrain/mist_tide_tideward_hills_v01.png" id="21_tideward_hills"]
 [ext_resource type="Script" path="res://src/world/tideward_watchstone.gd" id="22_watchstone"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/props/tideward_watchstone/processed_alpha/tideward_watchstone_v01_alpha.png" id="23_watchstone_art"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -113,12 +114,18 @@ script = ExtResource("18_encounter")
 position = Vector2(7900, 5100)
 y_sort_enabled = true
 script = ExtResource("22_watchstone")
+draw_fallback_geometry = false
+
+[node name="Art" type="Sprite2D" parent="TidewardWatchstone"]
+texture = ExtResource("23_watchstone_art")
+position = Vector2(0, -180)
+scale = Vector2(0.30, 0.30)
 
 [node name="Name" type="Label" parent="TidewardWatchstone"]
 offset_left = -118.0
-offset_top = -248.0
+	offset_top = -416.0
 offset_right = 118.0
-offset_bottom = -220.0
+	offset_bottom = -388.0
 theme_override_colors/font_color = Color(0.69, 0.96, 0.88, 1)
 theme_override_colors/font_outline_color = Color(0.03, 0.07, 0.08, 1)
 theme_override_constants/outline_size = 6

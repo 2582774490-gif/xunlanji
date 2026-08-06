@@ -6,6 +6,7 @@ extends Node2D
 ## three-dimensional landmark without turning the whole ridge into a camp.
 
 var _wind_phase := 0.0
+@export var draw_fallback_geometry := true
 
 func _ready() -> void:
 	queue_redraw()
@@ -15,6 +16,8 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
+	if not draw_fallback_geometry:
+		return
 	# Ground shadow and stepped basalt foundation.
 	draw_ellipse(Vector2(0, 4), Vector2(104, 22), Color(0.02, 0.05, 0.06, 0.48))
 	draw_colored_polygon(PackedVector2Array([

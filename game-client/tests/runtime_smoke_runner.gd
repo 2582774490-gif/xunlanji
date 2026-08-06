@@ -1543,6 +1543,8 @@ func _check_mist_border_scene() -> void:
 	_expect(border.has_node("SouthHighlandsChunk"), "Mist Tide Border is missing its authored southern-highlands terrain chunk.")
 	_expect(border.has_node("TidewardHillsChunk"), "Mist Tide Border is missing its authored southeast tideward-hills terrain chunk.")
 	_expect(border.tideward_watchstone_interaction != null, "Mist Tide Border is missing the tideward-hills exploration landmark.")
+	var watchstone_art: Sprite2D = border.get_node("TidewardWatchstone/Art")
+	_expect(watchstone_art.texture.resource_path.ends_with("tideward_watchstone_v01_alpha.png"), "Tideward watchstone must use its approved independent alpha art.")
 	_expect(RegionalSectorCatalog.sector_at("mist_border", Vector2(7900, 5100)).get("id", "") == "tideward_hills", "Tideward watchstone must remain inside its exposed highland sector.")
 	var ecology_profiles: Array[Dictionary] = border._population_profiles()
 	_expect(ecology_profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "wetland_mist_herb"), "Mist Tide Border is missing its wetland-bound herb ecology profile.")
