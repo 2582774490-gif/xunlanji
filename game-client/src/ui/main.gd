@@ -266,6 +266,20 @@ func _show_inventory() -> void:
 	_text("已装备武器：%s｜已装备法宝：%s｜已装备护具：%s" % [GameState.player.equipped_weapon, GameState.player.equipped_artifact, armor_name if not armor_name.is_empty() else "未装备"], 20, Color("f2d79c"))
 	_text("当前物品：%s" % "、".join(GameState.player.inventory))
 	_line()
+	_heading("衣柜 · 不参与任何数值结算")
+	var equipped_costume_id := str(GameState.player.get("equipped_costume", ""))
+	_text("当前外观：%s。时装不改变角色属性、武器技能、PVP、掉落、交易或副本次数。" % (str(GameState.equipped_costume_profile().get("name", "默认行装"))), 16, Color("f2d79c"))
+	var costume_buttons: Array = [["卸下时装", func(): GameState.equip_costume(""), 160, equipped_costume_id.is_empty()]]
+	for costume_value in (GameState.player.get("owned_costumes", []) as Array):
+		var costume_id := str(costume_value)
+		var costume_profile := Catalog.costume_profile_for_id(costume_id)
+		if costume_profile.is_empty():
+			continue
+		_add_inventory_costume_card(costume_id, costume_profile, costume_id == equipped_costume_id)
+		costume_buttons.append(["试穿 %s" % str(costume_profile.name), func(): GameState.equip_costume(costume_id), 200, costume_id == equipped_costume_id])
+	_buttons(costume_buttons)
+	_text("当前“流岚游衣”已入库的是原创立绘概念图。为避免把静态立绘硬贴到地图人物上，它会在八方向动作帧完成后才显示在大世界与副本中。", 15, Color("a7d5ca"))
+	_line()
 	var card_names := {}
 	for item_value in GameState.player.inventory:
 		var item_name := str(item_value)
@@ -336,6 +350,29 @@ func _add_inventory_equipment_card(item_name: String, profile: Dictionary, categ
 	var details := Label.new()
 	var equipped_line := "已装备" if equipped else "行囊中"
 	details.text = "《%s》｜%s｜%s｜%s\n%s\n%s" % [item_name, category, str(profile.get("quality", "凡品")), equipped_line, str(profile.get("trait", "已登记运行时规则。")), GameState.equipment_upgrade_text(item_name)]
+	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_theme_font_size_override("font_size", 16)
+	card.add_child(details)
+
+
+func _add_inventory_costume_card(costume_id: String, profile: Dictionary, equipped: bool) -> void:
+	var concept_asset := str(profile.get("concept_asset", ""))
+	if concept_asset.is_empty() or not ResourceLoader.exists(concept_asset):
+		return
+	var card := HBoxContainer.new()
+	card.custom_minimum_size = Vector2(0, 205)
+	card.add_theme_constant_override("separation", 16)
+	content.add_child(card)
+	var preview := TextureRect.new()
+	preview.texture = load(concept_asset) as Texture2D
+	preview.custom_minimum_size = Vector2(124, 190)
+	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	card.add_child(preview)
+	var details := Label.new()
+	var state := "已试穿" if equipped else "衣柜中"
+	details.text = "【%s】｜%s｜%s\n%s\n%s\n%s" % [str(profile.name), str(profile.get("rarity", "外观")), state, str(profile.description), GameState.costume_runtime_status_text(costume_id), str(profile.get("animation_requirement", ""))]
 	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	details.add_theme_font_size_override("font_size", 16)

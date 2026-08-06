@@ -141,6 +141,8 @@ var player := {
 	"equipped_footwear": "",
 	"equipment_upgrades": {},
 	"weapon_trial_claimed": false,
+	"owned_costumes": ["liulan_wayfarer"],
+	"equipped_costume": "",
 	"inventory": ["练气木剑", "凝气符", "雾溪草", "纳灵玉佩", EXPLORATION_COMPASS_ITEM],
 	"codex": ["云岚村", "雾溪水府"],
 	"opportunity_log": [],
@@ -604,6 +606,44 @@ func cultivation_efficiency_multiplier() -> float:
 func cultivation_efficiency_text() -> String:
 	var affinity := cultivation_affinity()
 	return "%s｜适配灵根：%s｜适配体质：%s｜当前效率 %d%%" % [str(affinity.label), str(affinity.root), str(affinity.physique), roundi(cultivation_efficiency_multiplier() * 100.0)]
+
+
+func equip_costume(costume_id: String) -> bool:
+	_normalize_player_schema()
+	var catalog := preload("res://src/data/game_catalog.gd")
+	if costume_id.is_empty():
+		player.equipped_costume = ""
+		profile_changed.emit()
+		return true
+	if not (player.owned_costumes as Array).has(costume_id):
+		notify("尚未拥有该时装。")
+		return false
+	var profile: Dictionary = catalog.costume_profile_for_id(costume_id)
+	if profile.is_empty():
+		notify("该时装档案尚未登记。")
+		return false
+	player.equipped_costume = costume_id
+	profile_changed.emit()
+	return true
+
+
+func equipped_costume_profile() -> Dictionary:
+	_normalize_player_schema()
+	var costume_id := str(player.get("equipped_costume", ""))
+	if costume_id.is_empty():
+		return {}
+	var catalog := preload("res://src/data/game_catalog.gd")
+	return catalog.costume_profile_for_id(costume_id)
+
+
+func costume_runtime_status_text(costume_id: String) -> String:
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var profile: Dictionary = catalog.costume_profile_for_id(costume_id)
+	if profile.is_empty():
+		return "未登记"
+	if str(profile.get("runtime_state", "")) == "ready":
+		return "已接入地图角色层"
+	return "概念图已入库；动作帧待制作，当前不会以静态立绘覆盖地图角色。"
 
 func add_item(item_name: String) -> void:
 	player.inventory.append(item_name)
@@ -1452,6 +1492,20 @@ func _normalize_player_schema() -> void:
 		player.equipped_footwear = ""
 	else:
 		player.equipped_footwear = str(player.equipped_footwear)
+	if not player.has("owned_costumes") or not player.owned_costumes is Array:
+		player.owned_costumes = []
+	else:
+		var catalog := preload("res://src/data/game_catalog.gd")
+		var owned_costumes: Array = []
+		for costume_id in player.owned_costumes:
+			if not catalog.costume_profile_for_id(str(costume_id)).is_empty() and not owned_costumes.has(str(costume_id)):
+				owned_costumes.append(str(costume_id))
+		player.owned_costumes = owned_costumes
+	if not player.has("equipped_costume"):
+		player.equipped_costume = ""
+	else:
+		var equipped_costume := str(player.equipped_costume)
+		player.equipped_costume = equipped_costume if (player.owned_costumes as Array).has(equipped_costume) else ""
 	if not player.has("world_guidance") or not player.world_guidance is Dictionary:
 		player.world_guidance = {"steps": [], "skipped": false}
 	else:

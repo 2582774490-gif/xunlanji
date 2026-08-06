@@ -8,6 +8,7 @@ func _ready() -> void:
 func _run() -> void:
 	await _check_manual_progression()
 	await _check_local_profile_payload()
+	await _check_costume_wardrobe_rules()
 	await _check_monthly_card_fairness_rules()
 	await _check_optional_world_guidance()
 	await _check_cultivation_affinity()
@@ -143,6 +144,24 @@ func _check_local_profile_payload() -> void:
 	GameState.local_market_listings = listings_before
 	GameState.current_region_id = region_before
 	GameState.selected_dungeon_id = dungeon_before
+
+
+func _check_costume_wardrobe_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var costume: Dictionary = GameCatalog.costume_profile_for_id("liulan_wayfarer")
+	_expect(not costume.is_empty() and ResourceLoader.exists(str(costume.concept_asset)), "Liulan Wayfarer costume must reference its approved original concept asset.")
+	GameState.player.owned_costumes = ["liulan_wayfarer"]
+	GameState.player.equipped_costume = ""
+	var stats_before: Dictionary = GameState.derived_stats().duplicate(true)
+	_expect(GameState.equip_costume("liulan_wayfarer"), "Owned costume should be selectable from the wardrobe.")
+	_expect(str(GameState.player.equipped_costume) == "liulan_wayfarer", "Costume selection did not persist in player state.")
+	_expect(GameState.derived_stats() == stats_before, "Costume selection must not alter any combat or movement stat.")
+	_expect(GameState.costume_runtime_status_text("liulan_wayfarer").contains("概念图已入库"), "Concept-only costume must not be presented as a map-ready runtime asset.")
+	var saved := GameState.export_local_profile()
+	_expect((saved.player.get("owned_costumes", []) as Array).has("liulan_wayfarer") and str(saved.player.get("equipped_costume", "")) == "liulan_wayfarer", "Wardrobe ownership and selected costume must enter local save payload.")
+	_expect(not GameState.equip_costume("unknown_costume"), "Unowned or unknown costumes must not be equipable.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
 
 
 func _check_monthly_card_fairness_rules() -> void:

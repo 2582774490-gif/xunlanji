@@ -12,6 +12,7 @@
 | 武器 | 青篁炼气剑 | `WeaponPivot/WeaponSprite`，跟随手部、移动滞后、攻击挥动 |
 | 武器 | 回云炼气伞 | `WeaponPivot/WeaponSprite`，位于肩上方、移动时随身转向、攻击时短暂展开守势 |
 | 法宝 | 纳灵玉佩 | `ArtifactPivot/ArtifactSprite`，独立悬浮、轻微绕行、面向变化 |
+| 时装 | 流岚游衣 | 已有原创概念卡与衣柜状态；八方向动作帧完成后才创建 `CostumePivot/CostumeSprite`，当前不以静态立绘替代 |
 
 ## 约束
 

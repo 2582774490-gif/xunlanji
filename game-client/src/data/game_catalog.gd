@@ -259,6 +259,24 @@ const TECHNIQUE_ART_PROFILES := {
 static func technique_art_profile_for_name(path_name: String) -> Dictionary:
 	return TECHNIQUE_ART_PROFILES.get(path_name, {}).duplicate(true)
 
+# 时装只描述外观与资源状态，绝不能在这里附带战斗或经济数值。
+# 概念图通过审核后，仍需补齐男女同骨架的八方向待机、行走与攻击帧，
+# 才能写入 runtime_asset 并进入地图角色层。
+const COSTUME_PROFILES := {
+	"liulan_wayfarer": {
+		"name": "流岚游衣",
+		"gender": "男",
+		"rarity": "典藏外观",
+		"description": "云白、青碧与银纹交叠的游修外袍，短披与束腕让长途探索时仍保有清晰轮廓。",
+		"concept_asset": "res://assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png",
+		"runtime_state": "concept_only",
+		"animation_requirement": "需补齐男体八方向待机、八方向行走、南向攻击及武器遮挡测试。",
+	},
+}
+
+static func costume_profile_for_id(costume_id: String) -> Dictionary:
+	return COSTUME_PROFILES.get(costume_id, {}).duplicate(true)
+
 const SECTS := [
 	{"id": "mist_sword", "name": "雾隐剑宗", "trait": "重视守序、剑阵与护山", "rule": "擅离驻守任务将扣除功勋；内门后叛离山门会触发通缉。", "technique": "三折剑经", "exit_wanted_rank": 1, "exit_penalty": "雾隐剑宗已记录你的离宗，山道与驻地附近可能出现追查。"},
 	{"id": "cloud_market", "name": "云市会", "trait": "重视商路、鉴宝与契约", "rule": "恶意毁约将失去交易权限，并可能被悬赏追讨。", "technique": "镜心守识篇", "exit_wanted_rank": 3, "exit_penalty": "云市会冻结了你的会内契约信用；正常离会不构成通缉。"},
