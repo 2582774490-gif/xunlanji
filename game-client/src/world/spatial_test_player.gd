@@ -7,6 +7,7 @@ extends CharacterBody2D
 const IDLE_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_idle_8dir_v01_alpha.png")
 const WALK_KEY_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_walk_keypose_8dir_v01_alpha.png")
 const WALK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_walk_south_6f_v01_alpha.png")
+const WALK_EAST_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_walk_east_6f_v01_alpha.png")
 const ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_male/processed_alpha/yunlan_spatial_male_attack_south_6f_v01_alpha.png")
 const FEMALE_IDLE_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_idle_8dir_v01_alpha.png")
 const FEMALE_WALK_KEY_SHEET: Texture2D = preload("res://assets/art/characters/yunlan_spatial_female/processed_alpha/yunlan_spatial_female_walk_keypose_8dir_v01_alpha.png")
@@ -82,6 +83,13 @@ func _ready() -> void:
 	body.append_grid_clips(south_walk_sheet, 6, 1, {
 		"walk_south": {"frames": [0, 1, 2, 3, 4, 5], "fps": 10.0, "loop": true},
 	})
+	# The male template now has a real eastward six-frame cycle. Female and the
+	# remaining directions retain their approved key-pose fallback until their
+	# own animation sheets are produced; no mirrored body art is fabricated.
+	if GameState.player.gender != "女":
+		body.append_grid_clips(WALK_EAST_SHEET, 6, 1, {
+			"walk_east": {"frames": [0, 1, 2, 3, 4, 5], "fps": 10.0, "loop": true},
+		})
 	body.append_grid_clips(south_attack_sheet, 6, 1, {
 		"attack_south": {"frames": [0, 1, 2, 3, 4, 5], "fps": 14.0, "loop": false},
 	})

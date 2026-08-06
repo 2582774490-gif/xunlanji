@@ -1,0 +1,16 @@
+{
+  "asset_id": "PLAYER-MALE-YUNLAN-WALK-EAST-6F-V01",
+  "character_id": "yunlan_spatial_male",
+  "role": "male_player_template_body_layer",
+  "status": "runtime_approved",
+  "generator": "OpenAI built-in image generation",
+  "source": "source_magic2/yunlan_spatial_male_walk_east_6f_v01_key.png",
+  "processed": "processed_alpha/yunlan_spatial_male_walk_east_6f_v01_alpha.png",
+  "canvas_px": [2160, 720],
+  "grid": {"columns": 6, "rows": 1, "cell_px": [360, 720]},
+  "animation": {"clip": "walk_east", "frames": [0, 1, 2, 3, 4, 5], "fps": 10, "loop": true},
+  "anchor": {"baseline_y": 650, "body_facing": "east"},
+  "layering": "body_only; runtime weapons, artifacts, armor and footwear remain independent child layers",
+  "approved_for": ["male template overworld movement", "dungeon movement", "local duel movement"],
+  "not_approved_for": ["female template", "other directions", "attacks", "static portrait"]
+}
