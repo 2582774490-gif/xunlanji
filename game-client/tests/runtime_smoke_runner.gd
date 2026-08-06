@@ -1630,6 +1630,8 @@ func _check_yunlan_outskirts_scene() -> void:
 	outskirts.player.position = Vector2(2520, 3600)
 	await get_tree().process_frame
 	_expect(outskirts.get_node("StonebudHighlandChunk").visible, "Yunlan Outskirts did not stream the stonebud-highland detail plane at the wind-clue sector.")
+	var stonebud_terrain: Sprite2D = outskirts.get_node("StonebudHighlandChunk/TerrainArt")
+	_expect(stonebud_terrain.texture.resource_path.ends_with("yunlan_outskirts_stonebud_highland_v01.png"), "Yunlan's stonebud highland must use an independent highland terrain painting instead of a reused lowland background.")
 	outskirts.player.position = Vector2(7720, 4700)
 	await get_tree().process_frame
 	_expect(outskirts.get_node("LanEchoHillsChunk").visible, "Yunlan Outskirts did not stream the Lan Echo Hills detail plane in its distant hill sector.")
