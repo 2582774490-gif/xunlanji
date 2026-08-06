@@ -8,6 +8,7 @@ const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_en
 @onready var player: CharacterBody2D = $Player
 @onready var village_gate: Area2D = $YunlanVillageGate/Interaction
 @onready var mist_border_gate: Area2D = $MistBorderPass/Interaction
+@onready var water_palace_gate: Area2D = $MistStreamWaterPalaceGate/Interaction
 @onready var echo_stone: Area2D = $LanEchoStone/Interaction
 @onready var regional_population = $RegionalPopulation
 @onready var chunk_streamer = $ChunkStreamer
@@ -31,7 +32,7 @@ func _ready() -> void:
 		{"id": "south_gate_fields", "node": $SouthGateChunk, "bounds": Rect2(0, 0, 3072, 2048)},
 	])
 	status.text = "云岚外野：云岚村只是第一处聚落。沿灵田、雾溪、云麓疏林与旧商道自由探索；资源和人物只会出现在合适地形。"
-	for interaction in [village_gate, mist_border_gate, echo_stone]:
+	for interaction in [village_gate, mist_border_gate, water_palace_gate, echo_stone]:
 		interaction.focused.connect(_focus_interaction)
 		interaction.unfocused.connect(_unfocus_interaction)
 	regional_population.focused.connect(_focus_interaction)
@@ -116,6 +117,8 @@ func _activate_contextual() -> void:
 		get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
 	elif active_interaction == mist_border_gate:
 		_enter_mist_border()
+	elif active_interaction == water_palace_gate:
+		_enter_mist_stream_water_palace()
 	elif active_interaction == echo_stone and not echo_stone_observed:
 		_observe_lan_echo()
 	elif regional_population.owns(active_interaction):
@@ -129,6 +132,16 @@ func _enter_mist_border() -> void:
 		return
 	GameState.current_region_id = "mist_border"
 	get_tree().change_scene_to_file("res://scenes/mist_tide_border.tscn")
+
+
+func _enter_mist_stream_water_palace() -> void:
+	# The first fixed dungeon begins at Qi Refining first layer. It is a place
+	# inside the large starting region, not a menu reward or an imposed quest.
+	if GameState.player.realm_index == 0 and GameState.player.minor_stage < 1:
+		status.text = "雾溪水府的浅潮尚未回应。先稳定到炼气一层，再从石阶进入。"
+		return
+	GameState.selected_dungeon_id = "mist_stream_palace"
+	get_tree().change_scene_to_file("res://scenes/mist_stream_water_palace.tscn")
 
 
 func _observe_lan_echo() -> void:

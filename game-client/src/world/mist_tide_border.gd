@@ -386,4 +386,4 @@ func _close_interaction() -> void:
 
 func _return_to_village() -> void:
 	GameState.current_region_id = "starter_village"
-	get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
+	get_tree().change_scene_to_file("res://scenes/yunlan_outskirts.tscn")

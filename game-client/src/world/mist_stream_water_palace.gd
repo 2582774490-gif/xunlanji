@@ -136,7 +136,7 @@ func _perform_boss_water_blade() -> void:
 		defeated = true
 		status.text = "你在水府中力竭而退：死亡不掉落，正在返回云岚村。"
 		await get_tree().create_timer(1.2).timeout
-		get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
+		get_tree().change_scene_to_file("res://scenes/yunlan_outskirts.tscn")
 
 func _on_player_attack(_direction: String) -> void:
 	if not _can_hit_boss_with_basic() or boss_health <= 0:
@@ -588,7 +588,7 @@ func _defeat_boss() -> void:
 
 func _return_to_village() -> void:
 	GameState.enter_screen(GameState.Screen.OVERWORLD)
-	get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
+	get_tree().change_scene_to_file("res://scenes/yunlan_outskirts.tscn")
 
 
 func _direction_vector(direction: String) -> Vector2:
@@ -665,4 +665,4 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	if event.is_pressed() and not event.is_echo() and (event.keycode == KEY_H or event.keycode == KEY_ESCAPE):
 		GameState.enter_screen(GameState.Screen.OVERWORLD)
-		get_tree().change_scene_to_file("res://scenes/yunlan_village.tscn")
+		get_tree().change_scene_to_file("res://scenes/yunlan_outskirts.tscn")

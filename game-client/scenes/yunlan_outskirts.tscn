@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_outskirts/terrain/yunlan_outskirts_south_gate_fields_v01.png" id="3_ground"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_south_gate/props/processed_alpha/yunlan_south_gate_main_gate_v01_alpha.png" id="4_gate"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/props/processed_alpha/mist_tide_border_ruined_gate_v01_alpha.png" id="5_border_gate"]
+[ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/props/processed_alpha/mist_stream_water_palace_entrance_v01_alpha.png" id="14_water_palace"]
 [ext_resource type="Script" path="res://src/world/spatial_test_player.gd" id="6_player"]
 [ext_resource type="Script" path="res://src/animation/frame_animation_controller.gd" id="7_animator"]
 [ext_resource type="Script" path="res://src/world/ground_shadow.gd" id="8_shadow"]
@@ -144,6 +145,37 @@ prompt_text = "沿旧商道前往雾潮边境"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MistBorderPass/Interaction"]
 position = Vector2(0, -120)
+shape = SubResource("GateShape")
+
+[node name="MistStreamWaterPalaceGate" type="Node2D" parent="."]
+position = Vector2(5840, 1700)
+y_sort_enabled = true
+
+[node name="Art" type="Sprite2D" parent="MistStreamWaterPalaceGate"]
+texture = ExtResource("14_water_palace")
+scale = Vector2(0.28, 0.28)
+centered = false
+offset = Vector2(-627, -1254)
+
+[node name="Name" type="Label" parent="MistStreamWaterPalaceGate"]
+offset_left = -140.0
+offset_top = -346.0
+offset_right = 140.0
+offset_bottom = -316.0
+theme_override_colors/font_color = Color(0.66, 0.94, 1, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.1, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 19
+text = "雾溪水府 · 炼气一层"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="MistStreamWaterPalaceGate"]
+script = ExtResource("9_interaction")
+interaction_id = "mist_stream_water_palace"
+prompt_text = "进入雾溪水府（炼气一层）"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MistStreamWaterPalaceGate/Interaction"]
+position = Vector2(0, -112)
 shape = SubResource("GateShape")
 
 [node name="RegionalPopulation" type="Node2D" parent="."]

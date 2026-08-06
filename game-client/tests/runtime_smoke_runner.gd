@@ -1444,7 +1444,7 @@ func _check_yunlan_outskirts_scene() -> void:
 	await get_tree().process_frame
 	_expect(GameState.current_region_id == "starter_village", "Yunlan Outskirts must remain the starting region rather than become a menu-only destination.")
 	_expect(outskirts.player.map_bounds.size.x >= 11000.0 and outskirts.player.map_bounds.size.y >= 7000.0, "Yunlan Outskirts still behaves like a small starter background instead of a full launch-region map.")
-	_expect(outskirts.village_gate != null and outskirts.mist_border_gate != null, "Yunlan Outskirts is missing its physical village and Mist Tide Border routes.")
+	_expect(outskirts.village_gate != null and outskirts.mist_border_gate != null and outskirts.water_palace_gate != null, "Yunlan Outskirts is missing its physical village, initial dungeon, or Mist Tide Border route.")
 	_expect(outskirts.has_node("HUD/WorldMinimap"), "Yunlan Outskirts is missing its large-region orientation map.")
 	_expect(outskirts.has_node("EnvironmentDepthLayer"), "Yunlan Outskirts is missing its independent depth-layer environment props.")
 	var depth: RegionalEnvironmentDepthLayer = outskirts.get_node("EnvironmentDepthLayer")
@@ -1456,6 +1456,7 @@ func _check_yunlan_outskirts_scene() -> void:
 	_expect(terrain.texture.resource_path.ends_with("yunlan_outskirts_south_gate_fields_v01.png"), "Yunlan Outskirts must use its own Image 2 terrain chunk instead of reusing the small South Gate background.")
 	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", Vector2(3560, 770)).get("id", "") == "mist_stream_banks", "Yunlan stream herbs were not anchored inside the stream-bank ecology sector.")
 	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", Vector2(5900, 2050)).get("id", "") == "cloudfoot_wood", "Yunlan wandering herbalist was not anchored inside the cloudfoot woodland ecology sector.")
+	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", outskirts.water_palace_gate.get_parent().position).get("id", "") == "cloudfoot_wood", "Mist Stream Water Palace must begin from the cloudfoot woodland route in the large starting region.")
 	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", Vector2(9440, 1660)).get("id", "") == "old_caravan_road", "Yunlan road threat was not anchored to the old caravan road.")
 	_expect(RegionalSectorCatalog.sector_at("yunlan_outskirts", outskirts.mist_border_gate.get_parent().position).get("id", "") == "old_caravan_road", "Mist Tide Border route must occupy the terminal old-caravan road rather than an arbitrary field.")
 	var profiles: Array[Dictionary] = outskirts._population_profiles()
