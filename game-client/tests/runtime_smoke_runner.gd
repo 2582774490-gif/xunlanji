@@ -18,6 +18,7 @@ func _run() -> void:
 	await _check_wanted_patrol()
 	await _check_weapon_combat_profiles()
 	await _check_weapon_render_slot()
+	await _check_layered_avatar_direction_motion()
 	await _check_touch_weapon_switch()
 	await _check_umbrella_render_slot()
 	await _check_talisman_brush_runtime_layer_and_skill_set()
@@ -443,6 +444,35 @@ func _check_weapon_render_slot() -> void:
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Equipped Qinghuang Sword did not create an independent player weapon render slot.")
 	var weapon_sprite: Sprite2D = port.player.get_node("WeaponPivot/WeaponSprite")
 	_expect(weapon_sprite.texture != null, "Equipped Qinghuang Sword render slot has no sword texture.")
+	port.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_layered_avatar_direction_motion() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	if not GameState.player.inventory.has("青篁练气剑"):
+		GameState.player.inventory.append("青篁练气剑")
+	GameState.equip_weapon("青篁练气剑")
+	GameState.player.equipped_artifact = "纳灵玉佩"
+	GameState.profile_changed.emit()
+	var port := preload("res://scenes/return_abyss_mist_port.tscn").instantiate()
+	add_child(port)
+	await get_tree().process_frame
+	var weapon_layer: WeaponMotionController = port.player.get_node("WeaponPivot")
+	var artifact_layer: ArtifactMotionController = port.player.get_node("ArtifactPivot")
+	weapon_layer.update_from_movement(Vector2.LEFT, "west")
+	artifact_layer.update_from_movement(Vector2.LEFT, "west")
+	for _step in 12:
+		await get_tree().process_frame
+	_expect(weapon_layer.position.x < 0.0, "Independent weapon layer did not move to the west-facing hand position.")
+	_expect(artifact_layer.position.x < 0.0, "Independent artifact layer did not orbit to the west-facing side of the player.")
+	weapon_layer.update_from_movement(Vector2.RIGHT, "east")
+	artifact_layer.update_from_movement(Vector2.RIGHT, "east")
+	for _step in 12:
+		await get_tree().process_frame
+	_expect(weapon_layer.position.x > 0.0, "Independent weapon layer did not move to the east-facing hand position.")
+	_expect(artifact_layer.position.x > 0.0, "Independent artifact layer did not orbit to the east-facing side of the player.")
 	port.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before
