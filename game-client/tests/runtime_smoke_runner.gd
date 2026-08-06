@@ -171,6 +171,12 @@ func _check_costume_wardrobe_rules() -> void:
 	var qinghuang_runtime: Dictionary = GameCatalog.weapon_runtime_profile_for_item("青篁练气剑")
 	var qinghuang_attack_frames: Array = qinghuang_runtime.get("attack_frames", [])
 	_expect(qinghuang_runtime.get("attack_direction", "") == "south" and qinghuang_attack_frames.size() == 6 and qinghuang_attack_frames.all(func(frame_path: Variant) -> bool: return ResourceLoader.exists(str(frame_path))), "Qinghuang Qi Sword must own six south-facing source attack frames instead of reusing another weapon family effect.")
+	for family in GameCatalog.WEAPON_FAMILIES:
+		var starter_name := str(family.get("starter", ""))
+		var runtime_profile: Dictionary = GameCatalog.weapon_runtime_profile_for_item(starter_name)
+		var weapon_card_profile: Dictionary = GameCatalog.weapon_card_profile_for_item(starter_name)
+		_expect(not runtime_profile.is_empty() and ResourceLoader.exists(str(runtime_profile.get("asset", ""))), "Every launch weapon family must point its formal starter at a real independent runtime asset: %s." % starter_name)
+		_expect(not weapon_card_profile.is_empty() and ResourceLoader.exists(str(weapon_card_profile.get("runtime_asset", ""))), "Every launch weapon family must expose a visible weapon-card asset: %s." % starter_name)
 	var jiangyun: Dictionary = GameCatalog.costume_profile_for_id("jiangyun_rainbow")
 	var jiangyun_walk_south: Array = jiangyun.get("walk_south_candidate_frames", [])
 	var jiangyun_walk_south_west: Array = jiangyun.get("walk_south_west_candidate_frames", [])

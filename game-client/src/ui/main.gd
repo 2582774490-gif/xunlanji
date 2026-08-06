@@ -297,6 +297,10 @@ func _show_inventory() -> void:
 		var footwear_profile := Catalog.footwear_profile_for_item(item_name)
 		if not footwear_profile.is_empty():
 			_add_inventory_equipment_card(item_name, footwear_profile, "足部护具", item_name == str(GameState.player.get("equipped_footwear", "")))
+			continue
+		var weapon_card_profile := Catalog.weapon_card_profile_for_item(item_name)
+		if not weapon_card_profile.is_empty():
+			_add_inventory_equipment_card(item_name, weapon_card_profile, "武器", item_name == str(GameState.player.get("equipped_weapon", "")))
 	_text("首发正式基础器型：每种大类先做一把正式武器，再逐步补大分支、小分支、品级、武器卡、动作和特效。")
 	for family in Catalog.WEAPON_FAMILIES:
 		var profile: Dictionary = Catalog.weapon_profile_for_item(str(family.starter))
@@ -558,8 +562,12 @@ func _show_codex() -> void:
 	for item_name in Catalog.FOOTWEAR_PROFILES:
 		_add_equipment_codex_card(str(item_name), Catalog.footwear_profile_for_item(str(item_name)), "足部护具")
 	_line()
-	_heading("首发基础器型（均已有独立动作与运行时素材）")
-	_text("、".join(Catalog.WEAPON_RUNTIME_PROFILES.keys()), 16, Color("a7d5ca"))
+	_heading("首发基础器型 · 武器卡")
+	_text("每个大类的首把正式武器均有独立运行时图标、动作控制器和技能组；未复用其他器型的外观或攻击规则。", 16, Color("a7d5ca"))
+	for family in Catalog.WEAPON_FAMILIES:
+		var starter_name := str(family.starter)
+		var weapon_card_profile := Catalog.weapon_card_profile_for_item(starter_name)
+		_add_equipment_codex_card(starter_name, weapon_card_profile, "%s · %s" % [str(family.name), str(family.school)])
 
 
 func _add_npc_codex_card(npc: Dictionary, profile: Dictionary) -> void:
