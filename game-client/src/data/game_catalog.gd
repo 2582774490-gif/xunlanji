@@ -280,6 +280,7 @@ const NPCS := [
 	{"name": "祝铁山", "role": "炼器师", "place": "村北工坊"},
 	{"name": "白蘅", "role": "百草谷执事", "place": "雾泽药庐"},
 	{"name": "宁远", "role": "宗门接引使", "place": "云岚村"},
+	{"name": "洛清", "role": "云市掌柜", "place": "云岚村市集"},
 ]
 
 const NPC_CARD_PROFILES := {
@@ -324,6 +325,13 @@ const NPC_CARD_PROFILES := {
 		"relationship": "初识 · 宗门引导",
 		"service": "说明雾隐剑宗、云市会与百草谷的加入方式、贡献晋升与离宗后果；只开启可选的“选择道路”引导，不替玩家指定宗门或功法。",
 		"lead": "他保管各宗门的入门帖与门规摘要。商路契约、药圃规约和剑宗驻守都能从此分流为不同的自由探索方向。",
+	},
+	"洛清": {
+		"card_asset": "res://assets/art/npcs/luo_qing/processed_alpha/luo_qing_card_v01_alpha.png",
+		"faction": "云市会 · 云岚村市集",
+		"relationship": "初识 · 可交易",
+		"service": "负责云岚村市集的本地货单、玩家上架、5% 手续费与价格保护范围；不出售数值特权，也不会收取玩家私有物的绑定限制。",
+		"lead": "她会记录商路上的材料波动与远港消息，可把自由交易引向温行客的鉴宝货单、归墟雾港拍卖行和后续契约纠纷。",
 	},
 }
 
