@@ -24,6 +24,9 @@ radius = 122.0
 [sub_resource type="CircleShape2D" id="EchoStoneShape"]
 radius = 92.0
 
+[sub_resource type="CircleShape2D" id="ChanceTraceShape"]
+radius = 84.0
+
 [node name="YunlanOutskirts" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_scene")
@@ -146,6 +149,42 @@ prompt_text = "沿旧商道前往雾潮边境"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MistBorderPass/Interaction"]
 position = Vector2(0, -120)
 shape = SubResource("GateShape")
+
+[node name="YunlanChanceTrace" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Shadow" type="Polygon2D" parent="YunlanChanceTrace"]
+polygon = PackedVector2Array(-52, -4, 0, -17, 60, -4, 8, 11)
+color = Color(0.03, 0.06, 0.06, 0.54)
+
+[node name="Trace" type="Polygon2D" parent="YunlanChanceTrace"]
+polygon = PackedVector2Array(-30, -6, -16, -110, 10, -148, 34, -84, 44, -6, 10, -24)
+color = Color(0.62, 0.86, 0.72, 0.92)
+
+[node name="Rune" type="Line2D" parent="YunlanChanceTrace"]
+points = PackedVector2Array(-6, -120, 15, -90, -2, -52, 22, -30)
+width = 5.0
+default_color = Color(0.94, 0.98, 0.66, 0.9)
+
+[node name="Name" type="Label" parent="YunlanChanceTrace"]
+offset_left = -118.0
+offset_top = -208.0
+offset_right = 118.0
+offset_bottom = -178.0
+theme_override_colors/font_color = Color(0.88, 1, 0.74, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.1, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="YunlanChanceTrace"]
+script = ExtResource("9_interaction")
+interaction_id = "yunlan_chance_trace"
+prompt_text = "探查地貌留下的机缘痕迹"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YunlanChanceTrace/Interaction"]
+position = Vector2(0, -70)
+shape = SubResource("ChanceTraceShape")
 
 [node name="MistStreamWaterPalaceGate" type="Node2D" parent="."]
 position = Vector2(5840, 1700)

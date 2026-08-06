@@ -1446,6 +1446,7 @@ func _check_yunlan_outskirts_scene() -> void:
 	_expect(GameState.current_region_id == "starter_village", "Yunlan Outskirts must remain the starting region rather than become a menu-only destination.")
 	_expect(outskirts.player.map_bounds.size.x >= 11000.0 and outskirts.player.map_bounds.size.y >= 7000.0, "Yunlan Outskirts still behaves like a small starter background instead of a full launch-region map.")
 	_expect(outskirts.village_gate != null and outskirts.mist_border_gate != null and outskirts.water_palace_gate != null, "Yunlan Outskirts is missing its physical village, initial dungeon, or Mist Tide Border route.")
+	_expect(outskirts.chance_trace != null and not outskirts.chosen_chance_trace.is_empty(), "Yunlan Outskirts did not choose a terrain-bound random chance trace.")
 	_expect(outskirts.has_node("HUD/WorldMinimap"), "Yunlan Outskirts is missing its large-region orientation map.")
 	_expect(outskirts.has_node("EnvironmentDepthLayer"), "Yunlan Outskirts is missing its independent depth-layer environment props.")
 	var depth: RegionalEnvironmentDepthLayer = outskirts.get_node("EnvironmentDepthLayer")
@@ -1465,6 +1466,11 @@ func _check_yunlan_outskirts_scene() -> void:
 	outskirts.active_interaction = outskirts.echo_stone
 	outskirts._activate_contextual()
 	_expect(outskirts.echo_stone_observed and GameState.player.opportunity_log.size() == log_before + 1, "Yunlan Outskirts fixed highland landmark did not record a physical opportunity.")
+	var chance_sector := RegionalSectorCatalog.sector_at("yunlan_outskirts", outskirts.get_node("YunlanChanceTrace").position)
+	_expect(str(chance_sector.get("id", "")) == str(outskirts.chosen_chance_trace.sector), "Yunlan random chance trace was not placed inside its declared terrain sector.")
+	outskirts.active_interaction = outskirts.chance_trace
+	outskirts._activate_contextual()
+	_expect(outskirts.chance_trace_resolved and GameState.player.opportunity_log.size() == log_before + 2, "Yunlan terrain chance trace did not resolve as a physical random opportunity.")
 	outskirts.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

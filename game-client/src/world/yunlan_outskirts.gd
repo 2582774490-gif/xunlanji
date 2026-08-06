@@ -5,11 +5,30 @@ const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
 const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
 const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
 
+const CHANCE_TRACES := [
+	{
+		"id": "mist_stream_cache", "name": "雾溪石函", "prompt": "探查雾溪石岸上的旧函", "sector": "mist_stream_banks",
+		"position": Vector2(3500, 780), "item": "雾溪旧函", "cultivation": 4,
+		"description": "石函被浅水冲开一角，留下前人辨药时记录的水痕。",
+	},
+	{
+		"id": "stonewind_trace", "name": "风蚀残页", "prompt": "感悟背风岩台上的风痕", "sector": "stonebud_highland",
+		"position": Vector2(2520, 3600), "item": "风蚀残页", "cultivation": 4,
+		"description": "风从岩缝折返，卷出一段并不完整的游身法门。",
+	},
+	{
+		"id": "oldroad_ledger", "name": "旧道货札", "prompt": "翻看旧商道旁遗下的货札", "sector": "old_caravan_road",
+		"position": Vector2(9200, 1500), "item": "旧道货札", "cultivation": 2,
+		"description": "被雨水浸软的货札记着山货、药材与一段绕开劫修的旧路。",
+	},
+]
+
 @onready var player: CharacterBody2D = $Player
 @onready var village_gate: Area2D = $YunlanVillageGate/Interaction
 @onready var mist_border_gate: Area2D = $MistBorderPass/Interaction
 @onready var water_palace_gate: Area2D = $MistStreamWaterPalaceGate/Interaction
 @onready var echo_stone: Area2D = $LanEchoStone/Interaction
+@onready var chance_trace: Area2D = $YunlanChanceTrace/Interaction
 @onready var regional_population = $RegionalPopulation
 @onready var chunk_streamer = $ChunkStreamer
 @onready var world_encounter = $WorldCombat
@@ -19,6 +38,8 @@ const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_en
 
 var active_interaction: Area2D
 var echo_stone_observed := false
+var chance_trace_resolved := false
+var chosen_chance_trace: Dictionary = {}
 var current_sector_id := ""
 
 
@@ -32,7 +53,11 @@ func _ready() -> void:
 		{"id": "south_gate_fields", "node": $SouthGateChunk, "bounds": Rect2(0, 0, 3072, 2048)},
 	])
 	status.text = "云岚外野：云岚村只是第一处聚落。沿灵田、雾溪、云麓疏林与旧商道自由探索；资源和人物只会出现在合适地形。"
-	for interaction in [village_gate, mist_border_gate, water_palace_gate, echo_stone]:
+	chosen_chance_trace = CHANCE_TRACES.pick_random().duplicate()
+	$YunlanChanceTrace.position = chosen_chance_trace.position
+	$YunlanChanceTrace/Name.text = str(chosen_chance_trace.name)
+	chance_trace.prompt_text = str(chosen_chance_trace.prompt)
+	for interaction in [village_gate, mist_border_gate, water_palace_gate, echo_stone, chance_trace]:
 		interaction.focused.connect(_focus_interaction)
 		interaction.unfocused.connect(_unfocus_interaction)
 	regional_population.focused.connect(_focus_interaction)
@@ -126,6 +151,8 @@ func _activate_contextual() -> void:
 		_enter_mist_stream_water_palace()
 	elif active_interaction == echo_stone and not echo_stone_observed:
 		_observe_lan_echo()
+	elif active_interaction == chance_trace and not chance_trace_resolved:
+		_resolve_chance_trace()
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()
@@ -156,6 +183,22 @@ func _observe_lan_echo() -> void:
 	GameState.gain_cultivation(3)
 	GameState.record_opportunity({"region": "starter_village", "name": "岚息回响石", "kind": "highland_landmark", "item": "岚息石屑"})
 	status.text = "风从石缝掠过，留下短促的岚息回响。你获得岚息石屑，修为 +3。它是丘陵里一处固定远望点，不会被复制成遍地奖励。"
+	_close_interaction()
+
+
+func _resolve_chance_trace() -> void:
+	chance_trace_resolved = true
+	chance_trace.set_deferred("monitoring", false)
+	GameState.add_item(str(chosen_chance_trace.item))
+	GameState.gain_cultivation(int(chosen_chance_trace.cultivation))
+	GameState.record_opportunity({
+		"region": "starter_village", "name": str(chosen_chance_trace.name), "kind": "terrain_chance_trace",
+		"item": str(chosen_chance_trace.item),
+	})
+	status.text = "%s。获得 %s，修为 +%d。此类机缘每次只选一处合理地貌，不会被均匀铺满。" % [
+		str(chosen_chance_trace.description), str(chosen_chance_trace.item), int(chosen_chance_trace.cultivation),
+	]
+	$YunlanChanceTrace.visible = false
 	_close_interaction()
 
 
