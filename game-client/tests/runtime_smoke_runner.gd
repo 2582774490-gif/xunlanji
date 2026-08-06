@@ -156,7 +156,7 @@ func _check_costume_wardrobe_rules() -> void:
 	_expect(GameState.equip_costume("liulan_wayfarer"), "Owned costume should be selectable from the wardrobe.")
 	_expect(str(GameState.player.equipped_costume) == "liulan_wayfarer", "Costume selection did not persist in player state.")
 	_expect(GameState.derived_stats() == stats_before, "Costume selection must not alter any combat or movement stat.")
-	_expect(GameState.costume_runtime_status_text("liulan_wayfarer").contains("概念图已入库"), "Concept-only costume must not be presented as a map-ready runtime asset.")
+	_expect(GameState.costume_runtime_status_text("liulan_wayfarer").contains("正南待机透明源图已通过"), "A partially produced costume must report its approved source frame without being presented as a map-ready runtime asset.")
 	var saved := GameState.export_local_profile()
 	_expect((saved.player.get("owned_costumes", []) as Array).has("liulan_wayfarer") and str(saved.player.get("equipped_costume", "")) == "liulan_wayfarer", "Wardrobe ownership and selected costume must enter local save payload.")
 	_expect(not GameState.equip_costume("unknown_costume"), "Unowned or unknown costumes must not be equipable.")

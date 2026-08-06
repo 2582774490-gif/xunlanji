@@ -653,6 +653,8 @@ func costume_runtime_status_text(costume_id: String) -> String:
 		return "未登记"
 	if str(profile.get("runtime_state", "")) == "ready":
 		return "已接入地图角色层"
+	if str(profile.get("runtime_state", "")) == "south_idle_ready":
+		return "正南待机透明源图已通过；其余方向、行走和攻击帧仍待制作。"
 	return "概念图已入库；动作帧待制作，当前不会以静态立绘覆盖地图角色。"
 
 func add_item(item_name: String) -> void:

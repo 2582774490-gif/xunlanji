@@ -11,10 +11,16 @@
 
 | 时装 ID | 名称 | 适用模板 | 概念图 | 状态 |
 |---|---|---|---|---|
-| `liulan_wayfarer` | 流岚游衣 | 男 | `game-client/assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png` | 概念已审核，动作帧待制作 |
+| `liulan_wayfarer` | 流岚游衣 | 男 | `game-client/assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png` | 概念已审核；正南待机透明源图已通过，其余方向和动作待制作 |
 | `jiangyun_rainbow` | 绛云霓裳 | 女 | `game-client/assets/art/costumes/jiangyun_rainbow/concept/jiangyun_rainbow_concept_v01.png` | 概念已审核，动作帧待制作 |
 
 概念图生成规范：原创高品质中国动画修仙服装设计；男装为云白、青碧、银纹，女装为绛红、黛紫、云白纱袖；无武器、无文字、无现有 IP 角色或徽标。它只用于确认材质、色彩和服装层次，不用作 2D 游戏人物帧。
+
+`流岚游衣` 正南待机源图与抠图结果：
+
+- 源图：`game-client/assets/art/costumes/liulan_wayfarer/source_magic2/liulan_wayfarer_idle_south_v01_key.png`
+- 透明运行候选：`game-client/assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_idle_south_v01_alpha.png`
+- 已拒绝的八方向合图样张：`game-client/assets/art/costumes/liulan_wayfarer/review/rejected/README.md`
 
 ## 进入地图角色层的验收门槛
 
@@ -30,17 +36,28 @@
 
 满足后，将资源写入时装档案的 `runtime_asset`，状态改为 `ready`，再由 `SpatialTestPlayer` 创建独立 `CostumePivot`。未满足时禁止在地图中显示，避免静态立绘破坏 2D 动作可读性。
 
+## 单方向生产队列（流岚游衣）
+
+当前只验收了正南待机关键帧；它是颜色、比例、脚点和透明边缘的基准，并不构成可运行外观。后续必须按以下顺序逐张生成、逐张抠图、逐张验收：
+
+| 顺序 | 帧组 | 目标 | 放行条件 |
+|---|---|---|---|
+| 1 | 待机 | 西南、西、西北、北、东北、东、东南 | 与正南图等高、双脚共用基线、方向不可互相替代 |
+| 2 | 行走 | 八方向各 6 帧 | 躯干不漂移，脚步轮替清晰，第一/最后一帧可循环 |
+| 3 | 施放/攻击 | 南向 6 帧，按武器大类分别制作 | 手、武器与披帛层级不穿帮，攻击前摇/命中/收势可读 |
+| 4 | 验收 | 地图、战斗、换装、PVP 外观测试 | 不改变任何属性；不遮挡交互、血条或特效 |
+
+在第 1–3 项全部合格前，`runtime_state` 只能保持为 `south_idle_ready`，且地图角色层不得引用该图。
+
 ## 下一批 Image 2 提示词
 
 ```text
-Use case: stylized-concept
-Asset type: 2D game costume animation-production key sheet for 《寻岚记》
-Primary request: original male cultivator costume “流岚游衣”, matching the approved cloud-white, pale-celadon and silver embroidery concept.
-Subject: adult male cultivator only; no weapon, no companion, no effects.
-Composition: a strict 8-direction turnaround key sheet, exactly eight full-body poses in a 4x2 grid: south, south-west, west, north-west, north, north-east, east, south-east. Every pose uses identical scale, foot baseline, camera distance and neutral idle stance. Leave clear even gutters between poses.
-Style/medium: polished original Chinese xianxia 2D game character art, clear silhouette and cloth layers, designed for a readable diagonal top-down RPG; no existing franchise or character.
-Background: perfectly flat solid #ff00ff chroma-key background; no floor, shadow, glow, gradient, text, border, watermark or decorative props.
-Constraints: no weapon, no magical effects, no duplicate poses, no cropped feet, no perspective distortion, no chibi proportions. Keep all costume colors free of #ff00ff.
+Use case: precise object edit. Use the approved 《寻岚记》 male costume reference “流岚游衣” to preserve exactly the same adult male face, cloud-white and pale-celadon robe, silver embroidery, hair crown, shoulder silhouette, scale and costume layers.
+Asset type: one isolated 2D RPG animation-production key frame only.
+Primary request: [DIRECTION] facing idle pose, neutral arms, no weapon. The camera and character height must exactly match the approved SOUTH idle key frame; both soles sit on one clean horizontal baseline near the lower canvas edge.
+Style/medium: refined original Chinese xianxia 2D game character source art, readable at map scale, clear silhouette and layered cloth; no existing franchise or character.
+Background: perfectly flat #ff00ff chroma-key background; no floor, no cast shadow, no glow, no gradient, no text, no border, no watermark.
+Constraints: a single centered full-body character only; fully visible feet; no duplicate character; no weapon; no magical effect; no companion; no chibi proportions; no perspective distortion; do not use #ff00ff anywhere in clothing or hair.
 ```
 
-后续必须逐方向、逐动作生成并审核；不能因为有一张好看的立绘就声称已完成可用时装。
+将 `[DIRECTION]` 替换为 `south-west`、`west`、`north-west`、`north`、`north-east`、`east` 或 `south-east`。一张图只生成一个方向；不再使用多格合图直接充当运行时素材。
