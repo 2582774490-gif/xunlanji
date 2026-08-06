@@ -278,7 +278,7 @@ func _show_inventory() -> void:
 		_add_inventory_costume_card(costume_id, costume_profile, costume_id == equipped_costume_id)
 		costume_buttons.append(["试穿 %s" % str(costume_profile.name), func(): GameState.equip_costume(costume_id), 200, costume_id == equipped_costume_id])
 	_buttons(costume_buttons)
-	_text("当前男女首套时装均为原创立绘概念图。为避免把静态立绘硬贴到地图人物上，它们会在对应模板的八方向动作帧完成后才显示在大世界与副本中。", 15, Color("a7d5ca"))
+	_text("流岚游衣已接入男体大世界角色层；绛云霓裳仍在补齐八方向动作与武器遮挡。未达动作验收线的时装不会把静态立绘硬贴到地图人物上。", 15, Color("a7d5ca"))
 	_line()
 	var card_names := {}
 	for item_value in GameState.player.inventory:

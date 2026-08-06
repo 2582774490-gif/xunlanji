@@ -188,7 +188,22 @@ func _check_costume_wardrobe_rules() -> void:
 	_expect(GameState.equip_costume("liulan_wayfarer"), "Owned costume should be selectable from the wardrobe.")
 	_expect(str(GameState.player.equipped_costume) == "liulan_wayfarer", "Costume selection did not persist in player state.")
 	_expect(GameState.derived_stats() == stats_before, "Costume selection must not alter any combat or movement stat.")
-	_expect(GameState.costume_runtime_status_text("liulan_wayfarer").contains("八方向待机、八方向各六帧行走透明源图已通过") and GameState.costume_runtime_status_text("liulan_wayfarer").contains("当前不可接入地图角色层"), "A partially produced costume must report its approved source frames without being presented as a map-ready runtime asset.")
+	_expect(str(costume.get("runtime_state", "")) == "ready" and GameState.costume_runtime_status_text("liulan_wayfarer").contains("已接入地图角色层"), "Liulan Wayfarer must be marked map-ready only after all eight idle and walk directions are locally verified.")
+	var costume_world := preload("res://scenes/yunlan_village.tscn").instantiate()
+	add_child(costume_world)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_expect(costume_world.player._has_runtime_costume_body(), "Equipped Liulan Wayfarer must replace the live male map body rather than remaining an inventory-only card.")
+	_expect(costume_world.player.body.sprite_frames.get_frame_count("idle_north_east") == 1 and costume_world.player.body.sprite_frames.get_frame_count("walk_east") == 6 and costume_world.player.body.sprite_frames.get_frame_count("walk_south_east") == 6 and costume_world.player.body.sprite_frames.get_frame_count("attack_south") == 6, "Live Liulan Wayfarer map body must use its eight-direction idle, six-frame walk and approved Qinghuang attack sources.")
+	var liulan_idle_frame := costume_world.player.body.sprite_frames.get_frame("idle_south", 0) as AtlasTexture
+	_expect(liulan_idle_frame != null and liulan_idle_frame.atlas.resource_path.ends_with("liulan_wayfarer_idle_south_v01_alpha.png"), "Live costume body must use the Liulan Wayfarer source asset rather than silently retaining the default male template atlas.")
+	GameState.equip_costume("")
+	await get_tree().process_frame
+	_expect(not costume_world.player._has_runtime_costume_body(), "Unequipping a completed costume must restore the selected default template rather than leave costume frames active.")
+	var default_idle_frame := costume_world.player.body.sprite_frames.get_frame("idle_south", 0) as AtlasTexture
+	_expect(default_idle_frame != null and default_idle_frame.atlas.resource_path.ends_with("yunlan_spatial_male_idle_8dir_v01_alpha.png"), "Unequipping a costume must restore the real selected male template atlas.")
+	costume_world.queue_free()
+	await get_tree().process_frame
 	_expect(GameState.costume_runtime_status_text("jiangyun_rainbow").contains("南向、西南向待机") and GameState.costume_runtime_status_text("jiangyun_rainbow").contains("不会以静态立绘覆盖地图角色"), "Female partial costume status must accurately distinguish source candidates from a map-ready runtime asset.")
 	var saved := GameState.export_local_profile()
 	_expect((saved.player.get("owned_costumes", []) as Array).has("liulan_wayfarer") and str(saved.player.get("equipped_costume", "")) == "liulan_wayfarer", "Wardrobe ownership and selected costume must enter local save payload.")

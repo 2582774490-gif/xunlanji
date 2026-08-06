@@ -652,7 +652,7 @@ func costume_runtime_status_text(costume_id: String) -> String:
 	if profile.is_empty():
 		return "未登记"
 	if str(profile.get("runtime_state", "")) == "ready":
-		return "已接入地图角色层"
+		return "已接入地图角色层：八方向待机与行走使用本时装源图；已验收的武器攻击源图也会随角色显示。时装不参与任何数值结算。"
 	if str(profile.get("runtime_state", "")) == "idle_8dir_ready":
 		return "八方向待机、八方向各六帧行走透明源图已通过；青篁练气剑南向六帧攻击候选已通过。其余武器攻击方向与装备遮挡测试仍待完成，当前不可接入地图角色层。"
 	if str(profile.get("runtime_state", "")) == "south_idle_ready":

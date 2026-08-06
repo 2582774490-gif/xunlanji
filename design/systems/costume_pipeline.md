@@ -5,13 +5,14 @@
 - 时装拥有独立的 `owned_costumes` 与 `equipped_costume` 存档字段，不占用武器、法宝、护具或足部装备栏。
 - 时装档案只能包含名称、外观描述、美术资源和动画状态；禁止存放攻击、防御、移速、掉率、修炼效率、PVP、市场或副本次数数值。
 - 衣柜会显示已拥有时装的概念卡，可试穿或卸下，并可通过本地存档恢复。
-- 首批 `流岚游衣` 是概念资产，明确标记为 `concept_only`。它**不会**把静态立绘盖到大世界或副本角色上。
+- `流岚游衣` 已通过八方向待机、八方向六帧行走和青篁练气剑南向攻击验收，试穿后会替换男模板的大世界角色动画资源；它不是静态立绘覆盖层。
+- `绛云霓裳` 仍只有部分方向候选，继续禁止进入地图角色层，避免以静态立绘或错误方向动作代替真实帧动画。
 
 ## 当前原创概念资产
 
 | 时装 ID | 名称 | 适用模板 | 概念图 | 状态 |
 |---|---|---|---|---|
-| `liulan_wayfarer` | 流岚游衣 | 男 | `game-client/assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png` | 概念已审核；八方向待机、八方向各六帧行走透明源图已通过，攻击动作待制作 |
+| `liulan_wayfarer` | 流岚游衣 | 男 | `game-client/assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png` | 已接入地图角色层；八方向待机、八方向各六帧行走、青篁练气剑南向六帧攻击已运行。其余武器攻击方向仍待补齐 |
 | `jiangyun_rainbow` | 绛云霓裳 | 女 | `game-client/assets/art/costumes/jiangyun_rainbow/concept/jiangyun_rainbow_concept_v01.png` | 概念已审核；南向、西南向、正西、正北待机与前两方向六帧行走生产候选已抠图，其余方向、攻击动作待制作，尚不可接入地图 |
 
 概念图生成规范：原创高品质中国动画修仙服装设计；男装为云白、青碧、银纹，女装为绛红、黛紫、云白纱袖；无武器、无文字、无现有 IP 角色或徽标。它只用于确认材质、色彩和服装层次，不用作 2D 游戏人物帧。
@@ -78,16 +79,16 @@
 6. 女模板的独立版本，不能仅对男装换色或缩放；
 7. 抠图检查、运行时导入检查和 PVP 外观无数值影响检查。
 
-满足后，将资源写入时装档案的 `runtime_asset`，状态改为 `ready`，再由 `SpatialTestPlayer` 创建独立 `CostumePivot`。未满足时禁止在地图中显示，避免静态立绘破坏 2D 动作可读性。
+满足后，状态改为 `ready`，由 `SpatialTestPlayer` 替换默认模板的身体动画资源；完成时装不与单件护具、鞋履视觉层叠加，避免轮廓穿帮。未满足时禁止在地图中显示，避免静态立绘破坏 2D 动作可读性。
 
-## 单方向生产队列（流岚游衣）
+## 单方向生产队列（绛云霓裳）
 
-当前只验收了正南待机关键帧；它是颜色、比例、脚点和透明边缘的基准，并不构成可运行外观。后续必须按以下顺序逐张生成、逐张抠图、逐张验收：
+流岚游衣已完成首轮运行接线。绛云霓裳当前只验收了正南、西南、正西、正北待机与前两方向行走候选；它们仅是颜色、比例、脚点和透明边缘的基准，并不构成可运行外观。后续必须按以下顺序逐张生成、逐张抠图、逐张验收：
 
 | 顺序 | 帧组 | 目标 | 放行条件 |
 |---|---|---|---|
-| 1 | 待机 | 西南、西、西北、北、东北、东、东南 | 与正南图等高、双脚共用基线、方向不可互相替代 |
-| 2 | 行走 | 八方向各 6 帧 | 躯干不漂移，脚步轮替清晰，第一/最后一帧可循环 |
+| 1 | 待机 | 西北、东北、东、东南（并复检现有南、西南、西、北） | 与正南图等高、双脚共用基线、方向不可互相替代 |
+| 2 | 行走 | 补齐西、 西北、北、东北、东、东南各 6 帧，并复检南、西南 | 躯干不漂移，脚步轮替清晰，第一/最后一帧可循环 |
 | 3 | 施放/攻击 | 南向 6 帧，按武器大类分别制作 | 手、武器与披帛层级不穿帮，攻击前摇/命中/收势可读 |
 | 4 | 验收 | 地图、战斗、换装、PVP 外观测试 | 不改变任何属性；不遮挡交互、血条或特效 |
 
@@ -96,7 +97,7 @@
 ## 下一批 Image 2 提示词
 
 ```text
-Use case: precise object edit. Use the approved 《寻岚记》 male costume reference “流岚游衣” to preserve exactly the same adult male face, cloud-white and pale-celadon robe, silver embroidery, hair crown, shoulder silhouette, scale and costume layers.
+Use case: precise object edit. Use the approved 《寻岚记》 female costume reference “绛云霓裳” to preserve exactly the same adult female face, crimson, dark-violet and cloud-white layered gauze robe, hair ornaments, waist silhouette, scale and costume layers.
 Asset type: one isolated 2D RPG animation-production key frame only.
 Primary request: [DIRECTION] facing idle pose, neutral arms, no weapon. The camera and character height must exactly match the approved SOUTH idle key frame; both soles sit on one clean horizontal baseline near the lower canvas edge.
 Style/medium: refined original Chinese xianxia 2D game character source art, readable at map scale, clear silhouette and layered cloth; no existing franchise or character.

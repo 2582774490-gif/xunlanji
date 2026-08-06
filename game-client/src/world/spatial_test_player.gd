@@ -69,6 +69,8 @@ var _rendered_weapon_name := ""
 var _rendered_artifact_name := ""
 var _rendered_armor_name := ""
 var _rendered_footwear_name := ""
+var _rendered_costume_id := ""
+var _template_sprite_frames: SpriteFrames
 
 func _ready() -> void:
 	var idle_sheet := FEMALE_IDLE_SHEET if GameState.player.gender == "女" else IDLE_SHEET
@@ -131,6 +133,10 @@ func _ready() -> void:
 	body.append_grid_clips(south_attack_sheet, 6, 1, {
 		"attack_south": {"frames": [0, 1, 2, 3, 4, 5], "fps": 14.0, "loop": false},
 	})
+	# Keep the fully built default template atlas intact.  A completed costume
+	# swaps the body animation resource; unequipping it restores this cached
+	# template without rebuilding or borrowing any costume frames.
+	_template_sprite_frames = body.sprite_frames
 	body.play_action("idle", "south")
 	GameState.profile_changed.connect(_sync_equipment_layers)
 	_sync_equipment_layers()
@@ -140,6 +146,16 @@ func _exit_tree() -> void:
 		GameState.profile_changed.disconnect(_sync_equipment_layers)
 
 func _sync_equipment_layers() -> void:
+	var desired_costume := str(GameState.player.get("equipped_costume", ""))
+	if desired_costume != _rendered_costume_id:
+		_rendered_costume_id = desired_costume
+		_configure_equipped_costume_body()
+		# A full animated costume is already the avatar's clothing silhouette;
+		# do not stack unrelated single-card armor/boots over it.
+		_remove_runtime_layer("ArmorPivot")
+		_remove_runtime_layer("FootwearPivot")
+		_rendered_armor_name = ""
+		_rendered_footwear_name = ""
 	var desired_weapon := str(GameState.player.get("equipped_weapon", ""))
 	if desired_weapon != _rendered_weapon_name:
 		_remove_runtime_layer("WeaponPivot")
@@ -162,6 +178,62 @@ func _sync_equipment_layers() -> void:
 		_remove_runtime_layer("FootwearPivot")
 		_rendered_footwear_name = desired_footwear
 		_configure_equipped_footwear_visual()
+
+
+func _configure_equipped_costume_body() -> void:
+	var costume: Dictionary = GameState.equipped_costume_profile()
+	if costume.is_empty() or str(costume.get("runtime_state", "")) != "ready":
+		if _template_sprite_frames != null:
+			body.sprite_frames = _template_sprite_frames
+			body.play_action("idle", body.current_direction)
+		return
+	if str(costume.get("gender", "")) != str(GameState.player.get("gender", "")):
+		push_warning("Costume gender did not match the selected template; default avatar restored.")
+		body.sprite_frames = _template_sprite_frames
+		body.play_action("idle", body.current_direction)
+		return
+	var south_idle: Texture2D = load(str(costume.get("idle_south_asset", ""))) as Texture2D
+	if south_idle == null:
+		push_warning("Completed costume has no south idle asset; default avatar restored.")
+		body.sprite_frames = _template_sprite_frames
+		body.play_action("idle", body.current_direction)
+		return
+	body.configure_from_grid(south_idle, 1, 1, {"idle_south": {"frames": [0], "fps": 1.0, "loop": true}})
+	for direction: String in ["south_west", "west", "north_west", "north", "north_east", "east", "south_east"]:
+		var idle_texture: Texture2D = load(str(costume.get("idle_%s_asset" % direction, ""))) as Texture2D
+		if idle_texture == null:
+			push_warning("Completed costume is missing idle direction %s; default avatar restored." % direction)
+			body.sprite_frames = _template_sprite_frames
+			body.play_action("idle", body.current_direction)
+			return
+		body.append_grid_clips(idle_texture, 1, 1, {"idle_%s" % direction: {"frames": [0], "fps": 1.0, "loop": true}})
+	for direction: String in FrameAnimationController.DIRECTIONS:
+		var walk_sources := _frame_sources_from_paths(costume.get("walk_%s_frames" % direction, []))
+		if walk_sources.size() != 6:
+			push_warning("Completed costume is missing six walk frames for %s; default avatar restored." % direction)
+			body.sprite_frames = _template_sprite_frames
+			body.play_action("idle", body.current_direction)
+			return
+		body.append_mixed_grid_clip("walk_%s" % direction, walk_sources, 10.0, true)
+	var qinghuang := GameCatalog.weapon_runtime_profile_for_item("青篁练气剑")
+	var attack_sources := _frame_sources_from_paths(qinghuang.get("attack_frames", []))
+	if attack_sources.size() == 6:
+		body.append_mixed_grid_clip("attack_south", attack_sources, 14.0, false)
+	body.play_action("idle", body.current_direction)
+
+
+func _frame_sources_from_paths(paths: Array) -> Array:
+	var sources: Array = []
+	for path_variant: Variant in paths:
+		var texture: Texture2D = load(str(path_variant)) as Texture2D
+		if texture != null:
+			sources.append({"sheet": texture, "columns": 1, "rows": 1, "frame": 0})
+	return sources
+
+
+func _has_runtime_costume_body() -> bool:
+	var costume: Dictionary = GameState.equipped_costume_profile()
+	return not costume.is_empty() and str(costume.get("runtime_state", "")) == "ready"
 
 func _remove_runtime_layer(node_name: String) -> void:
 	var layer := get_node_or_null(NodePath(node_name))
@@ -397,6 +469,8 @@ func _configure_equipped_artifact_visual() -> void:
 func _configure_equipped_armor_visual() -> void:
 	# Lightweight armor cards can attach as their own layer while full costume
 	# sheets are still produced. They never alter the body atlas or weapon slot.
+	if _has_runtime_costume_body():
+		return
 	var armor_profile := GameCatalog.armor_profile_for_item(str(GameState.player.get("equipped_armor", "")))
 	var asset_path := str(armor_profile.get("runtime_asset", ""))
 	if asset_path.is_empty():
@@ -419,6 +493,8 @@ func _configure_equipped_armor_visual() -> void:
 func _configure_equipped_footwear_visual() -> void:
 	# Footwear is a lower-body layer. It may coexist with bracers and a body
 	# piece instead of being forced through the temporary armor slot.
+	if _has_runtime_costume_body():
+		return
 	var footwear_profile := GameCatalog.footwear_profile_for_item(str(GameState.player.get("equipped_footwear", "")))
 	var asset_path := str(footwear_profile.get("runtime_asset", ""))
 	if asset_path.is_empty():

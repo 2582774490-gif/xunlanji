@@ -374,8 +374,8 @@ const COSTUME_PROFILES := {
 			"res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_walk_south_east_v01_f5_alpha.png",
 			"res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_walk_south_east_v01_f6_alpha.png",
 		],
-		"runtime_state": "idle_8dir_ready",
-		"animation_requirement": "已完成男体八方向待机、八方向行走及青篁练气剑南向攻击源图；其余武器攻击方向与装备遮挡测试待完成。",
+		"runtime_state": "ready",
+		"animation_requirement": "已接入男体大世界角色层：八方向待机、八方向各六帧行走及青篁练气剑南向攻击均使用本时装的独立透明源图。其余武器攻击方向仍待补齐。",
 	},
 	"jiangyun_rainbow": {
 		"name": "绛云霓裳",
