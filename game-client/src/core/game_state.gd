@@ -331,9 +331,16 @@ func cancel_market_listing(index: int) -> bool:
 	return true
 
 func update_character(gender: String, face: int, hair: int) -> void:
+	_normalize_player_schema()
 	player.gender = gender
 	player.face = face
 	player.hair = hair
+	var starter_costume := "jiangyun_rainbow" if gender == "女" else "liulan_wayfarer"
+	if not (player.owned_costumes as Array).has(starter_costume):
+		player.owned_costumes.append(starter_costume)
+	var equipped_profile := equipped_costume_profile()
+	if not equipped_profile.is_empty() and str(equipped_profile.get("gender", "")) != gender:
+		player.equipped_costume = ""
 	profile_changed.emit()
 
 func update_innate(spirit_root: String, physique: String) -> void:
@@ -621,6 +628,9 @@ func equip_costume(costume_id: String) -> bool:
 	var profile: Dictionary = catalog.costume_profile_for_id(costume_id)
 	if profile.is_empty():
 		notify("该时装档案尚未登记。")
+		return false
+	if str(profile.get("gender", "")) != str(player.get("gender", "")):
+		notify("该时装尚未制作当前角色模板的同骨架版本。")
 		return false
 	player.equipped_costume = costume_id
 	profile_changed.emit()

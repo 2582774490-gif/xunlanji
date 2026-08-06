@@ -273,12 +273,12 @@ func _show_inventory() -> void:
 	for costume_value in (GameState.player.get("owned_costumes", []) as Array):
 		var costume_id := str(costume_value)
 		var costume_profile := Catalog.costume_profile_for_id(costume_id)
-		if costume_profile.is_empty():
+		if costume_profile.is_empty() or str(costume_profile.get("gender", "")) != str(GameState.player.get("gender", "")):
 			continue
 		_add_inventory_costume_card(costume_id, costume_profile, costume_id == equipped_costume_id)
 		costume_buttons.append(["试穿 %s" % str(costume_profile.name), func(): GameState.equip_costume(costume_id), 200, costume_id == equipped_costume_id])
 	_buttons(costume_buttons)
-	_text("当前“流岚游衣”已入库的是原创立绘概念图。为避免把静态立绘硬贴到地图人物上，它会在八方向动作帧完成后才显示在大世界与副本中。", 15, Color("a7d5ca"))
+	_text("当前男女首套时装均为原创立绘概念图。为避免把静态立绘硬贴到地图人物上，它们会在对应模板的八方向动作帧完成后才显示在大世界与副本中。", 15, Color("a7d5ca"))
 	_line()
 	var card_names := {}
 	for item_value in GameState.player.inventory:

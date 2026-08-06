@@ -12,8 +12,9 @@
 | 时装 ID | 名称 | 适用模板 | 概念图 | 状态 |
 |---|---|---|---|---|
 | `liulan_wayfarer` | 流岚游衣 | 男 | `game-client/assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png` | 概念已审核，动作帧待制作 |
+| `jiangyun_rainbow` | 绛云霓裳 | 女 | `game-client/assets/art/costumes/jiangyun_rainbow/concept/jiangyun_rainbow_concept_v01.png` | 概念已审核，动作帧待制作 |
 
-概念图生成规范：原创高品质中国动画修仙服装设计；云白、青碧、银纹；无武器、无文字、无现有 IP 角色或徽标。它只用于确认材质、色彩和服装层次，不用作 2D 游戏人物帧。
+概念图生成规范：原创高品质中国动画修仙服装设计；男装为云白、青碧、银纹，女装为绛红、黛紫、云白纱袖；无武器、无文字、无现有 IP 角色或徽标。它只用于确认材质、色彩和服装层次，不用作 2D 游戏人物帧。
 
 ## 进入地图角色层的验收门槛
 

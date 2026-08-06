@@ -272,6 +272,15 @@ const COSTUME_PROFILES := {
 		"runtime_state": "concept_only",
 		"animation_requirement": "需补齐男体八方向待机、八方向行走、南向攻击及武器遮挡测试。",
 	},
+	"jiangyun_rainbow": {
+		"name": "绛云霓裳",
+		"gender": "女",
+		"rarity": "典藏外观",
+		"description": "绛红、黛紫与云白纱袖层叠的游修霓裳，收束腰封与轻甲护腕让飘逸和行动感并存。",
+		"concept_asset": "res://assets/art/costumes/jiangyun_rainbow/concept/jiangyun_rainbow_concept_v01.png",
+		"runtime_state": "concept_only",
+		"animation_requirement": "需补齐女体八方向待机、八方向行走、南向攻击及发梢与广袖遮挡测试。",
+	},
 }
 
 static func costume_profile_for_id(costume_id: String) -> Dictionary:

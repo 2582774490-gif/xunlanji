@@ -160,6 +160,11 @@ func _check_costume_wardrobe_rules() -> void:
 	var saved := GameState.export_local_profile()
 	_expect((saved.player.get("owned_costumes", []) as Array).has("liulan_wayfarer") and str(saved.player.get("equipped_costume", "")) == "liulan_wayfarer", "Wardrobe ownership and selected costume must enter local save payload.")
 	_expect(not GameState.equip_costume("unknown_costume"), "Unowned or unknown costumes must not be equipable.")
+	GameState.update_character("女", 1, 1)
+	_expect((GameState.player.owned_costumes as Array).has("jiangyun_rainbow"), "Female template selection should grant the matching launch-preview wardrobe asset.")
+	_expect(GameState.equip_costume("jiangyun_rainbow"), "Female costume should be equipable by the female template.")
+	_expect(not GameState.equip_costume("liulan_wayfarer"), "Costumes must not silently use an incompatible body-template version.")
+	_expect(GameState.derived_stats() == stats_before, "Female costume selection must remain cosmetic-only.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
