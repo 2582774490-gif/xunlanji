@@ -11,7 +11,7 @@
 
 | 时装 ID | 名称 | 适用模板 | 概念图 | 状态 |
 |---|---|---|---|---|
-| `liulan_wayfarer` | 流岚游衣 | 男 | `game-client/assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png` | 概念已审核；正南、西南、正西、西北、正北、东北、正东待机透明源图已通过，其余方向和动作待制作 |
+| `liulan_wayfarer` | 流岚游衣 | 男 | `game-client/assets/art/costumes/liulan_wayfarer/concept/liulan_wayfarer_concept_v01.png` | 概念已审核；八方向待机透明源图已通过，行走与攻击动作待制作 |
 | `jiangyun_rainbow` | 绛云霓裳 | 女 | `game-client/assets/art/costumes/jiangyun_rainbow/concept/jiangyun_rainbow_concept_v01.png` | 概念已审核，动作帧待制作 |
 
 概念图生成规范：原创高品质中国动画修仙服装设计；男装为云白、青碧、银纹，女装为绛红、黛紫、云白纱袖；无武器、无文字、无现有 IP 角色或徽标。它只用于确认材质、色彩和服装层次，不用作 2D 游戏人物帧。
@@ -32,6 +32,8 @@
 - 东北透明运行候选：`game-client/assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_idle_north_east_v01_alpha.png`
 - 正东源图：`game-client/assets/art/costumes/liulan_wayfarer/source_magic2/liulan_wayfarer_idle_east_v01_key.png`
 - 正东透明运行候选：`game-client/assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_idle_east_v01_alpha.png`
+- 东南源图：`game-client/assets/art/costumes/liulan_wayfarer/source_magic2/liulan_wayfarer_idle_south_east_v01_key.png`
+- 东南透明运行候选：`game-client/assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_idle_south_east_v01_alpha.png`
 - 已拒绝的八方向合图样张：`game-client/assets/art/costumes/liulan_wayfarer/review/rejected/README.md`
 
 ## 进入地图角色层的验收门槛
@@ -59,7 +61,7 @@
 | 3 | 施放/攻击 | 南向 6 帧，按武器大类分别制作 | 手、武器与披帛层级不穿帮，攻击前摇/命中/收势可读 |
 | 4 | 验收 | 地图、战斗、换装、PVP 外观测试 | 不改变任何属性；不遮挡交互、血条或特效 |
 
-在第 1–3 项全部合格前，`runtime_state` 只能保持为 `south_idle_ready`，且地图角色层不得引用该图。
+第 1 项合格后，`runtime_state` 可标记为 `idle_8dir_ready`，仅表示待机方向素材齐备；第 2–3 项未全部合格前，地图角色层仍不得引用该图，也不得标记为 `ready`。
 
 ## 下一批 Image 2 提示词
 
