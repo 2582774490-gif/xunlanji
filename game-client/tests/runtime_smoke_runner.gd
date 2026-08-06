@@ -1431,6 +1431,10 @@ func _check_online_session_presence_boundary() -> void:
 	OnlineSession._handle_message({"type": "position", "player": {"id": "remote-peer", "name": "远游修士", "gender": "female", "region": "mist_border", "x": 620, "y": 300, "direction": "north"}})
 	await get_tree().process_frame
 	_expect(layer.get_child_count() == 0, "Remote avatars must leave the local region layer when their server-authoritative region changes.")
+	OnlineSession._handle_message({"type": "duel_sessions", "duels": [{"id": "duel_smoke", "challengerId": "self-peer", "targetId": "remote-peer", "status": "pending"}]})
+	_expect(OnlineSession.duel_sessions().size() == 1 and OnlineSession.local_player_has_duel(), "Online session did not retain the server-broadcast two-player duel challenge.")
+	OnlineSession._handle_message({"type": "duel_sessions", "duels": []})
+	_expect(OnlineSession.duel_sessions().is_empty() and not OnlineSession.local_player_has_duel(), "Online session did not clear a server-ended duel session.")
 	layer.queue_free()
 	OnlineSession.disconnect_room(false)
 	await get_tree().process_frame

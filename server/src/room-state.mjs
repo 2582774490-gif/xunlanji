@@ -4,6 +4,7 @@ export class RoomState {
   constructor(capacity = MAX_ROOM_PLAYERS) {
     this.capacity = capacity;
     this.rooms = new Map();
+    this.duelSessions = new Map();
   }
 
   join(roomId, player) {
@@ -20,6 +21,7 @@ export class RoomState {
     const room = this.rooms.get(roomId);
     if (!room) return [];
     room.delete(playerId);
+    this._removePlayerDuels(roomId, playerId);
     if (room.size === 0) this.rooms.delete(roomId);
     return this.players(roomId);
   }
@@ -41,5 +43,58 @@ export class RoomState {
   players(roomId) {
     const room = this.rooms.get(roomId);
     return room ? [...room.values()].map((player) => ({ ...player })) : [];
+  }
+
+  challengeDuel(roomId, challengerId, targetId) {
+    const room = this.rooms.get(roomId);
+    if (!room?.has(challengerId) || !room.has(targetId)) return { ok: false, code: "duel_player_missing" };
+    if (challengerId === targetId) return { ok: false, code: "duel_self_target" };
+    if (this.activeDuelFor(roomId, challengerId) || this.activeDuelFor(roomId, targetId)) {
+      return { ok: false, code: "duel_player_busy" };
+    }
+    const duel = {
+      id: `duel_${roomId}_${challengerId}_${targetId}_${Date.now()}`,
+      challengerId,
+      targetId,
+      status: "pending",
+    };
+    const sessions = this.duelSessions.get(roomId) ?? new Map();
+    sessions.set(duel.id, duel);
+    this.duelSessions.set(roomId, sessions);
+    return { ok: true, duel: { ...duel } };
+  }
+
+  respondToDuel(roomId, targetId, duelId, accept) {
+    const duel = this.duelSessions.get(roomId)?.get(duelId);
+    if (!duel) return { ok: false, code: "duel_missing" };
+    if (duel.targetId !== targetId) return { ok: false, code: "duel_not_target" };
+    if (duel.status !== "pending") return { ok: false, code: "duel_not_pending" };
+    if (!accept) {
+      this.duelSessions.get(roomId)?.delete(duelId);
+      return { ok: true, duel: { ...duel, status: "declined" } };
+    }
+    duel.status = "active";
+    return { ok: true, duel: { ...duel } };
+  }
+
+  duelSessionsFor(roomId) {
+    const sessions = this.duelSessions.get(roomId);
+    return sessions ? [...sessions.values()].map((duel) => ({ ...duel })) : [];
+  }
+
+  activeDuelFor(roomId, playerId) {
+    return this.duelSessionsFor(roomId).find((duel) =>
+      (duel.status === "pending" || duel.status === "active") &&
+      (duel.challengerId === playerId || duel.targetId === playerId)
+    ) ?? null;
+  }
+
+  _removePlayerDuels(roomId, playerId) {
+    const sessions = this.duelSessions.get(roomId);
+    if (!sessions) return;
+    for (const [duelId, duel] of sessions) {
+      if (duel.challengerId === playerId || duel.targetId === playerId) sessions.delete(duelId);
+    }
+    if (sessions.size === 0) this.duelSessions.delete(roomId);
   }
 }

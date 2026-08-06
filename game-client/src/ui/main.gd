@@ -437,6 +437,21 @@ func _show_pvp() -> void:
 	_heading("1v1 论剑台")
 	if combat.mode != "论剑" or combat.enemy_name != "山门试剑使": combat.begin("论剑", "山门试剑使")
 	_text("首发 PVP 最多支持两人。当前为本地对战演示，不代表已经完成实时联网。", 18, Color("f2d79c"))
+	if OnlineSession.is_room_connected():
+		_text("十人房论剑会话：服务器只允许一名挑战者与一名被挑战者进入同一会话；挑战与接受状态由服务端广播。", 16, Color("a7d5ca"))
+		for peer in OnlineSession.remote_players():
+			var peer_id := str(peer.get("id", ""))
+			var peer_name := str(peer.get("name", "远游修士"))
+			_buttons([["挑战 %s" % peer_name, func(): _request_online_duel(peer_id), 190, OnlineSession.local_player_has_duel()]])
+		for duel in OnlineSession.duel_sessions():
+			var challenger := str(duel.get("challengerId", ""))
+			var target := str(duel.get("targetId", ""))
+			var state := "等待回应" if str(duel.get("status", "")) == "pending" else "已配对（联机战斗接入中）"
+			_text("论剑会话 %s：%s ↔ %s｜%s" % [str(duel.get("id", "")).right(12), challenger.left(8), target.left(8), state], 15, Color("a7d5ca"))
+			if target == OnlineSession.local_peer_id() and str(duel.get("status", "")) == "pending":
+				_buttons([["接受挑战", func(): _respond_online_duel(str(duel.get("id", "")), true), 140], ["拒绝", func(): _respond_online_duel(str(duel.get("id", "")), false), 120]])
+	else:
+		_text("连接本机十人房后，可先验证服务器管理的双人挑战与配对；实际在线战斗同步仍在后续接入。", 16, Color("a7d5ca"))
 	_text("玩家 HP：%d / 100｜对手 HP：%d / 100" % [combat.player_hp, combat.enemy_hp], 22, Color.WHITE)
 	_text(combat.battle_log)
 	_buttons(_combat_entries(true))
@@ -759,6 +774,18 @@ func _open_duel_arena() -> void:
 func _restart_pvp() -> void:
 	combat.begin("论剑", "山门试剑使")
 	GameState.notify("已开始本地 1v1 演示。")
+	_render()
+
+
+func _request_online_duel(peer_id: String) -> void:
+	if not OnlineSession.request_duel(peer_id):
+		GameState.notify("当前无法发起论剑挑战。")
+	_render()
+
+
+func _respond_online_duel(duel_id: String, accept: bool) -> void:
+	if not OnlineSession.respond_to_duel(duel_id, accept):
+		GameState.notify("该论剑挑战已失效。")
 	_render()
 
 func _update_notice(text: String) -> void:

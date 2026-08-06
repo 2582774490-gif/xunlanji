@@ -28,10 +28,18 @@ function broadcastRoster(roomId) {
   broadcast(roomId, { type: "roster", players: rooms.players(roomId) });
 }
 
+function broadcastDuelSessions(roomId) {
+  broadcast(roomId, { type: "duel_sessions", duels: rooms.duelSessionsFor(roomId) });
+}
+
 function closePeer(peer) {
   if (!peers.delete(peer.id)) return;
   const roomId = peer.roomId;
-  if (roomId) broadcastRoster(roomId);
+  if (roomId) {
+    rooms.leave(roomId, peer.id);
+    broadcastRoster(roomId);
+    broadcastDuelSessions(roomId);
+  }
 }
 
 function readFrames(peer, data) {
@@ -96,11 +104,30 @@ function handleMessage(peer, message) {
     peer.roomId = roomId;
     send(peer, { type: "welcome", peerId: peer.id, room: roomId, capacity: MAX_ROOM_PLAYERS });
     broadcastRoster(roomId);
+    broadcastDuelSessions(roomId);
     return;
   }
   if (message.type === "position" && peer.roomId) {
     const player = rooms.updatePosition(peer.roomId, peer.id, message);
     if (player) broadcast(peer.roomId, { type: "position", player }, peer.id);
+    return;
+  }
+  if (message.type === "duel_challenge" && peer.roomId) {
+    const result = rooms.challengeDuel(peer.roomId, peer.id, String(message.targetId ?? ""));
+    if (!result.ok) {
+      send(peer, { type: "error", code: result.code });
+      return;
+    }
+    broadcastDuelSessions(peer.roomId);
+    return;
+  }
+  if (message.type === "duel_response" && peer.roomId) {
+    const result = rooms.respondToDuel(peer.roomId, peer.id, String(message.duelId ?? ""), message.accept === true);
+    if (!result.ok) {
+      send(peer, { type: "error", code: result.code });
+      return;
+    }
+    broadcastDuelSessions(peer.roomId);
   }
 }
 
