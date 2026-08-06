@@ -74,16 +74,19 @@ func _defeat_boss() -> void:
 	GameState.add_item("沉舟航图残页")
 	GameState.add_spirit_stones(int(last_drop.stones))
 	GameState.gain_cultivation(int(last_drop.cultivation))
+	var monthly_card_bonus := GameState.try_award_monthly_card_common_material("sunken_boat", ["古舷木芯"])
 	GameState.record_dungeon_run({
 		"dungeon_id": "sunken_boat",
 		"boss": "沉舷残灵·鸣濯",
 		"drop": last_drop.item,
+		"monthly_card_common_bonus": monthly_card_bonus,
 		"spirit_stones": last_drop.stones,
 		"cultivation": last_drop.cultivation,
 	})
 	status.text = "沉舷遗府已探索：获得随机舟材与航图残页，可从结算面板返回雾潮边境。"
 	prompt.text = ""
-	clear_summary.text = "沉舷残灵·鸣濯收回锚影。\n\n获得：%s、沉舟航图残页\n灵石 +%d　修为 +%d\n\n航图残页会成为后续归墟雾港与交易线索的一部分。" % [str(last_drop.item), int(last_drop.stones), int(last_drop.cultivation)]
+	var monthly_bonus_text := "、%s（月卡常规材料）" % monthly_card_bonus if not monthly_card_bonus.is_empty() else ""
+	clear_summary.text = "沉舷残灵·鸣濯收回锚影。\n\n获得：%s、沉舟航图残页%s\n灵石 +%d　修为 +%d\n\n航图残页会成为后续归墟雾港与交易线索的一部分。" % [str(last_drop.item), monthly_bonus_text, int(last_drop.stones), int(last_drop.cultivation)]
 	if first_mirror:
 		status.text += " 另获照影练气镜，可在幻雾区寻找被遮掩的线索。"
 		clear_summary.text += "\n\n首次击败额外获得：照影练气镜。装备后可在特定区域映出隐藏机缘。"

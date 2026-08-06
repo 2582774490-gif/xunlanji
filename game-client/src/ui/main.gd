@@ -598,8 +598,21 @@ func _show_settings() -> void:
 	_text("引擎：Godot 4.7｜目标：微信小游戏优先｜当前：Windows 本地原型。")
 	_text("已具备：首发内容数据、完整模块入口、本地修炼/机缘/副本/交易/PVP 演示、本地存档、首批立绘。")
 	_text("后续尚需：微信导出验证、服务器、账号、真实多人同步、完整动作帧、数值平衡、音频与云端存档。")
+	_heading("首发月卡边界（本地规则验证）")
+	_text(GameState.monthly_card_status_text(), 17, Color("f2d79c"))
+	_text("今日固定副本剩余 %d / %d 次。免费玩家每日 3 次；小月卡 ¥30/月为 4 次，大月卡 ¥98/月为 5 次。" % [GameState.fixed_dungeon_attempts_remaining(), GameState.daily_fixed_dungeon_limit()])
+	_text("仅可额外获得极少量常规材料，并缩短回城符、探索罗盘等便利物品冷却。不会改变攻击、防御、技能冷却、修炼、炼丹、资源刷新、PVP、市场价格保护或 5%% 交易手续费。", 16, Color("c7d8d2"))
+	_text("下列按钮只用于 Windows 本地原型验证，既不会扣款，也不代表已接入支付。正式上线需由微信支付与账号服务器签发权益。", 15, Color("a5b4bf"))
+	_buttons([["本地模拟小月卡", func(): _set_local_monthly_card_test("small"), 180], ["本地模拟大月卡", func(): _set_local_monthly_card_test("large"), 180], ["关闭本地测试权益", func(): _set_local_monthly_card_test("none"), 190]])
 	_buttons([["保存本地进度", _save_local_profile, 190], ["读取本地进度", _load_local_profile, 190]])
 	_buttons([["返回洞府", func(): GameState.enter_screen(GameState.Screen.HOME), 160], ["重新创建角色", func(): GameState.enter_screen(GameState.Screen.CHARACTER_SELECT), 180]])
+
+
+func _set_local_monthly_card_test(tier: String) -> void:
+	if not GameState.set_local_monthly_card_test_entitlement(tier):
+		return
+	GameState.notify("已切换本地测试权益：%s。未发生支付；PVP、交易税和战斗数值不受影响。" % str(GameState.monthly_card_benefits().label))
+	_render()
 
 func _combat_entries(include_reset := false) -> Array:
 	var entries: Array = [["J 普攻", func(): _attack(), 120]]

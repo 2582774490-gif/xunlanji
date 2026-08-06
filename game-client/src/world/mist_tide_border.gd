@@ -337,6 +337,9 @@ func _try_enter_mist_forest() -> void:
 	if not can_enter_mist_forest():
 		status.text = "雾林结界只回应炼气二层以上的修士。你可继续水府试炼、采集与修炼来稳固根基。"
 		return
+	if not GameState.try_begin_fixed_dungeon("mist_forest"):
+		status.text = GameState.fixed_dungeon_entry_block_text()
+		return
 	GameState.selected_dungeon_id = "mist_forest"
 	get_tree().change_scene_to_file("res://scenes/mist_forest_grove.tscn")
 
@@ -349,6 +352,9 @@ func _try_enter_mist_bone_creek() -> void:
 func _try_enter_sunken_vessel() -> void:
 	if not can_enter_sunken_vessel():
 		status.text = "沉舷遗府的潮门要到炼气四层才会完整显现。你可自由选择继续探索雾骨溪、挑战雾林、交易材料或修炼后再来。"
+		return
+	if not GameState.try_begin_fixed_dungeon("sunken_boat"):
+		status.text = GameState.fixed_dungeon_entry_block_text()
 		return
 	GameState.selected_dungeon_id = "sunken_boat"
 	get_tree().change_scene_to_file("res://scenes/sunken_vessel_manor.tscn")

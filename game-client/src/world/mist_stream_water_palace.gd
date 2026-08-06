@@ -572,10 +572,12 @@ func _defeat_boss() -> void:
 		GameState.add_item("雾潮练气珠")
 	GameState.add_spirit_stones(int(last_drop.stones))
 	GameState.gain_cultivation(int(last_drop.cultivation))
+	var monthly_card_bonus := GameState.try_award_monthly_card_common_material("mist_stream_palace", ["雾溪药", "凝气符"])
 	GameState.record_dungeon_run({
 		"dungeon_id": "mist_stream_palace",
 		"boss": "潮妃·兰纱",
 		"drop": last_drop.item,
+		"monthly_card_common_bonus": monthly_card_bonus,
 		"spirit_stones": last_drop.stones,
 		"cultivation": last_drop.cultivation,
 	})
@@ -583,7 +585,8 @@ func _defeat_boss() -> void:
 	status.text = "水府试炼完成：已获得掉落，可从结算面板返回云岚村。"
 	prompt.text = ""
 	var pearl_reward := "、雾潮练气珠（首通御水法宝）" if first_clear_pearl else ""
-	clear_summary.text = "潮妃·兰纱已退入水雾。\n\n获得：%s%s\n灵石 +%d　修为 +%d\n\n本次掉落已进入行囊，并记入水府试炼记录。" % [str(last_drop.item), pearl_reward, int(last_drop.stones), int(last_drop.cultivation)]
+	var monthly_bonus_text := "\n月卡常规材料额外产出：%s" % monthly_card_bonus if not monthly_card_bonus.is_empty() else ""
+	clear_summary.text = "潮妃·兰纱已退入水雾。\n\n获得：%s%s\n灵石 +%d　修为 +%d%s\n\n本次掉落已进入行囊，并记入水府试炼记录。" % [str(last_drop.item), pearl_reward, int(last_drop.stones), int(last_drop.cultivation), monthly_bonus_text]
 	clear_panel.visible = true
 
 func _return_to_village() -> void:

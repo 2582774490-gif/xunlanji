@@ -73,17 +73,20 @@ func _defeat_boss() -> void:
 		GameState.add_item("玄土练气印")
 	GameState.add_spirit_stones(int(last_drop.stones))
 	GameState.gain_cultivation(int(last_drop.cultivation))
+	var monthly_card_bonus := GameState.try_award_monthly_card_common_material("earth_fire", ["赤焰精金"])
 	GameState.record_dungeon_run({
 		"dungeon_id": "earth_fire",
 		"boss": "地火灵兽·炽甲",
 		"drop": last_drop.item,
+		"monthly_card_common_bonus": monthly_card_bonus,
 		"spirit_stones": last_drop.stones,
 		"cultivation": last_drop.cultivation,
 	})
 	status.text = "地火洞试炼完成：奖励已进入行囊，可从结算面板返回古脊岭。"
 	prompt.text = ""
 	var seal_reward := "、玄土练气印（首通护身法宝）" if first_clear_seal else ""
-	clear_summary.text = "地火灵兽·炽甲沉入熄火的岩池。\n\n获得：%s%s\n灵石 +%d　修为 +%d\n\n地火洞保留为固定副本；后续会增加洞内深层、火脉锻台与掉落分支。" % [str(last_drop.item), seal_reward, int(last_drop.stones), int(last_drop.cultivation)]
+	var monthly_bonus_text := "、%s（月卡常规材料）" % monthly_card_bonus if not monthly_card_bonus.is_empty() else ""
+	clear_summary.text = "地火灵兽·炽甲沉入熄火的岩池。\n\n获得：%s%s%s\n灵石 +%d　修为 +%d\n\n地火洞保留为固定副本；后续会增加洞内深层、火脉锻台与掉落分支。" % [str(last_drop.item), seal_reward, monthly_bonus_text, int(last_drop.stones), int(last_drop.cultivation)]
 	clear_panel.visible = true
 
 func _return_to_village() -> void:

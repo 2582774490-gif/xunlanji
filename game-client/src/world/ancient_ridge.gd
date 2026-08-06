@@ -166,6 +166,9 @@ func _resolve_event() -> void:
 	_close_interaction()
 
 func _enter_earthfire_cave() -> void:
+	if not GameState.try_begin_fixed_dungeon("earth_fire"):
+		status.text = GameState.fixed_dungeon_entry_block_text()
+		return
 	GameState.selected_dungeon_id = "earth_fire"
 	_discover_earthfire_cave()
 	get_tree().change_scene_to_file("res://scenes/earthfire_cave.tscn")

@@ -8,6 +8,7 @@ func _ready() -> void:
 func _run() -> void:
 	await _check_manual_progression()
 	await _check_local_profile_payload()
+	await _check_monthly_card_fairness_rules()
 	await _check_optional_world_guidance()
 	await _check_cultivation_affinity()
 	await _check_codex_registry_ui()
@@ -142,6 +143,35 @@ func _check_local_profile_payload() -> void:
 	GameState.local_market_listings = listings_before
 	GameState.current_region_id = region_before
 	GameState.selected_dungeon_id = dungeon_before
+
+
+func _check_monthly_card_fairness_rules() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var test_time := 1704110400 # 2024-01-01 12:00:00 UTC; fixed time keeps daily reset deterministic.
+	GameState.player.fixed_dungeon_attempts = {"day": "", "used": 0}
+	_expect(GameState.set_local_monthly_card_test_entitlement("none", test_time), "Local prototype should be able to clear a test-only monthly-card entitlement.")
+	_expect(GameState.daily_fixed_dungeon_limit(test_time) == 3, "Free players must keep three daily fixed-dungeon attempts.")
+	for attempt in 3:
+		_expect(GameState.try_begin_fixed_dungeon("mist_stream_palace", test_time), "Free fixed-dungeon attempt %d should be accepted." % (attempt + 1))
+	_expect(not GameState.try_begin_fixed_dungeon("mist_stream_palace", test_time), "A fourth free fixed-dungeon attempt must be blocked.")
+	_expect(GameState.fixed_dungeon_attempts_remaining(test_time + 86400) == 3, "Fixed-dungeon attempts must reset on the next natural day.")
+	_expect(GameState.set_local_monthly_card_test_entitlement("small", test_time), "Small monthly-card test entitlement was not accepted.")
+	GameState.player.fixed_dungeon_attempts = {"day": "", "used": 0}
+	_expect(GameState.daily_fixed_dungeon_limit(test_time) == 4, "Small monthly card should add exactly one daily fixed-dungeon attempt.")
+	_expect(is_equal_approx(GameState.convenience_cooldown_multiplier("return_talisman", test_time), 0.90), "Small monthly card should only reduce designated convenience cooldowns by ten percent.")
+	_expect(is_equal_approx(GameState.convenience_cooldown_multiplier("combat", test_time), 1.0), "Monthly cards must never reduce combat-skill cooldowns.")
+	var materials: Array[String] = ["雾溪药"]
+	var inventory_before: int = GameState.player.inventory.size()
+	_expect(GameState.try_award_monthly_card_common_material("mist_stream_palace", materials, 0.01) == "雾溪药", "Small monthly card should only award the configured common material on a successful low-probability roll.")
+	_expect(GameState.player.inventory.size() == inventory_before + 1, "Monthly-card common material award did not enter inventory.")
+	_expect(GameState.set_local_monthly_card_test_entitlement("large", test_time), "Large monthly-card test entitlement was not accepted.")
+	_expect(GameState.daily_fixed_dungeon_limit(test_time) == 5, "Large monthly card should add exactly two daily fixed-dungeon attempts.")
+	_expect(is_equal_approx(GameState.convenience_cooldown_multiplier("exploration_compass", test_time), 0.80), "Large monthly card should only reduce designated convenience cooldowns by twenty percent.")
+	_expect(GameState.market_fee(100) == 5, "Monthly-card state must not alter the five-percent trade listing fee.")
+	_expect(GameState.try_award_monthly_card_common_material("mist_stream_palace", materials, 0.041).is_empty(), "Even large monthly cards must not exceed the four-percent common-material bonus boundary.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
 
 func _check_optional_world_guidance() -> void:
 	var shen_card := GameCatalog.npc_card_profile_for_name("沈衍")

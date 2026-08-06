@@ -101,6 +101,9 @@ func _activate_marker() -> void:
 			if active_marker.marker_id == "water_palace" and tutorial_stage < 2:
 				status.text = "水府潮息暂未认可你。先向沈衍问询，再采集一株雾溪灵草。"
 				return
+			if not GameState.try_begin_fixed_dungeon(str(active_marker.payload)):
+				status.text = GameState.fixed_dungeon_entry_block_text()
+				return
 			GameState.selected_dungeon_id = active_marker.payload
 			get_tree().change_scene_to_file("res://scenes/mist_stream_water_palace.tscn")
 

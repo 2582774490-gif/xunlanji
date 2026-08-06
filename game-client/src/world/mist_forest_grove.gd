@@ -68,16 +68,19 @@ func _defeat_boss() -> void:
 	GameState.add_item("雾林妖丹")
 	GameState.add_spirit_stones(int(last_drop.stones))
 	GameState.gain_cultivation(int(last_drop.cultivation))
+	var monthly_card_bonus := GameState.try_award_monthly_card_common_material("mist_forest", ["雾木灵芯"])
 	GameState.record_dungeon_run({
 		"dungeon_id": "mist_forest",
 		"boss": "雾林妖将·玄枝",
 		"drop": last_drop.item,
+		"monthly_card_common_bonus": monthly_card_bonus,
 		"spirit_stones": last_drop.stones,
 		"cultivation": last_drop.cultivation,
 	})
 	status.text = "雾林试炼完成：已获得随机掉落与雾林妖丹，可从结算面板返回雾潮边境。"
 	prompt.text = ""
-	clear_summary.text = "雾林妖将 · 玄枝散入林雾。\n\n获得：%s、雾林妖丹\n灵石 +%d　修为 +%d\n\n妖丹可作为筑基丹丹方的核心；本次战利品已进入行囊。" % [str(last_drop.item), int(last_drop.stones), int(last_drop.cultivation)]
+	var monthly_bonus_text := "、%s（月卡常规材料）" % monthly_card_bonus if not monthly_card_bonus.is_empty() else ""
+	clear_summary.text = "雾林妖将 · 玄枝散入林雾。\n\n获得：%s、雾林妖丹%s\n灵石 +%d　修为 +%d\n\n妖丹可作为筑基丹丹方的核心；本次战利品已进入行囊。" % [str(last_drop.item), monthly_bonus_text, int(last_drop.stones), int(last_drop.cultivation)]
 	clear_panel.visible = true
 
 func _return_to_village() -> void:

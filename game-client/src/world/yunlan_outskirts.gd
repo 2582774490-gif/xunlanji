@@ -263,6 +263,9 @@ func _enter_mist_stream_water_palace() -> void:
 	if GameState.player.realm_index == 0 and GameState.player.minor_stage < 1:
 		status.text = "雾溪水府的浅潮尚未回应。先稳定到炼气一层，再从石阶进入。"
 		return
+	if not GameState.try_begin_fixed_dungeon("mist_stream_palace"):
+		status.text = GameState.fixed_dungeon_entry_block_text()
+		return
 	GameState.selected_dungeon_id = "mist_stream_palace"
 	get_tree().change_scene_to_file("res://scenes/mist_stream_water_palace.tscn")
 

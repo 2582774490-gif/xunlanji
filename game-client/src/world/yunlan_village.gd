@@ -72,6 +72,9 @@ func _activate_contextual() -> void:
 			else:
 				GameState.notify("雾潮边境被水雾封锁。完成雾溪水府试炼后可沿旧道前往。")
 		"water_palace":
+			if not GameState.try_begin_fixed_dungeon("mist_stream_palace"):
+				prompt.text = GameState.fixed_dungeon_entry_block_text()
+				return
 			GameState.selected_dungeon_id = "mist_stream_palace"
 			get_tree().change_scene_to_file("res://scenes/mist_stream_water_palace.tscn")
 		"weapon_rack":

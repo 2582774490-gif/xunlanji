@@ -66,6 +66,17 @@ const TECHNIQUE_INSIGHT_THRESHOLDS := [60, 180, 360]
 const EQUIPMENT_MAX_UPGRADE := 10
 const LOCAL_SAVE_PATH := "user://xunlanji_local_profile.json"
 const LOCAL_SAVE_VERSION := 1
+# 首发商业化只出售外观与便利，不出售属性、战斗伤害、PVP 数值或交易税优惠。
+# 本地原型可模拟权益，用于验证规则；正式激活必须由支付与账号服务端签发。
+const BASE_DAILY_FIXED_DUNGEON_ATTEMPTS := 3
+const MONTHLY_CARD_SMALL_PRICE_CNY := 30
+const MONTHLY_CARD_LARGE_PRICE_CNY := 98
+const MONTHLY_CARD_DURATION_DAYS := 30
+const MONTHLY_CARD_BENEFITS := {
+	"none": {"label": "无月卡", "extra_attempts": 0, "common_bonus_chance": 0.0, "convenience_cooldown_multiplier": 1.0},
+	"small": {"label": "小月卡", "extra_attempts": 1, "common_bonus_chance": 0.02, "convenience_cooldown_multiplier": 0.90},
+	"large": {"label": "大月卡", "extra_attempts": 2, "common_bonus_chance": 0.04, "convenience_cooldown_multiplier": 0.80},
+}
 var local_market_listings: Array[Dictionary] = [
 	{"id": "npc_mist_stream_medicine", "name": "雾溪药", "type": "药材", "price": 14, "seller": "陆青禾"},
 	{"id": "npc_ore", "name": "雾潮矿芯", "type": "材料", "price": 32, "seller": "温行客"},
@@ -115,6 +126,8 @@ var player := {
 	"codex": ["云岚村", "雾溪水府"],
 	"opportunity_log": [],
 	"dungeon_runs": [],
+	"fixed_dungeon_attempts": {"day": "", "used": 0},
+	"monthly_card": {"tier": "none", "expires_at": 0},
 	"unlocked_regions": ["starter_village"],
 }
 
@@ -728,6 +741,115 @@ func record_dungeon_run(entry: Dictionary) -> void:
 		add_sect_contribution(12, "完成宗门认可的副本探索")
 	profile_changed.emit()
 
+
+func _calendar_day(now_unix: int = -1) -> String:
+	var date: Dictionary
+	if now_unix < 0:
+		date = Time.get_datetime_dict_from_system()
+	else:
+		date = Time.get_datetime_dict_from_unix_time(now_unix)
+	return "%04d-%02d-%02d" % [int(date.year), int(date.month), int(date.day)]
+
+
+func _refresh_fixed_dungeon_attempt_day(now_unix: int = -1) -> void:
+	_normalize_player_schema()
+	var attempts: Dictionary = player.fixed_dungeon_attempts
+	var today := _calendar_day(now_unix)
+	if str(attempts.get("day", "")) != today:
+		attempts = {"day": today, "used": 0}
+		player.fixed_dungeon_attempts = attempts
+
+
+func monthly_card_tier(now_unix: int = -1) -> String:
+	_normalize_player_schema()
+	var now := int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
+	var card: Dictionary = player.monthly_card
+	var tier := str(card.get("tier", "none"))
+	if not MONTHLY_CARD_BENEFITS.has(tier) or tier == "none" or int(card.get("expires_at", 0)) <= now:
+		return "none"
+	return tier
+
+
+func monthly_card_benefits(now_unix: int = -1) -> Dictionary:
+	return (MONTHLY_CARD_BENEFITS.get(monthly_card_tier(now_unix), MONTHLY_CARD_BENEFITS.none) as Dictionary).duplicate(true)
+
+
+func monthly_card_status_text(now_unix: int = -1) -> String:
+	var tier := monthly_card_tier(now_unix)
+	if tier == "none":
+		return "当前无月卡｜固定副本每日 %d 次｜PVP、交易税与战斗数值对所有玩家一致。" % BASE_DAILY_FIXED_DUNGEON_ATTEMPTS
+	var card: Dictionary = player.monthly_card
+	var benefits := monthly_card_benefits(now_unix)
+	var price := MONTHLY_CARD_SMALL_PRICE_CNY if tier == "small" else MONTHLY_CARD_LARGE_PRICE_CNY
+	return "%s ¥%d/月，至 %s｜固定副本每日 %d 次｜常规材料额外产出 %.0f%%｜便利物品冷却 -%d%%。" % [str(benefits.label), price, _calendar_day(int(card.expires_at)), daily_fixed_dungeon_limit(now_unix), float(benefits.common_bonus_chance) * 100.0, roundi((1.0 - float(benefits.convenience_cooldown_multiplier)) * 100.0)]
+
+
+func daily_fixed_dungeon_limit(now_unix: int = -1) -> int:
+	return BASE_DAILY_FIXED_DUNGEON_ATTEMPTS + int(monthly_card_benefits(now_unix).get("extra_attempts", 0))
+
+
+func fixed_dungeon_attempts_used(now_unix: int = -1) -> int:
+	_refresh_fixed_dungeon_attempt_day(now_unix)
+	return int((player.fixed_dungeon_attempts as Dictionary).get("used", 0))
+
+
+func fixed_dungeon_attempts_remaining(now_unix: int = -1) -> int:
+	return max(0, daily_fixed_dungeon_limit(now_unix) - fixed_dungeon_attempts_used(now_unix))
+
+
+func can_enter_fixed_dungeon(_dungeon_id: String, now_unix: int = -1) -> bool:
+	return fixed_dungeon_attempts_remaining(now_unix) > 0
+
+
+func fixed_dungeon_entry_block_text(now_unix: int = -1) -> String:
+	return "今日固定副本次数已用尽（%d/%d）。次日重置；月卡只增加次数，不改变战斗、PVP、交易税或稀有首领掉落。" % [fixed_dungeon_attempts_used(now_unix), daily_fixed_dungeon_limit(now_unix)]
+
+
+func try_begin_fixed_dungeon(dungeon_id: String, now_unix: int = -1) -> bool:
+	if dungeon_id.is_empty() or not can_enter_fixed_dungeon(dungeon_id, now_unix):
+		notify(fixed_dungeon_entry_block_text(now_unix))
+		return false
+	_refresh_fixed_dungeon_attempt_day(now_unix)
+	var attempts: Dictionary = player.fixed_dungeon_attempts
+	attempts.used = int(attempts.get("used", 0)) + 1
+	player.fixed_dungeon_attempts = attempts
+	profile_changed.emit()
+	return true
+
+
+func convenience_cooldown_multiplier(category: String, now_unix: int = -1) -> float:
+	# 仅回城符、探索罗盘和纯展示类便利可受益；技能、修炼、炼丹、采集生态、市场和 PVP 永远不受影响。
+	if not category in ["return_talisman", "exploration_compass", "cosmetic_preview"]:
+		return 1.0
+	return float(monthly_card_benefits(now_unix).get("convenience_cooldown_multiplier", 1.0))
+
+
+func convenience_cooldown_seconds(base_seconds: float, category: String, now_unix: int = -1) -> float:
+	return maxf(0.0, base_seconds * convenience_cooldown_multiplier(category, now_unix))
+
+
+func try_award_monthly_card_common_material(dungeon_id: String, common_materials: Array[String], roll: float = -1.0) -> String:
+	# 只可额外产出明确传入的常规材料；首领装备、功法、法宝、丹药和稀有掉落绝不进入此池。
+	if dungeon_id.is_empty() or common_materials.is_empty():
+		return ""
+	var chance := float(monthly_card_benefits().get("common_bonus_chance", 0.0))
+	var resolved_roll := randf() if roll < 0.0 else roll
+	if chance <= 0.0 or resolved_roll >= chance:
+		return ""
+	var reward := common_materials.pick_random()
+	add_item(reward)
+	return reward
+
+
+func set_local_monthly_card_test_entitlement(tier: String, now_unix: int = -1) -> bool:
+	# Local-only verification hook. It neither charges money nor represents a purchase.
+	if not MONTHLY_CARD_BENEFITS.has(tier):
+		return false
+	var now := int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
+	player.monthly_card = {"tier": tier, "expires_at": now + MONTHLY_CARD_DURATION_DAYS * 24 * 60 * 60 if tier != "none" else 0}
+	profile_changed.emit()
+	return true
+
 func is_region_unlocked(region_id: String) -> bool:
 	return player.unlocked_regions.has(region_id)
 
@@ -1299,6 +1421,21 @@ func _normalize_player_schema() -> void:
 		player.ecology_cooldowns = {}
 	if not player.has("world_positions") or not player.world_positions is Dictionary:
 		player.world_positions = {}
+	if not player.has("fixed_dungeon_attempts") or not player.fixed_dungeon_attempts is Dictionary:
+		player.fixed_dungeon_attempts = {"day": "", "used": 0}
+	else:
+		var fixed_attempts: Dictionary = player.fixed_dungeon_attempts
+		fixed_attempts.day = str(fixed_attempts.get("day", ""))
+		fixed_attempts.used = max(0, int(fixed_attempts.get("used", 0)))
+		player.fixed_dungeon_attempts = fixed_attempts
+	if not player.has("monthly_card") or not player.monthly_card is Dictionary:
+		player.monthly_card = {"tier": "none", "expires_at": 0}
+	else:
+		var monthly_card: Dictionary = player.monthly_card
+		var card_tier := str(monthly_card.get("tier", "none"))
+		monthly_card.tier = card_tier if MONTHLY_CARD_BENEFITS.has(card_tier) else "none"
+		monthly_card.expires_at = max(0, int(monthly_card.get("expires_at", 0)))
+		player.monthly_card = monthly_card
 
 
 func _attribute_points_spent_raw() -> int:
