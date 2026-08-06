@@ -1465,6 +1465,7 @@ func _check_female_east_walk_cycle() -> void:
 	add_child(village)
 	await get_tree().process_frame
 	_expect(village.player.body.sprite_frames.get_frame_count("walk_east") == 6, "Female player template did not load its approved six-frame eastward walking cycle.")
+	_expect(village.player.body.sprite_frames.get_frame_count("walk_west") == 6, "Female player template did not load its approved six-frame westward walking cycle.")
 	village.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before
