@@ -4,6 +4,7 @@ extends Node2D
 const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
 const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
 const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
+const RemoteAvatarLayerScript = preload("res://src/world/remote_avatar_layer.gd")
 
 const RIDGE_EVENTS := [
 	{"name": "地火余温", "item": "赤焰精金", "cultivation": 22, "description": "地火裂缝退去后，岩层露出可炼器的精金。"},
@@ -58,6 +59,7 @@ func _ready() -> void:
 	regional_population.populate(_population_seed(), _population_profiles())
 	world_encounter.configure(player, regional_population, status, $HUD/EncounterTarget, $HUD/EncounterPlayer)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
+	_setup_online_presence()
 
 
 func _setup_world_minimap() -> void:
@@ -97,6 +99,15 @@ func _process(_delta: float) -> void:
 func _exit_tree() -> void:
 	if player != null:
 		GameState.remember_region_position("ancient_ridge", player.position)
+	OnlineSession.detach_world(self)
+
+
+func _setup_online_presence() -> void:
+	var layer: RemoteAvatarLayer = RemoteAvatarLayerScript.new()
+	layer.name = "RemoteAvatarLayer"
+	add_child(layer)
+	layer.configure("ancient_ridge")
+	OnlineSession.attach_world("ancient_ridge", player, self)
 
 
 func _update_sector_presence() -> void:

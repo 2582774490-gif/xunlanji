@@ -57,6 +57,7 @@ func _run() -> void:
 	await _check_mist_pattern_bracers_armor_rules()
 	await _check_water_palace_spirit_boots_runtime_slot()
 	await _check_local_market_loop()
+	await _check_online_session_presence_boundary()
 	await _check_random_opportunity()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
 	await _check_village_routes()
@@ -1381,6 +1382,28 @@ func _check_local_market_loop() -> void:
 	GameState.player = profile_before
 	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()
+
+
+func _check_online_session_presence_boundary() -> void:
+	OnlineSession.disconnect_room(false)
+	var layer := preload("res://src/world/remote_avatar_layer.gd").new()
+	add_child(layer)
+	layer.configure("starter_village")
+	OnlineSession._handle_message({"type": "welcome", "peerId": "self-peer", "room": "launch-1", "capacity": 10})
+	OnlineSession._handle_message({"type": "roster", "players": [
+		{"id": "self-peer", "name": "本机修士", "gender": "male", "region": "starter_village", "x": 120, "y": 120},
+		{"id": "remote-peer", "name": "远游修士", "gender": "female", "region": "starter_village", "x": 420, "y": 260, "direction": "east"},
+	]})
+	await get_tree().process_frame
+	_expect(OnlineSession.remote_players().size() == 1 and layer.get_child_count() == 1, "Online roster must filter the local peer and create one visible remote avatar in the matching region.")
+	var avatar: Node2D = layer.get_child(0)
+	_expect(avatar.get_node("Body") is Sprite2D and (avatar.get_node("Body") as Sprite2D).texture != null, "Remote presence must use the approved 2D avatar asset rather than a text-only marker.")
+	OnlineSession._handle_message({"type": "position", "player": {"id": "remote-peer", "name": "远游修士", "gender": "female", "region": "mist_border", "x": 620, "y": 300, "direction": "north"}})
+	await get_tree().process_frame
+	_expect(layer.get_child_count() == 0, "Remote avatars must leave the local region layer when their server-authoritative region changes.")
+	layer.queue_free()
+	OnlineSession.disconnect_room(false)
+	await get_tree().process_frame
 
 func _check_random_opportunity() -> void:
 	var log_before: int = GameState.player.opportunity_log.size()

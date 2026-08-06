@@ -4,6 +4,7 @@ extends Node2D
 const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
 const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
 const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
+const RemoteAvatarLayerScript = preload("res://src/world/remote_avatar_layer.gd")
 
 const CHANCE_TRACES := [
 	{
@@ -106,6 +107,7 @@ func _ready() -> void:
 	regional_population.populate(_population_seed(), _population_profiles())
 	world_encounter.configure(player, regional_population, status, $HUD/EncounterTarget, $HUD/EncounterPlayer)
 	touch_controls.action_requested.connect(_on_touch_action_requested)
+	_setup_online_presence()
 	_setup_opening_lore()
 
 
@@ -168,6 +170,15 @@ func _process(_delta: float) -> void:
 func _exit_tree() -> void:
 	if player != null:
 		GameState.remember_region_position("starter_village", player.position)
+	OnlineSession.detach_world(self)
+
+
+func _setup_online_presence() -> void:
+	var layer: RemoteAvatarLayer = RemoteAvatarLayerScript.new()
+	layer.name = "RemoteAvatarLayer"
+	add_child(layer)
+	layer.configure("starter_village")
+	OnlineSession.attach_world("starter_village", player, self)
 
 
 func _focus_interaction(interaction: Area2D) -> void:
