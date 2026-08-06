@@ -24,6 +24,11 @@ const CHANCE_TRACES := [
 	},
 ]
 
+# A terrain chance trace is a discovery in a particular place, rather than a
+# disposable scene prop. Resolving one suppresses only that exact trace for a
+# while; another compatible terrain sector may still offer a different chance.
+const CHANCE_TRACE_RESPAWN_SECONDS := 1800
+
 const FIELD_CLUES := {
 	"stream_stair_cairn": {
 		"name": "雾溪引水堆石", "sector": "cloudfoot_wood",
@@ -94,11 +99,11 @@ func _ready() -> void:
 		{"id": "south_gate_fields", "node": $SouthGateChunk, "bounds": Rect2(0, 0, 3072, 2048)},
 	])
 	status.text = "云岚外野：云岚村只是第一处聚落。沿灵田、雾溪、云麓疏林与旧商道自由探索；资源和人物只会出现在合适地形。"
-	chosen_chance_trace = CHANCE_TRACES.pick_random().duplicate()
-	$YunlanChanceTrace.position = chosen_chance_trace.position
-	$YunlanChanceTrace/Name.text = str(chosen_chance_trace.name)
-	chance_trace.prompt_text = str(chosen_chance_trace.prompt)
-	for interaction in [village_gate, mist_border_gate, water_palace_gate, echo_stone, chance_trace, stream_stair_cairn, caravan_milestone, wind_etched_marker]:
+	_setup_chance_trace()
+	var interactions: Array[Area2D] = [village_gate, mist_border_gate, water_palace_gate, echo_stone, stream_stair_cairn, caravan_milestone, wind_etched_marker]
+	if not chosen_chance_trace.is_empty():
+		interactions.append(chance_trace)
+	for interaction in interactions:
 		interaction.focused.connect(_focus_interaction)
 		interaction.unfocused.connect(_unfocus_interaction)
 	regional_population.focused.connect(_focus_interaction)
@@ -109,6 +114,26 @@ func _ready() -> void:
 	touch_controls.action_requested.connect(_on_touch_action_requested)
 	_setup_online_presence()
 	_setup_opening_lore()
+
+
+func _setup_chance_trace() -> void:
+	var available_traces: Array[Dictionary] = []
+	for trace_data in CHANCE_TRACES:
+		var trace: Dictionary = trace_data
+		var cooldown_id := "chance_trace_%s" % str(trace.get("id", ""))
+		if GameState.is_ecology_profile_available("starter_village", cooldown_id):
+			available_traces.append(trace)
+	if available_traces.is_empty():
+		chosen_chance_trace = {}
+		$YunlanChanceTrace.hide()
+		chance_trace.set_deferred("monitoring", false)
+		return
+	chosen_chance_trace = available_traces.pick_random().duplicate()
+	$YunlanChanceTrace.show()
+	chance_trace.set_deferred("monitoring", true)
+	$YunlanChanceTrace.position = chosen_chance_trace.position
+	$YunlanChanceTrace/Name.text = str(chosen_chance_trace.name)
+	chance_trace.prompt_text = str(chosen_chance_trace.prompt)
 
 
 func _setup_environment_depth() -> void:
@@ -255,6 +280,11 @@ func _observe_lan_echo() -> void:
 func _resolve_chance_trace() -> void:
 	chance_trace_resolved = true
 	chance_trace.set_deferred("monitoring", false)
+	GameState.mark_ecology_profile_resolved(
+		"starter_village",
+		"chance_trace_%s" % str(chosen_chance_trace.get("id", "")),
+		CHANCE_TRACE_RESPAWN_SECONDS
+	)
 	GameState.add_item(str(chosen_chance_trace.item))
 	GameState.gain_cultivation(int(chosen_chance_trace.cultivation))
 	GameState.record_opportunity({

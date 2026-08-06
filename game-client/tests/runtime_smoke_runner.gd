@@ -1524,9 +1524,11 @@ func _check_yunlan_outskirts_scene() -> void:
 	_expect(outskirts.echo_stone_observed and GameState.player.opportunity_log.size() == log_before + 1, "Yunlan Outskirts fixed highland landmark did not record a physical opportunity.")
 	var chance_sector := RegionalSectorCatalog.sector_at("yunlan_outskirts", outskirts.get_node("YunlanChanceTrace").position)
 	_expect(str(chance_sector.get("id", "")) == str(outskirts.chosen_chance_trace.sector), "Yunlan random chance trace was not placed inside its declared terrain sector.")
+	var resolved_chance_id := str(outskirts.chosen_chance_trace.get("id", ""))
 	outskirts.active_interaction = outskirts.chance_trace
 	outskirts._activate_contextual()
 	_expect(outskirts.chance_trace_resolved and GameState.player.opportunity_log.size() == log_before + 2, "Yunlan terrain chance trace did not resolve as a physical random opportunity.")
+	_expect(not GameState.is_ecology_profile_available("starter_village", "chance_trace_%s" % resolved_chance_id), "A resolved Yunlan chance trace must enter its own world cooldown.")
 	var clues_before: int = GameState.player.field_clues.size()
 	outskirts.active_interaction = outskirts.stream_stair_cairn
 	outskirts._activate_contextual()
@@ -1541,7 +1543,17 @@ func _check_yunlan_outskirts_scene() -> void:
 	add_child(revisited_outskirts)
 	await get_tree().process_frame
 	_expect(not revisited_outskirts.opening_active and not revisited_outskirts.get_node("HUD/OpeningLore").visible, "A completed world opening must not interrupt later visits to Yunlan Outskirts.")
+	_expect(str(revisited_outskirts.chosen_chance_trace.get("id", "")) != resolved_chance_id, "Leaving and returning must not immediately recreate the same Yunlan chance trace.")
+	for trace_data in revisited_outskirts.CHANCE_TRACES:
+		var trace: Dictionary = trace_data
+		GameState.mark_ecology_profile_resolved("starter_village", "chance_trace_%s" % str(trace.get("id", "")), revisited_outskirts.CHANCE_TRACE_RESPAWN_SECONDS)
 	revisited_outskirts.queue_free()
+	await get_tree().process_frame
+	var exhausted_outskirts := preload("res://scenes/yunlan_outskirts.tscn").instantiate()
+	add_child(exhausted_outskirts)
+	await get_tree().process_frame
+	_expect(exhausted_outskirts.chosen_chance_trace.is_empty() and not exhausted_outskirts.get_node("YunlanChanceTrace").visible, "Yunlan must hide chance traces when every terrain trace is on cooldown instead of respawning a farmable prop.")
+	exhausted_outskirts.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.current_region_id = region_before
