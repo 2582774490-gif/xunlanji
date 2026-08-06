@@ -365,6 +365,7 @@ const COSTUME_PROFILES := {
 		"concept_asset": "res://assets/art/costumes/jiangyun_rainbow/concept/jiangyun_rainbow_concept_v01.png",
 		"idle_south_candidate_asset": "res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_idle_south_v01_alpha.png",
 		"idle_south_west_candidate_asset": "res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_idle_south_west_v01_alpha.png",
+		"idle_west_candidate_asset": "res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_idle_west_v01_alpha.png",
 		"walk_south_candidate_frames": [
 			"res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_walk_south_v01_f1_alpha.png",
 			"res://assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_walk_south_v01_f2_alpha.png",
