@@ -1625,6 +1625,8 @@ func _check_yunlan_outskirts_scene() -> void:
 	outskirts.player.position = Vector2(9440, 1660)
 	await get_tree().process_frame
 	_expect(outskirts.get_node("OldCaravanRoadChunk").visible, "Yunlan Outskirts did not stream the old-caravan-road detail plane at the road ecology sector.")
+	var old_road_terrain: Sprite2D = outskirts.get_node("OldCaravanRoadChunk/TerrainArt")
+	_expect(old_road_terrain.texture.resource_path.ends_with("yunlan_outskirts_old_caravan_road_v01.png"), "Yunlan's old-caravan road must use its own trade-route terrain painting instead of a repeated field card.")
 	outskirts.player.position = Vector2(2520, 3600)
 	await get_tree().process_frame
 	_expect(outskirts.get_node("StonebudHighlandChunk").visible, "Yunlan Outskirts did not stream the stonebud-highland detail plane at the wind-clue sector.")
