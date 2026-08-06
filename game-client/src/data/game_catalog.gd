@@ -490,6 +490,150 @@ const NPC_CARD_PROFILES := {
 static func npc_card_profile_for_name(npc_name: String) -> Dictionary:
 	return NPC_CARD_PROFILES.get(npc_name, {}).duplicate(true)
 
+## These entries describe *ecological roles*, not a requirement for every
+## visit to show every creature.  The regional population director selects a
+## sparse, sector-bound subset from its own anchors.  Keeping the card here
+## gives a wandering entity a stable identity without turning the open world
+## into a uniform spawn table.
+const ECOLOGY_CARD_PROFILES := {
+	"fog_channel_beast": {
+		"name": "雾渠獭妖", "category": "妖兽 · 水道领地", "region": "雾潮边境 · 雾渠水道",
+		"card_asset": "res://assets/art/characters/mist_channel_otter_spirit/processed_alpha/mist_channel_otter_spirit_v01_alpha.png",
+		"appearance": "只栖在雾渠的浅滩、倒木与鱼群回游处；离开水线后不会继续刷新。",
+		"interaction": "可绕行、观察或击退；受惊后会沿水道退去。",
+		"reward": "雾獭灵皮，可制作炼气期初始护腕与护具内衬。",
+	},
+	"mist_ore_rogue": {
+		"name": "采雾散修", "category": "散修 · 矿脉支路", "region": "雾潮边境 · 雾潮矿脉",
+		"card_asset": "res://assets/art/npcs/border_scout_liushuo/processed_alpha/border_scout_liushuo_idle_v01_alpha.png",
+		"appearance": "只会在有雾潮晶簇的废矿支路短暂停留，寻找安全矿脉。",
+		"interaction": "交换矿脉传闻，不隶属任何宗门，也不强迫接取任务。",
+		"reward": "可能提供雾潮晶簇、矿脉方位或低阶炼器线索。",
+	},
+	"checkpoint_watcher": {
+		"name": "边关巡修", "category": "游历修士 · 关隘", "region": "雾潮边境 · 旧关卡",
+		"card_asset": "res://assets/art/npcs/guide_shen/processed_alpha/guide_shen_idle_south_v01_alpha.png",
+		"appearance": "只在旧关卡、山道岔口和雾潮预警石附近巡望。",
+		"interaction": "提供边境风险与固定副本的境界提醒，不会替玩家锁定路线。",
+		"reward": "边境传闻、雾林妖径的可选入口线索。",
+	},
+	"wetland_mist_herb": {
+		"name": "雾泽灵草丛", "category": "灵植 · 湿地采集", "region": "雾潮边境 · 雾泽药湿地",
+		"card_asset": "res://assets/art/resources/mist_stream_spirit_herb/processed_alpha/mist_stream_spirit_herb_v01_alpha.png",
+		"appearance": "只生在浅水与石滩交界，受潮期、采集与刷新冷却共同限制。",
+		"interaction": "采集后进入生态冷却，不会被全地图平均补点。",
+		"reward": "雾泽灵草，可入凝息丹、归元丹及百草谷药圃委托。",
+	},
+	"wetland_herbalist": {
+		"name": "晾药散修", "category": "散修 · 湿地药性", "region": "雾潮边境 · 雾泽药湿地",
+		"card_asset": "res://assets/art/npcs/border_scout_liushuo/processed_alpha/border_scout_liushuo_idle_v01_alpha.png",
+		"appearance": "只在药架、避雨棚与干燥石台附近整理湿地药材。",
+		"interaction": "可询问药性承受、丹修路线与雨后灵草的观察方法。",
+		"reward": "药性线索与后续丹方材料提示。",
+	},
+	"highland_mist_stonebud": {
+		"name": "雾岭石芽", "category": "灵材 · 高地矿植", "region": "雾潮边境 · 雾岭高地",
+		"card_asset": "res://assets/art/resources/mist_tide_crystal_cluster/processed_alpha/mist_tide_crystal_cluster_v01_alpha.png",
+		"appearance": "仅在雾岩台地与山路相接的裂隙生长；高地的大部分区域应保持安静。",
+		"interaction": "采集后需等待地气回流，适合作为探索途中偶遇的低频资源。",
+		"reward": "雾岭石芽，可供低阶护具、阵盘与炼器支线使用。",
+	},
+	"earthfire_hound": {
+		"name": "地火岩獒", "category": "妖兽 · 地火裂谷", "region": "古脊岭 · 地火裂谷",
+		"card_asset": "res://assets/art/characters/earthfire_spirit_beast/processed_alpha/earthfire_spirit_beast_v01_alpha.png",
+		"appearance": "守在有热气与矿脉余火的裂谷边缘，不会出现在古战场或商路。",
+		"interaction": "可观察其领地，或以相应境界挑战。",
+		"reward": "地火兽核，用于炼器、火系法门材料和中期法宝分支。",
+	},
+	"battlefield_remnant": {
+		"name": "战场残魂", "category": "灵体 · 古战场", "region": "古脊岭 · 古战场",
+		"card_asset": "res://assets/art/characters/boss_sunken_vessel_wraith/processed_alpha/boss_sunken_vessel_wraith_v01_alpha.png",
+		"appearance": "受残阵与兵器意志束缚，只在古战场的残垣、纪念台附近游荡。",
+		"interaction": "接触前可先感知阵势；并非任何野外道路都会出现的普通敌人。",
+		"reward": "残魂兵符，可延展为阵修、傀儡与古战遗物路线。",
+	},
+	"relic_seeker": {
+		"name": "守碑散修", "category": "散修 · 遗迹观察", "region": "古脊岭 · 古战场",
+		"card_asset": "res://assets/art/npcs/border_scout_liushuo/processed_alpha/border_scout_liushuo_idle_v01_alpha.png",
+		"appearance": "在碑林外围记录阵势，不会深入残魂最密集的区域。",
+		"interaction": "交换古战判断与安全路线，不属于强制主线 NPC。",
+		"reward": "残阵军策、遗迹机缘与高阶副本前置知识。",
+	},
+	"port_merchant": {
+		"name": "泊位行商", "category": "商人 · 港口泊位", "region": "归墟雾港 · 泊位商路",
+		"card_asset": "res://assets/art/npcs/marketkeeper_luo/processed_alpha/marketkeeper_luo_idle_v01_alpha.png",
+		"appearance": "随靠港货船与潮期出现，只在码头、泊位和货栈之间活动。",
+		"interaction": "提供商路传闻与交易方向；价格保护、手续费仍由市场系统统一约束。",
+		"reward": "港口材料、外海副本与拍卖行线索。",
+	},
+	"tide_chart_rogue": {
+		"name": "测潮散修", "category": "散修 · 潮汐观测", "region": "归墟雾港 · 潮位石",
+		"card_asset": "res://assets/art/npcs/guide_shen/processed_alpha/guide_shen_idle_south_v01_alpha.png",
+		"appearance": "只在潮位石、堤岸和可安全观海的位置测绘水势。",
+		"interaction": "可询问外海流向与潮洞可进入时段。",
+		"reward": "潮期信息、沉舷遗府与海蚀洞的探索线索。",
+	},
+	"wreck_shallows_beast": {
+		"name": "潇潮岚鲨", "category": "稀有水妖首领 · 沉桩浅滩", "region": "归墟雾港 · 沉桩浅滩",
+		"card_asset": "res://assets/art/characters/boss_xiaochao_lansha/slices/boss_xiaochao_lansha_front_v01.png",
+		"appearance": "女性拟人水妖，以岚潮凝成鲛尾与水袖；只在沉船木桩、月潮与浅滩灵息交汇时现身。",
+		"interaction": "稀有首领，非普通均匀刷新的野怪；可先观察、回避，或在准备后挑战。",
+		"reward": "岚鲨鳞片、潮息玉与炼气期初始护具材料；首领掉落遵循次数、生态冷却与战利品保护。",
+	},
+	"shipyard_rogue": {
+		"name": "修舟散修", "category": "散修 · 船坞工棚", "region": "归墟雾港 · 船坞巷",
+		"card_asset": "res://assets/art/npcs/marketkeeper_luo/processed_alpha/marketkeeper_luo_idle_v01_alpha.png",
+		"appearance": "只在修舟棚、旧桅杆和工具堆旁停留。",
+		"interaction": "交换航具、法宝防潮处理与外海航路消息。",
+		"reward": "修舟材料与港口生活类机缘。",
+	},
+	"sea_cave_beast": {
+		"name": "潮穴鳞獭", "category": "妖兽 · 海蚀洞口", "region": "归墟雾港 · 海蚀洞外",
+		"card_asset": "res://assets/art/characters/mist_channel_otter_spirit/processed_alpha/mist_channel_otter_spirit_v01_alpha.png",
+		"appearance": "沿潮穴洞口与退潮水洼觅食，不会进入港口商区。",
+		"interaction": "洞口领地敌对，可绕开或以合适境界挑战。",
+		"reward": "潮穴鳞皮，用于低阶防潮护具与水系炼器材料。",
+	},
+	"thunder_crag_beast": {
+		"name": "引雷岩貂", "category": "妖兽 · 听雷崖", "region": "古脊岭 · 听雷崖",
+		"card_asset": "res://assets/art/characters/earthfire_spirit_beast/processed_alpha/earthfire_spirit_beast_v01_alpha.png",
+		"appearance": "只在雷后温热岩缝出没，借残余雷息淬炼皮毛。",
+		"interaction": "低频崖缘生态位，遇见与否取决于天气、时段与区域刷新。",
+		"reward": "引雷短毛，可用于符修与雷系炼器支线。",
+	},
+	"storm_talisman_rogue": {
+		"name": "候雷符修", "category": "散修 · 风雨避所", "region": "古脊岭 · 风雨避所",
+		"card_asset": "res://assets/art/npcs/border_scout_liushuo/processed_alpha/border_scout_liushuo_idle_v01_alpha.png",
+		"appearance": "会在暴雨前后停在有屋檐与避雷石的山道，而不是孤立山巅。",
+		"interaction": "可交换符箓、天气与雷崖机缘的观察方法。",
+		"reward": "雷行符材和听雷崖副本提示。",
+	},
+	"terrace_wind_eagle": {
+		"name": "裂风岩隼", "category": "妖兽 · 临渊崖缘", "region": "临渊观台 · 迎风断崖",
+		"card_asset": "res://assets/art/characters/boss_mist_forest_general/processed_alpha/boss_mist_forest_general_v01_alpha.png",
+		"appearance": "只盘旋在迎风断崖与高处石巢，避开观台与安全山道。",
+		"interaction": "保持距离即可观察；接近石巢才可能触发领地战。",
+		"reward": "裂风翎羽，可制身法类符箓、披风与飞行法宝素材。",
+	},
+	"terrace_observer": {
+		"name": "守台散修", "category": "散修 · 观想台", "region": "临渊观台 · 护脉石台",
+		"card_asset": "res://assets/art/npcs/guide_shen/processed_alpha/guide_shen_idle_south_v01_alpha.png",
+		"appearance": "停留在观想台与护脉石旁，不会把临渊区域填满 NPC。",
+		"interaction": "解释冲击筑基前的准备，但不让玩家一次互动跳过长期修行。",
+		"reward": "护脉材料、筑基准备与观想地点线索。",
+	},
+}
+
+const ECOLOGY_CARD_ORDER := [
+	"fog_channel_beast", "mist_ore_rogue", "checkpoint_watcher", "wetland_mist_herb", "wetland_herbalist", "highland_mist_stonebud",
+	"earthfire_hound", "battlefield_remnant", "relic_seeker", "thunder_crag_beast", "storm_talisman_rogue",
+	"port_merchant", "tide_chart_rogue", "wreck_shallows_beast", "shipyard_rogue", "sea_cave_beast",
+	"terrace_wind_eagle", "terrace_observer",
+]
+
+static func ecology_card_profile_for_id(profile_id: String) -> Dictionary:
+	return ECOLOGY_CARD_PROFILES.get(profile_id, {}).duplicate(true)
+
 const OPPORTUNITIES := [
 	{"title": "雾潮散开", "text": "山道雾气短暂散去，发现一株雾溪草。", "item": "雾溪草", "cultivation": 8},
 	{"title": "旧碑回响", "text": "残碑与当前炼气法门共鸣，获得一段可参悟的行气法。", "item": "残碑拓片", "cultivation": 16},

@@ -12,6 +12,10 @@ const GUIDE_TEXTURE: Texture2D = preload("res://assets/art/npcs/guide_shen/proce
 const BEAST_TEXTURE: Texture2D = preload("res://assets/art/characters/boss_mist_forest_general/processed_alpha/boss_mist_forest_general_v01_alpha.png")
 const MIST_CHANNEL_OTTER_TEXTURE: Texture2D = preload("res://assets/art/characters/mist_channel_otter_spirit/processed_alpha/mist_channel_otter_spirit_v01_alpha.png")
 const HERB_TEXTURE: Texture2D = preload("res://assets/art/resources/mist_stream_spirit_herb/processed_alpha/mist_stream_spirit_herb_v01_alpha.png")
+const CRYSTAL_TEXTURE: Texture2D = preload("res://assets/art/resources/mist_tide_crystal_cluster/processed_alpha/mist_tide_crystal_cluster_v01_alpha.png")
+const EARTHFIRE_TEXTURE: Texture2D = preload("res://assets/art/characters/earthfire_spirit_beast/processed_alpha/earthfire_spirit_beast_v01_alpha.png")
+const WRAITH_TEXTURE: Texture2D = preload("res://assets/art/characters/boss_sunken_vessel_wraith/processed_alpha/boss_sunken_vessel_wraith_v01_alpha.png")
+const XIAOCHAO_TEXTURE: Texture2D = preload("res://assets/art/characters/boss_xiaochao_lansha/slices/boss_xiaochao_lansha_front_v01.png")
 
 signal focused(interaction: Area2D)
 signal unfocused(interaction: Area2D)
@@ -201,8 +205,16 @@ func _create_population_node(profile: Dictionary, anchor: Vector2) -> void:
 	_entries[interaction] = profile
 
 func _texture_for(profile: Dictionary) -> Texture2D:
-	if str(profile.get("id", "")) == "fog_channel_beast":
-		return MIST_CHANNEL_OTTER_TEXTURE
+	# Runtime art follows an ecological identity.  A water妖, mineral bud or
+	# earthfire beast therefore no longer borrows a generic monster image just
+	# because it is convenient to spawn.  The Codex cards use the same profile.
+	match str(profile.get("id", "")):
+		"fog_channel_beast", "sea_cave_beast": return MIST_CHANNEL_OTTER_TEXTURE
+		"wetland_mist_herb": return HERB_TEXTURE
+		"highland_mist_stonebud": return CRYSTAL_TEXTURE
+		"earthfire_hound", "thunder_crag_beast": return EARTHFIRE_TEXTURE
+		"battlefield_remnant": return WRAITH_TEXTURE
+		"wreck_shallows_beast": return XIAOCHAO_TEXTURE
 	var kind := str(profile.get("kind", "wanderer"))
 	match kind:
 		"resource": return HERB_TEXTURE

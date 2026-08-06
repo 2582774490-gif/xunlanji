@@ -141,10 +141,10 @@ func _population_profiles() -> Array[Dictionary]:
 			"tint": Color(0.60, 0.85, 0.91), "label_color": Color(0.67, 0.94, 1.0),
 		},
 		{
-			"id": "wreck_shallows_beast", "region": "return_abyss_mist_port", "kind": "beast", "name": "沉桩水魇",
-			"prompt": "观察沉桩水魇的浅滩领地", "chance": 0.62,
+			"id": "wreck_shallows_beast", "region": "return_abyss_mist_port", "kind": "beast", "name": "潇潮岚鲨",
+			"prompt": "观察潇潮岚鲨的沉桩浅滩领地", "chance": 0.20,
 			"anchors": [Vector2(2380, 900), Vector2(2550, 1020), Vector2(2710, 820)],
-			"health": 108, "damage": 13, "reward": "水魇鳞片", "cultivation": 12,
+			"health": 132, "damage": 16, "reward": "岚鲨鳞片", "cultivation": 16,
 			"tint": Color(0.55, 0.88, 0.86), "label_color": Color(0.65, 1.0, 0.91),
 		},
 		{

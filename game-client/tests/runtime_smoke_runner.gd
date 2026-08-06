@@ -327,6 +327,12 @@ func _check_cultivation_affinity() -> void:
 func _check_codex_registry_ui() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	var screen_before := GameState.current_screen
+	_expect(GameCatalog.ECOLOGY_CARD_ORDER.size() >= 18, "Launch ecology Codex must cover the sparse wildlife, wanderer and resource roles across all starting regions.")
+	for ecology_id in GameCatalog.ECOLOGY_CARD_ORDER:
+		var ecology_card := GameCatalog.ecology_card_profile_for_id(str(ecology_id))
+		_expect(not ecology_card.is_empty() and ResourceLoader.exists(str(ecology_card.get("card_asset", ""))), "Ecology Codex entry %s must reference an approved local art asset." % str(ecology_id))
+	var xiaochao_card := GameCatalog.ecology_card_profile_for_id("wreck_shallows_beast")
+	_expect(str(xiaochao_card.get("name", "")) == "潇潮岚鲨" and str(xiaochao_card.get("category", "")).contains("稀有水妖首领"), "Wrecked-shallows water妖 must be registered as the rare female water妖 boss, not a generic uniform spawn.")
 	GameState.player.cultivation_path = "三折剑经"
 	GameState.current_screen = GameState.Screen.CODEX
 	var codex_ui := preload("res://scenes/main.tscn").instantiate()
@@ -334,7 +340,7 @@ func _check_codex_registry_ui() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var rendered_text := _collect_label_text(codex_ui)
-	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("完整修行路线") and rendered_text.contains("丹器百工") and rendered_text.contains("炉火化元法") and rendered_text.contains("炼气丹药图鉴") and rendered_text.contains("灵泉露") and rendered_text.contains("归元丹") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿") and rendered_text.contains("沈衍") and rendered_text.contains("岚息") and rendered_text.contains("温行客") and rendered_text.contains("雾港货物") and rendered_text.contains("白蘅") and rendered_text.contains("药性承受") and rendered_text.contains("宁远") and rendered_text.contains("入门帖") and rendered_text.contains("洛清") and rendered_text.contains("价格保护范围"), "Codex UI must render full cultivation, pill, equipment and NPC registry sections.")
+	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("完整修行路线") and rendered_text.contains("丹器百工") and rendered_text.contains("炉火化元法") and rendered_text.contains("炼气丹药图鉴") and rendered_text.contains("灵泉露") and rendered_text.contains("归元丹") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿") and rendered_text.contains("沈衍") and rendered_text.contains("岚息") and rendered_text.contains("温行客") and rendered_text.contains("雾港货物") and rendered_text.contains("白蘅") and rendered_text.contains("药性承受") and rendered_text.contains("宁远") and rendered_text.contains("入门帖") and rendered_text.contains("洛清") and rendered_text.contains("价格保护范围") and rendered_text.contains("区域生态图鉴") and rendered_text.contains("雾泽灵草丛") and rendered_text.contains("潇潮岚鲨") and rendered_text.contains("稀有水妖首领"), "Codex UI must render full cultivation, pill, equipment, NPC and ecology registry sections.")
 	codex_ui.queue_free()
 	GameState.player.inventory = ["雾港引潮盘", "沉雾舟纹袍"]
 	GameState.player.equipped_artifact = "雾港引潮盘"

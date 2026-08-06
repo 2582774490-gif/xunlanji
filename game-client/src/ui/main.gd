@@ -518,6 +518,13 @@ func _show_codex() -> void:
 		else:
 			_add_npc_codex_card(npc, npc_profile)
 	_line()
+	_heading("区域生态图鉴")
+	_text("生态卡记录的是“会在哪里、为什么会在那里、能如何互动”，并不代表所有对象同时出现。每次进入区域只从合理生态位选择少量实体。", 16, Color("a7d5ca"))
+	for profile_id in Catalog.ECOLOGY_CARD_ORDER:
+		var ecology_profile := Catalog.ecology_card_profile_for_id(str(profile_id))
+		if not ecology_profile.is_empty():
+			_add_ecology_codex_card(ecology_profile)
+	_line()
 	_text("图鉴分类接口：人物、宗门、妖怪、法宝、灵植、资源、地点、副本、功法、事件。")
 	_line()
 	_heading("功法图鉴")
@@ -591,6 +598,29 @@ func _add_npc_codex_card(npc: Dictionary, profile: Dictionary) -> void:
 	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	details.add_theme_font_size_override("font_size", 16)
+	card.add_child(details)
+
+
+func _add_ecology_codex_card(profile: Dictionary) -> void:
+	var runtime_asset := str(profile.get("card_asset", ""))
+	if runtime_asset.is_empty() or not ResourceLoader.exists(runtime_asset):
+		_text("《%s》｜%s｜%s" % [str(profile.get("name", "未知生态")), str(profile.get("category", "生态")), str(profile.get("region", "未知区域"))], 16, Color("a7d5ca"))
+		return
+	var card := HBoxContainer.new()
+	card.custom_minimum_size = Vector2(0, 148)
+	card.add_theme_constant_override("separation", 16)
+	content.add_child(card)
+	var portrait := TextureRect.new()
+	portrait.texture = load(runtime_asset) as Texture2D
+	portrait.custom_minimum_size = Vector2(116, 138)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	card.add_child(portrait)
+	var details := Label.new()
+	details.text = "《%s》｜%s\n区域：%s\n栖息/出现：%s\n交互：%s\n产出：%s" % [str(profile.get("name", "未知生态")), str(profile.get("category", "生态")), str(profile.get("region", "未知区域")), str(profile.get("appearance", "暂无")), str(profile.get("interaction", "暂无")), str(profile.get("reward", "暂无"))]
+	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_theme_font_size_override("font_size", 15)
 	card.add_child(details)
 
 
