@@ -62,6 +62,7 @@ func _sector_for_profile(profile_id: String) -> String:
 		"mist_ore_rogue": return "ore_flats"
 		"checkpoint_watcher", "mist_sword_patrol": return "old_checkpoint"
 		"wetland_mist_herb", "wetland_herbalist": return "herb_wetland"
+		"highland_mist_stonebud": return "mist_highlands"
 		"earthfire_hound": return "earthfire_ravine"
 		"battlefield_remnant", "relic_seeker": return "ancient_battlefield"
 		"port_merchant", "tide_chart_rogue": return "tide_ledger_quay"

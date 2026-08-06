@@ -42,6 +42,7 @@ func _ready() -> void:
 		{"id": "border_checkpoint", "node": $Terrain, "bounds": Rect2(0, 0, 3072, 2048)},
 		{"id": "waterway_ore_flats", "node": $WaterwayOreFlatsChunk, "bounds": Rect2(3072, 0, 3072, 2048)},
 		{"id": "herb_wetland", "node": $HerbWetlandChunk, "bounds": Rect2(6144, 0, 3072, 2048)},
+		{"id": "south_highlands", "node": $SouthHighlandsChunk, "bounds": Rect2(0, 2048, 3072, 2048)},
 	])
 	status.text = "雾潮边境：这是第二个大区的首个空间切片。地表、残关与雾木均为独立层；边境探子可提供筑基区域的线索。"
 	return_interaction.focused.connect(_focus_interaction)
@@ -240,6 +241,16 @@ func _population_profiles() -> Array[Dictionary]:
 			"prompt": "向晾药散修询问湿地药性", "chance": 0.42,
 			"anchors": [Vector2(7900, 700), Vector2(8170, 760)],
 			"tint": Color(0.76, 0.90, 0.74), "label_color": Color(0.82, 0.96, 0.78),
+		},
+		# The southern highlands intentionally receive a single low-frequency
+		# mineral-herb niche. It grows only where fogged rock shelves meet the
+		# mountain path, leaving most of the new plateau quiet for exploration.
+		{
+			"id": "highland_mist_stonebud", "region": "mist_border", "kind": "resource", "name": "雾岭石芽",
+			"prompt": "采集岩台雾气滋养的雾岭石芽", "chance": 0.32,
+			"anchors": [Vector2(1360, 3180), Vector2(2120, 3440), Vector2(2660, 3620)],
+			"reward": "雾岭石芽", "cultivation": 4,
+			"tint": Color(0.80, 0.94, 0.84), "label_color": Color(0.84, 1.0, 0.88),
 		},
 	]
 	# A sect wanted record is not a map-wide monster switch.  The patrol only

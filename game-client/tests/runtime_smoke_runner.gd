@@ -1484,13 +1484,20 @@ func _check_mist_border_scene() -> void:
 	_expect(RegionalSectorCatalog.sector_at("mist_border", Vector2(6980, 1370)).get("id", "") == "herb_wetland", "Mist Tide Border did not classify its herb ecology inside the wetland sector.")
 	_expect(border.chunk_streamer.loaded_chunk_count() >= 1, "Mist Tide Border did not load its nearby high-detail terrain chunk.")
 	_expect(border.has_node("HerbWetlandChunk"), "Mist Tide Border is missing the continuous herb wetland terrain chunk.")
+	_expect(border.has_node("SouthHighlandsChunk"), "Mist Tide Border is missing its authored southern-highlands terrain chunk.")
 	var ecology_profiles: Array[Dictionary] = border._population_profiles()
 	_expect(ecology_profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "wetland_mist_herb"), "Mist Tide Border is missing its wetland-bound herb ecology profile.")
+	_expect(ecology_profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "highland_mist_stonebud"), "Mist Tide Border is missing its low-frequency southern-highland ecology profile.")
+	_expect(RegionalSectorCatalog.sector_at("mist_border", Vector2(2120, 3440)).get("id", "") == "mist_highlands", "Mist Tide Border did not place its stonebud anchors in the southern highlands.")
 	var otter_interaction: Area2D = border.regional_population.interaction_for_profile_id("fog_channel_beast")
 	if otter_interaction != null:
 		var otter_visual: Sprite2D = otter_interaction.get_parent().get_node("Visual")
 		_expect(otter_visual.texture.resource_path.ends_with("mist_channel_otter_spirit_v01_alpha.png"), "Fog-channel otter should use its dedicated runtime art rather than a borrowed boss sprite.")
 	var border_player_start: Vector2 = border.player.position
+	border.player.position = Vector2(1500, 3050)
+	await get_tree().process_frame
+	_expect(border.get_node("SouthHighlandsChunk").visible, "Mist Tide Border did not stream its southern highlands when the player entered that large-world sector.")
+	border.player.position = border_player_start
 	border.player.position = Vector2(11200, 7200)
 	await get_tree().process_frame
 	_expect(border_minimap.player_map_position().x > 200.0 and border_minimap.player_map_position().y > 130.0, "Mist Tide Border minimap did not follow the player across the full regional bounds.")
