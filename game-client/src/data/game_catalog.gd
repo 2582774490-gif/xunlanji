@@ -132,7 +132,20 @@ static func weapon_profile_for_item(item_name: String) -> Dictionary:
 # Keeping these separate prevents a defensive weapon from inheriting sword art
 # simply because both happen to be equippable.
 const WEAPON_RUNTIME_PROFILES := {
-	"青篁练气剑": {"motion": "hand_swing", "asset": "res://assets/art/weapons/qinghuang_qi_sword/processed_alpha/qinghuang_qi_sword_v01_alpha.png"},
+	"青篁练气剑": {
+		"motion": "hand_swing",
+		"asset": "res://assets/art/weapons/qinghuang_qi_sword/processed_alpha/qinghuang_qi_sword_v01_alpha.png",
+		"attack_direction": "south",
+		"attack_frames": [
+			"res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_f1_alpha.png",
+			"res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_f2_alpha.png",
+			"res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_f3_alpha.png",
+			"res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_f4_alpha.png",
+			"res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_f5_alpha.png",
+			"res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_f6_alpha.png",
+		],
+		"effect_policy": "compact_cyan_white_slash_only",
+	},
 	"回云练气伞": {"motion": "defense_umbrella", "asset": "res://assets/art/weapons/huiyun_qi_umbrella/processed_alpha/huiyun_qi_umbrella_v01_alpha.png"},
 	"朱砂练气符笔": {"motion": "rune_brush", "asset": "res://assets/art/weapons/vermilion_qi_talisman_brush/processed_alpha/vermilion_qi_talisman_brush_v01_alpha.png"},
 	"流云练气枪": {"motion": "long_spear", "asset": "res://assets/art/weapons/liuyun_qi_spear/processed_alpha/liuyun_qi_spear_v01_alpha.png"},
@@ -342,7 +355,7 @@ const COSTUME_PROFILES := {
 			"res://assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_walk_south_east_v01_f6_alpha.png",
 		],
 		"runtime_state": "idle_8dir_ready",
-		"animation_requirement": "需补齐男体八方向待机、八方向行走、南向攻击及武器遮挡测试。",
+		"animation_requirement": "已完成男体八方向待机、八方向行走及青篁练气剑南向攻击源图；其余武器攻击方向与装备遮挡测试待完成。",
 	},
 	"jiangyun_rainbow": {
 		"name": "绛云霓裳",

@@ -50,6 +50,8 @@
 - 正东行走透明帧：`game-client/assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_walk_east_v01_f1_alpha.png` 至 `liulan_wayfarer_walk_east_v01_f6_alpha.png`（6 帧、9 FPS、循环、最低脚点已对齐）
 - 东南行走序列表源图：`game-client/assets/art/costumes/liulan_wayfarer/source_magic2/liulan_wayfarer_walk_south_east_v01_sheet.png`
 - 东南行走透明帧：`game-client/assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_walk_south_east_v01_f1_alpha.png` 至 `liulan_wayfarer_walk_south_east_v01_f6_alpha.png`（6 帧、9 FPS、循环、最低脚点已对齐）
+- 青篁练气剑南向攻击序列表源图：`game-client/assets/art/costumes/liulan_wayfarer/source_magic2/liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_sheet.png`
+- 青篁练气剑南向攻击透明帧：`game-client/assets/art/costumes/liulan_wayfarer/processed_alpha/liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_f1_alpha.png` 至 `liulan_wayfarer_attack_south_qinghuang_qi_sword_v01_f6_alpha.png`（6 帧、14 FPS、非循环；仅命中帧使用短促青白剑痕）
 - 已拒绝的八方向合图样张：`game-client/assets/art/costumes/liulan_wayfarer/review/rejected/README.md`
 
 ## 进入地图角色层的验收门槛
