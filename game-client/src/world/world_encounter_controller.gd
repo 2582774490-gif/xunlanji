@@ -43,6 +43,13 @@ var _target_damage := 0
 var _player_health := 0
 var _player_max_health := 0
 var _attack_cooldown := 0.0
+var _player_mana := 0.0
+var _player_max_mana := 0.0
+var _primary_cooldown := 0.0
+var _cloud_step_cooldown := 0.0
+var _guard_cooldown := 0.0
+var _nourish_cooldown := 0.0
+var _guard_time_left := 0.0
 
 func configure(player: CharacterBody2D, population: Node, status: Label, target_label: Label, player_label: Label) -> void:
 	_player = player
@@ -52,6 +59,8 @@ func configure(player: CharacterBody2D, population: Node, status: Label, target_
 	_player_label = player_label
 	_player_max_health = int(GameState.derived_stats()["气血"])
 	_player_health = _player_max_health
+	_player_max_mana = float(GameState.derived_stats()["灵力"])
+	_player_mana = _player_max_mana
 	_player.attack_impact.connect(_on_player_attack_impact)
 	_population.hostile_encounter_requested.connect(_begin_encounter)
 	_target_label.visible = false
@@ -61,6 +70,13 @@ func is_in_encounter() -> bool:
 	return _active_interaction != null
 
 func _process(delta: float) -> void:
+	_primary_cooldown = maxf(0.0, _primary_cooldown - delta)
+	_cloud_step_cooldown = maxf(0.0, _cloud_step_cooldown - delta)
+	_guard_cooldown = maxf(0.0, _guard_cooldown - delta)
+	_nourish_cooldown = maxf(0.0, _nourish_cooldown - delta)
+	_guard_time_left = maxf(0.0, _guard_time_left - delta)
+	_player_mana = minf(_player_max_mana, _player_mana + delta * (2.0 + GameState.artifact_mana_regen_bonus()))
+	_refresh_player_label()
 	if _active_interaction == null or not is_instance_valid(_active_interaction):
 		return
 	var enemy_position: Vector2 = (_active_interaction.get_parent() as Node2D).global_position
@@ -72,10 +88,14 @@ func _process(delta: float) -> void:
 		return
 	_attack_cooldown = 2.2
 	var damage := GameState.pve_damage_after_equipment(_target_damage, "neutral")
+	var was_guarding := _guard_time_left > 0.0
+	if was_guarding:
+		damage = ceili(float(damage) * 0.45)
+		_guard_time_left = 0.0
 	var array_ward := _show_eightfold_array_ward("neutral")
 	_player_health = max(0, _player_health - damage)
 	_refresh_player_label()
-	_status.text = "%s 逼近发动袭击，造成 %d 点伤害。%s可继续手操反击或先拉开距离。" % [_target_name, damage, "八角阵纹卸去部分冲击；" if array_ward else ""]
+	_status.text = "%s 逼近发动袭击，造成 %d 点伤害。%s%s" % [_target_name, damage, "岚息护体抵去大半冲击；" if was_guarding else "", "八角阵纹继续卸去部分冲击。" if array_ward else "可继续手操反击或先拉开距离。"]
 	if _player_health == 0:
 		_player_health = _player_max_health
 		_player.position -= (enemy_position - _player.position).normalized() * 190.0
@@ -94,6 +114,88 @@ func _begin_encounter(interaction: Area2D) -> void:
 	_target_label.visible = true
 	_refresh_target_label()
 	_status.text = "遭遇 %s。靠近后按 J 或右侧“攻”进行手操普攻；也可直接离开领地。" % _target_name
+
+
+func use_action(action_id: String) -> void:
+	match action_id:
+		"attack": _player.trigger_basic_attack()
+		"ningxi": _cast_weapon_primary()
+		"cloud_step": _cast_cloud_step()
+		"guard": _cast_lan_breath_guard()
+		"nourish": _cast_spirit_nourish()
+
+
+func _cast_weapon_primary() -> void:
+	if _active_interaction == null or not is_instance_valid(_active_interaction):
+		_status.text = "%s需要先锁定野外敌对目标。" % str(_skill(1).get("name", "武器主技"))
+		return
+	var primary := _skill(1)
+	var enemy_position: Vector2 = (_active_interaction.get_parent() as Node2D).global_position
+	if _player.global_position.distance_to(enemy_position) > float(primary.get("range", MELEE_RANGE)):
+		_status.text = "%s超出%s的有效距离。" % [_target_name, str(primary.get("name", "武器主技"))]
+		return
+	if not _try_use_skill(1, _primary_cooldown):
+		return
+	_primary_cooldown = float(primary.get("cooldown", 4.0))
+	var facing := (enemy_position - _player.global_position).normalized()
+	_spawn_skill_ripple(_player.global_position + Vector2(0, -52), Color(0.48, 0.92, 1.0), 38.0, facing)
+	if SKILL_CATALOG.is_umbrella_skill_set(GameState.player.equipped_weapon):
+		_guard_time_left = maxf(_guard_time_left, float(primary.get("guard_seconds", 1.8)))
+	var damage := GameState.weapon_skill_damage(
+		int(primary.get("damage_base", 20)), float(primary.get("attack_ratio", 0.5)),
+		_player_max_mana, float(primary.get("mana_ratio", 30.0))
+	)
+	_damage_target(damage, "%s命中%s，造成 %d 点灵力伤害。" % [str(primary.get("name", "武器主技")), _target_name, damage])
+
+
+func _cast_cloud_step() -> void:
+	if not _try_use_skill(2, _cloud_step_cooldown):
+		return
+	_cloud_step_cooldown = float(_skill(2).get("cooldown", 3.0))
+	var direction := _player.velocity.normalized()
+	if _active_interaction != null and is_instance_valid(_active_interaction):
+		var enemy_position: Vector2 = (_active_interaction.get_parent() as Node2D).global_position
+		direction = (_player.global_position - enemy_position).normalized()
+	if direction.length_squared() < 0.001:
+		direction = Vector2.DOWN
+	_player.perform_dash(direction, 176.0)
+	_spawn_skill_ripple(_player.global_position + Vector2(0, -52), Color(0.70, 0.92, 1.0), 24.0, direction)
+	_status.text = "云步踏岚而行，迅速拉开了距离。"
+
+
+func _cast_lan_breath_guard() -> void:
+	if not _try_use_skill(3, _guard_cooldown):
+		return
+	_guard_cooldown = float(_skill(3).get("cooldown", 7.0))
+	_guard_time_left = 4.0
+	_spawn_skill_ripple(_player.global_position + Vector2(0, -52), Color(0.50, 1.0, 0.82), 46.0, Vector2.UP)
+	_status.text = "岚息护体展开：下一次野外受击将大幅减伤。"
+
+
+func _cast_spirit_nourish() -> void:
+	if not _try_use_skill(4, _nourish_cooldown):
+		return
+	_nourish_cooldown = float(_skill(4).get("cooldown", 8.0))
+	_player_mana = minf(_player_max_mana, _player_mana + 46.0)
+	_spawn_skill_ripple(_player.global_position + Vector2(0, -52), Color(0.82, 0.88, 1.0), 30.0, Vector2.UP)
+	_status.text = "润灵诀回转经脉，恢复部分灵力。"
+
+
+func _try_use_skill(index: int, cooldown: float) -> bool:
+	var skill := _skill(index)
+	if cooldown > 0.0:
+		_status.text = "%s还需冷却 %.1f 秒。" % [str(skill.get("name", "技能")), cooldown]
+		return false
+	var cost := float(skill.get("spirit_cost", 0))
+	if _player_mana < cost:
+		_status.text = "灵力不足，无法施放%s。" % str(skill.get("name", "技能"))
+		return false
+	_player_mana -= cost
+	return true
+
+
+func _skill(index: int) -> Dictionary:
+	return SKILL_CATALOG.skills_for_weapon(GameState.player.equipped_weapon)[index]
 
 func _on_player_attack_impact(_direction: String) -> void:
 	if _active_interaction == null or not is_instance_valid(_active_interaction):
@@ -161,6 +263,17 @@ func _on_player_attack_impact(_direction: String) -> void:
 		_population.defeat_hostile(_active_interaction)
 		_end_encounter("")
 
+
+func _damage_target(damage: int, summary: String) -> void:
+	if _active_interaction == null or not is_instance_valid(_active_interaction):
+		return
+	_target_health = max(0, _target_health - damage)
+	_refresh_target_label()
+	_status.text = summary
+	if _target_health == 0:
+		_population.defeat_hostile(_active_interaction)
+		_end_encounter("")
+
 func _end_encounter(message: String) -> void:
 	_active_interaction = null
 	_target_label.visible = false
@@ -171,7 +284,27 @@ func _refresh_target_label() -> void:
 	_target_label.text = "%s  |  气血 %d / %d" % [_target_name, _target_health, _target_max_health]
 
 func _refresh_player_label() -> void:
-	_player_label.text = "野外气血 %d / %d" % [_player_health, _player_max_health]
+	_player_label.text = "野外气血 %d / %d　灵力 %d / %d" % [_player_health, _player_max_health, int(_player_mana), int(_player_max_mana)]
+
+
+func _spawn_skill_ripple(origin: Vector2, tint: Color, radius: float, direction: Vector2) -> void:
+	# A common cast ring communicates the shared cultivation skills without
+	# pretending every weapon family uses the same projectile art.
+	var ring := Line2D.new()
+	ring.width = 4.0
+	ring.default_color = tint
+	ring.z_index = 18
+	var points := PackedVector2Array()
+	for index in 17:
+		var angle := TAU * float(index) / 16.0
+		points.append(Vector2(cos(angle), sin(angle) * 0.56) * radius)
+	ring.points = points
+	ring.position = origin + direction.normalized() * 18.0
+	add_child(ring)
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(ring, "scale", Vector2(2.1, 2.1), 0.34)
+	tween.tween_property(ring, "modulate:a", 0.0, 0.34)
+	tween.chain().tween_callback(ring.queue_free)
 
 func _spawn_brush_talisman(origin: Vector2, target: Vector2) -> void:
 	var talisman: TalismanProjectile = TalismanProjectileScript.new()

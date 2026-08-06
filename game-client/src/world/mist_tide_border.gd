@@ -115,6 +115,10 @@ func _setup_environment_depth() -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
 		return
+	if event.keycode >= KEY_1 and event.keycode <= KEY_5:
+		world_encounter.use_action(["attack", "ningxi", "cloud_step", "guard", "nourish"][event.keycode - KEY_1])
+		get_viewport().set_input_as_handled()
+		return
 	if event.keycode == KEY_E:
 		_activate_contextual()
 	elif event.keycode == KEY_ESCAPE or event.keycode == KEY_H:
@@ -151,8 +155,8 @@ func _unfocus_interaction(interaction: Area2D) -> void:
 func _on_touch_action_requested(action_id: String) -> void:
 	if action_id == "interact":
 		_activate_contextual()
-	elif action_id == "attack":
-		player.trigger_basic_attack()
+	else:
+		world_encounter.use_action(action_id)
 
 func _activate_contextual() -> void:
 	if active_interaction == return_interaction:

@@ -1825,8 +1825,18 @@ func _check_world_population_encounter() -> void:
 	population.resolve(enemy_interaction)
 	_expect(encounter.is_in_encounter(), "A hostile ecological population entry did not begin an overworld encounter.")
 	road.player.position = enemy_root.global_position
-	encounter._on_player_attack_impact("south")
-	_expect(not encounter.is_in_encounter() and not enemy_root.visible, "Overworld basic attack did not defeat the low-health hostile entry.")
+	encounter.use_action("guard")
+	_expect(encounter._guard_time_left > 0.0, "Overworld guard slot did not activate its next-hit mitigation state.")
+	var mana_before_primary: float = encounter._player_mana
+	encounter.use_action("ningxi")
+	_expect(encounter._player_mana < mana_before_primary, "Overworld weapon primary did not consume mana.")
+	var position_before_dash: Vector2 = road.player.position
+	encounter.use_action("cloud_step")
+	_expect(encounter._cloud_step_cooldown > 0.0 and road.player.position != position_before_dash, "Overworld cloud-step slot did not apply a real evasive movement.")
+	if encounter.is_in_encounter():
+		encounter._target_health = 1
+		encounter._on_player_attack_impact("south")
+	_expect(not encounter.is_in_encounter() and not enemy_root.visible, "Overworld weapon sequence did not defeat the low-health hostile entry.")
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Overworld hostile defeat did not award its ecological material.")
 	road.queue_free()
 	await get_tree().process_frame
