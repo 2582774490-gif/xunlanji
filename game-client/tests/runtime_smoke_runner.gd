@@ -410,6 +410,8 @@ func _check_wanted_patrol() -> void:
 	GameState.profile_changed.emit()
 
 func _check_weapon_combat_profiles() -> void:
+	var default_skills := SkillCatalog.skills_for_weapon("练气木剑")
+	_expect(default_skills.size() == 5, "The default wooden sword must build all five combat slots without a typed-array startup error.")
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	_expect(GameCatalog.WEAPON_COMBAT_PROFILES.size() == GameCatalog.WEAPON_FAMILIES.size(), "Every launch weapon family needs a combat profile.")
 	GameState.player.inventory = ["青篁练气剑", "开山练气斧", "回云练气伞"]
@@ -1448,6 +1450,7 @@ func _check_yunlan_outskirts_scene() -> void:
 	_expect(GameState.current_region_id == "starter_village", "Yunlan Outskirts must remain the starting region rather than become a menu-only destination.")
 	_expect(outskirts.player.map_bounds.size.x >= 11000.0 and outskirts.player.map_bounds.size.y >= 7000.0, "Yunlan Outskirts still behaves like a small starter background instead of a full launch-region map.")
 	_expect(outskirts.village_gate != null and outskirts.mist_border_gate != null and outskirts.water_palace_gate != null, "Yunlan Outskirts is missing its physical village, initial dungeon, or Mist Tide Border route.")
+	_expect(outskirts.stream_stair_cairn != null and outskirts.caravan_milestone != null and outskirts.wind_etched_marker != null, "Yunlan Outskirts is missing its physical, non-forced field-clue props.")
 	_expect(outskirts.chance_trace != null and not outskirts.chosen_chance_trace.is_empty(), "Yunlan Outskirts did not choose a terrain-bound random chance trace.")
 	_expect(outskirts.has_node("HUD/WorldMinimap"), "Yunlan Outskirts is missing its large-region orientation map.")
 	_expect(outskirts.has_node("EnvironmentDepthLayer"), "Yunlan Outskirts is missing its independent depth-layer environment props.")
@@ -1473,6 +1476,14 @@ func _check_yunlan_outskirts_scene() -> void:
 	outskirts.active_interaction = outskirts.chance_trace
 	outskirts._activate_contextual()
 	_expect(outskirts.chance_trace_resolved and GameState.player.opportunity_log.size() == log_before + 2, "Yunlan terrain chance trace did not resolve as a physical random opportunity.")
+	var clues_before: int = GameState.player.field_clues.size()
+	outskirts.active_interaction = outskirts.stream_stair_cairn
+	outskirts._activate_contextual()
+	_expect(GameState.has_field_clue("stream_stair_cairn") and GameState.player.field_clues.size() == clues_before + 1, "Yunlan field clue did not persist as non-reward world knowledge.")
+	_expect(GameState.player.opportunity_log.size() == log_before + 3, "First field-clue reading should be recorded once without granting an item.")
+	outskirts.active_interaction = outskirts.stream_stair_cairn
+	outskirts._activate_contextual()
+	_expect(GameState.player.field_clues.size() == clues_before + 1 and GameState.player.opportunity_log.size() == log_before + 3, "Rereading a field clue must not duplicate progress or rewards.")
 	outskirts.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

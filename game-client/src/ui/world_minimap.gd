@@ -148,5 +148,7 @@ func _landmark_color(kind: String) -> Color:
 			return Color(0.86, 0.65, 1.0)
 		"water":
 			return Color(0.39, 0.87, 0.94)
+		"clue":
+			return Color(0.96, 0.82, 0.42)
 		_:
 			return Color(0.78, 0.82, 0.72)

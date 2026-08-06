@@ -67,6 +67,7 @@ var player := {
 	"sect_contribution": 0,
 	"sect_wanted_by": [],
 	"world_guidance": {"steps": [], "skipped": false},
+	"field_clues": [],
 	"ecology_cooldowns": {},
 	"world_positions": {},
 	"equipped_weapon": "练气木剑",
@@ -525,6 +526,24 @@ func add_spirit_stones(amount: int) -> void:
 func record_opportunity(entry: Dictionary) -> void:
 	player.opportunity_log.append(entry)
 	profile_changed.emit()
+
+
+func record_field_clue(clue_id: String) -> bool:
+	if clue_id.is_empty():
+		return false
+	_normalize_player_schema()
+	var clues: Array = player.field_clues
+	if clues.has(clue_id):
+		return false
+	clues.append(clue_id)
+	player.field_clues = clues
+	profile_changed.emit()
+	return true
+
+
+func has_field_clue(clue_id: String) -> bool:
+	_normalize_player_schema()
+	return (player.field_clues as Array).has(clue_id)
 
 
 func remember_region_position(region_id: String, position: Vector2) -> void:
@@ -1109,6 +1128,8 @@ func _normalize_player_schema() -> void:
 		if not guidance.has("skipped"):
 			guidance.skipped = false
 		player.world_guidance = guidance
+	if not player.has("field_clues") or not player.field_clues is Array:
+		player.field_clues = []
 	if not player.has("ecology_cooldowns") or not player.ecology_cooldowns is Dictionary:
 		player.ecology_cooldowns = {}
 	if not player.has("world_positions") or not player.world_positions is Dictionary:

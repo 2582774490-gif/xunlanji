@@ -186,6 +186,123 @@ prompt_text = "探查地貌留下的机缘痕迹"
 position = Vector2(0, -70)
 shape = SubResource("ChanceTraceShape")
 
+[node name="FieldClues" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="StreamStairCairn" type="Node2D" parent="FieldClues"]
+position = Vector2(4740, 1710)
+y_sort_enabled = true
+
+[node name="Shadow" type="Polygon2D" parent="FieldClues/StreamStairCairn"]
+polygon = PackedVector2Array(-70, 4, -22, -14, 56, -4, 78, 12, 4, 22)
+color = Color(0.03, 0.07, 0.08, 0.48)
+
+[node name="Cairn" type="Polygon2D" parent="FieldClues/StreamStairCairn"]
+polygon = PackedVector2Array(-62, 0, -43, -35, -16, -57, 5, -91, 32, -56, 56, -24, 62, 0, 24, 9, -18, 7)
+color = Color(0.40, 0.60, 0.58, 1)
+
+[node name="WaterLine" type="Line2D" parent="FieldClues/StreamStairCairn"]
+points = PackedVector2Array(-36, -19, -4, -42, 27, -30, 45, -49)
+width = 5.0
+default_color = Color(0.48, 0.91, 0.92, 0.86)
+
+[node name="Name" type="Label" parent="FieldClues/StreamStairCairn"]
+offset_left = -126.0
+offset_top = -146.0
+offset_right = 126.0
+offset_bottom = -118.0
+theme_override_colors/font_color = Color(0.72, 0.95, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.1, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 16
+text = "雾溪引水堆石"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="FieldClues/StreamStairCairn"]
+script = ExtResource("9_interaction")
+interaction_id = "stream_stair_cairn"
+prompt_text = "查看堆石下的采药签"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FieldClues/StreamStairCairn/Interaction"]
+position = Vector2(0, -48)
+shape = SubResource("ChanceTraceShape")
+
+[node name="CaravanMilestone" type="Node2D" parent="FieldClues"]
+position = Vector2(9060, 1560)
+y_sort_enabled = true
+
+[node name="Shadow" type="Polygon2D" parent="FieldClues/CaravanMilestone"]
+polygon = PackedVector2Array(-74, 4, -8, -14, 74, -2, 56, 17, -24, 20)
+color = Color(0.03, 0.05, 0.05, 0.52)
+
+[node name="Stone" type="Polygon2D" parent="FieldClues/CaravanMilestone"]
+polygon = PackedVector2Array(-42, 0, -36, -151, 30, -165, 46, -102, 39, 0, 5, 12)
+color = Color(0.47, 0.39, 0.30, 1)
+
+[node name="Notch" type="Line2D" parent="FieldClues/CaravanMilestone"]
+points = PackedVector2Array(-22, -108, 17, -112, 8, -82, -26, -74, 12, -52)
+width = 5.0
+default_color = Color(0.91, 0.75, 0.42, 0.82)
+
+[node name="Name" type="Label" parent="FieldClues/CaravanMilestone"]
+offset_left = -138.0
+offset_top = -215.0
+offset_right = 138.0
+offset_bottom = -187.0
+theme_override_colors/font_color = Color(0.96, 0.80, 0.48, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.1, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 16
+text = "旧商道里程碑"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="FieldClues/CaravanMilestone"]
+script = ExtResource("9_interaction")
+interaction_id = "caravan_milestone"
+prompt_text = "辨读断裂的商道刻记"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FieldClues/CaravanMilestone/Interaction"]
+position = Vector2(0, -78)
+shape = SubResource("ChanceTraceShape")
+
+[node name="WindEtchedMarker" type="Node2D" parent="FieldClues"]
+position = Vector2(2800, 3360)
+y_sort_enabled = true
+
+[node name="Shadow" type="Polygon2D" parent="FieldClues/WindEtchedMarker"]
+polygon = PackedVector2Array(-74, 5, -16, -13, 73, -1, 56, 16, -14, 22)
+color = Color(0.03, 0.06, 0.06, 0.5)
+
+[node name="Stone" type="Polygon2D" parent="FieldClues/WindEtchedMarker"]
+polygon = PackedVector2Array(-50, 0, -39, -62, -9, -143, 24, -181, 48, -101, 39, -34, 52, 0, 12, 12, -25, 9)
+color = Color(0.46, 0.62, 0.50, 1)
+
+[node name="WindMark" type="Line2D" parent="FieldClues/WindEtchedMarker"]
+points = PackedVector2Array(-28, -104, 15, -125, 27, -94, -13, -70, 24, -46)
+width = 5.0
+default_color = Color(0.86, 0.96, 0.60, 0.88)
+
+[node name="Name" type="Label" parent="FieldClues/WindEtchedMarker"]
+offset_left = -136.0
+offset_top = -226.0
+offset_right = 136.0
+offset_bottom = -198.0
+theme_override_colors/font_color = Color(0.87, 0.98, 0.68, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.1, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 16
+text = "背风崖风蚀石"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="FieldClues/WindEtchedMarker"]
+script = ExtResource("9_interaction")
+interaction_id = "wind_etched_marker"
+prompt_text = "察看风蚀石上的刻痕"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FieldClues/WindEtchedMarker/Interaction"]
+position = Vector2(0, -82)
+shape = SubResource("ChanceTraceShape")
+
 [node name="MistStreamWaterPalaceGate" type="Node2D" parent="."]
 position = Vector2(5840, 1700)
 y_sort_enabled = true

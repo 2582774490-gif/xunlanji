@@ -23,12 +23,30 @@ const CHANCE_TRACES := [
 	},
 ]
 
+const FIELD_CLUES := {
+	"stream_stair_cairn": {
+		"name": "雾溪引水堆石", "sector": "cloudfoot_wood",
+		"text": "石堆下压着褪色的采药签：\"顺着湿石阶入林，浅潮尽头便是雾溪水府。炼气一层后，水门才会回应。\"",
+	},
+	"caravan_milestone": {
+		"name": "旧商道里程碑", "sector": "old_caravan_road",
+		"text": "断碑仍能辨出商队旧记：\"雾潮关受水脉牵引；先探明水府，再过旧关。雨后不走偏坡，劫修常伏在车辙外。\"",
+	},
+	"wind_etched_marker": {
+		"name": "背风崖风蚀石", "sector": "stonebud_highland",
+		"text": "风蚀刻痕并不指向任务，只留下观地之法：背风石芽可采石蕊；循山脊望东，能见岚息回响石。",
+	},
+}
+
 @onready var player: CharacterBody2D = $Player
 @onready var village_gate: Area2D = $YunlanVillageGate/Interaction
 @onready var mist_border_gate: Area2D = $MistBorderPass/Interaction
 @onready var water_palace_gate: Area2D = $MistStreamWaterPalaceGate/Interaction
 @onready var echo_stone: Area2D = $LanEchoStone/Interaction
 @onready var chance_trace: Area2D = $YunlanChanceTrace/Interaction
+@onready var stream_stair_cairn: Area2D = $FieldClues/StreamStairCairn/Interaction
+@onready var caravan_milestone: Area2D = $FieldClues/CaravanMilestone/Interaction
+@onready var wind_etched_marker: Area2D = $FieldClues/WindEtchedMarker/Interaction
 @onready var regional_population = $RegionalPopulation
 @onready var chunk_streamer = $ChunkStreamer
 @onready var world_encounter = $WorldCombat
@@ -57,7 +75,7 @@ func _ready() -> void:
 	$YunlanChanceTrace.position = chosen_chance_trace.position
 	$YunlanChanceTrace/Name.text = str(chosen_chance_trace.name)
 	chance_trace.prompt_text = str(chosen_chance_trace.prompt)
-	for interaction in [village_gate, mist_border_gate, water_palace_gate, echo_stone, chance_trace]:
+	for interaction in [village_gate, mist_border_gate, water_palace_gate, echo_stone, chance_trace, stream_stair_cairn, caravan_milestone, wind_etched_marker]:
 		interaction.focused.connect(_focus_interaction)
 		interaction.unfocused.connect(_unfocus_interaction)
 	regional_population.focused.connect(_focus_interaction)
@@ -83,7 +101,10 @@ func _setup_world_minimap() -> void:
 		{"position": Vector2(760, 1440), "kind": "gate"},
 		{"position": Vector2(3520, 720), "kind": "resource"},
 		{"position": Vector2(5840, 1700), "kind": "dungeon"},
+		{"position": Vector2(4740, 1710), "kind": "clue"},
 		{"position": Vector2(7720, 1500), "kind": "relic"},
+		{"position": Vector2(2800, 3360), "kind": "clue"},
+		{"position": Vector2(9060, 1560), "kind": "clue"},
 		{"position": Vector2(11000, 1650), "kind": "gate"},
 	], [
 		PackedVector2Array([Vector2(760, 1440), Vector2(2780, 1660), Vector2(5140, 1770), Vector2(7720, 1500), Vector2(11000, 1650)]),
@@ -153,6 +174,12 @@ func _activate_contextual() -> void:
 		_observe_lan_echo()
 	elif active_interaction == chance_trace and not chance_trace_resolved:
 		_resolve_chance_trace()
+	elif active_interaction == stream_stair_cairn:
+		_read_field_clue("stream_stair_cairn")
+	elif active_interaction == caravan_milestone:
+		_read_field_clue("caravan_milestone")
+	elif active_interaction == wind_etched_marker:
+		_read_field_clue("wind_etched_marker")
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()
@@ -199,6 +226,21 @@ func _resolve_chance_trace() -> void:
 		str(chosen_chance_trace.description), str(chosen_chance_trace.item), int(chosen_chance_trace.cultivation),
 	]
 	$YunlanChanceTrace.visible = false
+	_close_interaction()
+
+
+func _read_field_clue(clue_id: String) -> void:
+	var clue: Dictionary = FIELD_CLUES.get(clue_id, {})
+	if clue.is_empty():
+		return
+	var first_read := GameState.record_field_clue(clue_id)
+	if first_read:
+		GameState.record_opportunity({
+			"region": "starter_village", "name": str(clue.name), "kind": "field_clue",
+		})
+		status.text = "%s\n（已记入见闻；这不是任务，也不发放数值奖励。）" % str(clue.text)
+	else:
+		status.text = "%s\n（你已读过这处地貌线索。）" % str(clue.text)
 	_close_interaction()
 
 

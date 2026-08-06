@@ -154,7 +154,11 @@ const ZHULAN_WHEEL_SKILLS := [
 const STARTER_TEST_SKILLS := QINGHUANG_SWORD_SKILLS + SHARED_MOVEMENT_AND_CULTIVATION_SKILLS
 
 static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
-	var weapon_skills: Array[Dictionary] = QINGHUANG_SWORD_SKILLS
+	# The authored constant tables are inferred as untyped Arrays by Godot.
+	# Keep this carrier untyped, then explicitly build the typed return list
+	# below; assigning a constant Array directly into Array[Dictionary] makes
+	# the five-slot HUD fail at scene startup for the default wooden sword.
+	var weapon_skills: Array = QINGHUANG_SWORD_SKILLS
 	if item_name == "回云练气伞":
 		weapon_skills = HUIYUN_UMBRELLA_SKILLS
 	elif item_name == "朱砂练气符笔":
@@ -203,9 +207,11 @@ static func skills_for_weapon(item_name: String) -> Array[Dictionary]:
 		weapon_skills = ZHULAN_WHEEL_SKILLS
 	var result: Array[Dictionary] = []
 	for skill in weapon_skills:
-		result.append(skill.duplicate(true))
+		if skill is Dictionary:
+			result.append((skill as Dictionary).duplicate(true))
 	for skill in SHARED_MOVEMENT_AND_CULTIVATION_SKILLS:
-		result.append(skill.duplicate(true))
+		if skill is Dictionary:
+			result.append((skill as Dictionary).duplicate(true))
 	return result
 
 static func is_umbrella_skill_set(item_name: String) -> bool:
