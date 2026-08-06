@@ -1,16 +1,23 @@
-# 《寻岚记》
+# 《寻岚记》本地原型
 
-中国风修仙题材的 2D 开放世界 RPG。
+## 直接查看游戏
 
-## 首发目标
+双击项目根目录的 `启动寻岚记.cmd`。
 
-- 微信小游戏优先；Godot 负责客户端原型与玩法开发。
-- 三个可游玩大区，区域间短加载切换，单区首发最多 10 名玩家。
-- 大世界探索；固定副本与随机机缘；副本和 1v1 PVP 为横版即时手操战斗。
-- 境界：炼气、筑基、结丹、元婴、化神（首发开放至化神圆满）。
+启动器会：
 
-## 当前阶段
+1. 自动检查桌面的 Godot 4.7.1；
+2. 在需要时静默启动本机十人房服务；
+3. 运行 Godot 游戏主场景；
+4. 在关闭游戏后停止本次启动的服务进程。
 
-正在搭建 Godot 项目基础框架、地图数据结构、角色成长与横版战斗原型。
+若需要联机测试，在游戏的“开放世界”页点击“连接本机十人房”，再启动第二个游戏窗口即可看到同区角色。该服务目前只同步在线名册、区域和位置；账号、服务器战斗与真实交易结算仍处于后续开发阶段。
 
-详细策划资料在各编号目录及 Obsidian 知识库中维护。
+## 开发验证
+
+```powershell
+$godot = 'C:\Users\Administrator\Desktop\Godot_v4.7.1-stable_win64.exe'
+& $godot --headless --editor --quit --path game-client
+& $godot --headless --path game-client --scene res://tests/runtime_smoke_runner.tscn
+npm test --prefix server
+```
