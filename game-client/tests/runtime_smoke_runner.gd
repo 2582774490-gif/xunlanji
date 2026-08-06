@@ -59,6 +59,7 @@ func _run() -> void:
 	await _check_random_opportunity()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
 	await _check_village_routes()
+	await _check_female_east_walk_cycle()
 	await _check_water_palace_loop()
 	await _check_umbrella_weapon_skill_sets()
 	await _check_mist_border_scene()
@@ -1453,6 +1454,18 @@ func _check_umbrella_weapon_skill_sets() -> void:
 	await get_tree().create_timer(0.26).timeout
 	_expect(arena.opponent.hp < opponent_hp_before and arena.guard_time_left > 0.0, "Umbrella Array should have distinct local-duel damage and ward behavior.")
 	arena.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+func _check_female_east_walk_cycle() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.gender = "女"
+	var village := preload("res://scenes/yunlan_village.tscn").instantiate()
+	add_child(village)
+	await get_tree().process_frame
+	_expect(village.player.body.sprite_frames.get_frame_count("walk_east") == 6, "Female player template did not load its approved six-frame eastward walking cycle.")
+	village.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
