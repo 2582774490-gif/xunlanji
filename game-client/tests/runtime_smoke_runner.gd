@@ -1888,6 +1888,7 @@ func _check_world_population_encounter() -> void:
 	road.player.position = enemy_root.global_position
 	encounter.use_action("guard")
 	_expect(encounter._guard_time_left > 0.0, "Overworld guard slot did not activate its next-hit mitigation state.")
+	_expect(float(road.get_node("HUD/TouchControls")._action_cooldowns.get("guard", 0.0)) > 0.0, "Mobile skill controls did not receive the real guard cooldown state.")
 	var mana_before_primary: float = encounter._player_mana
 	encounter.use_action("ningxi")
 	_expect(encounter._player_mana < mana_before_primary, "Overworld weapon primary did not consume mana.")

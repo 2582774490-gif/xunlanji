@@ -21,6 +21,9 @@ var _move_touch_id := -999
 var _joystick_knob := Vector2.ZERO
 var _mouse_dragging := false
 var _interaction_available := false
+var _action_cooldowns: Dictionary = {}
+var _action_costs: Dictionary = {}
+var _current_mana := 0.0
 
 
 func _ready() -> void:
@@ -128,6 +131,15 @@ func set_interaction_available(available: bool) -> void:
 	queue_redraw()
 
 
+func set_combat_state(state: Dictionary) -> void:
+	# The encounter controller owns combat. This overlay only reflects cooldown
+	# and mana state so every mobile button remains immediately readable.
+	_action_cooldowns = (state.get("cooldowns", {}) as Dictionary).duplicate(true)
+	_action_costs = (state.get("costs", {}) as Dictionary).duplicate(true)
+	_current_mana = float(state.get("mana", 0.0))
+	queue_redraw()
+
+
 func _action_at(touch_position: Vector2) -> String:
 	for button in _button_data():
 		if touch_position.distance_to(button["position"]) <= BUTTON_RADIUS:
@@ -146,13 +158,23 @@ func _draw() -> void:
 	for button in _button_data():
 		var is_attack: bool = str(button["id"]) == "attack"
 		var is_switch: bool = str(button["id"]) == "switch_weapon"
+		var action_id := str(button["id"])
 		var radius := BUTTON_RADIUS + 8.0 if is_attack else BUTTON_RADIUS
 		var color := Color(0.08, 0.38, 0.46, 0.88) if is_attack else Color(0.10, 0.23, 0.33, 0.82)
 		if is_switch:
 			color = Color(0.28, 0.21, 0.48, 0.90)
+		var cooldown := float(_action_cooldowns.get(action_id, 0.0))
+		var cost := float(_action_costs.get(action_id, 0.0))
+		var mana_locked := cost > 0.0 and _current_mana < cost
+		if cooldown > 0.0 or mana_locked:
+			color = Color(0.12, 0.15, 0.19, 0.90)
 		draw_circle(button["position"], radius, color)
 		draw_arc(button["position"], radius, 0.0, TAU, 32, Color(0.66, 0.94, 0.94, 0.82), 2.0)
 		draw_string(font, button["position"] + Vector2(-10.0, 8.0), button["label"], HORIZONTAL_ALIGNMENT_LEFT, -1, 23, Color(0.9, 1, 1, 1))
+		if cooldown > 0.0:
+			draw_string(font, button["position"] + Vector2(-14.0, 28.0), "%.1f" % cooldown, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1.0, 0.82, 0.52, 1.0))
+		elif mana_locked:
+			draw_string(font, button["position"] + Vector2(-12.0, 28.0), "缺灵", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1.0, 0.64, 0.56, 1.0))
 	if weapon_switch_enabled:
 		var equipped := str(GameState.player.get("equipped_weapon", "练气木剑"))
 		draw_string(font, Vector2(size.x - 282.0, size.y - 185.0), "持：%s" % equipped, HORIZONTAL_ALIGNMENT_LEFT, 178.0, 15, Color(0.82, 0.94, 1.0, 0.96))

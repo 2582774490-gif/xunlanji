@@ -30,11 +30,14 @@ const TowerWardImpactEffectScript = preload("res://src/combat/tower_ward_impact_
 const WheelReturnEffectScript = preload("res://src/combat/wheel_return_effect.gd")
 const EightfoldArrayWardScript = preload("res://src/combat/eightfold_array_ward.gd")
 
+signal combat_state_changed(state: Dictionary)
+
 var _player: CharacterBody2D
 var _population: Node
 var _status: Label
 var _target_label: Label
 var _player_label: Label
+var _touch_controls: Node
 var _active_interaction: Area2D
 var _target_name := ""
 var _target_health := 0
@@ -61,10 +64,12 @@ func configure(player: CharacterBody2D, population: Node, status: Label, target_
 	_player_health = _player_max_health
 	_player_max_mana = float(GameState.derived_stats()["灵力"])
 	_player_mana = _player_max_mana
+	_touch_controls = get_parent().get_node_or_null("HUD/TouchControls")
 	_player.attack_impact.connect(_on_player_attack_impact)
 	_population.hostile_encounter_requested.connect(_begin_encounter)
 	_target_label.visible = false
 	_refresh_player_label()
+	_publish_combat_state()
 
 func is_in_encounter() -> bool:
 	return _active_interaction != null
@@ -77,6 +82,7 @@ func _process(delta: float) -> void:
 	_guard_time_left = maxf(0.0, _guard_time_left - delta)
 	_player_mana = minf(_player_max_mana, _player_mana + delta * (2.0 + GameState.artifact_mana_regen_bonus()))
 	_refresh_player_label()
+	_publish_combat_state()
 	if _active_interaction == null or not is_instance_valid(_active_interaction):
 		return
 	var enemy_position: Vector2 = (_active_interaction.get_parent() as Node2D).global_position
@@ -191,6 +197,7 @@ func _try_use_skill(index: int, cooldown: float) -> bool:
 		_status.text = "灵力不足，无法施放%s。" % str(skill.get("name", "技能"))
 		return false
 	_player_mana -= cost
+	_publish_combat_state()
 	return true
 
 
@@ -285,6 +292,27 @@ func _refresh_target_label() -> void:
 
 func _refresh_player_label() -> void:
 	_player_label.text = "野外气血 %d / %d　灵力 %d / %d" % [_player_health, _player_max_health, int(_player_mana), int(_player_max_mana)]
+
+
+func _publish_combat_state() -> void:
+	var state := {
+		"mana": _player_mana,
+		"cooldowns": {
+			"ningxi": _primary_cooldown,
+			"cloud_step": _cloud_step_cooldown,
+			"guard": _guard_cooldown,
+			"nourish": _nourish_cooldown,
+		},
+		"costs": {
+			"ningxi": float(_skill(1).get("spirit_cost", 0)),
+			"cloud_step": float(_skill(2).get("spirit_cost", 0)),
+			"guard": float(_skill(3).get("spirit_cost", 0)),
+			"nourish": float(_skill(4).get("spirit_cost", 0)),
+		},
+	}
+	combat_state_changed.emit(state)
+	if _touch_controls != null and _touch_controls.has_method("set_combat_state"):
+		_touch_controls.set_combat_state(state)
 
 
 func _spawn_skill_ripple(origin: Vector2, tint: Color, radius: float, direction: Vector2) -> void:
