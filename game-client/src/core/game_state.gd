@@ -16,6 +16,7 @@ enum Screen {
 	ALCHEMY,
 	PVP,
 	CODEX,
+	JOURNAL,
 	SETTINGS,
 }
 
@@ -64,6 +65,7 @@ const INITIAL_ATTRIBUTE_POINTS := 4
 const BASE_ATTRIBUTE_TOTAL := 20
 const TECHNIQUE_INSIGHT_THRESHOLDS := [60, 180, 360]
 const EQUIPMENT_MAX_UPGRADE := 10
+const MAX_OPPORTUNITY_LOG_ENTRIES := 60
 const LOCAL_SAVE_PATH := "user://xunlanji_local_profile.json"
 const LOCAL_SAVE_VERSION := 1
 # 首发商业化只出售外观与便利，不出售属性、战斗伤害、PVP 数值或交易税优惠。
@@ -685,7 +687,7 @@ func claim_starter_weapon_trials(item_names: Array[String]) -> Array[String]:
 	player.weapon_trial_claimed = true
 	if str(player.get("equipped_weapon", "")) == "练气木剑" and not granted.is_empty():
 		player.equipped_weapon = granted[0]
-	player.opportunity_log.append({"region": "starter_village", "name": "云岚试兵", "kind": "starter_weapon_trial", "items": granted.duplicate()})
+	record_opportunity({"region": "starter_village", "name": "云岚试兵", "kind": "starter_weapon_trial", "items": granted.duplicate()})
 	profile_changed.emit()
 	notify("云岚试兵架交付了 %d 件首发试用灵器。按 Q 可无冷却切换已完成的武器。" % granted.size())
 	return granted
@@ -695,8 +697,28 @@ func add_spirit_stones(amount: int) -> void:
 	profile_changed.emit()
 
 func record_opportunity(entry: Dictionary) -> void:
-	player.opportunity_log.append(entry)
+	_normalize_player_schema()
+	var recorded := entry.duplicate(true)
+	recorded.region = str(recorded.get("region", current_region_id))
+	recorded.name = str(recorded.get("name", recorded.get("title", "未命名发现")))
+	recorded.kind = str(recorded.get("kind", "exploration"))
+	if not recorded.has("recorded_at"):
+		recorded.recorded_at = Time.get_datetime_string_from_system(false, true)
+	player.opportunity_log.append(recorded)
+	while player.opportunity_log.size() > MAX_OPPORTUNITY_LOG_ENTRIES:
+		player.opportunity_log.pop_front()
 	profile_changed.emit()
+
+
+func recent_opportunities(limit := 18) -> Array[Dictionary]:
+	_normalize_player_schema()
+	var entries: Array[Dictionary] = []
+	var start_index := maxi(0, player.opportunity_log.size() - max(1, limit))
+	for index in range(player.opportunity_log.size() - 1, start_index - 1, -1):
+		var entry: Variant = player.opportunity_log[index]
+		if entry is Dictionary:
+			entries.append((entry as Dictionary).duplicate(true))
+	return entries
 
 
 func meet_npc(npc_name: String) -> bool:
@@ -1539,6 +1561,20 @@ func _normalize_player_schema() -> void:
 		player.world_guidance = guidance
 	if not player.has("field_clues") or not player.field_clues is Array:
 		player.field_clues = []
+	if not player.has("opportunity_log") or not player.opportunity_log is Array:
+		player.opportunity_log = []
+	else:
+		var history: Array = []
+		for stored_entry in player.opportunity_log:
+			if stored_entry is Dictionary:
+				var normalized_entry: Dictionary = (stored_entry as Dictionary).duplicate(true)
+				normalized_entry.region = str(normalized_entry.get("region", ""))
+				normalized_entry.name = str(normalized_entry.get("name", normalized_entry.get("title", "未命名发现")))
+				normalized_entry.kind = str(normalized_entry.get("kind", "exploration"))
+				history.append(normalized_entry)
+		while history.size() > MAX_OPPORTUNITY_LOG_ENTRIES:
+			history.pop_front()
+		player.opportunity_log = history
 	if not player.has("opening_lore_seen"):
 		player.opening_lore_seen = false
 	else:

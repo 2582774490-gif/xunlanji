@@ -63,6 +63,7 @@ func _run() -> void:
 	await _check_local_market_loop()
 	await _check_online_session_presence_boundary()
 	await _check_random_opportunity()
+	await _check_opportunity_journal()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
 	await _check_village_routes()
 	await _check_yunlan_outskirts_scene()
@@ -1568,6 +1569,28 @@ func _check_random_opportunity() -> void:
 	_expect(GameState.player.opportunity_log.size() == log_before + 1, "Opportunity collection did not write a log record.")
 	south_gate.queue_free()
 	await get_tree().process_frame
+
+func _check_opportunity_journal() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var screen_before := GameState.current_screen
+	GameState.player.opportunity_log = []
+	GameState.record_opportunity({"region": "starter_village", "title": "烟测溪畔机缘", "kind": "resource", "item": "雾溪草", "cultivation": 3, "stones": 2})
+	var records := GameState.recent_opportunities(3)
+	_expect(records.size() == 1 and str(records[0].get("name", "")) == "烟测溪畔机缘" and not str(records[0].get("recorded_at", "")).is_empty(), "Opportunity journal must normalize a real record with its display name and timestamp.")
+	for index in range(GameState.MAX_OPPORTUNITY_LOG_ENTRIES + 5):
+		GameState.record_opportunity({"region": "starter_village", "name": "烟测记录%d" % index, "kind": "exploration"})
+	_expect(GameState.player.opportunity_log.size() == GameState.MAX_OPPORTUNITY_LOG_ENTRIES, "Opportunity journal must retain a bounded history instead of expanding the local save indefinitely.")
+	GameState.current_screen = GameState.Screen.JOURNAL
+	var journal_ui := preload("res://scenes/main.tscn").instantiate()
+	add_child(journal_ui)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var rendered_text := _collect_label_text(journal_ui)
+	_expect(rendered_text.contains("游历簿") and rendered_text.contains("烟测记录"), "Journal UI must render real exploration history rather than a generic placeholder.")
+	journal_ui.queue_free()
+	GameState.player = profile_before
+	GameState.current_screen = screen_before
+	GameState.profile_changed.emit()
 
 
 func _check_world_menu_does_not_fabricate_opportunity_rewards() -> void:

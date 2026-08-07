@@ -100,6 +100,7 @@ func _subtitle() -> String:
 		GameState.Screen.ALCHEMY: "丹药由材料、境界与药性共同限制；所有玩家可炼，丹修更擅长",
 		GameState.Screen.PVP: "1v1 论剑 · 后续接入房间与服务器权威同步",
 		GameState.Screen.CODEX: "人物、宗门、地区、副本、法宝的收藏与知识库",
+		GameState.Screen.JOURNAL: "只记录实际发生的采集、遭遇与发现，不生成任务式伪记录",
 		GameState.Screen.SETTINGS: "原型设置与联网状态说明",
 	}
 	return labels.get(GameState.current_screen, "")
@@ -110,10 +111,10 @@ func _add_navigation() -> void:
 	row.size = Vector2(780, 45)
 	row.add_theme_constant_override("separation", 6)
 	add_child(row)
-	for entry in [["洞府", GameState.Screen.HOME], ["世界", GameState.Screen.OVERWORLD], ["修炼", GameState.Screen.REALM], ["行囊", GameState.Screen.INVENTORY], ["炼丹", GameState.Screen.ALCHEMY], ["宗门", GameState.Screen.SECT], ["市集", GameState.Screen.MARKET], ["论剑", GameState.Screen.PVP], ["图鉴", GameState.Screen.CODEX]]:
+	for entry in [["洞府", GameState.Screen.HOME], ["世界", GameState.Screen.OVERWORLD], ["修炼", GameState.Screen.REALM], ["行囊", GameState.Screen.INVENTORY], ["炼丹", GameState.Screen.ALCHEMY], ["宗门", GameState.Screen.SECT], ["市集", GameState.Screen.MARKET], ["论剑", GameState.Screen.PVP], ["图鉴", GameState.Screen.CODEX], ["游历", GameState.Screen.JOURNAL]]:
 		var button := Button.new()
 		button.text = entry[0]
-		button.custom_minimum_size = Vector2(83, 40)
+		button.custom_minimum_size = Vector2(74, 40)
 		button.pressed.connect(func(): GameState.enter_screen(entry[1]))
 		row.add_child(button)
 
@@ -505,6 +506,56 @@ func _show_pvp() -> void:
 	_buttons(_combat_entries(true))
 	_buttons([["进入可操作论剑场", _open_duel_arena, 220]])
 	_text("联网清单：房间匹配、同步、断线处理、服务器权威结算、战绩与反作弊。", 15, Color("a7d5ca"))
+
+func _show_journal() -> void:
+	_heading("游历簿")
+	_text("只保留角色真实获得、观察或击退的世界记录；不会因为点击菜单、查看地图或接近一个区域而凭空产生奖励。为保持本地存档轻量，最多保留最近 %d 条。" % GameState.MAX_OPPORTUNITY_LOG_ENTRIES, 16, Color("a7d5ca"))
+	var entries := GameState.recent_opportunities(18)
+	if entries.is_empty():
+		_text("尚未留下游历记录。走入大世界、采集灵材、完成副本或发现地标后，这里才会出现内容。", 18, Color("f2d79c"))
+		return
+	for entry in entries:
+		var place := _journal_region_name(str(entry.get("region", "")))
+		var label := _journal_kind_name(str(entry.get("kind", "exploration")))
+		var title := str(entry.get("name", entry.get("title", "未命名发现")))
+		var timestamp := str(entry.get("recorded_at", "早期存档"))
+		_text("【%s】%s · %s\n%s%s" % [label, title, place, _journal_reward_text(entry), "\n记录：%s" % timestamp], 17, Color("f2d79c"))
+		_line()
+
+func _journal_region_name(region_id: String) -> String:
+	for region in Catalog.REGIONS:
+		if str(region.get("id", "")) == region_id:
+			return str(region.get("name", region_id))
+	if Catalog.DUNGEONS.has(region_id):
+		return str((Catalog.DUNGEONS[region_id] as Dictionary).get("name", region_id))
+	return region_id if not region_id.is_empty() else "未知地点"
+
+func _journal_kind_name(kind: String) -> String:
+	var labels := {
+		"resource": "采集", "hostile_defeated": "遭遇", "starter_weapon_trial": "试兵",
+		"fixed_dungeon_entrance": "入口", "fixed_relic": "遗迹", "high_realm_lore": "见闻",
+		"port_rumor": "传闻", "foundation_preparation": "观想", "exploration": "探索",
+	}
+	return str(labels.get(kind, "机缘"))
+
+func _journal_reward_text(entry: Dictionary) -> String:
+	var rewards: Array[String] = []
+	var item_name := str(entry.get("item", ""))
+	if not item_name.is_empty():
+		rewards.append(item_name)
+	var items: Variant = entry.get("items", [])
+	if items is Array:
+		for item in items:
+			if not rewards.has(str(item)):
+				rewards.append(str(item))
+	var cultivation := int(entry.get("cultivation", 0))
+	var stones := int(entry.get("stones", 0))
+	var text := "获得：%s" % ("、".join(rewards) if not rewards.is_empty() else "无实物奖励")
+	if cultivation > 0:
+		text += "｜修为 +%d" % cultivation
+	if stones > 0:
+		text += "｜灵石 +%d" % stones
+	return text
 
 func _show_codex() -> void:
 	_heading("万物图鉴")
