@@ -62,6 +62,7 @@
 - 绛云霓裳正北待机候选源图：`game-client/assets/art/costumes/jiangyun_rainbow/source_magic2/jiangyun_rainbow_idle_north_v01_key.png`
 - 绛云霓裳正北待机候选透明图：`game-client/assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_idle_north_v01_alpha.png`（仅作方向、服装层次与抠图质量确认；未达到整套时装的运行门槛）
 - 绛云霓裳北东待机 v01/v02 候选：已生成并进行绿色、洋红色键抠图；广袖和发丝仍出现键色残边，已归档至 `game-client/assets/art/costumes/jiangyun_rainbow/review/pending_transparency/`，不得进入运行图集。
+- 绛云霓裳北东待机 v03 候选：已改为不透明服装边缘并复验色键；仍在细发梢、白色裙边留下少量绿色污染，连同收缩边缘检查版一起归档至 `review/pending_transparency/`，不得进入运行图集。
 - 绛云霓裳南向行走序列表候选源图：`game-client/assets/art/costumes/jiangyun_rainbow/source_magic2/jiangyun_rainbow_walk_south_v01_sheet.png`
 - 绛云霓裳南向行走候选透明帧：`game-client/assets/art/costumes/jiangyun_rainbow/processed_alpha/jiangyun_rainbow_walk_south_v01_f1_alpha.png` 至 `jiangyun_rainbow_walk_south_v01_f6_alpha.png`（6 帧、9 FPS、循环、最低脚点已对齐；未达到整套时装的运行门槛）
 - 绛云霓裳西南行走序列表候选源图：`game-client/assets/art/costumes/jiangyun_rainbow/source_magic2/jiangyun_rainbow_walk_south_west_v01_sheet.png`
