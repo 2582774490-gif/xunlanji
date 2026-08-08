@@ -345,17 +345,21 @@ func _check_story_stance_population() -> void:
 	var profiles: Array[Dictionary] = [
 		{"id": "stance_mender", "region": "test", "kind": "rogue", "name": "Mender witness", "prompt": "Talk", "chance": 1.0, "story_stance": "mender", "story_trace": "road", "story_note": "A patrol map records the displaced households.", "story_branch": "smoke_mender_memory", "story_branch_title": "Mender memory", "story_branch_description": "The player recorded a real optional stance encounter.", "anchors": [Vector2(120, 120)]},
 		{"id": "stance_seeker", "region": "test", "kind": "rogue", "name": "Seeker witness", "prompt": "Talk", "chance": 1.0, "story_stance": "seeker", "anchors": [Vector2(240, 120)]},
+		{"id": "history_market", "region": "test", "kind": "rogue", "name": "Market witness", "prompt": "Talk", "chance": 1.0, "story_requires_any_thread": ["smoke_market_record"], "anchors": [Vector2(360, 120)]},
 	]
 	population.populate(31, profiles)
 	_expect(population.active_count() == 1 and population.interaction_for_profile_id("stance_mender") != null, "A guard-the-boundary interpretation should surface its matching ecological witness and keep other stance witnesses absent.")
 	population.resolve(population.interaction_for_profile_id("stance_mender"))
 	_expect(GameState.personal_story_branch_records().size() == 1 and str(GameState.personal_story_branch_records()[0].get("id", "")) == "smoke_mender_memory", "Resolving an optional stance witness must preserve a unique personal branch record instead of only showing temporary dialogue.")
+	GameState.record_personal_story_thread("market", "smoke_market_record", "Market memory", "The player actually traded before meeting this witness.")
+	population.populate(31, profiles)
+	_expect(population.active_count() == 2 and population.interaction_for_profile_id("history_market") != null, "A lived trade record should make a relevant optional witness appear without creating a required task.")
 	GameState.player.story_weave.stance_id = "seeker"
 	population.populate(31, profiles)
-	_expect(population.active_count() == 1 and population.interaction_for_profile_id("stance_seeker") != null, "Changing a personal interpretation should change the optional witness who can appear in the same world.")
+	_expect(population.active_count() == 2 and population.interaction_for_profile_id("stance_seeker") != null and population.interaction_for_profile_id("history_market") != null, "Changing a personal interpretation should change the stance witness while preserving witnesses rooted in real player history.")
 	GameState.player.story_weave.stance_id = ""
 	population.populate(31, profiles)
-	_expect(population.active_count() == 0, "Before selecting a story interpretation, stance-specific witnesses must not become an invisible compulsory route.")
+	_expect(population.active_count() == 1 and population.interaction_for_profile_id("history_market") != null, "Before selecting an interpretation, only real-history witnesses may remain; stance-specific witnesses must not become an invisible compulsory route.")
 	population.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before

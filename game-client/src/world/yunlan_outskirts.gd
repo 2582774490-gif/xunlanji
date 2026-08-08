@@ -536,6 +536,15 @@ func _population_profiles() -> Array[Dictionary]:
 			"story_trace": "road", "story_note": "行囊里的旧路引记着一条从未在云岚村出现过的商队编号。",
 		},
 		{
+			"id": "yunlan_market_price_reader", "region": "yunlan_outskirts", "sector": "old_caravan_road", "kind": "rogue", "name": "旧道估价客",
+			"prompt": "与旧道估价客比对云市货单和山路脚价", "chance": 0.44,
+			"anchors": [Vector2(7650, 1420), Vector2(8320, 1580)],
+			"story_requires_any_thread": ["market_first_consignment", "market_first_purchase"], "story_trace": "road",
+			"story_note": "估价客把你提过的云市货单与旧商道脚价叠在一起：岚潮不只改变灵材从哪里长出，也让同一件货物在不同道路上有了不同的归处。",
+			"story_branch": "market_oldroad_price_ledger", "story_branch_title": "旧道价簿", "story_branch_description": "因为你确实参与过交易，旧道估价客才肯让你看那本价簿。你没有接到委托，只是多得到一种理解岚潮如何进入人间生活的角度。",
+			"tint": Color(0.96, 0.80, 0.56), "label_color": Color(1.0, 0.88, 0.68),
+		},
+		{
 			"id": "yunlan_road_vein_patrol", "region": "yunlan_outskirts", "sector": "old_caravan_road", "kind": "rogue", "name": "护脉巡修",
 			"prompt": "向护脉巡修询问旧商道的雾潮影响", "chance": 1.0, "story_stance": "mender",
 			"anchors": [Vector2(8420, 1830), Vector2(10180, 1740)],

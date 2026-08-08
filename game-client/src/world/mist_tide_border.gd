@@ -474,6 +474,15 @@ func _population_profiles() -> Array[Dictionary]:
 			"tint": Color(0.86, 0.80, 0.96), "label_color": Color(0.92, 0.86, 1.0),
 		},
 		{
+			"id": "mist_border_temper_surveyor", "region": "mist_border", "kind": "rogue", "name": "余温验器人",
+			"prompt": "向验器人询问雾渠矿滩的旧器余温", "chance": 0.40,
+			"anchors": [Vector2(5320, 980), Vector2(4980, 1740)],
+			"story_requires_any_thread": ["forge_first_refit"], "story_trace": "relic",
+			"story_note": "验器人从你器物上的新淬纹看出你亲手翻过一件旧器。他让你触摸冷矿砂的余温：它并非地火残留，而像一座被岚潮倒着启动的古老锻台。",
+			"story_branch": "craft_border_temper_trace", "story_branch_title": "雾渠余温验记", "story_branch_description": "炼过器的手能辨认出矿砂里不合常理的火候。此事不会奖励你，也不会要求你追查，只在你的游历簿中留下另一种证词。",
+			"tint": Color(0.96, 0.70, 0.44), "label_color": Color(1.0, 0.80, 0.56),
+		},
+		{
 			"id": "mist_border_wetland_scribe", "region": "mist_border", "kind": "rogue", "name": "湿泽记潮人",
 			"prompt": "翻看记潮人记录的药性、水位与兽迹", "chance": 0.46,
 			"anchors": [Vector2(7420, 920), Vector2(7780, 1080), Vector2(8120, 1220)],

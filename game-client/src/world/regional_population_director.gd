@@ -30,7 +30,7 @@ func populate(seed_value: int, profiles: Array[Dictionary]) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	for profile in profiles:
-		if not _profile_matches_story_stance(profile):
+		if not _profile_matches_personal_story(profile):
 			continue
 		if not GameState.is_ecology_profile_available(str(profile.get("region", "")), str(profile.get("id", ""))):
 			continue
@@ -44,14 +44,34 @@ func populate(seed_value: int, profiles: Array[Dictionary]) -> void:
 
 
 ## Some witnesses only approach a cultivator after they have formed a view of
-## the old boundary. These are not quest givers: no map pin, reward, or region
-## lock is attached. They make the same landscape answer different characters
-## with different plausible people and concerns.
-func _profile_matches_story_stance(profile: Dictionary) -> bool:
+## the old boundary, traded, crafted, or lived through a sect relationship.
+## These are not quest givers: no map pin, reward, or region lock is attached.
+## They make the same landscape answer different characters with different
+## plausible people and concerns.
+func _profile_matches_personal_story(profile: Dictionary) -> bool:
 	var required_stance := str(profile.get("story_stance", ""))
-	if required_stance.is_empty():
-		return true
-	return required_stance == str(GameState.personal_story_stance().get("id", ""))
+	if not required_stance.is_empty() and required_stance != str(GameState.personal_story_stance().get("id", "")):
+		return false
+	var records := GameState.personal_story_thread_records()
+	var required_record_ids: Array = profile.get("story_requires_any_thread", [])
+	if not required_record_ids.is_empty():
+		var found_record := false
+		for record in records:
+			if required_record_ids.has(str(record.get("id", ""))):
+				found_record = true
+				break
+		if not found_record:
+			return false
+	var required_category := str(profile.get("story_requires_thread_category", ""))
+	if not required_category.is_empty():
+		var found_category := false
+		for record in records:
+			if str(record.get("thread", "")) == required_category:
+				found_category = true
+				break
+		if not found_category:
+			return false
+	return true
 
 
 func _eligible_anchors(profile: Dictionary) -> Array:
@@ -82,11 +102,14 @@ func _sector_for_profile(profile_id: String) -> String:
 		"mist_border_wetland_scribe": return "herb_wetland"
 		"wetland_mist_herb", "wetland_herbalist": return "herb_wetland"
 		"highland_mist_stonebud": return "mist_highlands"
+		"yunlan_market_price_reader": return "old_caravan_road"
+		"mist_border_temper_surveyor": return "ore_flats"
 		"earthfire_hound": return "earthfire_ravine"
 		"battlefield_remnant", "relic_seeker": return "ancient_battlefield"
 		"ridge_gate_relay_warden": return "ridge_gate"
 		"ridge_fragment_cartographer": return "broken_plateau"
 		"ridge_ash_ledger_keeper": return "ashen_basins"
+		"ridge_pass_wayfarer": return "battlefield_pass"
 		"port_merchant", "tide_chart_rogue": return "tide_ledger_quay"
 		"wreck_shallows_beast": return "wrecked_shallows"
 		"shipyard_rogue": return "shipyard_lane"
