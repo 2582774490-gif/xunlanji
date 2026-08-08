@@ -492,6 +492,13 @@ const NPC_CARD_PROFILES := {
 	},
 	"洛清": {
 		"card_asset": "res://assets/art/npcs/luo_qing/processed_alpha/luo_qing_card_v01_alpha.png",
+		"story_reflections": {
+			"tide_listener": {"title": "洛清 · 潮价之问", "description": "洛清只把雨后涨价归为港路受阻。你对照她的货签，却发现同一批盐袋在潮前已先沾上不属于此地的水息。"},
+			"herb_reader": {"title": "洛清 · 药箱之问", "description": "洛清留意到商队药箱里的干草总比车轮先返潮。她把这当作仓储损耗；你却怀疑雾潮正沿着商路改写草木的干湿次序。"},
+			"forge_watcher": {"title": "洛清 · 货铃之问", "description": "洛清说旧铜货铃近来常在无风时发响，只怕车夫惊马。你听见的节律却和矿脉回鸣相合，像有一道看不见的旧路在试探货队。"},
+			"storm_walker": {"title": "洛清 · 车辙之问", "description": "洛清把偏离半里的车辙归为山口乱风。你沿着裂坡看去，发现每次偏移都绕开同一块从未记入商图的灰白界石。"},
+			"mirror_keeper": {"title": "洛清 · 空车之问", "description": "洛清不愿把失踪车队说成邪祟，只说账簿里偶尔会多出一趟无人签收的货。你把那页没有影子的车印夹进游历簿，暂不替它命名。"},
+		},
 		"faction": "云市会 · 云岚村市集",
 		"relationship": "初识 · 可交易",
 		"service": "负责云岚村市集的本地货单、玩家上架、5% 手续费与价格保护范围；不出售数值特权，也不会收取玩家私有物的绑定限制。",

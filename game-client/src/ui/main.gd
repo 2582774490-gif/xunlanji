@@ -880,8 +880,16 @@ func _add_npc_codex_card(npc: Dictionary, profile: Dictionary) -> void:
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	card.add_child(portrait)
 	var details := Label.new()
-	var rapport := GameState.npc_rapport(str(npc.name))
-	details.text = "《%s》｜%s\n所在地：%s｜势力：%s\n关系：%s（好感 %d）\n交易：%s\n线索：%s" % [str(npc.name), str(npc.role), str(npc.place), str(profile.get("faction", "无")), GameState.npc_relationship_title(str(npc.name)), rapport, str(profile.get("service", "暂无")), str(profile.get("lead", "暂无"))]
+	var npc_name := str(npc.name)
+	var rapport := GameState.npc_rapport(npc_name)
+	var has_met: bool = GameState.player.npc_met.has(npc_name)
+	var personal_reflection := GameState.npc_personal_reflection(npc_name)
+	var relationship_label := GameState.npc_relationship_title(npc_name) if has_met else "未相识"
+	details.text = "《%s》｜%s\n所在地：%s｜势力：%s\n关系：%s（好感 %d）\n交易：%s\n线索：%s" % [str(npc.name), str(npc.role), str(npc.place), str(profile.get("faction", "无")), relationship_label, rapport, str(profile.get("service", "暂无")), str(profile.get("lead", "暂无"))]
+	if has_met and not personal_reflection.is_empty():
+		details.text += "\n你的见闻：%s" % str(personal_reflection.get("description", ""))
+	elif not has_met and not personal_reflection.is_empty():
+		details.text += "\n你的见闻：尚待亲自结识；图鉴不会替你预先写下这段经历。"
 	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	details.add_theme_font_size_override("font_size", 16)

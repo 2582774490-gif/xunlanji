@@ -521,7 +521,7 @@ func _check_codex_registry_ui() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var rendered_text := _collect_label_text(codex_ui)
-	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("完整修行路线") and rendered_text.contains("丹器百工") and rendered_text.contains("炉火化元法") and rendered_text.contains("炼气丹药图鉴") and rendered_text.contains("灵泉露") and rendered_text.contains("归元丹") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿") and rendered_text.contains("沈衍") and rendered_text.contains("岚息") and rendered_text.contains("温行客") and rendered_text.contains("雾港货物") and rendered_text.contains("白蘅") and rendered_text.contains("药性承受") and rendered_text.contains("宁远") and rendered_text.contains("入门帖") and rendered_text.contains("洛清") and rendered_text.contains("价格保护范围") and rendered_text.contains("柳朔") and rendered_text.contains("巡路散修") and rendered_text.contains("区域生态图鉴") and rendered_text.contains("雾泽灵草丛") and rendered_text.contains("潇潮岚鲨") and rendered_text.contains("稀有水妖首领"), "Codex UI must render full cultivation, pill, equipment, NPC and ecology registry sections.")
+	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("完整修行路线") and rendered_text.contains("丹器百工") and rendered_text.contains("炉火化元法") and rendered_text.contains("炼气丹药图鉴") and rendered_text.contains("灵泉露") and rendered_text.contains("归元丹") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿") and rendered_text.contains("沈衍") and rendered_text.contains("岚息") and rendered_text.contains("温行客") and rendered_text.contains("雾港货物") and rendered_text.contains("白蘅") and rendered_text.contains("药性承受") and rendered_text.contains("宁远") and rendered_text.contains("入门帖") and rendered_text.contains("洛清") and rendered_text.contains("价格保护范围") and rendered_text.contains("柳朔") and rendered_text.contains("巡路散修") and rendered_text.contains("尚待亲自结识") and rendered_text.contains("区域生态图鉴") and rendered_text.contains("雾泽灵草丛") and rendered_text.contains("潇潮岚鲨") and rendered_text.contains("稀有水妖首领"), "Codex UI must render full cultivation, pill, equipment, NPC and ecology registry sections while withholding unearned personal testimony.")
 	codex_ui.queue_free()
 	GameState.player.inventory = ["雾港引潮盘", "沉雾舟纹袍"]
 	GameState.player.equipped_artifact = "雾港引潮盘"
@@ -2366,6 +2366,9 @@ func _check_red_maple_ancient_road() -> void:
 	_expect(not road.get_node("Terrain").visible, "Red Maple Road did not unload far western terrain art.")
 	road.player.position = road_player_start
 	await get_tree().process_frame
+	road.active_interaction = road.merchant_interaction
+	road._activate_contextual()
+	_expect(GameState.npc_rapport("洛清") >= 3 and road.status.text.contains("【你的见闻】"), "The physical Red Maple merchant must become a persistent relationship with an origin-specific account, not a generic trade sign.")
 	road.active_interaction = road.ledger_interaction
 	road._activate_contextual()
 	road.active_interaction = road.escort_interaction

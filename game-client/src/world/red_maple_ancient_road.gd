@@ -137,7 +137,14 @@ func _on_population_resolved(summary: String) -> void:
 	status.text = summary
 
 func _talk_to_merchant() -> void:
+	var first_meeting := GameState.meet_npc("洛清")
+	var personal_reflection := GameState.npc_personal_reflection("洛清")
 	status.text = "行商·洛晴：古道上的交易、护路和岔路都由修士自行选择。门派会给建议，散修也能凭资源与信誉走出自己的路。"
+
+	if not personal_reflection.is_empty():
+		status.text += "\n【你的见闻】%s" % str(personal_reflection.get("description", ""))
+	if first_meeting:
+		status.text += "\n（洛清已记入万物图鉴与游历簿；护送商队只是可错过的个人选择。）"
 
 func _buy_caravan_goods() -> void:
 	if GameState.player.gold < 18:
