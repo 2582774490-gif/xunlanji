@@ -15,6 +15,7 @@ func _run() -> void:
 	await _check_monthly_card_fairness_rules()
 	await _check_optional_world_guidance()
 	await _check_non_linear_story_weave()
+	await _check_story_stance_population()
 	await _check_personal_story_world_resonance()
 	await _check_cultivation_affinity()
 	await _check_codex_registry_ui()
@@ -305,6 +306,33 @@ func _check_non_linear_story_weave() -> void:
 	_expect((saved.player.get("story_weave", {}) as Dictionary).get("world_marks", []).size() == 3, "Personal story state must enter the local profile payload.")
 	_expect(str((saved.player.get("story_weave", {}) as Dictionary).get("stance_id", "")) == "witness", "A chosen story interpretation must persist in the local profile payload.")
 	_expect(GameState.personal_story_side_threads().size() >= 3, "The story weave must expose multiple optional exploration networks rather than one mandatory task chain.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_story_stance_population() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.story_weave = {
+		"origin_id": "mirror_keeper", "origin_locked": true,
+		"world_marks": ["water", "road", "relic"], "personal_marks": [],
+		"observed_sources": [], "stance_id": "mender", "paused": false,
+	}
+	var population := preload("res://src/world/regional_population_director.gd").new()
+	add_child(population)
+	var profiles: Array[Dictionary] = [
+		{"id": "stance_mender", "region": "test", "kind": "rogue", "name": "Mender witness", "prompt": "Talk", "chance": 1.0, "story_stance": "mender", "anchors": [Vector2(120, 120)]},
+		{"id": "stance_seeker", "region": "test", "kind": "rogue", "name": "Seeker witness", "prompt": "Talk", "chance": 1.0, "story_stance": "seeker", "anchors": [Vector2(240, 120)]},
+	]
+	population.populate(31, profiles)
+	_expect(population.active_count() == 1 and population.interaction_for_profile_id("stance_mender") != null, "A guard-the-boundary interpretation should surface its matching ecological witness and keep other stance witnesses absent.")
+	GameState.player.story_weave.stance_id = "seeker"
+	population.populate(31, profiles)
+	_expect(population.active_count() == 1 and population.interaction_for_profile_id("stance_seeker") != null, "Changing a personal interpretation should change the optional witness who can appear in the same world.")
+	GameState.player.story_weave.stance_id = ""
+	population.populate(31, profiles)
+	_expect(population.active_count() == 0, "Before selecting a story interpretation, stance-specific witnesses must not become an invisible compulsory route.")
+	population.queue_free()
+	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
