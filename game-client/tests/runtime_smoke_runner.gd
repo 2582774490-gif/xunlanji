@@ -361,6 +361,7 @@ func _check_story_stance_population() -> void:
 
 func _check_personal_story_world_resonance() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var region_before: String = GameState.current_region_id
 	GameState.player.spirit_root = "水灵根"
 	GameState.player.physique = "流泉脉"
 	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "paused": false}
@@ -388,6 +389,17 @@ func _check_personal_story_world_resonance() -> void:
 	_expect(GameState.personal_story_branch_records().any(func(record: Dictionary): return str(record.get("id", "")) == "tide_listener_border_ring"), "A cross-region personal resonance must leave an individual journal record, not only temporary dialogue.")
 	border.queue_free()
 	await get_tree().process_frame
+	var ridge := preload("res://scenes/ancient_ridge.tscn").instantiate()
+	add_child(ridge)
+	await get_tree().process_frame
+	_expect(ridge.personal_resonance != null and str(ridge.personal_resonance_profile.get("name", "")) == "蒸潮石洼", "A tide-listener must receive a third personal observation in Ancient Ridge rather than losing their route after the border.")
+	_expect(str(RegionalSectorCatalog.sector_at("ancient_ridge", ridge.personal_resonance.get_parent().position).get("id", "")) == "ashen_basins", "The tide-listener Ancient Ridge continuation must stay inside its declared ash-basin steam ecology.")
+	ridge._resolve_personal_story_resonance()
+	await get_tree().process_frame
+	_expect((GameState.personal_story_state().get("personal_marks", []) as Array).has("ridge_resonance"), "Resolving the Ancient Ridge continuation must persist a third personal-resonance marker.")
+	_expect(GameState.personal_story_branch_records().any(func(record: Dictionary): return str(record.get("id", "")) == "tide_listener_ridge_tidepool"), "Ancient Ridge personal resonance must retain a permanent player-specific journal branch.")
+	ridge.queue_free()
+	await get_tree().process_frame
 	var story_catalog = preload("res://src/data/story_weave_catalog.gd")
 	var expected_border_sectors := {
 		"tide_listener": "fog_channel", "herb_reader": "herb_wetland", "forge_watcher": "ore_flats",
@@ -398,7 +410,17 @@ func _check_personal_story_world_resonance() -> void:
 		var continuation: Dictionary = origin.get("border_resonance", {})
 		_expect(str(continuation.get("branch_id", "")).length() > 0, "Every launch origin must have an individually recorded Mist Border continuation.")
 		_expect(str(RegionalSectorCatalog.sector_at("mist_border", continuation.get("position", Vector2.ZERO)).get("id", "")) == str(expected_border_sectors[origin_id]), "Each personal continuation must stay in its declared, believable Mist Border sector.")
+	var expected_ridge_sectors := {
+		"tide_listener": "ashen_basins", "herb_reader": "ashen_basins", "forge_watcher": "earthfire_ravine",
+		"storm_walker": "windbreak_ridge", "mirror_keeper": "broken_plateau",
+	}
+	for origin_id in expected_ridge_sectors:
+		var origin: Dictionary = story_catalog.origin_by_id(str(origin_id))
+		var continuation: Dictionary = origin.get("ridge_resonance", {})
+		_expect(str(continuation.get("branch_id", "")).length() > 0, "Every launch origin must have an individually recorded Ancient Ridge continuation.")
+		_expect(str(RegionalSectorCatalog.sector_at("ancient_ridge", continuation.get("position", Vector2.ZERO)).get("id", "")) == str(expected_ridge_sectors[origin_id]), "Each Ancient Ridge continuation must stay in a credible highland, fire or relic sector.")
 	GameState.player = profile_before
+	GameState.current_region_id = region_before
 	GameState.profile_changed.emit()
 
 func _check_sect_progression() -> void:

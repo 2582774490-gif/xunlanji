@@ -6,6 +6,7 @@ const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_cat
 const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
 const RemoteAvatarLayerScript = preload("res://src/world/remote_avatar_layer.gd")
 const PersonalOpportunityDirectorScript = preload("res://src/world/personal_opportunity_director.gd")
+const WorldInteractionScript = preload("res://src/world/world_interaction.gd")
 
 const RIDGE_EVENTS := [
 	{"name": "地火余温", "item": "赤焰精金", "cultivation": 22, "description": "地火裂缝退去后，岩层露出可炼器的精金。"},
@@ -55,6 +56,8 @@ var earthfire_cave_discovered := false
 var battlefield_memorial_examined := false
 var current_sector_id := ""
 var personal_opportunities: Variant = null
+var personal_resonance: Area2D
+var personal_resonance_profile: Dictionary = {}
 
 func _ready() -> void:
 	GameState.current_region_id = "ancient_ridge"
@@ -76,6 +79,7 @@ func _ready() -> void:
 	for interaction in [return_interaction, relic_interaction, event_interaction, earthfire_cave_interaction, battlefield_memorial_interaction]:
 		interaction.focused.connect(_focus_interaction)
 		interaction.unfocused.connect(_unfocus_interaction)
+	_setup_personal_story_resonance()
 	_setup_personal_opportunities()
 	regional_population.focused.connect(_focus_interaction)
 	regional_population.unfocused.connect(_unfocus_interaction)
@@ -116,6 +120,110 @@ func _setup_personal_opportunities() -> void:
 	personal_opportunities.unfocused.connect(_unfocus_interaction)
 	personal_opportunities.resolved.connect(_on_personal_opportunity_resolved)
 	personal_opportunities.populate("ancient_ridge", PERSONAL_OPPORTUNITY_PROFILES)
+
+
+func _setup_personal_story_resonance() -> void:
+	# The third individual observation keeps the launch story from ending at a
+	# single beginner-area clue. It appears only after the same character has
+	# physically found both earlier resonances in compatible regional terrain.
+	var story_state := GameState.personal_story_state()
+	if not (story_state.get("personal_marks", []) as Array).has("border_resonance"):
+		return
+	if (story_state.get("personal_marks", []) as Array).has("ridge_resonance"):
+		return
+	var origin := GameState.personal_story_profile()
+	var resonance: Variant = origin.get("ridge_resonance", {})
+	if not resonance is Dictionary or str(resonance.get("region", "")) != "ancient_ridge":
+		return
+	personal_resonance_profile = (resonance as Dictionary).duplicate(true)
+	var position: Vector2 = personal_resonance_profile.get("position", Vector2.ZERO)
+	var expected_sector := str(personal_resonance_profile.get("sector", ""))
+	var actual_sector := RegionalSectorCatalogScript.sector_at("ancient_ridge", position)
+	if position == Vector2.ZERO or str(actual_sector.get("id", "")) != expected_sector:
+		push_warning("Ancient Ridge personal resonance had no valid sector anchor.")
+		personal_resonance_profile.clear()
+		return
+	var root := Node2D.new()
+	root.name = "PersonalStoryRidgeResonance"
+	root.position = position
+	root.y_sort_enabled = true
+	add_child(root)
+	var colors := _personal_resonance_colors(str(origin.get("id", "")))
+	var shadow := Polygon2D.new()
+	shadow.polygon = PackedVector2Array([Vector2(-78, 0), Vector2(-36, -16), Vector2(66, -4), Vector2(44, 18), Vector2(-52, 16)])
+	shadow.color = Color(0.02, 0.03, 0.05, 0.58)
+	root.add_child(shadow)
+	var outer_halo := Polygon2D.new()
+	outer_halo.polygon = PackedVector2Array([Vector2(0, -190), Vector2(84, -120), Vector2(58, -36), Vector2(0, 16), Vector2(-58, -36), Vector2(-84, -120)])
+	outer_halo.color = colors[0]
+	root.add_child(outer_halo)
+	var inner_shard := Polygon2D.new()
+	inner_shard.polygon = PackedVector2Array([Vector2(-22, -18), Vector2(-15, -134), Vector2(0, -214), Vector2(22, -134), Vector2(28, -18), Vector2(0, 8)])
+	inner_shard.color = colors[1]
+	root.add_child(inner_shard)
+	var crest := Polygon2D.new()
+	crest.polygon = PackedVector2Array([Vector2(-52, -84), Vector2(0, -138), Vector2(52, -84), Vector2(0, -60)])
+	crest.color = colors[2]
+	root.add_child(crest)
+	var name_label := Label.new()
+	name_label.position = Vector2(-176, -264)
+	name_label.size = Vector2(352, 32)
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.add_theme_color_override("font_color", colors[1])
+	name_label.add_theme_color_override("font_outline_color", Color(0.03, 0.04, 0.06))
+	name_label.add_theme_constant_override("outline_size", 6)
+	name_label.text = str(personal_resonance_profile.get("name", "古脊续响"))
+	root.add_child(name_label)
+	personal_resonance = Area2D.new()
+	personal_resonance.name = "Interaction"
+	personal_resonance.set_script(WorldInteractionScript)
+	personal_resonance.interaction_id = "ancient_ridge_personal_story_resonance"
+	personal_resonance.prompt_text = str(personal_resonance_profile.get("prompt", "静观古脊续响"))
+	root.add_child(personal_resonance)
+	var collision := CollisionShape2D.new()
+	var shape := CircleShape2D.new()
+	shape.radius = 102.0
+	collision.shape = shape
+	collision.position = Vector2(0, -92)
+	personal_resonance.add_child(collision)
+	personal_resonance.focused.connect(_focus_interaction)
+	personal_resonance.unfocused.connect(_unfocus_interaction)
+
+
+func _personal_resonance_colors(origin_id: String) -> Array[Color]:
+	match origin_id:
+		"tide_listener":
+			return [Color(0.20, 0.78, 0.96, 0.34), Color(0.70, 0.96, 1.0), Color(0.40, 0.70, 1.0, 0.86)]
+		"herb_reader":
+			return [Color(0.38, 0.92, 0.54, 0.34), Color(0.78, 1.0, 0.68), Color(0.32, 0.76, 0.44, 0.86)]
+		"forge_watcher":
+			return [Color(1.0, 0.48, 0.18, 0.32), Color(1.0, 0.84, 0.52), Color(0.92, 0.42, 0.20, 0.88)]
+		"storm_walker":
+			return [Color(0.70, 0.64, 1.0, 0.32), Color(0.90, 0.90, 1.0), Color(0.54, 0.48, 0.96, 0.88)]
+		_:
+			return [Color(0.94, 0.70, 1.0, 0.30), Color(1.0, 0.86, 1.0), Color(0.84, 0.50, 0.92, 0.88)]
+
+
+func _resolve_personal_story_resonance() -> void:
+	if personal_resonance == null or personal_resonance_profile.is_empty():
+		return
+	var trace := str(personal_resonance_profile.get("story_trace", ""))
+	var name := str(personal_resonance_profile.get("name", "古脊续响"))
+	var description := str(personal_resonance_profile.get("description", ""))
+	GameState.record_opportunity({"region": "ancient_ridge", "name": name, "kind": "personal_ridge_resonance", "story_trace": trace})
+	GameState.record_personal_story_branch(str(personal_resonance_profile.get("branch_id", "ancient_ridge_resonance")), str(personal_resonance_profile.get("branch_title", name)), description)
+	var story: Dictionary = GameState.player.story_weave
+	var marks: Array = story.get("personal_marks", [])
+	if not marks.has("ridge_resonance"):
+		marks.append("ridge_resonance")
+	story.personal_marks = marks
+	GameState.player.story_weave = story
+	GameState.profile_changed.emit()
+	status.text = "%s\n（古脊岭的续响延续你的个人命途；它保留一段见闻，不要求进入副本、加入势力或接受任务。）" % description
+	personal_resonance.set_deferred("monitoring", false)
+	personal_resonance.get_parent().visible = false
+	_close_interaction()
 
 
 func _on_personal_opportunity_resolved(summary: String) -> void:
@@ -183,6 +291,8 @@ func _activate_contextual() -> void:
 		_examine_relic()
 	elif active_interaction == event_interaction and not event_resolved:
 		_resolve_event()
+	elif active_interaction == personal_resonance:
+		_resolve_personal_story_resonance()
 	elif personal_opportunities != null and personal_opportunities.owns(active_interaction):
 		personal_opportunities.resolve(active_interaction)
 		_close_interaction()
