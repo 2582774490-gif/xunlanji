@@ -287,6 +287,39 @@ func _population_profiles() -> Array[Dictionary]:
 			"reward": "雾岭石芽", "cultivation": 4,
 			"tint": Color(0.80, 0.94, 0.84), "label_color": Color(0.84, 1.0, 0.88),
 		},
+		# Personal main-line witnesses stay bound to their believable local ecology.
+		# They are not quest dispensers: meeting one only records a lived piece of
+		# evidence for the player's current interpretation of the shared mystery.
+		{
+			"id": "mist_border_refuge_patrol", "region": "mist_border", "kind": "rogue", "name": "避潮护路修",
+			"prompt": "询问护路修关于旧关外避潮车队的去向", "chance": 0.62,
+			"anchors": [Vector2(1140, 880), Vector2(1480, 1050), Vector2(1720, 940)],
+			"story_stance": "mender", "story_trace": "road",
+			"story_note": "旧关外的避潮车队没有失踪；护路修沿着被雾潮改写的旧驿线，把迷路的凡人和药农送回了安全地带。",
+			"story_branch": "mender_border_refuge_route", "story_branch_title": "旧关避潮簿",
+			"story_branch_description": "你在旧关外留下了避潮车队的路线：守界并非封闭道路，而是让仍在路上的人能平安回家。",
+			"tint": Color(0.78, 0.87, 0.96), "label_color": Color(0.84, 0.92, 1.0),
+		},
+		{
+			"id": "mist_border_ore_surveyor", "region": "mist_border", "kind": "rogue", "name": "量纹寻矿师",
+			"prompt": "比对寻矿师拓下的倒纹与旧器碎片", "chance": 0.50,
+			"anchors": [Vector2(4520, 1300), Vector2(4860, 1540), Vector2(5140, 1180)],
+			"story_stance": "seeker", "story_trace": "relic",
+			"story_note": "矿滩的倒纹与旧器底部的坐标并不指向宝藏，而指向一条被岚潮暂时显出的旧界测线。",
+			"story_branch": "seeker_border_ore_survey", "story_branch_title": "倒纹测线图",
+			"story_branch_description": "你把矿滩倒纹与残器坐标并列记录：旧界并非传说，它曾以可测量的方式经过这里。",
+			"tint": Color(0.86, 0.80, 0.96), "label_color": Color(0.92, 0.86, 1.0),
+		},
+		{
+			"id": "mist_border_wetland_scribe", "region": "mist_border", "kind": "rogue", "name": "湿泽记潮人",
+			"prompt": "翻看记潮人记录的药性、水位与兽迹", "chance": 0.46,
+			"anchors": [Vector2(7420, 920), Vector2(7780, 1080), Vector2(8120, 1220)],
+			"story_stance": "witness", "story_trace": "water",
+			"story_note": "同一场雾潮令药草提前开花、浅泽水位倒涨，也把惧水的兽迹推向高处；变化正在同时改写生计与生灵。",
+			"story_branch": "witness_border_wetland_log", "story_branch_title": "湿泽七潮录",
+			"story_branch_description": "你补全了湿泽的一段连续记录：先看清改变了谁、如何改变，才谈得上要不要干预。",
+			"tint": Color(0.75, 0.95, 0.86), "label_color": Color(0.82, 1.0, 0.91),
+		},
 	]
 	# A sect wanted record is not a map-wide monster switch.  The patrol only
 	# takes the checkpoint and gate-road anchors that belong to its jurisdiction.

@@ -77,7 +77,9 @@ func _sector_for_profile(profile_id: String) -> String:
 	match profile_id:
 		"fog_channel_beast": return "fog_channel"
 		"mist_ore_rogue": return "ore_flats"
-		"checkpoint_watcher", "mist_sword_patrol": return "old_checkpoint"
+		"checkpoint_watcher", "mist_sword_patrol", "mist_border_refuge_patrol": return "old_checkpoint"
+		"mist_border_ore_surveyor": return "ore_flats"
+		"mist_border_wetland_scribe": return "herb_wetland"
 		"wetland_mist_herb", "wetland_herbalist": return "herb_wetland"
 		"highland_mist_stonebud": return "mist_highlands"
 		"earthfire_hound": return "earthfire_ravine"
