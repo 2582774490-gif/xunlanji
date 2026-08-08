@@ -103,7 +103,7 @@ func _subtitle() -> String:
 		GameState.Screen.SECT: "自由加入与退出 · 门规、贡献、身份与后果",
 		GameState.Screen.MARKET: "自由交易与拍卖行接口 · 当前为本地演示",
 		GameState.Screen.ALCHEMY: "丹药由材料、境界与药性共同限制；所有玩家可炼，丹修更擅长",
-		GameState.Screen.PVP: "1v1 论剑 · 后续接入房间与服务器权威同步",
+		GameState.Screen.PVP: "1v1 论剑 · 本机十人房已验证服务器权威同步",
 		GameState.Screen.CODEX: "人物、宗门、地区、副本、法宝的收藏与知识库",
 		GameState.Screen.JOURNAL: "只记录实际发生的采集、遭遇与发现，不生成任务式伪记录",
 		GameState.Screen.SETTINGS: "原型设置与联网状态说明",
@@ -513,7 +513,7 @@ func _show_pvp() -> void:
 	_text(combat.battle_log)
 	_buttons(_combat_entries(true))
 	_buttons([["进入可操作论剑场", _open_duel_arena, 220]])
-	_text("联网清单：房间匹配、同步、断线处理、服务器权威结算、战绩与反作弊。", 15, Color("a7d5ca"))
+	_text("已完成：本机十人房、双人挑战、服务端位置/距离/冷却/HP/胜负裁定。待完善：匹配、断线重连、账号鉴权、战绩排行、装备与功法快照、反作弊与生产部署。", 15, Color("a7d5ca"))
 
 func _show_journal() -> void:
 	_heading("游历簿")
@@ -776,7 +776,7 @@ func _show_settings() -> void:
 	_heading("设置与开发状态")
 	_text("引擎：Godot 4.7｜目标：微信小游戏优先｜当前：Windows 本地原型。")
 	_text("已具备：首发内容数据、完整模块入口、本地修炼/机缘/副本/交易/PVP 演示、本地存档、首批立绘。")
-	_text("后续尚需：微信导出验证、服务器、账号、真实多人同步、完整动作帧、数值平衡、音频与云端存档。")
+	_text("后续尚需：微信导出验证、账号与云端存档、生产级多人区域同步、完整动作帧、数值平衡、音频与正式交易服务。")
 	_heading("首发月卡边界（本地规则验证）")
 	_text(GameState.monthly_card_status_text(), 17, Color("f2d79c"))
 	_text("今日固定副本剩余 %d / %d 次。免费玩家每日 3 次；小月卡 ¥30/月为 4 次，大月卡 ¥98/月为 5 次。" % [GameState.fixed_dungeon_attempts_remaining(), GameState.daily_fixed_dungeon_limit()])
