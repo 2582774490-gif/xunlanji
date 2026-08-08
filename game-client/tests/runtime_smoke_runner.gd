@@ -290,11 +290,15 @@ func _check_non_linear_story_weave() -> void:
 	GameState.player.opportunity_log = []
 	var initial_origin := GameState.personal_story_profile()
 	_expect(str(initial_origin.get("id", "")) == "tide_listener", "Water-root and Flowing-Spring players should receive the tide-listener opening hint without losing access to other routes.")
+	_expect(GameState.choose_personal_story_origin("forge_watcher"), "Character creation should allow a player to explicitly choose a narrative opening independent of their root and physique.")
+	_expect(str(GameState.personal_story_profile().get("id", "")) == "forge_watcher", "An explicitly selected opening must override only the automatic opening hint.")
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
 	var story_logs_before: int = GameState.player.opportunity_log.size()
 	_expect(GameState.observe_story_source("smoke_tide_listener", {"region": "starter_village", "name": "雾溪水府潮痕", "kind": "story_observation", "story_trace": "water"}), "A terrain-bound NPC or ecological source should record a story observation the first time it is encountered.")
 	_expect(not GameState.observe_story_source("smoke_tide_listener", {"region": "starter_village", "name": "雾溪水府潮痕", "kind": "story_observation", "story_trace": "water"}) and GameState.player.opportunity_log.size() == story_logs_before + 1, "The same story source must not be farmable by repeatedly interacting with one NPC or reloading its region.")
 	var after_water := GameState.personal_story_state()
 	_expect(str(after_water.get("origin_id", "")) == "tide_listener" and (after_water.get("world_marks", []) as Array).has("water"), "The first real water-route discovery must lock a personal origin and record a world trace.")
+	_expect(not GameState.choose_personal_story_origin("storm_walker"), "A player must not be able to rewrite an opening route after real observations have created a personal history.")
 	_expect((after_water.get("personal_marks", []) as Array).has("first_response") and (after_water.get("personal_marks", []) as Array).has("origin_resonance"), "A matching first discovery should retain both personal response and resonance records.")
 	GameState.record_opportunity({"region": "starter_village", "name": "旧商道货簿", "kind": "terrain_chance_trace"})
 	_expect(str(GameState.personal_story_stage().get("id", "")) == "two_traces", "Two different world traces should advance only the narrative understanding to the second weak-mainline stage.")

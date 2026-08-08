@@ -2,6 +2,8 @@ extends Control
 
 const Catalog = preload("res://src/data/game_catalog.gd")
 const CombatStateData = preload("res://src/combat/combat_state.gd")
+const StoryWeave = preload("res://src/data/story_weave_catalog.gd")
+const OPENING_ORIGIN_IDS: Array[String] = ["tide_listener", "herb_reader", "forge_watcher", "storm_walker", "mirror_keeper"]
 
 var combat := CombatStateData.new()
 var selected_gender := "男"
@@ -9,6 +11,7 @@ var selected_face := 1
 var selected_hair := 1
 var selected_root_index := 2
 var selected_physique_index := 0
+var selected_origin_index := 0
 var content: VBoxContainer
 var notice_label: Label
 var _trade_drafts: Dictionary = {}
@@ -180,6 +183,10 @@ func _show_character_select() -> void:
 	_buttons([["切换脸型", _cycle_face, 180], ["切换发型", _cycle_hair, 180]])
 	_text("灵根：%s｜体质：%s" % [Catalog.SPIRIT_ROOTS[selected_root_index].name, Catalog.PHYSIQUES[selected_physique_index].name], 17, Color("a7d5ca"))
 	_buttons([["切换灵根", _cycle_root, 180], ["切换体质", _cycle_physique, 180]])
+	var opening_origin := StoryWeave.origin_by_id(OPENING_ORIGIN_IDS[selected_origin_index])
+	_text("命途起点：%s｜%s" % [str(opening_origin.get("name", "听潮者")), str(opening_origin.get("summary", ""))], 16, Color("f2d79c"))
+	_text("命途只决定你最先容易注意到哪类岚潮线索；不改变灵根、属性、功法、装备或可加入的宗门。", 15, Color("a7d5ca"))
+	_buttons([["切换命途起点", _cycle_opening_origin, 200]])
 	_line()
 	_text("人物资产统一为：立绘用于详情与剧情；2D 斜俯视角色用于大世界、副本与 PVP。", 16)
 	_buttons([["踏入云岚村", _confirm_character, 250]])
@@ -1003,10 +1010,16 @@ func _cycle_physique() -> void:
 	selected_physique_index = (selected_physique_index + 1) % Catalog.PHYSIQUES.size()
 	_render()
 
+func _cycle_opening_origin() -> void:
+	selected_origin_index = (selected_origin_index + 1) % OPENING_ORIGIN_IDS.size()
+	_render()
+
 func _confirm_character() -> void:
+	if not GameState.choose_personal_story_origin(OPENING_ORIGIN_IDS[selected_origin_index]):
+		return
 	GameState.update_character(selected_gender, selected_face, selected_hair)
 	GameState.update_innate(Catalog.SPIRIT_ROOTS[selected_root_index].name, Catalog.PHYSIQUES[selected_physique_index].name)
-	GameState.notify("角色创建完成，云岚村的雾潮正等待你的第一次探索。")
+	GameState.notify("角色创建完成。你的命途起点只会影响最先遇见的岚潮线索，云岚村正等待你的第一次探索。")
 	GameState.enter_screen(GameState.Screen.HOME)
 
 func _load_portrait(gender: String) -> Texture2D:

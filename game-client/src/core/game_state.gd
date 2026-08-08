@@ -749,6 +749,29 @@ func personal_story_profile() -> Dictionary:
 	return StoryWeave.origin_by_id(origin_id)
 
 
+## Character creation may explicitly choose the first lens through which a
+## player notices the shared mystery. It is narrative-only, so a water-root
+## character can still begin as a forge watcher, for example. Once actual
+## observations have happened, we preserve that history instead of rewriting
+## it from a menu.
+func choose_personal_story_origin(origin_id: String) -> bool:
+	_normalize_player_schema()
+	var origin := StoryWeave.origin_by_id(origin_id)
+	if str(origin.get("id", "")).is_empty():
+		notify("这个命途起点不存在。")
+		return false
+	var story: Dictionary = player.story_weave
+	var has_lived_history := not (story.get("observed_sources", []) as Array).is_empty() or not (story.get("world_marks", []) as Array).is_empty() or not (story.get("branch_records", []) as Array).is_empty()
+	if has_lived_history:
+		notify("角色已留下真实游历，不能从菜单改写最初的命途；可继续以新的判断探索。")
+		return false
+	story.origin_id = str(origin.get("id", ""))
+	story.origin_locked = true
+	player.story_weave = story
+	profile_changed.emit()
+	return true
+
+
 func personal_story_state() -> Dictionary:
 	_normalize_player_schema()
 	return (player.story_weave as Dictionary).duplicate(true)
