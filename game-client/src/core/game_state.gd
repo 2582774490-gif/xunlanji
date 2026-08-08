@@ -1664,6 +1664,7 @@ func upgrade_equipment(item_name: String) -> bool:
 	var states: Dictionary = player.equipment_upgrades
 	states[item_name] = {"level": int(requirement.next_level)}
 	player.equipment_upgrades = states
+	record_personal_story_thread("craft", "forge_first_refit", "初次淬器", "你以%s淬炼%s，使它获得+%d的器纹进度。炼器并非一条强制成长线，但从此也成为你理解岚潮与旧器的另一种真实经历。" % [str(requirement.material), item_name, int(requirement.next_level)])
 	notify("强化成功：%s +%d，品级进度为%s。" % [item_name, int(requirement.next_level), equipment_quality(item_name)])
 	profile_changed.emit()
 	return true

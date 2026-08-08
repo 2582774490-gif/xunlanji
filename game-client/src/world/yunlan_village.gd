@@ -3,6 +3,7 @@ extends Node2D
 @onready var merchant: Area2D = $MarketkeeperLuo/Interaction
 @onready var alchemy: Area2D = $AlchemyWorkshop/Interaction
 @onready var herbalist: Area2D = $HerbalistBaiHeng/Interaction
+@onready var forgesmith: Area2D = $ForgesmithZhuTieshan/Interaction
 @onready var sect_envoy: Area2D = $SectEnvoyNingYuan/Interaction
 @onready var mist_border: Area2D = $MistBorderPassage/Interaction
 @onready var water_palace: Area2D = $WaterPalaceEntrance/Interaction
@@ -22,6 +23,8 @@ func _ready() -> void:
 	alchemy.unfocused.connect(func(_interaction): _clear_context("alchemy"))
 	herbalist.focused.connect(func(_interaction): _set_context("herbalist", "与百草谷执事·白蘅交谈"))
 	herbalist.unfocused.connect(func(_interaction): _clear_context("herbalist"))
+	forgesmith.focused.connect(func(_interaction): _set_context("forgesmith", "与村北炼器师·祝铁山交谈"))
+	forgesmith.unfocused.connect(func(_interaction): _clear_context("forgesmith"))
 	sect_envoy.focused.connect(func(_interaction): _set_context("sect", "与宗门接引使·宁远交谈"))
 	sect_envoy.unfocused.connect(func(_interaction): _clear_context("sect"))
 	mist_border.focused.connect(func(_interaction): _set_context("mist_border", "前往雾潮边境" if GameState.is_region_unlocked("mist_border") else "雾潮边境尚待水府试炼开启"))
@@ -58,6 +61,8 @@ func _activate_contextual() -> void:
 	match active_interaction_id:
 		"herbalist":
 			_talk_to_bai_heng()
+		"forgesmith":
+			_talk_to_zhu_tieshan()
 		"merchant":
 			GameState.meet_npc("洛清")
 			GameState.enter_screen(GameState.Screen.MARKET)
@@ -104,3 +109,17 @@ func _talk_to_bai_heng() -> void:
 	if first_meeting:
 		status.text += "\n（白蘅已记入万物图鉴与游历簿；这段交谈不派发必做任务。）"
 	prompt.text = "[E / 交互] 再问白蘅"
+
+
+func _talk_to_zhu_tieshan() -> void:
+	var first_meeting := GameState.meet_npc("祝铁山")
+	var reflection := GameState.npc_personal_reflection("祝铁山")
+	var lived_contexts := GameState.record_npc_lived_contexts("祝铁山")
+	status.text = "祝铁山：器物不是只为打得更重。它经手何种矿、随谁走过何处，都会留下自己的纹路。试兵与强化都能自己决定，不必替任何人赶工。"
+	if not reflection.is_empty():
+		status.text += "\n【你的见闻】%s" % str(reflection.get("description", ""))
+	if not lived_contexts.is_empty():
+		status.text += "\n【实际游历】%s" % str(lived_contexts.back().get("description", ""))
+	if first_meeting:
+		status.text += "\n（祝铁山已记入万物图鉴与游历簿；这段交谈不派发必做任务。）"
+	prompt.text = "[E / 交互] 再问祝铁山"

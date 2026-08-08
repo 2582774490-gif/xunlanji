@@ -499,6 +499,9 @@ func _check_npc_relationship_rules() -> void:
 	GameState.record_personal_story_thread("craft", "alchemy_first_attempt", "test", "test")
 	_expect(GameState.meet_npc("白蘅"), "A player who actually used alchemy must be able to meet Bai Heng in the physical starter village.")
 	_expect(GameState.record_npc_lived_contexts("白蘅").any(func(context: Dictionary): return str(context.get("id", "")) == "first_alchemy"), "Bai Heng testimony must develop from a real alchemy attempt, not a fixed story checkpoint.")
+	GameState.record_personal_story_thread("craft", "forge_first_refit", "test", "test")
+	_expect(GameState.meet_npc("祝铁山"), "A player who actually refit equipment must be able to meet Zhu Tieshan in the physical starter village.")
+	_expect(GameState.record_npc_lived_contexts("祝铁山").any(func(context: Dictionary): return str(context.get("id", "")) == "first_refit"), "Zhu Tieshan testimony must develop from a real equipment refit, not a fixed story checkpoint.")
 	GameState.player = profile_before
 	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()
@@ -698,12 +701,14 @@ func _check_equipment_upgrade_rules() -> void:
 	GameState.player.equipped_weapon = "练气木剑"
 	GameState.player.equipped_artifact = "纳灵玉佩"
 	GameState.player.equipment_upgrades = {}
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
 	var base_combat := CombatState.new()
 	base_combat.begin("测试", "木桩")
 	base_combat.normal_attack()
 	var base_damage := 100 - base_combat.enemy_hp
 	_expect(GameState.upgrade_equipment("青篁练气剑"), "Qi Refining equipment should upgrade when its first material requirement is present.")
 	_expect(GameState.equipment_upgrade_level("青篁练气剑") == 1 and GameState.equipment_power_bonus("青篁练气剑") == 2, "Equipment upgrade did not record its first power level.")
+	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "forge_first_refit"), "A real equipment refit must become a one-time forge narrative record.")
 	GameState.equip_weapon("青篁练气剑")
 	var upgraded_combat := CombatState.new()
 	upgraded_combat.begin("测试", "木桩")
@@ -1889,12 +1894,16 @@ func _check_village_routes() -> void:
 	await get_tree().process_frame
 	_expect(village.sect_envoy != null, "Village is missing the physical sect envoy route.")
 	_expect(village.herbalist != null, "Village is missing the physical Bai Heng testimony route.")
+	_expect(village.forgesmith != null, "Village is missing the physical Zhu Tieshan testimony route.")
 	_expect(village.weapon_rack != null, "Village is missing the physical Yunlan weapon-trial rack.")
 	village._set_context("sect", "test")
 	_expect(village.active_interaction_id == "sect", "Village sect route did not use the shared contextual interaction path.")
 	village._set_context("herbalist", "test")
 	village._activate_contextual()
 	_expect(GameState.player.npc_met.has("白蘅") and village.status.text.contains("不必"), "Bai Heng must be an optional physical conversation that records a real meeting without creating a mandatory route.")
+	village._set_context("forgesmith", "test")
+	village._activate_contextual()
+	_expect(GameState.player.npc_met.has("祝铁山") and village.status.text.contains("不必"), "Zhu Tieshan must be an optional physical conversation that records a real meeting without creating a mandatory route.")
 	village._set_context("weapon_rack", "test")
 	village._activate_contextual()
 	for weapon_name in village.STARTER_TRIAL_WEAPONS:

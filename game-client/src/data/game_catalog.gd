@@ -457,6 +457,16 @@ const NPC_CARD_PROFILES := {
 	},
 	"祝铁山": {
 		"card_asset": "res://assets/art/npcs/zhu_tieshan/processed_alpha/zhu_tieshan_card_v01_alpha.png",
+		"lived_contexts": [
+			{"id": "first_refit", "when_any_thread": ["forge_first_refit"], "title": "祝铁山 · 回火印证", "description": "你亲手让一件器物经受过雾潮晶簇的淬炼。祝铁山承认那层新生的器纹不像单纯的强化，更像旧器在回应一段无人传下的火候；他仍劝你先用它走过真实的路，再急着替它定名。"},
+		],
+		"story_reflections": {
+			"tide_listener": {"title": "祝铁山 · 锤音之问", "description": "祝铁山只说铁砧在潮湿天更容易走音。你听见的尾响却像雾溪水声被锤火敲进了金属，迟迟没有散去。"},
+			"herb_reader": {"title": "祝铁山 · 炉灰之问", "description": "祝铁山嫌炉灰里混入了不该有的青色粉末。你闻到它不像矿尘，倒更像被高温逼出药性的根茎余烬。"},
+			"forge_watcher": {"title": "祝铁山 · 反纹之问", "description": "祝铁山把新器边缘的反向细纹当作杂质回缩。你看出它正沿着古法器的断纹补全，仿佛地下有一座失火多年的锻台仍在校正火候。"},
+			"storm_walker": {"title": "祝铁山 · 风箱之问", "description": "祝铁山说山风灌进风箱才让火舌偏转。你观察到风每次回旋都避开同一只旧钳，像有一截看不见的工坊廊道横在风与炉之间。"},
+			"mirror_keeper": {"title": "祝铁山 · 器影之问", "description": "祝铁山不愿谈那把映不出人影的旧锤，只说器物用久了总会沾上主人的心气。你把锤影里多出的一次落击记下，没有替它解释。"},
+		},
 		"faction": "云岚村 · 村北工坊",
 		"relationship": "初识 · 可委托强化",
 		"service": "说明首发装备强化所需的雾潮晶簇、流火矿与境界门槛；已强化的装备状态会随交易转移。",
