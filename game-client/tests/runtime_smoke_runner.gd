@@ -2707,6 +2707,24 @@ func _check_ancient_ridge() -> void:
 	_expect(RegionalSectorCatalog.sector_at("ancient_ridge", Vector2(5750, 430)).get("id", "") == "earthfire_ravine", "Ancient Ridge did not classify Earthfire Cave inside its ravine sector.")
 	_expect(ridge.ridge_event.size() > 0, "Ancient Ridge did not choose a terrain-based opportunity.")
 	_expect(ridge.personal_opportunities != null and ridge.personal_opportunities.active_count() <= 1, "Ancient Ridge is missing its character-specific sparse opportunity director.")
+	var ridge_profiles: Array[Dictionary] = ridge._population_profiles()
+	var expected_stance_profiles := {
+		"ridge_gate_relay_warden": {"stance": "mender", "sector": "ridge_gate"},
+		"ridge_fragment_cartographer": {"stance": "seeker", "sector": "broken_plateau"},
+		"ridge_ash_ledger_keeper": {"stance": "witness", "sector": "ashen_basins"},
+	}
+	for profile_id_variant in expected_stance_profiles:
+		var profile_id := str(profile_id_variant)
+		var expected: Dictionary = expected_stance_profiles[profile_id]
+		var found_profile: Dictionary = {}
+		for candidate: Dictionary in ridge_profiles:
+			if str(candidate.get("id", "")) == profile_id:
+				found_profile = candidate
+				break
+		_expect(not found_profile.is_empty(), "Ancient Ridge is missing its optional %s stance witness." % profile_id)
+		_expect(str(found_profile.get("story_stance", "")) == str(expected.get("stance", "")), "Ancient Ridge stance witness %s has the wrong personal interpretation." % profile_id)
+		for anchor_variant in found_profile.get("anchors", []):
+			_expect(anchor_variant is Vector2 and str(RegionalSectorCatalog.sector_at("ancient_ridge", anchor_variant).get("id", "")) == str(expected.get("sector", "")), "Ancient Ridge stance witness %s must remain inside its believable sector." % profile_id)
 	_expect(RegionalSectorCatalog.sector_at("ancient_ridge", Vector2(3060, 1580)).get("id", "") == "earthfire_ravine", "Ancient Ridge personal opportunity anchors must stay inside the earthfire ravine.")
 	_expect(RegionalSectorCatalog.sector_at("ancient_ridge", Vector2(8360, 1560)).get("id", "") == "ancient_battlefield", "Ancient Ridge personal opportunity anchors must stay inside the ancient battlefield.")
 	_expect(RegionalSectorCatalog.sector_at("ancient_ridge", Vector2(10380, 1520)).get("id", "") == "windbreak_ridge", "Ancient Ridge personal opportunity anchors must stay on the windbreak ridge.")
