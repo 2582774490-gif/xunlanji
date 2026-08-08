@@ -15,6 +15,7 @@ func _run() -> void:
 	await _check_monthly_card_fairness_rules()
 	await _check_optional_world_guidance()
 	await _check_non_linear_story_weave()
+	await _check_personal_story_thread_memories()
 	await _check_story_stance_population()
 	await _check_personal_story_world_resonance()
 	await _check_cultivation_affinity()
@@ -310,6 +311,20 @@ func _check_non_linear_story_weave() -> void:
 	GameState.profile_changed.emit()
 
 
+func _check_personal_story_thread_memories() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
+	_expect(GameState.record_personal_story_thread("market", "smoke_market", "首笔货单", "玩家选择通过云市交换一件材料。"), "A voluntary world activity must create a personal story-thread memory.")
+	_expect(not GameState.record_personal_story_thread("market", "smoke_market", "重复货单", "Repeated activity should not farm the same narrative record."), "The same story-thread memory must not be farmable through repeated actions.")
+	_expect(GameState.record_personal_story_thread("sect", "smoke_sect", "入门观察", "玩家选择从外门位置理解一座宗门。"), "Different voluntary world activities must coexist as separate personal thread memories.")
+	var records := GameState.personal_story_thread_records()
+	_expect(records.size() == 2 and str(records[0].get("thread", "")) == "market" and str(records[1].get("thread", "")) == "sect", "Story-thread memories must retain their source networks and order.")
+	var saved := GameState.export_local_profile()
+	_expect((saved.player.get("story_weave", {}) as Dictionary).get("thread_records", []).size() == 2, "Personal story-thread memories must persist in the local profile payload.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
 func _check_story_stance_population() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.story_weave = {
@@ -387,10 +402,12 @@ func _check_sect_progression() -> void:
 	GameState.player.sect_rank = 0
 	GameState.player.sect_contribution = 0
 	GameState.player.sect_wanted_by = []
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
 	GameState.player.cultivation_path = "云岚吐纳诀"
 	GameState.player.inventory.append("宗门测试贡品")
 	_expect(GameState.join_sect("mist_sword"), "Player should freely join an available sect.")
 	_expect(GameState.sect_rank_name() == "外门弟子", "Sect join should begin at outer disciple rank.")
+	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "sect_join_mist_sword"), "Joining a sect should preserve a voluntary faction-viewpoint memory without becoming a main-story lock.")
 	_expect(GameState.contribute_item_to_sect("宗门测试贡品"), "Sect contribution should accept a carried material.")
 	_expect(int(GameState.player.sect_contribution) >= 6 and not GameState.player.inventory.has("宗门测试贡品"), "Sect contribution did not consume the offered material and award contribution.")
 	GameState.player.realm_index = 0
@@ -401,6 +418,7 @@ func _check_sect_progression() -> void:
 	_expect(GameState.player.learned_techniques.has("三折剑经") and GameState.player.cultivation_path != "三折剑经", "Inner sect teaching must register its manual without forcing the active cultivation path.")
 	_expect(GameState.leave_sect(), "Player should be able to freely leave a sect.")
 	_expect(GameState.is_wanted_by_sect("mist_sword"), "Leaving Mist Sword at inner rank should preserve a sect wanted record.")
+	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "sect_leave_mist_sword"), "Leaving a sect should preserve the player's social-history branch instead of erasing it.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
@@ -411,14 +429,17 @@ func _check_npc_relationship_rules() -> void:
 	GameState.player.npc_relations = {}
 	GameState.player.npc_met = []
 	GameState.player.npc_trade_records = []
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
 	GameState.player.gold = 100
 	GameState.player.inventory = []
 	_expect(GameState.meet_npc("陆青禾") and GameState.npc_rapport("陆青禾") == 3, "Meeting an NPC should persist an initial non-repeatable rapport record.")
 	_expect(not GameState.meet_npc("陆青禾") and GameState.npc_rapport("陆青禾") == 3, "Repeated NPC meetings must not be farmable rapport.")
+	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "npc_met_陆青禾"), "Meeting an NPC should also leave an optional human-world story memory.")
 	GameState.change_npc_rapport("陆青禾", 17, "smoke")
 	GameState.local_market_listings = [{"id": "npc_rapport_medicine", "name": "关系测试药材", "type": "药材", "price": 100, "seller": "陆青禾"}]
 	_expect(GameState.market_purchase_price(0) == 95, "Familiar NPC rapport should give only the documented five-percent NPC-listing discount.")
 	_expect(GameState.buy_market_listing(0) and GameState.player.gold == 5 and GameState.player.inventory.has("关系测试药材"), "NPC market purchase should charge its rapport-adjusted price and deliver the item.")
+	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "market_first_purchase"), "A voluntary market purchase should become a non-repeatable trade-thread memory.")
 	var base_rate := GameState.alchemy_success_rate("ningxi")
 	GameState.change_npc_rapport("白蘅", 20, "smoke")
 	_expect(is_equal_approx(GameState.alchemy_success_rate("ningxi") - base_rate, 0.03), "Bai Heng familiarity should add only the documented small alchemy-stability bonus.")
@@ -556,6 +577,7 @@ func _check_alchemy_and_medicine_rules() -> void:
 	GameState.player.gold = 50
 	GameState.player.medicine_tolerance = {"day": "", "burden": 0}
 	GameState.player.alchemy_history = []
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
 	var medicine_listing_index := -1
 	for index in GameState.local_market_listings.size():
 		if str(GameState.local_market_listings[index].get("name", "")) == "雾溪药":
@@ -579,6 +601,7 @@ func _check_alchemy_and_medicine_rules() -> void:
 	GameState.player.cultivation_path = "百草调息篇"
 	_expect(GameState.craft_alchemy_recipe("ningxi", 0.0), "A valid recipe should craft when its controlled roll is within the success rate.")
 	_expect(GameState.player.inventory.has("凝息丹") and not GameState.player.inventory.has("雾溪灵草"), "Successful alchemy should consume materials and produce the named pill.")
+	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "alchemy_first_attempt"), "First alchemy should become an optional craft-thread memory rather than a mandatory quest step.")
 	GameState.player.cultivation_path = "云岚吐纳诀"
 	GameState.player.spirit_root = "水灵根"
 	GameState.player.physique = "岚息体"
@@ -596,6 +619,7 @@ func _check_alchemy_and_medicine_rules() -> void:
 	_expect(not GameState.use_pill("凝息丹") and GameState.player.inventory.has("凝息丹"), "High-realm players should not consume ineffective low-realm pills.")
 	GameState.player.gold = 100
 	_expect(GameState.list_item_for_market("凝息丹", 31), "Crafted pills should remain freely tradeable through the market boundary.")
+	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "market_first_consignment"), "First voluntary listing should become a market-thread memory.")
 	var condensing_art: Dictionary = GameCatalog.pill_art_profile_for_item("凝息丹")
 	_expect(not condensing_art.is_empty() and ResourceLoader.exists(str(condensing_art.card_asset)), "Condensing Breath Pill must point to its own approved alchemy art asset.")
 	var nourishing_art: Dictionary = GameCatalog.pill_art_profile_for_item("养元丹")

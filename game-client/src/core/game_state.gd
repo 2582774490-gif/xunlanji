@@ -134,7 +134,7 @@ var player := {
 	"npc_met": [],
 	"npc_trade_records": [],
 	"world_guidance": {"steps": [], "skipped": false},
-	"story_weave": {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "stance_id": "", "paused": false},
+	"story_weave": {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false},
 	"opening_lore_seen": false,
 	"field_clues": [],
 	"ecology_cooldowns": {},
@@ -293,6 +293,7 @@ func list_item_for_market(item_name: String, price: int) -> bool:
 			states.erase(item_name)
 			player.equipment_upgrades = states
 	local_market_listings.append(listing)
+	record_personal_story_thread("market", "market_first_consignment", "云市首笔寄售", "你将%s寄往云市，而不是只把它留在行囊中。它的价格、手续费与去向成为这片世界经济的一小段记录。" % item_name)
 	notify("已上架 %s，标价 %d，手续费 %d。真实玩家交易将改由服务器结算。" % [item_name, price, fee])
 	profile_changed.emit()
 	return true
@@ -313,6 +314,7 @@ func buy_market_listing(index: int) -> bool:
 		player.equipment_upgrades = states
 	local_market_listings.remove_at(index)
 	_record_npc_trade(str(listing.get("seller", "")), str(listing.get("id", "")))
+	record_personal_story_thread("market", "market_first_purchase", "云市首笔购置", "你从%s的货单中换得%s。岚潮带来的资源变化，也会通过人们愿意交换什么而留下痕迹。" % [str(listing.get("seller", "云市")), str(listing.get("name", "一件货物"))])
 	notify("成交：获得 %s，支付 %d 金钱。" % [listing.name, price])
 	profile_changed.emit()
 	return true
@@ -812,6 +814,41 @@ func personal_story_branch_records() -> Array[Dictionary]:
 	return result
 
 
+## A story thread memory records voluntary world participation (trade, a sect,
+## crafting, or people met). It is never a quest checklist: a player can create
+## none, one, or several of these records in any order.
+func record_personal_story_thread(thread_id: String, record_id: String, title: String, description: String) -> bool:
+	_normalize_player_schema()
+	var normalized_thread := thread_id.strip_edges()
+	var normalized_record := record_id.strip_edges()
+	if normalized_thread.is_empty() or normalized_record.is_empty():
+		return false
+	var story: Dictionary = player.story_weave
+	var records: Array = story.get("thread_records", [])
+	for raw_record in records:
+		if raw_record is Dictionary and str((raw_record as Dictionary).get("id", "")) == normalized_record:
+			return false
+	records.append({
+		"id": normalized_record, "thread": normalized_thread,
+		"title": title.strip_edges(), "description": description.strip_edges(),
+	})
+	while records.size() > 24:
+		records.pop_front()
+	story.thread_records = records
+	player.story_weave = story
+	profile_changed.emit()
+	return true
+
+
+func personal_story_thread_records() -> Array[Dictionary]:
+	_normalize_player_schema()
+	var result: Array[Dictionary] = []
+	for raw_record in (player.story_weave as Dictionary).get("thread_records", []):
+		if raw_record is Dictionary:
+			result.append((raw_record as Dictionary).duplicate(true))
+	return result
+
+
 func personal_story_leads() -> Array[String]:
 	if is_personal_story_paused():
 		return []
@@ -913,6 +950,7 @@ func meet_npc(npc_name: String) -> bool:
 	met.append(npc_name)
 	player.npc_met = met
 	change_npc_rapport(npc_name, 3, "初识")
+	record_personal_story_thread("companions", "npc_met_%s" % npc_name, "初识·%s" % npc_name, "你在游历中与%s交谈。这个世界的解释不只来自遗迹，也来自仍在这里生活、交易与修行的人。" % npc_name)
 	return true
 
 
@@ -1243,12 +1281,14 @@ func craft_alchemy_recipe(recipe_id: String, forced_roll := -1.0) -> bool:
 		add_item(output)
 		history.append({"recipe": recipe_id, "success": true, "rate": success_rate})
 		player.alchemy_history = history
+		record_personal_story_thread("craft", "alchemy_first_attempt", "炉火初成", "你以%s开炉炼出%s。丹修、采集与交易从此可以成为你理解岚潮的另一条自由道路。" % [str(recipe.get("name", "丹方")), output])
 		notify("炼制成功：%s 入囊。%s" % [output, medicine_burden_text()])
 		profile_changed.emit()
 		return true
 	add_item("药渣")
 	history.append({"recipe": recipe_id, "success": false, "rate": success_rate})
 	player.alchemy_history = history
+	record_personal_story_thread("craft", "alchemy_first_attempt", "炉火初试", "你以%s第一次开炉，留下的药渣提醒你：丹火与药性同样需要时间、材料和判断。" % str(recipe.get("name", "丹方")))
 	notify("炼制失手：得到药渣。丹修功法、灵根与体质会提高成丹率。")
 	profile_changed.emit()
 	return false
@@ -1548,6 +1588,7 @@ func join_sect(sect_id: String) -> bool:
 	player.sect_id = sect_id
 	player.sect_rank = 0
 	player.sect_contribution = 0
+	record_personal_story_thread("sect", "sect_join_%s" % sect_id, "入门·%s" % str(sect.name), "你从外门弟子开始观察%s的门规与利益。入门只开启一种社会位置，不会替你决定功法、立场或之后是否离开。" % str(sect.name))
 	notify("已加入%s，身份从外门弟子开始。" % str(sect.name))
 	profile_changed.emit()
 	return true
@@ -1567,6 +1608,7 @@ func leave_sect() -> bool:
 	player.sect_id = ""
 	player.sect_rank = 0
 	player.sect_contribution = 0
+	record_personal_story_thread("sect", "sect_leave_%s" % str(sect.id), "离门·%s" % str(sect.name), "你离开了%s。无论门规是否追责，这段经历仍留在游历簿中，而不会让任何主线失败。" % str(sect.name))
 	notify("已退出%s。%s" % [str(sect.name), str(sect.exit_penalty)])
 	profile_changed.emit()
 	return true
@@ -1795,7 +1837,7 @@ func _normalize_player_schema() -> void:
 
 
 func _normalize_story_weave() -> void:
-	var defaults := {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "stance_id": "", "paused": false}
+	var defaults := {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
 	if not player.has("story_weave") or not player.story_weave is Dictionary:
 		player.story_weave = defaults
 		return
@@ -1833,6 +1875,23 @@ func _normalize_story_weave() -> void:
 			known_branch_ids.append(branch_id)
 			cleaned_branches.append({"id": branch_id, "title": str(branch.get("title", "个人回响")).strip_edges(), "description": str(branch.get("description", "")).strip_edges()})
 	story.branch_records = cleaned_branches
+	var cleaned_threads: Array = []
+	var known_thread_ids: Array[String] = []
+	var raw_threads: Variant = story.get("thread_records", [])
+	if raw_threads is Array:
+		for raw_thread in raw_threads:
+			if not raw_thread is Dictionary:
+				continue
+			var thread_record: Dictionary = raw_thread
+			var record_id := str(thread_record.get("id", "")).strip_edges()
+			var thread_id := str(thread_record.get("thread", "")).strip_edges()
+			if record_id.is_empty() or thread_id.is_empty() or known_thread_ids.has(record_id):
+				continue
+			known_thread_ids.append(record_id)
+			cleaned_threads.append({"id": record_id, "thread": thread_id, "title": str(thread_record.get("title", "世界经历")).strip_edges(), "description": str(thread_record.get("description", "")).strip_edges()})
+	while cleaned_threads.size() > 24:
+		cleaned_threads.pop_front()
+	story.thread_records = cleaned_threads
 	player.story_weave = story
 
 

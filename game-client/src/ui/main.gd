@@ -699,6 +699,11 @@ func _show_journal() -> void:
 		_text("你的个人回响（保留已亲历的见闻；改变判断不会抹去它们）：", 16, Color("f2d79c"))
 		for record in branch_records:
 			_text("· %s｜%s" % [str(record.get("title", "个人回响")), str(record.get("description", ""))], 15, Color("c8d5d1"))
+	var thread_records := GameState.personal_story_thread_records()
+	if not thread_records.is_empty():
+		_text("你亲自织入的世界支线（不构成任务清单）：", 16, Color("f2d79c"))
+		for record in thread_records:
+			_text("· 【%s】%s｜%s" % [_story_thread_name(str(record.get("thread", ""))), str(record.get("title", "世界经历")), str(record.get("description", ""))], 15, Color("c8d5d1"))
 	if GameState.is_personal_story_paused():
 		_text("线索提示已暂缓；你仍会正常探索并留下游历记录。", 15, Color("82908c"))
 	else:
@@ -748,6 +753,11 @@ func _journal_kind_name(kind: String) -> String:
 		"port_rumor": "传闻", "foundation_preparation": "观想", "story_observation": "岚潮见闻", "exploration": "探索",
 	}
 	return str(labels.get(kind, "机缘"))
+
+
+func _story_thread_name(thread_id: String) -> String:
+	var labels := {"market": "行商之网", "craft": "丹火器纹", "companions": "人间回音", "sect": "山门立场"}
+	return str(labels.get(thread_id, "自由游历"))
 
 func _journal_reward_text(entry: Dictionary) -> String:
 	var rewards: Array[String] = []
