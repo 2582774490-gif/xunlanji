@@ -132,12 +132,14 @@ func _population_profiles() -> Array[Dictionary]:
 			"id": "port_merchant", "region": "return_abyss_mist_port", "kind": "merchant", "name": "泊位行商",
 			"prompt": "向泊位行商打听最近货路", "chance": 0.70,
 			"anchors": [Vector2(1280, 1040), Vector2(1430, 1120), Vector2(1550, 980)],
+			"story_trace": "road", "story_note": "泊位货单里出现了几批从未靠港、却已被登记为‘转运完成’的灵材。",
 			"tint": Color(0.86, 0.78, 0.59), "label_color": Color(1.0, 0.86, 0.58),
 		},
 		{
 			"id": "tide_chart_rogue", "region": "return_abyss_mist_port", "kind": "rogue", "name": "测潮散修",
 			"prompt": "询问测潮散修的外海流向", "chance": 0.46,
 			"anchors": [Vector2(820, 760), Vector2(940, 830)],
+			"story_trace": "water", "story_note": "测潮散修的潮尺显示，远海有一段潮汐正向内陆回卷，而不是流向海沟。",
 			"tint": Color(0.60, 0.85, 0.91), "label_color": Color(0.67, 0.94, 1.0),
 		},
 		{
@@ -145,12 +147,14 @@ func _population_profiles() -> Array[Dictionary]:
 			"prompt": "观察潇潮岚鲨的沉桩浅滩领地", "chance": 0.20,
 			"anchors": [Vector2(2380, 900), Vector2(2550, 1020), Vector2(2710, 820)],
 			"health": 132, "damage": 16, "reward": "岚鲨鳞片", "cultivation": 16,
+			"story_trace": "water", "story_note": "岚鲨鳞片的潮纹与雾溪浅岸的反向水痕互相吻合，显然并非一处孤立异象。",
 			"tint": Color(0.55, 0.88, 0.86), "label_color": Color(0.65, 1.0, 0.91),
 		},
 		{
 			"id": "shipyard_rogue", "region": "return_abyss_mist_port", "kind": "rogue", "name": "修舟散修",
 			"prompt": "询问修舟散修的外海传闻", "chance": 0.38,
 			"anchors": [Vector2(3540, 900), Vector2(3710, 1020)],
+			"story_trace": "road", "story_note": "修舟散修说，有几艘失踪旧船的航向不是指向外海，而是指向雾潮深处的陆路坐标。",
 			"tint": Color(0.82, 0.70, 0.55), "label_color": Color(0.98, 0.82, 0.60),
 		},
 		{
@@ -158,6 +162,7 @@ func _population_profiles() -> Array[Dictionary]:
 			"prompt": "观察潮穴鳞獭的洞口领地", "chance": 0.52,
 			"anchors": [Vector2(4750, 980), Vector2(4920, 1100), Vector2(5100, 920)],
 			"health": 116, "damage": 14, "reward": "潮穴鳞皮", "cultivation": 14,
+			"story_trace": "water", "story_note": "潮穴附近的盐雾夹着极淡的山岚气息，像两片本不相连的水域在此交汇。",
 			"tint": Color(0.60, 0.82, 0.90), "label_color": Color(0.70, 0.91, 1.0),
 		},
 	]

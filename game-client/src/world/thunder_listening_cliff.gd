@@ -114,12 +114,14 @@ func _population_profiles() -> Array[Dictionary]:
 			"prompt": "观察引雷岩貂的雷晶巢", "chance": 0.64,
 			"anchors": [Vector2(2100, 690), Vector2(2250, 760), Vector2(2400, 650)],
 			"health": 94, "damage": 11, "reward": "引雷貂尾", "cultivation": 10,
+			"story_trace": "relic", "story_note": "岩貂巢穴旁的雷纹没有消散，像是一座被风雷重新唤醒的旧阵角。",
 			"tint": Color(0.72, 0.75, 1.0), "label_color": Color(0.78, 0.84, 1.0),
 		},
 		{
 			"id": "storm_talisman_rogue", "region": "thunder_listening_cliff", "kind": "rogue", "name": "候雷符修",
 			"prompt": "询问候雷符修的雷暴判断", "chance": 0.42,
 			"anchors": [Vector2(1280, 840), Vector2(1410, 770)],
+			"story_trace": "relic", "story_note": "候雷符修说，近来的雷声总在落雷前先从崖底回响，像有人从另一侧回应符讯。",
 			"tint": Color(0.75, 0.72, 0.96), "label_color": Color(0.83, 0.78, 1.0),
 		},
 	]

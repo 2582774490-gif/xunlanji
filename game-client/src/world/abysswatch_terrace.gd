@@ -90,8 +90,8 @@ func _population_seed() -> int: return int(Time.get_unix_time_from_system() / 18
 
 func _population_profiles() -> Array[Dictionary]:
 	return [
-		{"id":"terrace_wind_eagle","region":"abysswatch_terrace","kind":"beast","name":"裂风岩隼","prompt":"观察裂风岩隼的崖缘领地","chance":0.58,"anchors":[Vector2(2430,720),Vector2(2630,820)],"health":124,"damage":15,"reward":"裂风翎羽","cultivation":15,"tint":Color(0.72,0.78,0.92),"label_color":Color(0.78,0.86,1.0)},
-		{"id":"terrace_observer","region":"abysswatch_terrace","kind":"rogue","name":"守台散修","prompt":"询问守台散修的护脉经验","chance":0.40,"anchors":[Vector2(1280,820),Vector2(1430,750)],"tint":Color(0.88,0.76,0.58),"label_color":Color(1.0,0.86,0.64)},
+		{"id":"terrace_wind_eagle","region":"abysswatch_terrace","kind":"beast","name":"裂风岩隼","prompt":"观察裂风岩隼的崖缘领地","chance":0.58,"anchors":[Vector2(2430,720),Vector2(2630,820)],"health":124,"damage":15,"reward":"裂风翎羽","cultivation":15,"story_trace":"relic","story_note":"岩隼盘旋的轨迹绕开整片断崖，唯独对一座无名石台反复俯冲。","tint":Color(0.72,0.78,0.92),"label_color":Color(0.78,0.86,1.0)},
+		{"id":"terrace_observer","region":"abysswatch_terrace","kind":"rogue","name":"守台散修","prompt":"询问守台散修的护脉经验","chance":0.40,"anchors":[Vector2(1280,820),Vector2(1430,750)],"story_trace":"relic","story_note":"守台散修的观想记录里，岚息会在夜半把古旧地名映到云层上。","tint":Color(0.88,0.76,0.58),"label_color":Color(1.0,0.86,0.64)},
 	]
 
 func _on_population_resolved(summary: String) -> void: status.text = summary

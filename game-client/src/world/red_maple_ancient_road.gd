@@ -112,6 +112,7 @@ func _population_profiles() -> Array[Dictionary]:
 			"id": "caravan_scout", "region": "red_maple_ancient_road", "kind": "merchant", "name": "商队斥候",
 			"prompt": "询问商队斥候的前路", "chance": 0.70,
 			"anchors": [Vector2(1740, 790), Vector2(1840, 880), Vector2(1950, 740)],
+			"story_trace": "road", "story_note": "商队斥候标出的安全岔路每逢雾潮都会偏移半里，像有一条看不见的旧道正在重叠。",
 			"tint": Color(1.0, 0.78, 0.56), "label_color": Color(1.0, 0.82, 0.58),
 		},
 		{
@@ -119,6 +120,7 @@ func _population_profiles() -> Array[Dictionary]:
 			"prompt": "查看断桥伏击留下的痕迹", "chance": 0.58,
 			"anchors": [Vector2(2810, 1380), Vector2(3000, 1460), Vector2(3150, 1360)],
 			"health": 74, "damage": 9, "reward": "盗修符囊", "cultivation": 7,
+			"story_trace": "road", "story_note": "盗修符囊里夹着一张过时的通关符，盖印来自早已废弃的边境关署。",
 			"tint": Color(0.79, 0.55, 0.64), "label_color": Color(1.0, 0.65, 0.69),
 		},
 		{
@@ -126,6 +128,7 @@ func _population_profiles() -> Array[Dictionary]:
 			"prompt": "观察火鬃岩獾的领地", "chance": 0.62,
 			"anchors": [Vector2(4500, 2730), Vector2(4680, 2840), Vector2(4800, 2640)],
 			"health": 82, "damage": 10, "reward": "火鬃硬毛", "cultivation": 8,
+			"story_trace": "relic", "story_note": "旧窑裂缝渗出的地火纹路与古脊岭断碑上的阵线方向一致。",
 			"tint": Color(1.0, 0.54, 0.30), "label_color": Color(1.0, 0.68, 0.38),
 		},
 	]
