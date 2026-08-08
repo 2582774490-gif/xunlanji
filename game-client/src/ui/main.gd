@@ -545,7 +545,9 @@ func _show_journal() -> void:
 		var label := _journal_kind_name(str(entry.get("kind", "exploration")))
 		var title := str(entry.get("name", entry.get("title", "未命名发现")))
 		var timestamp := str(entry.get("recorded_at", "早期存档"))
-		_text("【%s】%s · %s\n%s%s" % [label, title, place, _journal_reward_text(entry), "\n记录：%s" % timestamp], 17, Color("f2d79c"))
+		var description := str(entry.get("description", ""))
+		var observation_text := "\n见闻：%s" % description if not description.is_empty() else ""
+		_text("【%s】%s · %s\n%s%s%s" % [label, title, place, _journal_reward_text(entry), observation_text, "\n记录：%s" % timestamp], 17, Color("f2d79c"))
 		_line()
 
 
@@ -565,7 +567,7 @@ func _journal_kind_name(kind: String) -> String:
 	var labels := {
 		"resource": "采集", "hostile_defeated": "遭遇", "starter_weapon_trial": "试兵",
 		"fixed_dungeon_entrance": "入口", "fixed_relic": "遗迹", "high_realm_lore": "见闻",
-		"port_rumor": "传闻", "foundation_preparation": "观想", "exploration": "探索",
+		"port_rumor": "传闻", "foundation_preparation": "观想", "story_observation": "岚潮见闻", "exploration": "探索",
 	}
 	return str(labels.get(kind, "机缘"))
 
