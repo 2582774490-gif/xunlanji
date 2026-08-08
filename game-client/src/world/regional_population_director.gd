@@ -170,10 +170,15 @@ func _observe_profile_story(profile: Dictionary) -> String:
 	var stance_note := str(profile.get("story_stance_note", ""))
 	if not stance_note.is_empty():
 		note += " " + stance_note
-	if not GameState.observe_story_source(source_id, {
+	var observed := GameState.observe_story_source(source_id, {
 		"region": str(profile.get("region", "")), "name": name,
 		"kind": "story_observation", "story_trace": trace, "description": note,
-	}):
+	})
+	var branch_id := str(profile.get("story_branch", ""))
+	var branch_recorded := false
+	if not branch_id.is_empty():
+		branch_recorded = GameState.record_personal_story_branch(branch_id, str(profile.get("story_branch_title", name)), str(profile.get("story_branch_description", note)))
+	if not observed and not branch_recorded:
 		return ""
 	return " 你将这段见闻记为%s。" % note
 

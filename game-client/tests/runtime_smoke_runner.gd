@@ -320,11 +320,13 @@ func _check_story_stance_population() -> void:
 	var population := preload("res://src/world/regional_population_director.gd").new()
 	add_child(population)
 	var profiles: Array[Dictionary] = [
-		{"id": "stance_mender", "region": "test", "kind": "rogue", "name": "Mender witness", "prompt": "Talk", "chance": 1.0, "story_stance": "mender", "anchors": [Vector2(120, 120)]},
+		{"id": "stance_mender", "region": "test", "kind": "rogue", "name": "Mender witness", "prompt": "Talk", "chance": 1.0, "story_stance": "mender", "story_trace": "road", "story_note": "A patrol map records the displaced households.", "story_branch": "smoke_mender_memory", "story_branch_title": "Mender memory", "story_branch_description": "The player recorded a real optional stance encounter.", "anchors": [Vector2(120, 120)]},
 		{"id": "stance_seeker", "region": "test", "kind": "rogue", "name": "Seeker witness", "prompt": "Talk", "chance": 1.0, "story_stance": "seeker", "anchors": [Vector2(240, 120)]},
 	]
 	population.populate(31, profiles)
 	_expect(population.active_count() == 1 and population.interaction_for_profile_id("stance_mender") != null, "A guard-the-boundary interpretation should surface its matching ecological witness and keep other stance witnesses absent.")
+	population.resolve(population.interaction_for_profile_id("stance_mender"))
+	_expect(GameState.personal_story_branch_records().size() == 1 and str(GameState.personal_story_branch_records()[0].get("id", "")) == "smoke_mender_memory", "Resolving an optional stance witness must preserve a unique personal branch record instead of only showing temporary dialogue.")
 	GameState.player.story_weave.stance_id = "seeker"
 	population.populate(31, profiles)
 	_expect(population.active_count() == 1 and population.interaction_for_profile_id("stance_seeker") != null, "Changing a personal interpretation should change the optional witness who can appear in the same world.")

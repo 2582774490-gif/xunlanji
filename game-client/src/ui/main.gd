@@ -534,6 +534,11 @@ func _show_journal() -> void:
 		else:
 			_text("你当前的判断：%s｜%s" % [str(stance.get("name", "观变")), str(stance.get("summary", ""))], 16, Color("f2d79c"))
 			_buttons([["改为守界", func(): _choose_personal_story_stance("mender"), 150], ["改为溯源", func(): _choose_personal_story_stance("seeker"), 150], ["改为观变", func(): _choose_personal_story_stance("witness"), 150]])
+	var branch_records := GameState.personal_story_branch_records()
+	if not branch_records.is_empty():
+		_text("你的个人回响（保留已亲历的见闻；改变判断不会抹去它们）：", 16, Color("f2d79c"))
+		for record in branch_records:
+			_text("· %s｜%s" % [str(record.get("title", "个人回响")), str(record.get("description", ""))], 15, Color("c8d5d1"))
 	if GameState.is_personal_story_paused():
 		_text("线索提示已暂缓；你仍会正常探索并留下游历记录。", 15, Color("82908c"))
 	else:

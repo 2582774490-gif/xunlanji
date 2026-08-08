@@ -491,6 +491,7 @@ func _population_profiles() -> Array[Dictionary]:
 			"anchors": [Vector2(8420, 1830), Vector2(10180, 1740)],
 			"story_trace": "road", "story_note": "巡修用朱笔标出货车最常失踪的岔路，却把附近两户猎户的搬迁路线先写在最上面。",
 			"story_stance_note": "他不劝你替谁办事，只说旧界若真显形，先要有人记得这里住着谁。",
+			"story_branch": "mender_oldroad_patrol", "story_branch_title": "旧道护脉簿", "story_branch_description": "你从护脉巡修的朱笔图上看见，岚潮并不只是遗迹传闻，它已开始挤压普通人的去路。",
 			"tint": Color(0.72, 0.86, 0.90), "label_color": Color(0.78, 0.94, 0.98),
 		},
 		{
@@ -499,6 +500,7 @@ func _population_profiles() -> Array[Dictionary]:
 			"anchors": [Vector2(2460, 3510), Vector2(3300, 3700)],
 			"story_trace": "relic", "story_note": "寻碑客把石芽纹路拓在旧绢上，发现它指向的并非宝藏，而是一处被从地图上刮去的界门坐标。",
 			"story_stance_note": "他愿意拿出拓片供你抄录，但不催你进入任何遗迹。",
+			"story_branch": "seeker_reverse_rune", "story_branch_title": "反纹拓片", "story_branch_description": "你留下了旧界坐标的第一份拓片。它没有替你决定该不该前往，只证明这里曾有一扇门。",
 			"tint": Color(0.84, 0.78, 0.94), "label_color": Color(0.94, 0.86, 1.0),
 		},
 		{
@@ -507,6 +509,7 @@ func _population_profiles() -> Array[Dictionary]:
 			"anchors": [Vector2(5650, 2140), Vector2(6340, 1900)],
 			"story_trace": "water", "story_note": "雾露簿不记机缘，只记露痕、草叶、妖兽足印与附近药材的价格；连续七日的变化都在同一页上。",
 			"story_stance_note": "记事人说，先把变化记清，才知道是谁在借岚潮说谎。",
+			"story_branch": "witness_mist_dew_ledger", "story_branch_title": "七日雾露簿", "story_branch_description": "你将七日变化抄入游历簿：岚潮改变的不只是一处地形，也改变了人们如何给风险定价。",
 			"tint": Color(0.72, 0.92, 0.78), "label_color": Color(0.82, 1.0, 0.86),
 		},
 		{

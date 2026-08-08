@@ -134,7 +134,7 @@ var player := {
 	"npc_met": [],
 	"npc_trade_records": [],
 	"world_guidance": {"steps": [], "skipped": false},
-	"story_weave": {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "stance_id": "", "paused": false},
+	"story_weave": {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "stance_id": "", "paused": false},
 	"opening_lore_seen": false,
 	"field_clues": [],
 	"ecology_cooldowns": {},
@@ -781,6 +781,35 @@ func choose_personal_story_stance(stance_id: String) -> bool:
 	notify("你将岚潮暂记为“%s”之象；此判断可在游历簿中随时改写，不影响修行与玩法。" % str(stance.get("name", "观变")))
 	profile_changed.emit()
 	return true
+
+
+## A branch record is a permanent memory of a real optional encounter. It is
+## separate from the current stance, so changing one’s mind cannot erase
+## evidence already discovered in the world.
+func record_personal_story_branch(branch_id: String, title: String, description: String) -> bool:
+	_normalize_player_schema()
+	var normalized_id := branch_id.strip_edges()
+	if normalized_id.is_empty():
+		return false
+	var story: Dictionary = player.story_weave
+	var records: Array = story.get("branch_records", [])
+	for raw_record in records:
+		if raw_record is Dictionary and str((raw_record as Dictionary).get("id", "")) == normalized_id:
+			return false
+	records.append({"id": normalized_id, "title": title.strip_edges(), "description": description.strip_edges()})
+	story.branch_records = records
+	player.story_weave = story
+	profile_changed.emit()
+	return true
+
+
+func personal_story_branch_records() -> Array[Dictionary]:
+	_normalize_player_schema()
+	var result: Array[Dictionary] = []
+	for raw_record in (player.story_weave as Dictionary).get("branch_records", []):
+		if raw_record is Dictionary:
+			result.append((raw_record as Dictionary).duplicate(true))
+	return result
 
 
 func personal_story_leads() -> Array[String]:
@@ -1766,7 +1795,7 @@ func _normalize_player_schema() -> void:
 
 
 func _normalize_story_weave() -> void:
-	var defaults := {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "stance_id": "", "paused": false}
+	var defaults := {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "stance_id": "", "paused": false}
 	if not player.has("story_weave") or not player.story_weave is Dictionary:
 		player.story_weave = defaults
 		return
@@ -1790,6 +1819,20 @@ func _normalize_story_weave() -> void:
 				if not mark.is_empty() and not marks.has(mark):
 					marks.append(mark)
 		story[key] = marks
+	var cleaned_branches: Array = []
+	var known_branch_ids: Array[String] = []
+	var raw_branches: Variant = story.get("branch_records", [])
+	if raw_branches is Array:
+		for raw_branch in raw_branches:
+			if not raw_branch is Dictionary:
+				continue
+			var branch: Dictionary = raw_branch
+			var branch_id := str(branch.get("id", "")).strip_edges()
+			if branch_id.is_empty() or known_branch_ids.has(branch_id):
+				continue
+			known_branch_ids.append(branch_id)
+			cleaned_branches.append({"id": branch_id, "title": str(branch.get("title", "个人回响")).strip_edges(), "description": str(branch.get("description", "")).strip_edges()})
+	story.branch_records = cleaned_branches
 	player.story_weave = story
 
 
