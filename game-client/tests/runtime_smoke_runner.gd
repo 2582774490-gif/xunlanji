@@ -297,10 +297,13 @@ func _check_non_linear_story_weave() -> void:
 	_expect(str(GameState.personal_story_stage().get("id", "")) == "two_traces", "Two different world traces should advance only the narrative understanding to the second weak-mainline stage.")
 	GameState.record_opportunity({"region": "ancient_ridge", "name": "古碑遗址残阵", "kind": "fixed_relic"})
 	_expect(str(GameState.personal_story_stage().get("id", "")) == "old_boundary", "Three different world traces should reveal the old-boundary story stage without granting progression rewards.")
+	_expect(GameState.choose_personal_story_stance("witness"), "After three independent traces, a player must be able to choose an interpretation instead of receiving a compulsory main-story answer.")
+	_expect(str(GameState.personal_story_stance().get("id", "")) == "witness" and GameState.personal_story_leads().size() >= 4, "The chosen interpretation should add optional leads without replacing the player’s origin route.")
 	var before_toggle := GameState.is_personal_story_paused()
 	_expect(GameState.toggle_personal_story_pause() != before_toggle and GameState.player.realm_index == int(profile_before.realm_index), "Pausing story hints must not alter realm progress or lock exploration.")
 	var saved := GameState.export_local_profile()
 	_expect((saved.player.get("story_weave", {}) as Dictionary).get("world_marks", []).size() == 3, "Personal story state must enter the local profile payload.")
+	_expect(str((saved.player.get("story_weave", {}) as Dictionary).get("stance_id", "")) == "witness", "A chosen story interpretation must persist in the local profile payload.")
 	_expect(GameState.personal_story_side_threads().size() >= 3, "The story weave must expose multiple optional exploration networks rather than one mandatory task chain.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()

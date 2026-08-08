@@ -134,7 +134,7 @@ var player := {
 	"npc_met": [],
 	"npc_trade_records": [],
 	"world_guidance": {"steps": [], "skipped": false},
-	"story_weave": {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "paused": false},
+	"story_weave": {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "stance_id": "", "paused": false},
 	"opening_lore_seen": false,
 	"field_clues": [],
 	"ecology_cooldowns": {},
@@ -756,12 +756,42 @@ func personal_story_stage() -> Dictionary:
 	return StoryWeave.stage_for_mark_count((story.get("world_marks", []) as Array).size())
 
 
+func personal_story_stance() -> Dictionary:
+	_normalize_player_schema()
+	return StoryWeave.stance_by_id(str((player.story_weave as Dictionary).get("stance_id", "")))
+
+
+## Choose only how this character reads the shared mystery. It neither grants
+## power nor locks a faction, and remains revisable after new discoveries.
+func choose_personal_story_stance(stance_id: String) -> bool:
+	_normalize_player_schema()
+	if str(personal_story_stage().get("id", "")) != "old_boundary":
+		notify("至少亲见水路、商路与古遗三类痕迹后，才足以对旧界作出判断。")
+		return false
+	var stance := StoryWeave.stance_by_id(stance_id)
+	if str(stance.get("id", "")).is_empty():
+		return false
+	var story: Dictionary = player.story_weave
+	story.stance_id = str(stance.get("id", ""))
+	var personal_marks: Array = story.get("personal_marks", [])
+	if not personal_marks.has("old_boundary_interpretation"):
+		personal_marks.append("old_boundary_interpretation")
+	story.personal_marks = personal_marks
+	player.story_weave = story
+	notify("你将岚潮暂记为“%s”之象；此判断可在游历簿中随时改写，不影响修行与玩法。" % str(stance.get("name", "观变")))
+	profile_changed.emit()
+	return true
+
+
 func personal_story_leads() -> Array[String]:
 	if is_personal_story_paused():
 		return []
 	var profile := personal_story_profile()
 	var leads: Array[String] = []
 	for lead in profile.get("leads", []):
+		leads.append(str(lead))
+	var stance := personal_story_stance()
+	for lead in stance.get("leads", []):
 		leads.append(str(lead))
 	return leads
 
@@ -1736,7 +1766,7 @@ func _normalize_player_schema() -> void:
 
 
 func _normalize_story_weave() -> void:
-	var defaults := {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "paused": false}
+	var defaults := {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "stance_id": "", "paused": false}
 	if not player.has("story_weave") or not player.story_weave is Dictionary:
 		player.story_weave = defaults
 		return
@@ -1748,6 +1778,9 @@ func _normalize_story_weave() -> void:
 	if not story.origin_id.is_empty() and not valid_origins.has(story.origin_id):
 		story.origin_id = ""
 		story.origin_locked = false
+	story.stance_id = str(story.get("stance_id", ""))
+	if not story.stance_id.is_empty() and not StoryWeave.STANCES.has(story.stance_id):
+		story.stance_id = ""
 	for key in ["world_marks", "personal_marks", "observed_sources"]:
 		var raw_marks: Variant = story.get(key, [])
 		var marks: Array[String] = []

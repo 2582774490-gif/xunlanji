@@ -67,6 +67,25 @@ const ORIGINS := {
 }
 
 
+## A player may interpret the shared mystery differently after seeing enough
+## evidence. This is narrative posture only: not a class, faction lock, build,
+## reward track, or mandatory task branch.
+const STANCES := {
+	"mender": {
+		"name": "守界", "summary": "你认为岚潮正在侵蚀旧界，应先保护人间聚落与地脉。",
+		"leads": ["留意边关巡修、护脉散修与受雾潮影响的村落。", "可向宗门询问封阵、护脉与撤离传闻；不要求加入任何宗门。"],
+	},
+	"seeker": {
+		"name": "溯源", "summary": "你认为岚潮是一次罕见的开门，应先寻找旧界与异象的源头。",
+		"leads": ["留意失踪商路、潮港航图与遗迹中的旧界坐标。", "可与行商、阵师、散修交换线索；不要求完成任何副本。"],
+	},
+	"witness": {
+		"name": "观变", "summary": "你暂不替任何势力下结论，先记录岚潮如何改变资源、妖兽与人心。",
+		"leads": ["留意灵植、妖兽领地和各地物价在雾潮后的变化。", "可通过采集、交易、游历簿与 NPC 关系自行比对；不要求站队。"],
+	},
+}
+
+
 static func origin_for(player: Dictionary) -> Dictionary:
 	var root := str(player.get("spirit_root", ""))
 	var physique := str(player.get("physique", ""))
@@ -85,6 +104,13 @@ static func origin_by_id(origin_id: String) -> Dictionary:
 	var origin: Dictionary = ORIGINS.get(origin_id, ORIGINS.mirror_keeper)
 	var result := origin.duplicate(true)
 	result["id"] = origin_id if ORIGINS.has(origin_id) else "mirror_keeper"
+	return result
+
+
+static func stance_by_id(stance_id: String) -> Dictionary:
+	var stance: Dictionary = STANCES.get(stance_id, {})
+	var result := stance.duplicate(true)
+	result["id"] = stance_id if STANCES.has(stance_id) else ""
 	return result
 
 

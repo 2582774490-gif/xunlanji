@@ -526,6 +526,14 @@ func _show_journal() -> void:
 	_text("你的命途起点：%s｜%s" % [str(story_profile.get("label", "尚待真实发现")), str(story_profile.get("summary", ""))], 16, Color("a7d5ca"))
 	var marks: Array = GameState.personal_story_mark_labels()
 	_text("已由真实游历印证的世界痕迹：%s。它们只更新叙事认知，不提供数值奖励或强制目标。" % ("、".join(marks) if not marks.is_empty() else "尚未形成"), 15, Color("a7d5ca"))
+	if str(story_stage.get("id", "")) == "old_boundary":
+		var stance := GameState.personal_story_stance()
+		if stance.is_empty():
+			_text("旧界回声已足以让你作出暂时判断。选择只改变线索角度，不锁宗门、不送数值、不影响任何玩法，也可稍后改写。", 15, Color("f2d79c"))
+			_buttons([["守界：先护地脉与人间", func(): _choose_personal_story_stance("mender"), 240], ["溯源：先追旧界来处", func(): _choose_personal_story_stance("seeker"), 240], ["观变：先记录世界变化", func(): _choose_personal_story_stance("witness"), 240]])
+		else:
+			_text("你当前的判断：%s｜%s" % [str(stance.get("name", "观变")), str(stance.get("summary", ""))], 16, Color("f2d79c"))
+			_buttons([["改为守界", func(): _choose_personal_story_stance("mender"), 150], ["改为溯源", func(): _choose_personal_story_stance("seeker"), 150], ["改为观变", func(): _choose_personal_story_stance("witness"), 150]])
 	if GameState.is_personal_story_paused():
 		_text("线索提示已暂缓；你仍会正常探索并留下游历记录。", 15, Color("82908c"))
 	else:
@@ -553,6 +561,11 @@ func _show_journal() -> void:
 
 func _toggle_personal_story_pause() -> void:
 	GameState.toggle_personal_story_pause()
+	_render()
+
+
+func _choose_personal_story_stance(stance_id: String) -> void:
+	GameState.choose_personal_story_stance(stance_id)
 	_render()
 
 func _journal_region_name(region_id: String) -> String:
