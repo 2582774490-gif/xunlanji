@@ -34,6 +34,9 @@ radius = 92.0
 [sub_resource type="CircleShape2D" id="ChanceTraceShape"]
 radius = 84.0
 
+[sub_resource type="RectangleShape2D" id="WaystationFootprintShape"]
+size = Vector2(480, 150)
+
 [node name="YunlanOutskirts" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_scene")
@@ -130,8 +133,14 @@ interaction_id = "old_caravan_waystation"
 prompt_text = "查看歇脚站的寄售木牌"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="OldCaravanWaystation/Interaction"]
-position = Vector2(0, -112)
-shape = SubResource("ChanceTraceShape")
+position = Vector2(0, -38)
+shape = SubResource("WaystationFootprintShape")
+
+[node name="Footprint" type="StaticBody2D" parent="OldCaravanWaystation"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OldCaravanWaystation/Footprint"]
+position = Vector2(0, -78)
+shape = SubResource("WaystationFootprintShape")
 
 [node name="LanEchoHillsChunk" type="Node2D" parent="."]
 position = Vector2(4352, 3840)
