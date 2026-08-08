@@ -42,6 +42,20 @@ function sendDuelState(roomId, duelId) {
   }
 }
 
+function sendTradeState(roomId, tradeId) {
+  for (const peer of peers.values()) {
+    if (peer.roomId !== roomId) continue;
+    const state = rooms.tradeStateFor(roomId, peer.id, tradeId);
+    if (state.ok) send(peer, { type: "trade_state", trade: state.trade });
+  }
+}
+
+function sendTradeLedger(roomId, peerId) {
+  const peer = peers.get(peerId);
+  const result = rooms.tradeLedgerFor(roomId, peerId);
+  if (peer && result.ok) send(peer, { type: "trade_ledger", ledger: result.ledger });
+}
+
 function closePeer(peer) {
   if (!peers.delete(peer.id)) return;
   const roomId = peer.roomId;
@@ -122,6 +136,64 @@ function handleMessage(peer, message) {
     if (player) broadcast(peer.roomId, { type: "position", player }, peer.id);
     return;
   }
+	if (message.type === "trade_seed" && peer.roomId) {
+		const result = rooms.seedTradeLedger(peer.roomId, peer.id, message);
+		if (!result.ok) {
+			send(peer, { type: "error", code: result.code });
+			return;
+		}
+		send(peer, { type: "trade_ledger", ledger: result.ledger });
+		return;
+	}
+	if (message.type === "trade_request" && peer.roomId) {
+		const result = rooms.requestTrade(peer.roomId, peer.id, String(message.targetId ?? ""));
+		if (!result.ok) {
+			send(peer, { type: "error", code: result.code });
+			return;
+		}
+		sendTradeState(peer.roomId, result.trade.id);
+		return;
+	}
+	if (message.type === "trade_response" && peer.roomId) {
+		const result = rooms.respondToTrade(peer.roomId, peer.id, String(message.tradeId ?? ""), message.accept === true);
+		if (!result.ok) {
+			send(peer, { type: "error", code: result.code });
+			return;
+		}
+		sendTradeState(peer.roomId, result.trade.id);
+		return;
+	}
+	if (message.type === "trade_offer" && peer.roomId) {
+		const result = rooms.setTradeOffer(peer.roomId, peer.id, String(message.tradeId ?? ""), message);
+		if (!result.ok) {
+			send(peer, { type: "error", code: result.code });
+			return;
+		}
+		sendTradeState(peer.roomId, result.trade.id);
+		return;
+	}
+	if (message.type === "trade_lock" && peer.roomId) {
+		const result = rooms.lockTradeOffer(peer.roomId, peer.id, String(message.tradeId ?? ""));
+		if (!result.ok) {
+			send(peer, { type: "error", code: result.code });
+			return;
+		}
+		sendTradeState(peer.roomId, result.trade.id);
+		if (result.settled) {
+			sendTradeLedger(peer.roomId, result.trade.requesterId);
+			sendTradeLedger(peer.roomId, result.trade.targetId);
+		}
+		return;
+	}
+	if (message.type === "trade_cancel" && peer.roomId) {
+		const result = rooms.cancelTrade(peer.roomId, peer.id, String(message.tradeId ?? ""));
+		if (!result.ok) {
+			send(peer, { type: "error", code: result.code });
+			return;
+		}
+		sendTradeState(peer.roomId, result.trade.id);
+		return;
+	}
   if (message.type === "duel_challenge" && peer.roomId) {
     const result = rooms.challengeDuel(peer.roomId, peer.id, String(message.targetId ?? ""));
     if (!result.ok) {

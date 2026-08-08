@@ -133,7 +133,7 @@ async function startRoomServer(port) {
   return server;
 }
 
-test("websocket room relays presence, position and a two-player duel", { concurrency: false }, async (t) => {
+test("websocket room relays presence, duel state and private two-player exchange", { concurrency: false }, async (t) => {
   const port = 18080 + Math.floor(Math.random() * 800);
   const server = await startRoomServer(port);
   const first = new LocalWebSocketClient(port);
@@ -175,4 +175,20 @@ test("websocket room relays presence, position and a two-player duel", { concurr
   first.send({ type: "duel_action", duelId: active.duels[0].id, action: "basic" });
   const hit = await second.waitFor("duel_state", (message) => message.duel.id === active.duels[0].id && message.duel.fighters[playerB.id].hp === 91);
   assert.equal(hit.duel.fighters[welcomeA.peerId].hp, 100);
+
+  first.send({ type: "trade_seed", gold: 10, items: { "Mist Herb": 1 } });
+  second.send({ type: "trade_seed", gold: 2, items: { "Ore Fragment": 1 } });
+  await first.waitFor("trade_ledger", (message) => message.ledger.gold === 10);
+  await second.waitFor("trade_ledger", (message) => message.ledger.gold === 2);
+  first.send({ type: "trade_request", targetId: playerB.id });
+  const pendingTrade = await second.waitFor("trade_state", (message) => message.trade.status === "pending");
+  second.send({ type: "trade_response", tradeId: pendingTrade.trade.id, accept: true });
+  await first.waitFor("trade_state", (message) => message.trade.id === pendingTrade.trade.id && message.trade.status === "active");
+  first.send({ type: "trade_offer", tradeId: pendingTrade.trade.id, gold: 3, items: { "Mist Herb": 1 } });
+  second.send({ type: "trade_offer", tradeId: pendingTrade.trade.id, gold: 0, items: { "Ore Fragment": 1 } });
+  await first.waitFor("trade_state", (message) => message.trade.id === pendingTrade.trade.id && message.trade.offers[welcomeA.peerId].gold === 3 && message.trade.offers[playerB.id].items["Ore Fragment"] === 1);
+  first.send({ type: "trade_lock", tradeId: pendingTrade.trade.id });
+  second.send({ type: "trade_lock", tradeId: pendingTrade.trade.id });
+  const settledLedger = await first.waitFor("trade_ledger", (message) => message.ledger.gold === 7 && message.ledger.items["Ore Fragment"] === 1);
+  assert.equal(settledLedger.ledger.items["Mist Herb"], undefined);
 });

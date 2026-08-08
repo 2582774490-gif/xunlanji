@@ -24,6 +24,14 @@ func _ready() -> void:
 		if GameState.current_screen == GameState.Screen.PVP:
 			_render()
 	)
+	OnlineSession.trade_state_changed.connect(func(_trade):
+		if GameState.current_screen == GameState.Screen.MARKET:
+			_render()
+	)
+	OnlineSession.trade_ledger_changed.connect(func(_ledger):
+		if GameState.current_screen == GameState.Screen.MARKET:
+			_render()
+	)
 	_render()
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -440,6 +448,99 @@ func _show_market() -> void:
 		var first_item := str(GameState.player.inventory[0])
 		_text("行囊首件：%s｜%s" % [first_item, GameState.market_price_protection_text(first_item)], 16, Color("a7d5ca"))
 		_buttons([["按参考价上架行囊首件（%d 金）" % GameState.market_suggested_price(first_item), _list_first_inventory_item, 300]])
+
+	_show_online_trade_session()
+
+
+func _show_online_trade_session() -> void:
+	_heading("十人房 · 双人托管交换（开发期）")
+	if not OnlineSession.is_room_connected():
+		_text("连接本机十人房后，可向同房修士发起双人交换。当前云市购买仍是本地模拟；该交换由房间服务端暂存报价、双方锁定并原子结算。", 15, Color("a7d5ca"))
+		return
+	_text("会话账本：%d 金｜本次连接时登记的背包会由服务端校验。没有账号、云存档与正式经济服务前，它只用于本机开发验证。" % int(OnlineSession.trade_ledger().get("gold", GameState.player.gold)), 15, Color("f2d79c"))
+	for peer in OnlineSession.remote_players():
+		var peer_id := str(peer.get("id", ""))
+		var peer_name := str(peer.get("name", "远游修士"))
+		_buttons([["向 %s 发起交换" % peer_name, func(): _request_online_trade(peer_id), 210, OnlineSession.local_player_has_trade()]])
+	for trade in OnlineSession.trade_states():
+		var requester := str(trade.get("requesterId", ""))
+		var target := str(trade.get("targetId", ""))
+		var trade_id := str(trade.get("id", ""))
+		if requester != OnlineSession.local_peer_id() and target != OnlineSession.local_peer_id():
+			continue
+		var state := str(trade.get("status", ""))
+		_text("交换会话 %s｜%s" % [trade_id.right(12), _online_trade_state_label(state)], 15, Color("a7d5ca"))
+		if target == OnlineSession.local_peer_id() and state == "pending":
+			_buttons([["接受交换", func(): _respond_online_trade(trade_id, true), 140], ["拒绝", func(): _respond_online_trade(trade_id, false), 120]])
+		if state == "active":
+			var offers: Dictionary = trade.get("offers", {})
+			var mine: Dictionary = offers.get(OnlineSession.local_peer_id(), {})
+			var other_id := target if requester == OnlineSession.local_peer_id() else requester
+			var theirs: Dictionary = offers.get(other_id, {})
+			_text("你的报价：%s｜对方报价：%s" % [_online_trade_offer_text(mine), _online_trade_offer_text(theirs)], 15, Color("c8d5d1"))
+			_buttons([["以首件非装备物品报价", func(): _offer_first_online_trade_item(trade_id), 220, bool(mine.get("locked", false))], ["锁定我的报价", func(): _lock_online_trade(trade_id), 170, bool(mine.get("locked", false))], ["取消交换", func(): _cancel_online_trade(trade_id), 150]])
+
+
+func _online_trade_offer_text(offer: Dictionary) -> String:
+	var item_parts: Array[String] = []
+	var raw_items: Variant = offer.get("items", {})
+	if raw_items is Dictionary:
+		for raw_name in (raw_items as Dictionary).keys():
+			item_parts.append("%s×%d" % [str(raw_name), int((raw_items as Dictionary).get(raw_name, 0))])
+	var parts: Array[String] = item_parts
+	if int(offer.get("gold", 0)) > 0:
+		parts.append("%d 金" % int(offer.get("gold", 0)))
+	if parts.is_empty():
+		parts.append("空报价")
+	if bool(offer.get("locked", false)):
+		parts.append("已锁定")
+	return "、".join(parts)
+
+
+func _online_trade_state_label(state: String) -> String:
+	match state:
+		"pending": return "等待回应"
+		"active": return "正在报价"
+		"completed": return "已完成"
+		"declined": return "已拒绝"
+		"cancelled": return "已取消"
+		_: return state
+
+
+func _request_online_trade(peer_id: String) -> void:
+	if not OnlineSession.request_trade(peer_id):
+		GameState.notify("无法发起交换：请确认双方已连接且没有其他活跃交换。")
+	_render()
+
+
+func _respond_online_trade(trade_id: String, accept: bool) -> void:
+	OnlineSession.respond_to_trade(trade_id, accept)
+	_render()
+
+
+func _offer_first_online_trade_item(trade_id: String) -> void:
+	var chosen := ""
+	for raw_item in GameState.player.inventory:
+		var item_name := str(raw_item)
+		if item_name != GameState.player.equipped_weapon and item_name != GameState.player.equipped_artifact and item_name != GameState.player.equipped_armor:
+			chosen = item_name
+			break
+	if chosen.is_empty():
+		GameState.notify("当前没有可用于交换的非装备物品。")
+		return
+	OnlineSession.offer_trade(trade_id, {chosen: 1}, 0)
+	_render()
+
+
+func _lock_online_trade(trade_id: String) -> void:
+	OnlineSession.lock_trade(trade_id)
+	_render()
+
+
+func _cancel_online_trade(trade_id: String) -> void:
+	OnlineSession.cancel_trade(trade_id)
+	_render()
+
 
 func _show_alchemy() -> void:
 	_heading("云岚村 · 炼丹工坊")

@@ -9,6 +9,8 @@ signal roster_changed(remote_players: Array[Dictionary])
 signal remote_position_changed(peer_id: String, player: Dictionary)
 signal duel_sessions_changed(sessions: Array[Dictionary])
 signal duel_state_changed(duel: Dictionary)
+signal trade_state_changed(trade: Dictionary)
+signal trade_ledger_changed(ledger: Dictionary)
 
 const LOCAL_URL := "ws://127.0.0.1:8080"
 const DEFAULT_ROOM := "launch-1"
@@ -23,6 +25,8 @@ var _peer_id := ""
 var _remote_players: Dictionary = {}
 var _duel_sessions: Array[Dictionary] = []
 var _duel_states: Dictionary = {}
+var _trade_states: Dictionary = {}
+var _trade_ledger: Dictionary = {}
 var _world_root: Node2D
 var _local_player: CharacterBody2D
 var _region_id := ""
@@ -57,6 +61,23 @@ func duel_state(duel_id: String) -> Dictionary:
 	return (state as Dictionary).duplicate(true) if state is Dictionary else {}
 
 
+func trade_state(trade_id: String) -> Dictionary:
+	var state: Variant = _trade_states.get(trade_id, {})
+	return (state as Dictionary).duplicate(true) if state is Dictionary else {}
+
+
+func trade_states() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for state in _trade_states.values():
+		if state is Dictionary:
+			result.append((state as Dictionary).duplicate(true))
+	return result
+
+
+func trade_ledger() -> Dictionary:
+	return _trade_ledger.duplicate(true)
+
+
 func active_duel_for_local() -> Dictionary:
 	for duel in _duel_sessions:
 		if str(duel.get("status", "")) == "active" and (str(duel.get("challengerId", "")) == _peer_id or str(duel.get("targetId", "")) == _peer_id):
@@ -82,6 +103,50 @@ func request_duel(target_peer_id: String) -> bool:
 		return false
 	_send({"type": "duel_challenge", "targetId": target_peer_id})
 	return true
+
+
+func request_trade(target_peer_id: String) -> bool:
+	if not is_room_connected() or target_peer_id.is_empty() or local_player_has_trade():
+		return false
+	_send({"type": "trade_request", "targetId": target_peer_id})
+	return true
+
+
+func respond_to_trade(trade_id: String, accept: bool) -> bool:
+	if not is_room_connected() or trade_id.is_empty():
+		return false
+	_send({"type": "trade_response", "tradeId": trade_id, "accept": accept})
+	return true
+
+
+func offer_trade(trade_id: String, items: Dictionary, gold: int) -> bool:
+	if not is_room_connected() or trade_id.is_empty():
+		return false
+	_send({"type": "trade_offer", "tradeId": trade_id, "items": items, "gold": max(0, gold)})
+	return true
+
+
+func lock_trade(trade_id: String) -> bool:
+	if not is_room_connected() or trade_id.is_empty():
+		return false
+	_send({"type": "trade_lock", "tradeId": trade_id})
+	return true
+
+
+func cancel_trade(trade_id: String) -> bool:
+	if not is_room_connected() or trade_id.is_empty():
+		return false
+	_send({"type": "trade_cancel", "tradeId": trade_id})
+	return true
+
+
+func local_player_has_trade() -> bool:
+	if _peer_id.is_empty():
+		return false
+	for trade in trade_states():
+		if str(trade.get("status", "")) in ["pending", "active"] and (str(trade.get("requesterId", "")) == _peer_id or str(trade.get("targetId", "")) == _peer_id):
+			return true
+	return false
 
 
 func respond_to_duel(duel_id: String, accept: bool) -> bool:
@@ -134,6 +199,8 @@ func disconnect_room(show_notice := true) -> void:
 	_remote_players.clear()
 	_duel_sessions.clear()
 	_duel_states.clear()
+	_trade_states.clear()
+	_trade_ledger.clear()
 	_emit_roster()
 	_emit_duel_sessions()
 	if show_notice:
@@ -201,6 +268,7 @@ func _handle_message(message: Dictionary) -> void:
 	match str(message.get("type", "")):
 		"welcome":
 			_peer_id = str(message.get("peerId", ""))
+			_send_trade_seed()
 			_set_state("十人房已连接（%s）" % str(message.get("room", DEFAULT_ROOM)))
 		"roster":
 			_remote_players.clear()
@@ -237,6 +305,20 @@ func _handle_message(message: Dictionary) -> void:
 				if not duel_id.is_empty():
 					_duel_states[duel_id] = duel.duplicate(true)
 					duel_state_changed.emit(duel.duplicate(true))
+		"trade_state":
+			var raw_trade: Variant = message.get("trade", {})
+			if raw_trade is Dictionary:
+				var trade: Dictionary = raw_trade
+				var trade_id := str(trade.get("id", ""))
+				if not trade_id.is_empty():
+					_trade_states[trade_id] = trade.duplicate(true)
+					trade_state_changed.emit(trade.duplicate(true))
+		"trade_ledger":
+			var raw_ledger: Variant = message.get("ledger", {})
+			if raw_ledger is Dictionary:
+				_trade_ledger = (raw_ledger as Dictionary).duplicate(true)
+				_apply_trade_ledger(_trade_ledger)
+				trade_ledger_changed.emit(_trade_ledger.duplicate(true))
 		"error":
 			_set_state("十人房：%s" % _error_text(str(message.get("code", ""))))
 
@@ -273,7 +355,44 @@ func _error_text(code: String) -> String:
 		"duel_not_participant": return "你不在该论剑会话中"
 		"duel_bad_position": return "论剑位置无效"
 		"duel_action_cooldown": return "招式尚在收势"
+		"trade_player_missing": return "交换对象已离开房间"
+		"trade_self_target": return "不能与自己交换"
+		"trade_player_busy": return "一方正在进行另一笔交换"
+		"trade_ledger_missing": return "对方尚未完成会话背包登记"
+		"trade_ledger_already_seeded": return "本次会话背包已登记"
+		"trade_not_target": return "只有受邀者可回应交换"
+		"trade_not_pending", "trade_missing": return "该交换请求已失效"
+		"trade_not_active": return "该交换尚未开始或已结束"
+		"trade_not_participant": return "你不在该交换会话中"
+		"trade_insufficient_funds": return "服务端账本校验失败：物品或灵石不足"
 		_: return "通信错误"
+
+
+func _send_trade_seed() -> void:
+	if not is_room_connected():
+		return
+	var counts: Dictionary = {}
+	for raw_item in GameState.player.inventory:
+		var item_name := str(raw_item).strip_edges()
+		if item_name.is_empty():
+			continue
+		counts[item_name] = int(counts.get(item_name, 0)) + 1
+	_send({"type": "trade_seed", "gold": max(0, int(GameState.player.gold)), "items": counts})
+
+
+func _apply_trade_ledger(ledger: Dictionary) -> void:
+	# The room ledger wins after settlement. This is intentionally limited to a
+	# local development session until authenticated account inventories exist.
+	GameState.player.gold = max(0, int(ledger.get("gold", GameState.player.gold)))
+	var raw_items: Variant = ledger.get("items", {})
+	if raw_items is Dictionary:
+		var rebuilt_inventory: Array[String] = []
+		for raw_item_name in (raw_items as Dictionary).keys():
+			var item_name := str(raw_item_name)
+			for _count in range(max(0, int((raw_items as Dictionary).get(raw_item_name, 0)))):
+				rebuilt_inventory.append(item_name)
+		GameState.player.inventory = rebuilt_inventory
+	GameState.profile_changed.emit()
 
 
 func _local_display_name() -> String:
