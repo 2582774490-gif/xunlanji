@@ -10,16 +10,19 @@ const CHANCE_TRACES := [
 	{
 		"id": "mist_stream_cache", "name": "雾溪石函", "prompt": "探查雾溪石岸上的旧函", "sector": "mist_stream_banks",
 		"position": Vector2(3500, 780), "item": "雾溪旧函", "cultivation": 4,
+		"story_trace": "water",
 		"description": "石函被浅水冲开一角，留下前人辨药时记录的水痕。",
 	},
 	{
 		"id": "stonewind_trace", "name": "风蚀残页", "prompt": "感悟背风岩台上的风痕", "sector": "stonebud_highland",
 		"position": Vector2(2520, 3600), "item": "风蚀残页", "cultivation": 4,
+		"story_trace": "relic",
 		"description": "风从岩缝折返，卷出一段并不完整的游身法门。",
 	},
 	{
 		"id": "oldroad_ledger", "name": "旧道货札", "prompt": "翻看旧商道旁遗下的货札", "sector": "old_caravan_road",
 		"position": Vector2(9200, 1500), "item": "旧道货札", "cultivation": 2,
+		"story_trace": "road",
 		"description": "被雨水浸软的货札记着山货、药材与一段绕开劫修的旧路。",
 	},
 ]
@@ -32,14 +35,17 @@ const CHANCE_TRACE_RESPAWN_SECONDS := 1800
 const FIELD_CLUES := {
 	"stream_stair_cairn": {
 		"name": "雾溪引水堆石", "sector": "cloudfoot_wood",
+		"story_trace": "water",
 		"text": "石堆下压着褪色的采药签：\"顺着湿石阶入林，浅潮尽头便是雾溪水府。炼气一层后，水门才会回应。\"",
 	},
 	"caravan_milestone": {
 		"name": "旧商道里程碑", "sector": "old_caravan_road",
+		"story_trace": "road",
 		"text": "断碑仍能辨出商队旧记：\"雾潮关受水脉牵引；先探明水府，再过旧关。雨后不走偏坡，劫修常伏在车辙外。\"",
 	},
 	"wind_etched_marker": {
 		"name": "背风崖风蚀石", "sector": "stonebud_highland",
+		"story_trace": "relic",
 		"text": "风蚀刻痕并不指向任务，只留下观地之法：背风石芽可采石蕊；循山脊望东，能见岚息回响石。",
 	},
 }
@@ -280,7 +286,7 @@ func _observe_lan_echo() -> void:
 	echo_stone.set_deferred("monitoring", false)
 	GameState.add_item("岚息石屑")
 	GameState.gain_cultivation(3)
-	GameState.record_opportunity({"region": "starter_village", "name": "岚息回响石", "kind": "highland_landmark", "item": "岚息石屑"})
+	GameState.record_opportunity({"region": "starter_village", "name": "岚息回响石", "kind": "highland_landmark", "item": "岚息石屑", "story_trace": "relic"})
 	status.text = "风从石缝掠过，留下短促的岚息回响。你获得岚息石屑，修为 +3。它是丘陵里一处固定远望点，不会被复制成遍地奖励。"
 	_close_interaction()
 
@@ -297,7 +303,7 @@ func _resolve_chance_trace() -> void:
 	GameState.gain_cultivation(int(chosen_chance_trace.cultivation))
 	GameState.record_opportunity({
 		"region": "starter_village", "name": str(chosen_chance_trace.name), "kind": "terrain_chance_trace",
-		"item": str(chosen_chance_trace.item),
+		"item": str(chosen_chance_trace.item), "story_trace": str(chosen_chance_trace.get("story_trace", "")),
 	})
 	status.text = "%s。获得 %s，修为 +%d。此类机缘每次只选一处合理地貌，不会被均匀铺满。" % [
 		str(chosen_chance_trace.description), str(chosen_chance_trace.item), int(chosen_chance_trace.cultivation),
@@ -348,7 +354,7 @@ func _read_field_clue(clue_id: String) -> void:
 	var first_read := GameState.record_field_clue(clue_id)
 	if first_read:
 		GameState.record_opportunity({
-			"region": "starter_village", "name": str(clue.name), "kind": "field_clue",
+			"region": "starter_village", "name": str(clue.name), "kind": "field_clue", "story_trace": str(clue.get("story_trace", "")),
 		})
 		status.text = "%s\n（已记入见闻；这不是任务，也不发放数值奖励。）" % str(clue.text)
 	else:

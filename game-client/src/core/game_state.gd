@@ -777,6 +777,9 @@ func _observe_story_from_opportunity(entry: Dictionary) -> void:
 	var story: Dictionary = player.story_weave
 	var title := "%s %s %s" % [str(entry.get("name", "")), str(entry.get("item", "")), str(entry.get("region", ""))]
 	var world_marks: Array = story.get("world_marks", [])
+	var explicit_trace := str(entry.get("story_trace", ""))
+	if ["water", "road", "relic"].has(explicit_trace) and not world_marks.has(explicit_trace):
+		world_marks.append(explicit_trace)
 	for story_signal in [
 		{"id": "water", "tokens": ["雾", "溪", "潮", "水府", "港", "海"]},
 		{"id": "road", "tokens": ["商", "道", "驿", "舟", "货", "市"]},

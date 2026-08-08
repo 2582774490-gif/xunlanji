@@ -24,6 +24,7 @@ const OPPORTUNITIES := [
 		"item": "遗匣灵石袋",
 		"stones": 14,
 		"cultivation": 2,
+		"story_trace": "water",
 		"summary": "石缝中的旧匣仍存一缕灵息。"
 	},
 	{
@@ -33,6 +34,7 @@ const OPPORTUNITIES := [
 		"item": "岚息残页",
 		"stones": 0,
 		"cultivation": 9,
+		"story_trace": "water",
 		"summary": "淡青雾痕随吐纳而散，留下短暂感悟。"
 	},
 	{
@@ -42,6 +44,7 @@ const OPPORTUNITIES := [
 		"item": "雾灵露",
 		"stones": 5,
 		"cultivation": 4,
+		"story_trace": "water",
 		"summary": "夜雾凝成露华，是低境修士也能承受的温和灵材。"
 	}
 ]
@@ -116,6 +119,7 @@ func _activate_interaction() -> void:
 		GameState.add_item("雾溪灵草")
 		GameState.gain_cultivation(5)
 		GameState.complete_world_guidance_step("resource_ecology")
+		GameState.record_opportunity({"region": "starter_village", "name": "雾溪灵草", "kind": "resource", "item": "雾溪灵草", "cultivation": 5, "story_trace": "water"})
 		status.text = "获得雾溪灵草：这是第一个可采集资源点。未来资源会在不同区域按生态、境界、天气与随机机缘刷新；不需要接取固定任务才可采集。"
 		active_interaction = null
 		prompt.text = ""
@@ -141,6 +145,7 @@ func _collect_random_opportunity() -> void:
 		"item": item_name,
 		"spirit_stones": stones,
 		"cultivation": cultivation,
+		"story_trace": str(chosen_opportunity.get("story_trace", "")),
 	})
 	var rewards := "获得 %s" % item_name
 	if stones > 0:
