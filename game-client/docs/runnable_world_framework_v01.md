@@ -27,8 +27,8 @@
 1. Replace each structural map layer with approved original art while preserving the anchor coordinates.
 2. Add collision/occlusion polygons for buildings, cliffs, water, and dungeon doors.
 3. Implement the full eight-direction walk and attack sets, then weapon-specific attack packages.
-4. Extend the existing local profile save into account/cloud save, then add server API boundaries and the authoritative multiplayer service required for trade and PVP.
+4. Extend the existing local profile save into account/cloud save, then add server API boundaries and the authoritative multiplayer service required for trade and the broader PVP loop.
 
 ## Honest prototype boundary
 
-This is a local Godot world prototype, not a finished MMO. The three-region structure, dungeon entry, map scale, interaction wiring, local save, and weak nonlinear story weave are now present; account/cloud save, authoritative network synchronization, final map art, complete content, progression balance, and WeChat export remain later phases.
+This is a Godot world prototype, not a finished MMO. The three-region structure, dungeon entry, map scale, interaction wiring, local save, weak nonlinear story weave, and a localhost two-player duel slice are now present. The duel slice has the server validate positions, range, cooldowns, HP, and victory with fixed fair rules; account/cloud save, production-scale network synchronization, final map art, complete content, progression balance, and WeChat export remain later phases.

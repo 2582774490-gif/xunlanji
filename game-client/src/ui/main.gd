@@ -17,7 +17,11 @@ func _ready() -> void:
 	GameState.profile_changed.connect(_render)
 	GameState.notice_changed.connect(_update_notice)
 	OnlineSession.connection_state_changed.connect(func(_state):
-		if GameState.current_screen == GameState.Screen.OVERWORLD:
+		if GameState.current_screen == GameState.Screen.OVERWORLD or GameState.current_screen == GameState.Screen.PVP:
+			_render()
+	)
+	OnlineSession.duel_sessions_changed.connect(func(_sessions):
+		if GameState.current_screen == GameState.Screen.PVP:
 			_render()
 	)
 	_render()
@@ -487,9 +491,9 @@ func _craft_foundation_pill() -> void:
 func _show_pvp() -> void:
 	_heading("1v1 论剑台")
 	if combat.mode != "论剑" or combat.enemy_name != "山门试剑使": combat.begin("论剑", "山门试剑使")
-	_text("首发 PVP 最多支持两人。当前为本地对战演示，不代表已经完成实时联网。", 18, Color("f2d79c"))
+	_text("首发 PVP 最多支持两人。本地论剑保留完整武器动作测试；本机十人房已接入服务器裁定的公平联机论剑原型。", 18, Color("f2d79c"))
 	if OnlineSession.is_room_connected():
-		_text("十人房论剑会话：服务器只允许一名挑战者与一名被挑战者进入同一会话；挑战与接受状态由服务端广播。", 16, Color("a7d5ca"))
+		_text("十人房论剑会话：服务器只允许一名挑战者与一名被挑战者进入同一会话；位置、攻击距离、冷却、血量与胜负均由服务端裁定。", 16, Color("a7d5ca"))
 		for peer in OnlineSession.remote_players():
 			var peer_id := str(peer.get("id", ""))
 			var peer_name := str(peer.get("name", "远游修士"))
@@ -497,12 +501,14 @@ func _show_pvp() -> void:
 		for duel in OnlineSession.duel_sessions():
 			var challenger := str(duel.get("challengerId", ""))
 			var target := str(duel.get("targetId", ""))
-			var state := "等待回应" if str(duel.get("status", "")) == "pending" else "已配对（联机战斗接入中）"
+			var state := "等待回应" if str(duel.get("status", "")) == "pending" else ("可进入联机论剑" if str(duel.get("status", "")) == "active" else "论剑已结束")
 			_text("论剑会话 %s：%s ↔ %s｜%s" % [str(duel.get("id", "")).right(12), challenger.left(8), target.left(8), state], 15, Color("a7d5ca"))
 			if target == OnlineSession.local_peer_id() and str(duel.get("status", "")) == "pending":
 				_buttons([["接受挑战", func(): _respond_online_duel(str(duel.get("id", "")), true), 140], ["拒绝", func(): _respond_online_duel(str(duel.get("id", "")), false), 120]])
+			if str(duel.get("status", "")) == "active" and (challenger == OnlineSession.local_peer_id() or target == OnlineSession.local_peer_id()):
+				_buttons([["进入联机论剑场", _open_online_duel_arena, 210]])
 	else:
-		_text("连接本机十人房后，可先验证服务器管理的双人挑战与配对；实际在线战斗同步仍在后续接入。", 16, Color("a7d5ca"))
+		_text("连接本机十人房后，可验证服务器管理的双人挑战、移动、攻击距离、冷却、血量与胜负。", 16, Color("a7d5ca"))
 	_text("玩家 HP：%d / 100｜对手 HP：%d / 100" % [combat.player_hp, combat.enemy_hp], 22, Color.WHITE)
 	_text(combat.battle_log)
 	_buttons(_combat_entries(true))
@@ -952,6 +958,14 @@ func _open_duel_arena() -> void:
 	# This launches the playable local prototype.  It is intentionally separate
 	# from the menu combat simulation and makes no claim of online synchrony.
 	get_tree().change_scene_to_file("res://scenes/duel_arena.tscn")
+
+
+func _open_online_duel_arena() -> void:
+	if OnlineSession.active_duel_for_local().is_empty():
+		GameState.notify("当前没有可进入的联机论剑会话。")
+		_render()
+		return
+	get_tree().change_scene_to_file("res://scenes/online_duel_arena.tscn")
 
 func _restart_pvp() -> void:
 	combat.begin("论剑", "山门试剑使")

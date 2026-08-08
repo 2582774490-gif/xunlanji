@@ -1603,6 +1603,24 @@ func _check_online_session_presence_boundary() -> void:
 	_expect(layer.get_child_count() == 0, "Remote avatars must leave the local region layer when their server-authoritative region changes.")
 	OnlineSession._handle_message({"type": "duel_sessions", "duels": [{"id": "duel_smoke", "challengerId": "self-peer", "targetId": "remote-peer", "status": "pending"}]})
 	_expect(OnlineSession.duel_sessions().size() == 1 and OnlineSession.local_player_has_duel(), "Online session did not retain the server-broadcast two-player duel challenge.")
+	OnlineSession._handle_message({"type": "duel_sessions", "duels": [{"id": "duel_smoke", "challengerId": "self-peer", "targetId": "remote-peer", "status": "active"}]})
+	OnlineSession._handle_message({"type": "duel_state", "duel": {
+		"id": "duel_smoke", "challengerId": "self-peer", "targetId": "remote-peer", "status": "active", "winnerId": "", "fighters": {
+			"self-peer": {"x": 900, "y": 980, "hp": 91, "direction": "east"},
+			"remote-peer": {"x": 1080, "y": 980, "hp": 86, "direction": "west"},
+		}
+	}})
+	var active_duel := OnlineSession.active_duel_for_local()
+	var duel_state := OnlineSession.duel_state("duel_smoke")
+	var fighters: Dictionary = duel_state.get("fighters", {})
+	var local_fighter: Dictionary = fighters.get("self-peer", {})
+	_expect(str(active_duel.get("id", "")) == "duel_smoke" and int(local_fighter.get("hp", 0)) == 91, "Online duel state must retain the server-authoritative HP and active participant session.")
+	var duel_scene: OnlineDuelArena = preload("res://scenes/online_duel_arena.tscn").instantiate()
+	add_child(duel_scene)
+	await get_tree().process_frame
+	_expect(duel_scene.duel_id == "duel_smoke" and duel_scene.opponent_sprite.texture != null and int(duel_scene.player.position.x) == 900, "Online duel arena did not render cached server state using real 2D fighter assets.")
+	duel_scene.queue_free()
+	await get_tree().process_frame
 	OnlineSession._handle_message({"type": "duel_sessions", "duels": []})
 	_expect(OnlineSession.duel_sessions().is_empty() and not OnlineSession.local_player_has_duel(), "Online session did not clear a server-ended duel session.")
 	layer.queue_free()

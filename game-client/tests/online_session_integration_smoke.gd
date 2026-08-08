@@ -1,4 +1,4 @@
-extends Node
+extends Node2D
 
 func _ready() -> void:
 	call_deferred("_run")

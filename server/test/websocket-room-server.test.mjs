@@ -167,4 +167,12 @@ test("websocket room relays presence, position and a two-player duel", { concurr
   const active = await first.waitFor("duel_sessions", (message) => message.duels.length === 1 && message.duels[0].status === "active");
   assert.equal(active.duels[0].challengerId, welcomeA.peerId);
   assert.equal(active.duels[0].targetId, playerB.id);
+  const initialArena = await first.waitFor("duel_state", (message) => message.duel.id === active.duels[0].id && message.duel.status === "active");
+  assert.equal(initialArena.duel.fighters[welcomeA.peerId].hp, 100);
+  first.send({ type: "duel_move", duelId: active.duels[0].id, x: 1320, y: 900, direction: "east" });
+  second.send({ type: "duel_move", duelId: active.duels[0].id, x: 1440, y: 900, direction: "west" });
+  await first.waitFor("duel_state", (message) => message.duel.id === active.duels[0].id && message.duel.fighters[welcomeA.peerId].x === 1320 && message.duel.fighters[playerB.id].x === 1440);
+  first.send({ type: "duel_action", duelId: active.duels[0].id, action: "basic" });
+  const hit = await second.waitFor("duel_state", (message) => message.duel.id === active.duels[0].id && message.duel.fighters[playerB.id].hp === 91);
+  assert.equal(hit.duel.fighters[welcomeA.peerId].hp, 100);
 });

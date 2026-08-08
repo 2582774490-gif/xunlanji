@@ -8,6 +8,7 @@ signal connection_state_changed(state_text: String)
 signal roster_changed(remote_players: Array[Dictionary])
 signal remote_position_changed(peer_id: String, player: Dictionary)
 signal duel_sessions_changed(sessions: Array[Dictionary])
+signal duel_state_changed(duel: Dictionary)
 
 const LOCAL_URL := "ws://127.0.0.1:8080"
 const DEFAULT_ROOM := "launch-1"
@@ -21,6 +22,7 @@ var _hello_sent := false
 var _peer_id := ""
 var _remote_players: Dictionary = {}
 var _duel_sessions: Array[Dictionary] = []
+var _duel_states: Dictionary = {}
 var _world_root: Node2D
 var _local_player: CharacterBody2D
 var _region_id := ""
@@ -50,6 +52,18 @@ func duel_sessions() -> Array[Dictionary]:
 	return result
 
 
+func duel_state(duel_id: String) -> Dictionary:
+	var state: Variant = _duel_states.get(duel_id, {})
+	return (state as Dictionary).duplicate(true) if state is Dictionary else {}
+
+
+func active_duel_for_local() -> Dictionary:
+	for duel in _duel_sessions:
+		if str(duel.get("status", "")) == "active" and (str(duel.get("challengerId", "")) == _peer_id or str(duel.get("targetId", "")) == _peer_id):
+			return duel.duplicate(true)
+	return {}
+
+
 func local_peer_id() -> String:
 	return _peer_id
 
@@ -74,6 +88,20 @@ func respond_to_duel(duel_id: String, accept: bool) -> bool:
 	if not is_room_connected() or duel_id.is_empty():
 		return false
 	_send({"type": "duel_response", "duelId": duel_id, "accept": accept})
+	return true
+
+
+func send_duel_move(duel_id: String, position: Vector2, direction: String) -> bool:
+	if not is_room_connected() or duel_id.is_empty():
+		return false
+	_send({"type": "duel_move", "duelId": duel_id, "x": position.x, "y": position.y, "direction": direction})
+	return true
+
+
+func send_duel_action(duel_id: String, action: String) -> bool:
+	if not is_room_connected() or duel_id.is_empty() or not ["basic", "skill"].has(action):
+		return false
+	_send({"type": "duel_action", "duelId": duel_id, "action": action})
 	return true
 
 
@@ -105,6 +133,7 @@ func disconnect_room(show_notice := true) -> void:
 	_peer_id = ""
 	_remote_players.clear()
 	_duel_sessions.clear()
+	_duel_states.clear()
 	_emit_roster()
 	_emit_duel_sessions()
 	if show_notice:
@@ -200,6 +229,14 @@ func _handle_message(message: Dictionary) -> void:
 					if raw_duel is Dictionary:
 						_duel_sessions.append((raw_duel as Dictionary).duplicate(true))
 			_emit_duel_sessions()
+		"duel_state":
+			var raw_duel: Variant = message.get("duel", {})
+			if raw_duel is Dictionary:
+				var duel: Dictionary = raw_duel
+				var duel_id := str(duel.get("id", ""))
+				if not duel_id.is_empty():
+					_duel_states[duel_id] = duel.duplicate(true)
+					duel_state_changed.emit(duel.duplicate(true))
 		"error":
 			_set_state("十人房：%s" % _error_text(str(message.get("code", ""))))
 
@@ -232,6 +269,10 @@ func _error_text(code: String) -> String:
 		"duel_player_busy": return "一方正在论剑会话中"
 		"duel_not_target": return "只有被挑战者可以回应"
 		"duel_not_pending", "duel_missing": return "该挑战已失效"
+		"duel_not_active": return "论剑尚未开始"
+		"duel_not_participant": return "你不在该论剑会话中"
+		"duel_bad_position": return "论剑位置无效"
+		"duel_action_cooldown": return "招式尚在收势"
 		_: return "通信错误"
 
 
