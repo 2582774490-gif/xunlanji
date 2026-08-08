@@ -1,6 +1,9 @@
 extends Node2D
 
 const WORLD_SIZE := Vector2(4096.0, 2304.0)
+## This compact compatibility/demo map is not the shipped large-region entry.
+## It must never revive the former mandatory beginner chain.
+const LEGACY_TUTORIAL_GATE_ENABLED := false
 const Catalog = preload("res://src/data/game_catalog.gd")
 const WorldMarkerScript = preload("res://src/world/world_marker.gd")
 
@@ -25,6 +28,7 @@ func _ready() -> void:
 	status.text = "第一章·雾潮初起：前往云岚村，向引路人沈衍问询。"
 	prompt.text = ""
 	_build_markers()
+	status.text = "云岚旧图演示：资源、人物、秘境与关隘可按自己的顺序接触；它不会要求先完成某条新手任务。"
 
 func _build_markers() -> void:
 	for data in _region_markers():
@@ -98,7 +102,7 @@ func _activate_marker() -> void:
 			GameState.current_region_id = active_marker.payload
 			get_tree().reload_current_scene()
 		"dungeon":
-			if active_marker.marker_id == "water_palace" and tutorial_stage < 2:
+			if LEGACY_TUTORIAL_GATE_ENABLED and active_marker.marker_id == "water_palace" and tutorial_stage < 2:
 				status.text = "水府潮息暂未认可你。先向沈衍问询，再采集一株雾溪灵草。"
 				return
 			if not GameState.try_begin_fixed_dungeon(str(active_marker.payload)):
@@ -119,6 +123,17 @@ func _play_npc_story(marker_id: String) -> void:
 	if marker_id != "village_guide":
 		status.text = "道路仍然敞开。你选择追寻什么，大世界便会留下什么回应。"
 		return
+	var first_meeting := GameState.meet_npc("沈衍")
+	var personal_reflection := GameState.npc_personal_reflection("沈衍")
+	var lived_contexts := GameState.record_npc_lived_contexts("沈衍")
+	status.text = "沈衍：岚息会在山风、水汽、地脉与人间活动相交的地方留下痕迹。旧图里的水府只是可自行进入的地点之一，不会替你规定先后。"
+	if not personal_reflection.is_empty():
+		status.text += "\n【你的见闻】%s" % str(personal_reflection.get("description", ""))
+	if not lived_contexts.is_empty():
+		status.text += "\n【实际游历】%s" % str(lived_contexts.back().get("description", ""))
+	if first_meeting:
+		status.text += "\n（沈衍已记入游历簿；这不是接取任务。）"
+	return
 	if tutorial_stage == 0:
 		tutorial_stage = 1
 		status.text = "沈衍：云岚近来雾潮渐起。你不必急着追逐唯一的命数；先认清自身灵根，再去村中药圃采一株雾溪灵草。"

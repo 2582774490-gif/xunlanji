@@ -69,6 +69,7 @@ func _run() -> void:
 	await _check_local_market_loop()
 	await _check_online_session_presence_boundary()
 	await _check_random_opportunity()
+	await _check_legacy_world_compatibility()
 	await _check_personal_opportunity_director()
 	await _check_opportunity_journal()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
@@ -1784,6 +1785,22 @@ func _check_random_opportunity() -> void:
 	_expect(GameState.player.opportunity_log.size() == log_before + 1, "Opportunity collection did not write a log record.")
 	south_gate.queue_free()
 	await get_tree().process_frame
+
+
+func _check_legacy_world_compatibility() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.npc_met = []
+	GameState.player.story_weave = {"origin_id": "tide_listener", "origin_locked": true, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
+	var legacy_world := preload("res://scenes/playable_world.tscn").instantiate()
+	add_child(legacy_world)
+	await get_tree().process_frame
+	_expect(not legacy_world.LEGACY_TUTORIAL_GATE_ENABLED, "The retained compact demo map must never re-enable the old mandatory beginner gate.")
+	legacy_world._play_npc_story("village_guide")
+	_expect(legacy_world.status.text.contains("不会替你规定先后") and GameState.player.npc_met.has("沈衍"), "The compact demo map must preserve optional guidance and real NPC memory if it is opened.")
+	legacy_world.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
 
 func _check_personal_opportunity_director() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
