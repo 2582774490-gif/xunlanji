@@ -13,7 +13,22 @@ const PERSONAL_OPPORTUNITY_PROFILES: Array[Dictionary] = [
 		"id": "checkpoint_refuge_charm", "sector": "old_checkpoint", "name": "避潮护符", "prompt": "查看残关石阶下遗落的避潮护符", "chance": 0.80,
 		"anchors": [Vector2(1320, 1420), Vector2(1880, 1180)], "reward": "避潮符纸", "cultivation": 3, "story_trace": "road",
 		"description": "护符背面写着一串避潮车队的临时人名。有人在雾潮里先救走了陌生人，留下的不是功勋，只是一条仍能走通的路。",
-		"story_branch": "opportunity_checkpoint_refuge_charm", "story_branch_title": "残关避潮符", "tint": Color(0.94, 0.84, 0.56),
+		"choices": [
+			{
+				"id": "names", "title": "抄下人名", "prompt": "抄录护符背面的避潮名单", "reward": "避潮名签", "cultivation": 3, "story_trace": "road",
+				"description": "你没有动用护符，只把名字一一抄下。名单里有药农、赶车人和两名不愿留下姓氏的散修；他们被同一条临时驿线送出了雾潮。",
+				"story_branch": "opportunity_checkpoint_names_choice", "story_branch_title": "残关避潮符·人名簿",
+				"story_branch_description": "你保留了避潮人名而非替他们下结论。这段证词让岚潮首先显出它怎样影响仍在路上的人。",
+				"story_thread": "companions", "story_thread_title": "残关避潮人名",
+			},
+			{
+				"id": "rune", "title": "比对符纹", "prompt": "辨认护符上反向延伸的旧纹", "reward": "残关符灰", "cultivation": 3, "story_trace": "relic",
+				"description": "你沿着护符边缘的残纹比对石阶刻痕，发现它不是临时画成的避潮符，而是从一段更古老的界线符式上拆下来的简化片段。",
+				"story_branch": "opportunity_checkpoint_rune_choice", "story_branch_title": "残关避潮符·旧纹拓",
+				"story_branch_description": "你把护符残纹与旧关石阶并列记录。它没有告诉你旧界为何出现，只留下一个可被以后推翻或印证的观察。",
+			},
+		],
+		"tint": Color(0.94, 0.84, 0.56),
 	},
 	{
 		"id": "fog_channel_scale", "sector": "fog_channel", "name": "回水鳞片", "prompt": "拾取石岸夹缝中逆潮漂来的鳞片", "chance": 0.76,

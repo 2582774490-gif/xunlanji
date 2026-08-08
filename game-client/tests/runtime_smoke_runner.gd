@@ -2233,6 +2233,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.has_node("TidewardHillsChunk"), "Mist Tide Border is missing its authored southeast tideward-hills terrain chunk.")
 	_expect(border.tideward_watchstone_interaction != null, "Mist Tide Border is missing the tideward-hills exploration landmark.")
 	_expect(border.personal_opportunities != null and border.personal_opportunities.active_count() <= 1, "Mist Tide Border is missing its character-specific sparse opportunity director.")
+	_expect((border.PERSONAL_OPPORTUNITY_PROFILES as Array).any(func(profile: Dictionary): return str(profile.get("id", "")) == "checkpoint_refuge_charm" and (profile.get("choices", []) as Array).size() == 2), "Mist Tide Border is missing the two-way old-checkpoint opportunity branch.")
 	var watchstone_art: Sprite2D = border.get_node("TidewardWatchstone/Art")
 	_expect(watchstone_art.texture.resource_path.ends_with("tideward_watchstone_v01_alpha.png"), "Tideward watchstone must use its approved independent alpha art.")
 	_expect(RegionalSectorCatalog.sector_at("mist_border", Vector2(7900, 5100)).get("id", "") == "tideward_hills", "Tideward watchstone must remain inside its exposed highland sector.")
@@ -2779,6 +2780,7 @@ func _check_ancient_ridge() -> void:
 	_expect(RegionalSectorCatalog.sector_at("ancient_ridge", Vector2(5750, 430)).get("id", "") == "earthfire_ravine", "Ancient Ridge did not classify Earthfire Cave inside its ravine sector.")
 	_expect(ridge.ridge_event.size() > 0, "Ancient Ridge did not choose a terrain-based opportunity.")
 	_expect(ridge.personal_opportunities != null and ridge.personal_opportunities.active_count() <= 1, "Ancient Ridge is missing its character-specific sparse opportunity director.")
+	_expect((ridge.PERSONAL_OPPORTUNITY_PROFILES as Array).any(func(profile: Dictionary): return str(profile.get("id", "")) == "battlefield_broken_banner" and (profile.get("choices", []) as Array).size() == 2), "Ancient Ridge is missing the two-way ancient-battlefield opportunity branch.")
 	var ridge_profiles: Array[Dictionary] = ridge._population_profiles()
 	var expected_stance_profiles := {
 		"ridge_gate_relay_warden": {"stance": "mender", "sector": "ridge_gate"},

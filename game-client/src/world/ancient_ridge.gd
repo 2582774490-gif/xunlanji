@@ -25,7 +25,22 @@ const PERSONAL_OPPORTUNITY_PROFILES: Array[Dictionary] = [
 		"id": "battlefield_broken_banner", "sector": "ancient_battlefield", "name": "残阵旌影", "prompt": "辨认石海间未散的残阵旌影", "chance": 0.70,
 		"anchors": [Vector2(8360, 1560), Vector2(9480, 2040)], "reward": "残魂兵符", "cultivation": 13, "story_trace": "relic", "realm_index": 3,
 		"description": "断旗投下的影子比旗身多出一列。你从残阵里看见的不是必经战斗，而是一段曾被人为删去的退军路线。",
-		"story_branch": "opportunity_battlefield_broken_banner", "story_branch_title": "残阵旌影", "tint": Color(0.92, 0.66, 0.48),
+		"choices": [
+			{
+				"id": "copy", "title": "临摹退阵", "prompt": "临摹断旗影中多出的退军阵位", "reward": "退阵拓片", "cultivation": 13, "story_trace": "relic",
+				"description": "你绕开残魂活动的石隙，把多出的阵位逐一临摹。它不像胜者的军策，更像有人宁愿被删去，也要让后队活着离开的安排。",
+				"story_branch": "opportunity_battlefield_copy_choice", "story_branch_title": "残阵旌影·退阵拓",
+				"story_branch_description": "你把无名退阵临摹下来。古战场没有因此给出结论，只让一段被省去的撤离选择重新被人看见。",
+			},
+			{
+				"id": "memorial", "title": "留于碑前", "prompt": "把断旗铭片留在古战纪念台旁", "reward": "守碑铭片", "cultivation": 13, "story_trace": "road",
+				"description": "你没有带走断旗上的铭片，而是将它放在纪念台旁。风停时，附近守碑者留下的旧名里多出一个从未被写进军册的归队人。",
+				"story_branch": "opportunity_battlefield_memorial_choice", "story_branch_title": "残阵旌影·归队名",
+				"story_branch_description": "你选择把铭片留给现场，而不是据为己有。它留下的是一个归队人的名字，不是任何势力要求你遵循的答案。",
+				"story_thread": "companions", "story_thread_title": "古战归队名",
+			},
+		],
+		"tint": Color(0.92, 0.66, 0.48),
 	},
 	{
 		"id": "windbreak_ancient_map", "sector": "windbreak_ridge", "name": "断风旧图", "prompt": "展开岩缝中未被风蚀尽的旧图", "chance": 0.62,
