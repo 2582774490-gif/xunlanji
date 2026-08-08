@@ -512,6 +512,24 @@ func _show_pvp() -> void:
 func _show_journal() -> void:
 	_heading("游历簿")
 	_text("只保留角色真实获得、观察或击退的世界记录；不会因为点击菜单、查看地图或接近一个区域而凭空产生奖励。为保持本地存档轻量，最多保留最近 %d 条。" % GameState.MAX_OPPORTUNITY_LOG_ENTRIES, 16, Color("a7d5ca"))
+	_line()
+	var story_profile := GameState.personal_story_profile()
+	var story_stage := GameState.personal_story_stage()
+	_heading("岚潮线索 · %s" % str(story_stage.get("name", "岚潮初闻")))
+	_text(str(story_stage.get("summary", "")), 17, Color("f2d79c"))
+	_text("你的命途起点：%s｜%s" % [str(story_profile.get("label", "尚待真实发现")), str(story_profile.get("summary", ""))], 16, Color("a7d5ca"))
+	var marks: Array = GameState.personal_story_mark_labels()
+	_text("已由真实游历印证的世界痕迹：%s。它们只更新叙事认知，不提供数值奖励或强制目标。" % ("、".join(marks) if not marks.is_empty() else "尚未形成"), 15, Color("a7d5ca"))
+	if GameState.is_personal_story_paused():
+		_text("线索提示已暂缓；你仍会正常探索并留下游历记录。", 15, Color("82908c"))
+	else:
+		for lead in GameState.personal_story_leads():
+			_text("· %s" % lead, 15, Color("c8d5d1"))
+	_buttons([["恢复线索提示" if GameState.is_personal_story_paused() else "暂缓线索提示", _toggle_personal_story_pause, 190]])
+	_text("可交错探索的支线网：", 16, Color("f2d79c"))
+	for thread in GameState.personal_story_side_threads():
+		_text("【%s】%s｜%s" % [str(thread.get("name", "支线")), str(thread.get("source", "")), str(thread.get("description", ""))], 15, Color("a7d5ca"))
+	_line()
 	var entries := GameState.recent_opportunities(18)
 	if entries.is_empty():
 		_text("尚未留下游历记录。走入大世界、采集灵材、完成副本或发现地标后，这里才会出现内容。", 18, Color("f2d79c"))
@@ -523,6 +541,11 @@ func _show_journal() -> void:
 		var timestamp := str(entry.get("recorded_at", "早期存档"))
 		_text("【%s】%s · %s\n%s%s" % [label, title, place, _journal_reward_text(entry), "\n记录：%s" % timestamp], 17, Color("f2d79c"))
 		_line()
+
+
+func _toggle_personal_story_pause() -> void:
+	GameState.toggle_personal_story_pause()
+	_render()
 
 func _journal_region_name(region_id: String) -> String:
 	for region in Catalog.REGIONS:

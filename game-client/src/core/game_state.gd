@@ -68,6 +68,7 @@ const EQUIPMENT_MAX_UPGRADE := 10
 const MAX_OPPORTUNITY_LOG_ENTRIES := 60
 const LOCAL_SAVE_PATH := "user://xunlanji_local_profile.json"
 const LOCAL_SAVE_VERSION := 1
+const StoryWeave = preload("res://src/data/story_weave_catalog.gd")
 # 首发商业化只出售外观与便利，不出售属性、战斗伤害、PVP 数值或交易税优惠。
 # 本地原型可模拟权益，用于验证规则；正式激活必须由支付与账号服务端签发。
 const BASE_DAILY_FIXED_DUNGEON_ATTEMPTS := 3
@@ -133,6 +134,7 @@ var player := {
 	"npc_met": [],
 	"npc_trade_records": [],
 	"world_guidance": {"steps": [], "skipped": false},
+	"story_weave": {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "paused": false},
 	"opening_lore_seen": false,
 	"field_clues": [],
 	"ecology_cooldowns": {},
@@ -707,7 +709,103 @@ func record_opportunity(entry: Dictionary) -> void:
 	player.opportunity_log.append(recorded)
 	while player.opportunity_log.size() > MAX_OPPORTUNITY_LOG_ENTRIES:
 		player.opportunity_log.pop_front()
+	_observe_story_from_opportunity(recorded)
 	profile_changed.emit()
+
+
+## Story progress is observation-only. It records a player's actual path but
+## never grants levels, equipment, territory access, or mandatory objectives.
+func personal_story_profile() -> Dictionary:
+	_normalize_player_schema()
+	var story: Dictionary = player.story_weave
+	var origin_id := str(story.get("origin_id", ""))
+	if origin_id.is_empty():
+		return StoryWeave.origin_for(player)
+	return StoryWeave.origin_by_id(origin_id)
+
+
+func personal_story_state() -> Dictionary:
+	_normalize_player_schema()
+	return (player.story_weave as Dictionary).duplicate(true)
+
+
+func personal_story_stage() -> Dictionary:
+	var story := personal_story_state()
+	return StoryWeave.stage_for_mark_count((story.get("world_marks", []) as Array).size())
+
+
+func personal_story_leads() -> Array[String]:
+	if is_personal_story_paused():
+		return []
+	var profile := personal_story_profile()
+	var leads: Array[String] = []
+	for lead in profile.get("leads", []):
+		leads.append(str(lead))
+	return leads
+
+
+func personal_story_mark_labels() -> Array[String]:
+	var labels := {"water": "水路潮痕", "road": "商路旧记", "relic": "古遗回声"}
+	var result: Array[String] = []
+	for mark in personal_story_state().get("world_marks", []):
+		result.append(str(labels.get(str(mark), mark)))
+	return result
+
+
+func personal_story_side_threads() -> Array[Dictionary]:
+	_normalize_player_schema()
+	return StoryWeave.side_threads(player)
+
+
+func is_personal_story_paused() -> bool:
+	_normalize_player_schema()
+	return bool((player.story_weave as Dictionary).get("paused", false))
+
+
+func toggle_personal_story_pause() -> bool:
+	_normalize_player_schema()
+	var story: Dictionary = player.story_weave
+	story.paused = not bool(story.get("paused", false))
+	player.story_weave = story
+	notify("已%s岚潮线索提示；世界探索、修炼、交易与区域内容不受影响。" % ("暂缓" if bool(story.paused) else "恢复"))
+	profile_changed.emit()
+	return bool(story.paused)
+
+
+func _observe_story_from_opportunity(entry: Dictionary) -> void:
+	_normalize_story_weave()
+	var story: Dictionary = player.story_weave
+	var title := "%s %s %s" % [str(entry.get("name", "")), str(entry.get("item", "")), str(entry.get("region", ""))]
+	var world_marks: Array = story.get("world_marks", [])
+	for story_signal in [
+		{"id": "water", "tokens": ["雾", "溪", "潮", "水府", "港", "海"]},
+		{"id": "road", "tokens": ["商", "道", "驿", "舟", "货", "市"]},
+		{"id": "relic", "tokens": ["古", "遗", "碑", "阵", "战", "石窟"]},
+	]:
+		var mark_id := str(story_signal.get("id", ""))
+		if not world_marks.has(mark_id) and _story_text_has_any(title, story_signal.get("tokens", [])):
+			world_marks.append(mark_id)
+	var origin_id := str(story.get("origin_id", ""))
+	if origin_id.is_empty():
+		origin_id = str(StoryWeave.origin_for(player).get("id", "mirror_keeper"))
+		story.origin_id = origin_id
+		story.origin_locked = true
+	var personal_marks: Array = story.get("personal_marks", [])
+	if not personal_marks.has("first_response"):
+		personal_marks.append("first_response")
+	var origin := StoryWeave.origin_by_id(origin_id)
+	if not personal_marks.has("origin_resonance") and _story_text_has_any(title, origin.get("signals", [])):
+		personal_marks.append("origin_resonance")
+	story.world_marks = world_marks
+	story.personal_marks = personal_marks
+	player.story_weave = story
+
+
+func _story_text_has_any(text: String, tokens: Array) -> bool:
+	for token in tokens:
+		if text.contains(str(token)):
+			return true
+	return false
 
 
 func recent_opportunities(limit := 18) -> Array[Dictionary]:
@@ -1561,6 +1659,7 @@ func _normalize_player_schema() -> void:
 		if not guidance.has("skipped"):
 			guidance.skipped = false
 		player.world_guidance = guidance
+	_normalize_story_weave()
 	if not player.has("field_clues") or not player.field_clues is Array:
 		player.field_clues = []
 	if not player.has("opportunity_log") or not player.opportunity_log is Array:
@@ -1609,6 +1708,31 @@ func _normalize_player_schema() -> void:
 		player.convenience_cooldowns = convenience_cooldowns
 	if not player.has("last_exploration_compass_hint") or not player.last_exploration_compass_hint is Dictionary:
 		player.last_exploration_compass_hint = {}
+
+
+func _normalize_story_weave() -> void:
+	var defaults := {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "paused": false}
+	if not player.has("story_weave") or not player.story_weave is Dictionary:
+		player.story_weave = defaults
+		return
+	var story: Dictionary = player.story_weave
+	story.origin_id = str(story.get("origin_id", ""))
+	story.origin_locked = bool(story.get("origin_locked", false))
+	story.paused = bool(story.get("paused", false))
+	var valid_origins := StoryWeave.ORIGINS.keys()
+	if not story.origin_id.is_empty() and not valid_origins.has(story.origin_id):
+		story.origin_id = ""
+		story.origin_locked = false
+	for key in ["world_marks", "personal_marks"]:
+		var raw_marks: Variant = story.get(key, [])
+		var marks: Array[String] = []
+		if raw_marks is Array:
+			for raw_mark in raw_marks:
+				var mark := str(raw_mark)
+				if not mark.is_empty() and not marks.has(mark):
+					marks.append(mark)
+		story[key] = marks
+	player.story_weave = story
 
 
 func _attribute_points_spent_raw() -> int:

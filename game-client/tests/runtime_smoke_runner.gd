@@ -14,6 +14,7 @@ func _run() -> void:
 	await _check_costume_animation_preview()
 	await _check_monthly_card_fairness_rules()
 	await _check_optional_world_guidance()
+	await _check_non_linear_story_weave()
 	await _check_cultivation_affinity()
 	await _check_codex_registry_ui()
 	await _check_fair_attribute_and_technique_growth()
@@ -273,6 +274,31 @@ func _check_optional_world_guidance() -> void:
 	GameState.player.world_guidance = {"steps": [], "skipped": false}
 	_expect(GameState.skip_world_guidance(), "Players should be able to skip the optional world orientation.")
 	_expect(GameState.is_world_guidance_complete() and GameState.player.realm_index == int(profile_before.realm_index), "Skipping orientation must not grant realm progress or block world access.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_non_linear_story_weave() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.spirit_root = "水灵根"
+	GameState.player.physique = "流泉脉"
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "paused": false}
+	GameState.player.opportunity_log = []
+	var initial_origin := GameState.personal_story_profile()
+	_expect(str(initial_origin.get("id", "")) == "tide_listener", "Water-root and Flowing-Spring players should receive the tide-listener opening hint without losing access to other routes.")
+	GameState.record_opportunity({"region": "starter_village", "name": "雾溪水府潮痕", "kind": "terrain_chance_trace"})
+	var after_water := GameState.personal_story_state()
+	_expect(str(after_water.get("origin_id", "")) == "tide_listener" and (after_water.get("world_marks", []) as Array).has("water"), "The first real water-route discovery must lock a personal origin and record a world trace.")
+	_expect((after_water.get("personal_marks", []) as Array).has("first_response") and (after_water.get("personal_marks", []) as Array).has("origin_resonance"), "A matching first discovery should retain both personal response and resonance records.")
+	GameState.record_opportunity({"region": "starter_village", "name": "旧商道货簿", "kind": "terrain_chance_trace"})
+	_expect(str(GameState.personal_story_stage().get("id", "")) == "two_traces", "Two different world traces should advance only the narrative understanding to the second weak-mainline stage.")
+	GameState.record_opportunity({"region": "ancient_ridge", "name": "古碑遗址残阵", "kind": "fixed_relic"})
+	_expect(str(GameState.personal_story_stage().get("id", "")) == "old_boundary", "Three different world traces should reveal the old-boundary story stage without granting progression rewards.")
+	var before_toggle := GameState.is_personal_story_paused()
+	_expect(GameState.toggle_personal_story_pause() != before_toggle and GameState.player.realm_index == int(profile_before.realm_index), "Pausing story hints must not alter realm progress or lock exploration.")
+	var saved := GameState.export_local_profile()
+	_expect((saved.player.get("story_weave", {}) as Dictionary).get("world_marks", []).size() == 3, "Personal story state must enter the local profile payload.")
+	_expect(GameState.personal_story_side_threads().size() >= 3, "The story weave must expose multiple optional exploration networks rather than one mandatory task chain.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
