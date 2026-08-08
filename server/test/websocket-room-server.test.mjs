@@ -138,9 +138,11 @@ test("websocket room relays presence, duel state and private two-player exchange
   const server = await startRoomServer(port);
   const first = new LocalWebSocketClient(port);
   const second = new LocalWebSocketClient(port);
+	const observer = new LocalWebSocketClient(port);
   t.after(() => {
     first.close();
     second.close();
+		observer.close();
     server.kill();
   });
 
@@ -154,6 +156,11 @@ test("websocket room relays presence, duel state and private two-player exchange
   const rosterA = await first.waitFor("roster", (message) => message.players.length === 2);
   const rosterB = await second.waitFor("roster", (message) => message.players.length === 2);
   const playerB = rosterA.players.find((player) => player.id !== welcomeA.peerId);
+	await observer.connect();
+	observer.send({ type: "hello", room: "launch-1", name: "Observer", gender: "male", region: "starter_village" });
+	const observerWelcome = await observer.waitFor("welcome");
+	const observerRoster = await observer.waitFor("roster", (message) => message.players.length === 3);
+	assert.equal(observerRoster.players.some((player) => Object.hasOwn(player, "tradeLedger") || Object.hasOwn(player, "tradeLedgerInitialized")), false, "Presence rosters must not expose private exchange ledgers.");
   assert.equal(playerB.name, "乙");
   assert.equal(rosterB.players.find((player) => player.id === welcomeA.peerId).name, "甲");
 
@@ -182,6 +189,9 @@ test("websocket room relays presence, duel state and private two-player exchange
   await second.waitFor("trade_ledger", (message) => message.ledger.gold === 2);
   first.send({ type: "trade_request", targetId: playerB.id });
   const pendingTrade = await second.waitFor("trade_state", (message) => message.trade.status === "pending");
+	const observerTradeLeak = observer.waitFor("trade_state", (message) => message.trade.id === pendingTrade.trade.id, 350)
+		.then(() => false)
+		.catch(() => true);
   second.send({ type: "trade_response", tradeId: pendingTrade.trade.id, accept: true });
   await first.waitFor("trade_state", (message) => message.trade.id === pendingTrade.trade.id && message.trade.status === "active");
   first.send({ type: "trade_offer", tradeId: pendingTrade.trade.id, gold: 3, items: { "Mist Herb": 1 } });
@@ -191,4 +201,6 @@ test("websocket room relays presence, duel state and private two-player exchange
   second.send({ type: "trade_lock", tradeId: pendingTrade.trade.id });
   const settledLedger = await first.waitFor("trade_ledger", (message) => message.ledger.gold === 7 && message.ledger.items["Ore Fragment"] === 1);
   assert.equal(settledLedger.ledger.items["Mist Herb"], undefined);
+	assert.equal(await observerTradeLeak, true, "A third room player must not receive either party's private trade state.");
+	assert.ok(observerWelcome.peerId);
 });
