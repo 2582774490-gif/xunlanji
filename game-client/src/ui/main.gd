@@ -211,7 +211,7 @@ func _show_overworld() -> void:
 			var state := "当前可尝试" if known else "尚可从传闻、宗门或探索中得知"
 			_text("炼气%d · %s｜%s｜%s｜%s" % [int(content.layer), content.name, content.kind, state, content.reward], 15, tint)
 	_text("当前区域：%s。大区以短暂切换连接；正式联网目标为单区最多 10 名玩家。" % _current_region().name)
-	_text("十人同区原型：%s。仅同步在线名册与位置；背包、交易结算与战斗仍不会交给客户端联网伪造。" % OnlineSession.state_text(), 15, Color("a7d5ca"))
+	_text("十人同区原型：%s。位置同步、固定数值论剑与双人托管交换均有服务端验证；账号、云端背包与生产级经济仍未接入。" % OnlineSession.state_text(), 15, Color("a7d5ca"))
 	_buttons([["连接本机十人房", _connect_local_ten_player_room, 200, OnlineSession.is_room_connected()], ["断开十人房", _disconnect_ten_player_room, 160, not OnlineSession.is_room_connected()]])
 	if GameState.player.inventory.has(GameState.EXPLORATION_COMPASS_ITEM):
 		var compass_remaining := GameState.convenience_cooldown_remaining(GameState.EXPLORATION_COMPASS_ITEM)

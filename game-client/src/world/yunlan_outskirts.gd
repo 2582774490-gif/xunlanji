@@ -404,7 +404,7 @@ func _visit_old_caravan_waystation() -> void:
 		"region": "starter_village", "name": "旧商道歇脚站货簿", "kind": "story_observation", "story_trace": "road",
 		"description": "寄售木牌上的几笔货号与边关巡修提到的消失车辙相同，仿佛货物曾走过一条未被地图记载的旧路。",
 	})
-	GameState.notify("你在旧商道歇脚站查看寄售木牌。这里是大地图中的市集入口；当前交易仍为本地原型。")
+	GameState.notify("你在旧商道歇脚站查看寄售木牌。这里是大地图中的市集入口；云市购买为本地原型，十人房双人交换可验证服务端托管结算。")
 	GameState.enter_screen(GameState.Screen.MARKET)
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
