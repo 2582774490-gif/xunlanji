@@ -205,9 +205,25 @@ static func side_threads(player: Dictionary) -> Array[Dictionary]:
 			"description": "不同关系和宗门立场提供互相矛盾的解释，不会把玩家固定为某一势力的人。",
 		},
 	]
-	if not str(player.get("sect_id", "")).is_empty():
+	# These entries are not a quest menu. A thread becomes visible because the
+	# character has actually lived through it; leaving a sect or changing a
+	# present-day build must never erase the part of the world they already saw.
+	if _has_thread_category(player, "craft"):
+		threads.append({
+			"id": "craft", "name": "炉火与器纹", "source": "丹炉、炼器台、药材生态与旧器",
+			"description": "你亲手炼过丹或淬过器，因此可以从药性、火候与器纹变化理解岚潮；它不是必须专精的生产任务。",
+		})
+	if not str(player.get("sect_id", "")).is_empty() or _has_thread_category(player, "sect"):
 		threads.append({
 			"id": "sect", "name": "山门立场", "source": "宗门贡献、门规与外驻地",
-			"description": "你可协助、质疑或离开宗门；离门后的后果属于世界关系，而不是主线失败。",
+			"description": "你可协助、质疑或离开宗门；即使离门，已经历的门规、人物与后果仍属于你的世界线，而不是主线失败。",
 		})
 	return threads
+
+
+static func _has_thread_category(player: Dictionary, category: String) -> bool:
+	var story: Dictionary = player.get("story_weave", {})
+	for raw_record in story.get("thread_records", []):
+		if raw_record is Dictionary and str((raw_record as Dictionary).get("thread", "")) == category:
+			return true
+	return false

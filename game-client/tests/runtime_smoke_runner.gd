@@ -331,6 +331,9 @@ func _check_personal_story_thread_memories() -> void:
 	_expect(records.size() == 2 and str(records[0].get("thread", "")) == "market" and str(records[1].get("thread", "")) == "sect", "Story-thread memories must retain their source networks and order.")
 	var saved := GameState.export_local_profile()
 	_expect((saved.player.get("story_weave", {}) as Dictionary).get("thread_records", []).size() == 2, "Personal story-thread memories must persist in the local profile payload.")
+	_expect(GameState.personal_story_side_threads().any(func(thread: Dictionary): return str(thread.get("id", "")) == "sect"), "A sect thread must remain visible from lived history even when the character is no longer in a sect.")
+	_expect(GameState.record_personal_story_thread("craft", "smoke_craft", "初次试火", "玩家亲手以炉火验证了一次材料变化。"), "A voluntary crafting action should be recordable as a distinct worldline memory.")
+	_expect(GameState.personal_story_side_threads().any(func(thread: Dictionary): return str(thread.get("id", "")) == "craft"), "A lived alchemy or forging history must expose its own optional exploration network instead of being hidden behind the general journal.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
