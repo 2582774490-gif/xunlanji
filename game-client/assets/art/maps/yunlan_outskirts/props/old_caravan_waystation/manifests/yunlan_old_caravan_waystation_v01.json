@@ -1,0 +1,13 @@
+{
+  "asset_id": "yunlan_old_caravan_waystation_v01",
+  "kind": "foreground_waystation_prop",
+  "region": "yunlan_outskirts",
+  "sector": "old_caravan_road",
+  "created_with": "GPT Image 2 built-in image generation",
+  "source_file": "source_magic2/yunlan_old_caravan_waystation_v01_key.png",
+  "processed_file": "processed_alpha/yunlan_old_caravan_waystation_v01_alpha.png",
+  "background_removal": "auto-key border, soft matte, despill",
+  "runtime_anchor": "World feet baseline at Vector2(10560, 1540); y-sorted beside player actors.",
+  "purpose": "An original old-caravan-road rest station that adds a traversable trade-route landmark without changing the existing large-map terrain or encounter anchors.",
+  "prompt_summary": "Original polished Chinese-fantasy roadside wooden-and-stone waystation with moss-tiled roof, crates, lantern and unlettered sign, on chroma-key background."
+}

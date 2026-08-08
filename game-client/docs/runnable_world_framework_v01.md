@@ -11,6 +11,7 @@
 - Mist-Stream Water Palace now has an original dungeon base-map asset with the boss anchor aligned to its inner circular arena.
 - The current player proof uses a separate eight-direction body layer plus a separate Qinglan Sword layer, attached through hand offsets and weapon follow/swing logic. It is deliberately not yet called a complete animation package because the matching walk and attack frame sequences remain to be produced.
 - Player art, map art, NPCs, weapons, costumes, and effects are separate assets. Replacing them does not require rewiring map navigation or interaction logic.
+- The Old Caravan Road now includes its first authored, transparent, Y-sorted roadside waystation asset. It demonstrates how future trade-route buildings can replace a placeholder without shrinking the map or moving ecology anchors.
 
 ## Current map layer contract
 
@@ -18,7 +19,7 @@
 |---|---|---|
 | Ground | Procedural 2D region drawing | Tileable terrain background |
 | Roads and water | Procedural paths | Painted base and decal layers |
-| Buildings and landmarks | Procedural placeholders | Individual transparent building/landmark sprites |
+| Buildings and landmarks | First transparent Old Caravan Road waystation plus procedural placeholders elsewhere | Individual transparent building/landmark sprites |
 | Foreground/occlusion | Reserved | Trees, roofs, cliffs and mist on a foreground layer |
 | Interactions | `WorldMarker` area nodes | Same nodes, with final map anchors |
 
