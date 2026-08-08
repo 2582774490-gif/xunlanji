@@ -717,6 +717,8 @@ func _show_journal() -> void:
 	_heading("岚潮线索 · %s" % str(story_stage.get("name", "岚潮初闻")))
 	_text(str(story_stage.get("summary", "")), 17, Color("f2d79c"))
 	_text("你的命途起点：%s｜%s" % [str(story_profile.get("label", "尚待真实发现")), str(story_profile.get("summary", ""))], 16, Color("a7d5ca"))
+	var story_inquiry := GameState.personal_story_inquiry()
+	_text("由亲历慢慢形成的当下追问：%s｜%s" % [str(story_inquiry.get("name", "尚无定问")), str(story_inquiry.get("summary", ""))], 16, Color("d7c99b"))
 	var marks: Array = GameState.personal_story_mark_labels()
 	_text("已由真实游历印证的世界痕迹：%s。它们只更新叙事认知，不提供数值奖励或强制目标。" % ("、".join(marks) if not marks.is_empty() else "尚未形成"), 15, Color("a7d5ca"))
 	if str(story_stage.get("id", "")) == "old_boundary":

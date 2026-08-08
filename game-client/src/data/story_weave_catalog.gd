@@ -96,6 +96,37 @@ const STANCES := {
 }
 
 
+## This is derived from what a character has actually done.  It is not a
+## chosen class or a second quest branch: it merely changes the question that
+## feels most immediate in that character's own travel journal.
+const INQUIRIES := {
+	"world_wanderer": {
+		"name": "尚无定问", "summary": "你尚未用足够多的亲历为岚潮下结论。随意游历、交易、修行或结识他人，都可能让某一种问题先浮现。",
+		"leads": [],
+	},
+	"terrain": {
+		"name": "地势回声", "summary": "你留下的多是地貌、潮痕与遗址记录。眼下更值得追问的是：岚潮究竟沿着怎样的山水与旧路回流？",
+		"leads": ["在同一大区的水路、旧道与高地比对痕迹；不需要把它们做成固定清单。"],
+	},
+	"market": {
+		"name": "行市异动", "summary": "你已亲自参与交换。岚潮在你眼中不只是异象，也会改变谁需要什么、什么材料变得稀少。",
+		"leads": ["留意云市、行商与散修谈论的材料来路；这只是观察方向，不是交易任务。"],
+	},
+	"craft": {
+		"name": "炉火与器纹", "summary": "你曾以丹火或器火回应世界。岚潮是否改变药性、火候与旧器的反应，成了你更容易察觉的问题。",
+		"leads": ["在药师、炼器师或地火附近留意同一材料在不同环境下的细微变化。"],
+	},
+	"sect": {
+		"name": "山门与边界", "summary": "你对宗门门规、身份与去留已有亲历。岚潮如何影响各方选择，而不是谁给出唯一答案，成为你的观察角度。",
+		"leads": ["在山门外驻地、边关或商路旁聆听不同势力的解释；不要求效忠任何一方。"],
+	},
+	"companions": {
+		"name": "人间证词", "summary": "你收集到的首先是人的经历。岚潮的变化是否先落在渡口、药圃、营地与普通修士的选择上，值得慢慢比较。",
+		"leads": ["和不同职业、不同立场的人自然交谈，保留互相矛盾的说法，而不是急于选边。"],
+	},
+}
+
+
 static func origin_for(player: Dictionary) -> Dictionary:
 	var root := str(player.get("spirit_root", ""))
 	var physique := str(player.get("physique", ""))
@@ -121,6 +152,33 @@ static func stance_by_id(stance_id: String) -> Dictionary:
 	var stance: Dictionary = STANCES.get(stance_id, {})
 	var result := stance.duplicate(true)
 	result["id"] = stance_id if STANCES.has(stance_id) else ""
+	return result
+
+
+static func inquiry_for(player: Dictionary) -> Dictionary:
+	var weights := {"terrain": 0, "market": 0, "craft": 0, "sect": 0, "companions": 0}
+	var story: Dictionary = player.get("story_weave", {})
+	for _mark in story.get("world_marks", []):
+		weights.terrain += 2
+	for _branch in story.get("branch_records", []):
+		weights.terrain += 1
+	for raw_record in story.get("thread_records", []):
+		if raw_record is Dictionary:
+			var thread_id := str((raw_record as Dictionary).get("thread", ""))
+			if weights.has(thread_id):
+				weights[thread_id] = int(weights[thread_id]) + 2
+	var selected_id := "world_wanderer"
+	var strongest_weight := 0
+	# This stable order makes equal evidence deterministic without granting an
+	# invisible advantage to a player's origin, faction, or combat build.
+	for inquiry_id in ["terrain", "market", "craft", "sect", "companions"]:
+		var weight := int(weights[inquiry_id])
+		if weight > strongest_weight:
+			selected_id = inquiry_id
+			strongest_weight = weight
+	var result: Dictionary = INQUIRIES[selected_id].duplicate(true)
+	result["id"] = selected_id
+	result["evidence_count"] = strongest_weight
 	return result
 
 

@@ -16,6 +16,7 @@ func _run() -> void:
 	await _check_optional_world_guidance()
 	await _check_non_linear_story_weave()
 	await _check_personal_story_thread_memories()
+	await _check_personal_story_inquiry_divergence()
 	await _check_story_stance_population()
 	await _check_personal_story_world_resonance()
 	await _check_cultivation_affinity()
@@ -329,6 +330,20 @@ func _check_personal_story_thread_memories() -> void:
 	_expect(records.size() == 2 and str(records[0].get("thread", "")) == "market" and str(records[1].get("thread", "")) == "sect", "Story-thread memories must retain their source networks and order.")
 	var saved := GameState.export_local_profile()
 	_expect((saved.player.get("story_weave", {}) as Dictionary).get("thread_records", []).size() == 2, "Personal story-thread memories must persist in the local profile payload.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_personal_story_inquiry_divergence() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
+	_expect(str(GameState.personal_story_inquiry().get("id", "")) == "world_wanderer", "A new character should not be assigned a hidden narrative branch before real experience exists.")
+	_expect(GameState.record_personal_story_thread("market", "inquiry_market_one", "云市寄售", "玩家亲手把材料交给市场流通。"), "A genuine trade memory should be usable as personal-story evidence.")
+	_expect(str(GameState.personal_story_inquiry().get("id", "")) == "market", "Trade-first characters should see a market-shaped question, not the same lead as every other player.")
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
+	_expect(GameState.record_personal_story_thread("craft", "inquiry_craft_one", "初次炼丹", "玩家亲手开炉观察药性。") and GameState.record_personal_story_thread("craft", "inquiry_craft_two", "初次淬器", "玩家亲手辨认旧器余温。"), "Craft memories should record separately when the player actually uses both systems.")
+	_expect(str(GameState.personal_story_inquiry().get("id", "")) == "craft", "Craft-first characters should form a different investigation focus from trade-first characters.")
+	_expect(GameState.personal_story_leads().any(func(lead: String): return lead.contains("药师") or lead.contains("炼器师")), "The current inquiry must add an optional, evidence-matched lead without creating a required objective.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
@@ -2448,6 +2463,8 @@ func _check_red_maple_ancient_road() -> void:
 
 func _check_world_population_encounter() -> void:
 	var inventory_before: int = GameState.player.inventory.size()
+	var weapon_before: String = str(GameState.player.equipped_weapon)
+	GameState.player.equipped_weapon = "开山练气斧"
 	var road := preload("res://scenes/red_maple_ancient_road.tscn").instantiate()
 	add_child(road)
 	await get_tree().process_frame
@@ -2477,6 +2494,7 @@ func _check_world_population_encounter() -> void:
 	var mana_before_primary: float = encounter._player_mana
 	encounter.use_action("ningxi")
 	_expect(encounter._player_mana < mana_before_primary, "Overworld weapon primary did not consume mana.")
+	_expect(encounter.get_node_or_null("AxeGroundCleaveEffect") != null, "Overworld weapon primary must keep the equipped weapon's readable effect instead of falling back to a generic cast ring.")
 	var position_before_dash: Vector2 = road.player.position
 	encounter.use_action("cloud_step")
 	_expect(encounter._cloud_step_cooldown > 0.0 and road.player.position != position_before_dash, "Overworld cloud-step slot did not apply a real evasive movement.")
@@ -2485,6 +2503,7 @@ func _check_world_population_encounter() -> void:
 		encounter._on_player_attack_impact("south")
 	_expect(not encounter.is_in_encounter() and not enemy_root.visible, "Overworld weapon sequence did not defeat the low-health hostile entry.")
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Overworld hostile defeat did not award its ecological material.")
+	GameState.player.equipped_weapon = weapon_before
 	road.queue_free()
 	await get_tree().process_frame
 

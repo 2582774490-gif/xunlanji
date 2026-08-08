@@ -929,7 +929,18 @@ func personal_story_leads() -> Array[String]:
 	var stance := personal_story_stance()
 	for lead in stance.get("leads", []):
 		leads.append(str(lead))
+	var inquiry := personal_story_inquiry()
+	for lead in inquiry.get("leads", []):
+		leads.append(str(lead))
 	return leads
+
+
+## The player's current question is evidence-derived, not a selected route.
+## Trade, crafting, sect life, terrain observations, and people met can each
+## become the lens through which the shared mystery is currently understood.
+func personal_story_inquiry() -> Dictionary:
+	_normalize_player_schema()
+	return StoryWeave.inquiry_for(player)
 
 
 func personal_story_mark_labels() -> Array[String]:

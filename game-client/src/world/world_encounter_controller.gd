@@ -145,7 +145,7 @@ func _cast_weapon_primary() -> void:
 		return
 	_primary_cooldown = float(primary.get("cooldown", 4.0))
 	var facing := (enemy_position - _player.global_position).normalized()
-	_spawn_skill_ripple(_player.global_position + Vector2(0, -52), Color(0.48, 0.92, 1.0), 38.0, facing)
+	_spawn_weapon_primary_visual(facing, enemy_position)
 	if SKILL_CATALOG.is_umbrella_skill_set(GameState.player.equipped_weapon):
 		_guard_time_left = maxf(_guard_time_left, float(primary.get("guard_seconds", 1.8)))
 	var damage := GameState.weapon_skill_damage(
@@ -314,6 +314,66 @@ func _publish_combat_state() -> void:
 	combat_state_changed.emit(state)
 	if _touch_controls != null and _touch_controls.has_method("set_combat_state"):
 		_touch_controls.set_combat_state(state)
+
+
+## The primary slot must read as the equipped weapon's technique in the
+## overworld too.  The dungeon and duel scenes already use these larger
+## silhouettes; keeping the same vocabulary here avoids a weapon becoming a
+## generic blue ring as soon as the player leaves an instance.
+func _spawn_weapon_primary_visual(facing: Vector2, enemy_position: Vector2) -> void:
+	var weapon: String = str(GameState.player.equipped_weapon)
+	var origin := _player.global_position
+	var cast_origin := origin + Vector2(0, -52)
+	if SKILL_CATALOG.is_talisman_brush_skill_set(weapon):
+		_spawn_brush_talisman(origin + Vector2(0, -54), enemy_position + Vector2(0, -56))
+	elif SKILL_CATALOG.is_spear_skill_set(weapon):
+		_spawn_spear_thrust(origin + Vector2(0, -46), enemy_position + Vector2(0, -54), 8.0)
+	elif SKILL_CATALOG.is_bow_skill_set(weapon):
+		_spawn_wind_arrow(cast_origin, enemy_position + Vector2(0, -54), 0.34)
+	elif SKILL_CATALOG.is_dao_skill_set(weapon):
+		_spawn_dao_crescent(origin + Vector2(0, -50), facing, 118.0, 11.0)
+	elif SKILL_CATALOG.is_halberd_skill_set(weapon):
+		_spawn_halberd_sweep(origin + Vector2(0, -50), facing, 142.0, 12.0)
+	elif SKILL_CATALOG.is_axe_skill_set(weapon):
+		_spawn_axe_ground_cleave(origin + facing * 30.0 + Vector2(0, -40), facing, 112.0, 13.0)
+	elif SKILL_CATALOG.is_hammer_skill_set(weapon):
+		_spawn_hammer_shockwave(origin + facing * 26.0 + Vector2(0, -36), 104.0, 13.0)
+	elif SKILL_CATALOG.is_staff_skill_set(weapon):
+		_spawn_staff_whirl(origin + Vector2(0, -46), facing, 112.0, 9.0)
+	elif SKILL_CATALOG.is_whip_skill_set(weapon):
+		_spawn_whip_lash(origin + Vector2(0, -46), facing, 170.0, 8.0)
+	elif SKILL_CATALOG.is_crossbow_skill_set(weapon):
+		_spawn_crossbow_bolt(cast_origin, enemy_position + Vector2(0, -54), 0.18)
+		_spawn_crossbow_bolt(cast_origin, enemy_position + Vector2(0, -80), 0.23)
+		_spawn_crossbow_bolt(cast_origin, enemy_position + Vector2(0, -28), 0.28)
+	elif SKILL_CATALOG.is_fan_skill_set(weapon):
+		_spawn_fan_gust(origin + Vector2(0, -48), facing, 190.0, 8.0)
+	elif SKILL_CATALOG.is_guqin_skill_set(weapon):
+		_spawn_guqin_note(origin + Vector2(0, -58), facing, 235.0, 8.0)
+	elif SKILL_CATALOG.is_xiao_skill_set(weapon):
+		_spawn_xiao_soundstream(origin + Vector2(0, -56), facing, 260.0, 8.0)
+	elif SKILL_CATALOG.is_bell_skill_set(weapon):
+		_spawn_bell_sonic_seal(origin + Vector2(0, -56), facing, 236.0, 28.0)
+	elif SKILL_CATALOG.is_array_disk_skill_set(weapon):
+		_spawn_array_lattice(origin + facing * 205.0 + Vector2(0, -44), 70.0)
+	elif SKILL_CATALOG.is_puppet_skill_set(weapon):
+		_spawn_puppet_dash(origin + Vector2(42, -56), enemy_position + Vector2(0, -54), 0.062)
+	elif SKILL_CATALOG.is_cauldron_skill_set(weapon):
+		_spawn_cauldron_flame(origin + Vector2(30, -60), facing, 232.0, 24.0)
+	elif SKILL_CATALOG.is_pearl_skill_set(weapon):
+		_spawn_pearl_tide(origin + Vector2(30, -58), enemy_position + Vector2(0, -54), 16.0, 0.24)
+	elif SKILL_CATALOG.is_seal_skill_set(weapon):
+		_spawn_seal_slam(origin + facing * 205.0 + Vector2(0, -42), 68.0)
+	elif SKILL_CATALOG.is_mirror_skill_set(weapon):
+		_spawn_mirror_ray(origin + Vector2(28, -58), facing, 260.0, 7.0)
+	elif SKILL_CATALOG.is_tower_skill_set(weapon):
+		_spawn_tower_ward_impact(origin + facing * 205.0 + Vector2(0, -46), 74.0)
+	elif SKILL_CATALOG.is_wheel_skill_set(weapon):
+		_spawn_wheel_return(origin + Vector2(28, -56), enemy_position + Vector2(0, -54), 18.0, 0.52)
+	else:
+		# Umbrella primary is deliberately a ward, so its cast ring remains a
+		# defensive visual rather than pretending it is a projectile.
+		_spawn_skill_ripple(cast_origin, Color(0.48, 0.92, 1.0), 52.0, facing)
 
 
 func _spawn_skill_ripple(origin: Vector2, tint: Color, radius: float, direction: Vector2) -> void:
