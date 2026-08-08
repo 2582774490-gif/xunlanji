@@ -142,6 +142,18 @@ func _population_profiles() -> Array[Dictionary]:
 			"story_trace": "water", "story_note": "测潮散修的潮尺显示，远海有一段潮汐正向内陆回卷，而不是流向海沟。",
 			"tint": Color(0.60, 0.85, 0.91), "label_color": Color(0.67, 0.94, 1.0),
 		},
+		# This optional witness only lingers at the public quay for players whose
+		# own travel has centered on people and their testimony.  It is a
+		# consequence of voluntary relationships, not a universal port quest.
+		{
+			"id": "port_harbor_listener", "region": "return_abyss_mist_port", "kind": "rogue", "name": "候船抄录人",
+			"prompt": "与候船抄录人比对港埠里相互矛盾的返航说法", "chance": 0.42,
+			"anchors": [Vector2(1120, 660), Vector2(1460, 760)], "story_inquiry": "companions", "story_trace": "road",
+			"story_note": "候船抄录人没有问你相信哪一种说法，只把船工、药贩与返乡散修的口述并列在潮簿边上：有人说雾潮吞了船，有人说船是沿着一条早已消失的陆路归来。",
+			"story_branch": "companions_port_return_testimony", "story_branch_title": "泊位返航证词",
+			"story_branch_description": "因为你习惯把人的经历留在游历簿里，候船抄录人才愿意让你抄下互相矛盾的返航说法。它没有要求你替任何人证实结论。",
+			"tint": Color(0.84, 0.78, 0.94), "label_color": Color(0.94, 0.88, 1.0),
+		},
 		{
 			"id": "wreck_shallows_beast", "region": "return_abyss_mist_port", "kind": "beast", "name": "潇潮岚鲨",
 			"prompt": "观察潇潮岚鲨的沉桩浅滩领地", "chance": 0.20,

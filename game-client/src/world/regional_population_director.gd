@@ -52,6 +52,11 @@ func _profile_matches_personal_story(profile: Dictionary) -> bool:
 	var required_stance := str(profile.get("story_stance", ""))
 	if not required_stance.is_empty() and required_stance != str(GameState.personal_story_stance().get("id", "")):
 		return false
+	var required_inquiry := str(profile.get("story_inquiry", ""))
+	if not required_inquiry.is_empty():
+		var inquiry := GameState.personal_story_inquiry()
+		if required_inquiry != str(inquiry.get("id", "")) or int(inquiry.get("evidence_count", 0)) <= 0:
+			return false
 	var records := GameState.personal_story_thread_records()
 	var required_record_ids: Array = profile.get("story_requires_any_thread", [])
 	if not required_record_ids.is_empty():
@@ -111,6 +116,7 @@ func _sector_for_profile(profile_id: String) -> String:
 		"ridge_ash_ledger_keeper": return "ashen_basins"
 		"ridge_pass_wayfarer": return "battlefield_pass"
 		"port_merchant", "tide_chart_rogue": return "tide_ledger_quay"
+		"port_harbor_listener": return "tide_ledger_quay"
 		"wreck_shallows_beast": return "wrecked_shallows"
 		"shipyard_rogue": return "shipyard_lane"
 		"sea_cave_beast": return "sea_cave_approach"

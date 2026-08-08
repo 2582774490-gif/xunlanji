@@ -17,6 +17,7 @@ func _run() -> void:
 	await _check_non_linear_story_weave()
 	await _check_personal_story_thread_memories()
 	await _check_personal_story_inquiry_divergence()
+	await _check_story_inquiry_population()
 	await _check_story_stance_population()
 	await _check_personal_story_world_resonance()
 	await _check_cultivation_affinity()
@@ -344,6 +345,31 @@ func _check_personal_story_inquiry_divergence() -> void:
 	_expect(GameState.record_personal_story_thread("craft", "inquiry_craft_one", "初次炼丹", "玩家亲手开炉观察药性。") and GameState.record_personal_story_thread("craft", "inquiry_craft_two", "初次淬器", "玩家亲手辨认旧器余温。"), "Craft memories should record separately when the player actually uses both systems.")
 	_expect(str(GameState.personal_story_inquiry().get("id", "")) == "craft", "Craft-first characters should form a different investigation focus from trade-first characters.")
 	_expect(GameState.personal_story_leads().any(func(lead: String): return lead.contains("药师") or lead.contains("炼器师")), "The current inquiry must add an optional, evidence-matched lead without creating a required objective.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_story_inquiry_population() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
+	var population := preload("res://src/world/regional_population_director.gd").new()
+	add_child(population)
+	var profiles: Array[Dictionary] = [
+		{"id": "inquiry_market_witness", "region": "test", "kind": "rogue", "name": "Market witness", "prompt": "Talk", "chance": 1.0, "story_inquiry": "market", "anchors": [Vector2(120, 120)]},
+		{"id": "inquiry_craft_witness", "region": "test", "kind": "rogue", "name": "Craft witness", "prompt": "Talk", "chance": 1.0, "story_inquiry": "craft", "anchors": [Vector2(240, 120)]},
+		{"id": "inquiry_companion_witness", "region": "test", "kind": "rogue", "name": "Companion witness", "prompt": "Talk", "chance": 1.0, "story_inquiry": "companions", "anchors": [Vector2(360, 120)]},
+	]
+	population.populate(41, profiles)
+	_expect(population.active_count() == 0, "Inquiry-specific witnesses must not exist before the player has any matching lived evidence.")
+	GameState.record_personal_story_thread("market", "inquiry_population_market", "Market memory", "The player completed a voluntary exchange.")
+	population.populate(41, profiles)
+	_expect(population.active_count() == 1 and population.interaction_for_profile_id("inquiry_market_witness") != null, "A trade-shaped inquiry should surface only its matching optional witness.")
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
+	GameState.record_personal_story_thread("companions", "inquiry_population_companion", "Companion memory", "The player chose to retain another cultivator's testimony.")
+	population.populate(41, profiles)
+	_expect(population.active_count() == 1 and population.interaction_for_profile_id("inquiry_companion_witness") != null, "A people-shaped inquiry should surface a different optional witness from a trade-shaped inquiry.")
+	population.queue_free()
+	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
@@ -2665,6 +2691,8 @@ func _check_return_abyss_mist_port() -> void:
 	_expect(port.player.map_bounds.size.x >= 11000.0, "Return Abyss Mist Port did not reserve a large port exploration region.")
 	_expect(RegionalSectorCatalog.sector_at("return_abyss_mist_port", Vector2(2550, 1020)).get("id", "") == "wrecked_shallows", "Return Abyss Mist Port did not bind water-beast anchors to the wrecked shallows.")
 	_expect(RegionalSectorCatalog.sector_at("return_abyss_mist_port", Vector2(3710, 1020)).get("id", "") == "shipyard_lane", "Return Abyss Mist Port did not bind its repair rogue to the shipyard lane.")
+	var port_profiles: Array[Dictionary] = port._population_profiles()
+	_expect(port_profiles.any(func(profile: Dictionary): return str(profile.get("id", "")) == "port_harbor_listener" and str(profile.get("story_inquiry", "")) == "companions"), "Return Abyss Mist Port is missing the relationship-shaped optional harbor witness.")
 	_expect(port.port_event.size() > 0, "Return Abyss Mist Port did not choose a free-exploration port event.")
 	_expect(port.chunk_streamer.loaded_chunk_count() >= 1, "Return Abyss Mist Port did not load its nearby authored quay terrain.")
 	_expect(port.get_node("OuterHarborChunk").visible, "Return Abyss Mist Port did not load its connected outer-harbor terrain chunk.")
