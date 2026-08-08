@@ -458,6 +458,7 @@ func _population_profiles() -> Array[Dictionary]:
 			"id": "yunlan_cloudfoot_rogue", "region": "yunlan_outskirts", "sector": "cloudfoot_wood", "kind": "rogue", "name": "采药散修",
 			"prompt": "向采药散修询问云麓疏林", "chance": 0.46,
 			"anchors": [Vector2(5320, 1680), Vector2(5900, 2050), Vector2(6460, 1760)],
+			"story_trace": "water", "story_note": "疏林草叶的露痕竟逆着雾溪流向凝结，像是浅潮在替山脚传递消息。",
 			"tint": Color(0.82, 0.92, 0.72), "label_color": Color(0.90, 0.98, 0.74),
 		},
 		{
@@ -465,6 +466,7 @@ func _population_profiles() -> Array[Dictionary]:
 			"prompt": "旧商道旁有劫修拦路", "chance": 0.36,
 			"anchors": [Vector2(8760, 1540), Vector2(9440, 1660), Vector2(10120, 1480)],
 			"health": 48, "damage": 5, "reward": "旧道行囊", "cultivation": 3, "tint": Color(0.88, 0.70, 0.66), "label_color": Color(1.0, 0.76, 0.68),
+			"story_trace": "road", "story_note": "行囊里的旧路引记着一条从未在云岚村出现过的商队编号。",
 		},
 		{
 			"id": "yunlan_stonebud", "region": "yunlan_outskirts", "sector": "stonebud_highland", "kind": "resource", "name": "背风石芽",

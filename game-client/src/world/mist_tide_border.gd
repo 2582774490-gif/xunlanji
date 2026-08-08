@@ -245,18 +245,21 @@ func _population_profiles() -> Array[Dictionary]:
 			"prompt": "观察雾渠獭妖的活动范围", "chance": 0.72,
 			"anchors": [Vector2(2500, 560), Vector2(2700, 640), Vector2(2860, 470)],
 			"health": 66, "damage": 7, "reward": "雾獭灵皮", "cultivation": 5,
+			"story_trace": "water", "story_note": "雾渠的水痕在石岸形成反向潮线，像有另一片水域正隔着雾潮回应。",
 			"tint": Color(0.72, 0.95, 0.86), "label_color": Color(0.74, 1.0, 0.89),
 		},
 		{
 			"id": "mist_ore_rogue", "region": "mist_border", "kind": "rogue", "name": "采雾散修",
 			"prompt": "向采雾散修打听矿脉", "chance": 0.48,
 			"anchors": [Vector2(3860, 1190), Vector2(4060, 1260), Vector2(4280, 1160)],
+			"story_trace": "relic", "story_note": "矿滩碎石上的旧器纹并非天然裂纹，采雾散修也无法说清它们的来处。",
 			"tint": Color(0.78, 0.83, 0.94), "label_color": Color(0.81, 0.87, 1.0),
 		},
 		{
 			"id": "checkpoint_watcher", "region": "mist_border", "kind": "rogue", "name": "边关巡修",
 			"prompt": "询问边关巡修的雾潮消息", "chance": 0.35,
 			"anchors": [Vector2(760, 980), Vector2(880, 1060)],
+			"story_trace": "road", "story_note": "边关巡修提到，最近有未入关的车辙在旧商道尽头凭空消失。",
 			"tint": Color(0.92, 0.86, 0.68), "label_color": Color(1.0, 0.9, 0.66),
 		},
 		# The wetland is intentionally quiet: herbs sit only on shallow-water

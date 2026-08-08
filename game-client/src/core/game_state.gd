@@ -134,7 +134,7 @@ var player := {
 	"npc_met": [],
 	"npc_trade_records": [],
 	"world_guidance": {"steps": [], "skipped": false},
-	"story_weave": {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "paused": false},
+	"story_weave": {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "paused": false},
 	"opening_lore_seen": false,
 	"field_clues": [],
 	"ecology_cooldowns": {},
@@ -711,6 +711,28 @@ func record_opportunity(entry: Dictionary) -> void:
 		player.opportunity_log.pop_front()
 	_observe_story_from_opportunity(recorded)
 	profile_changed.emit()
+
+
+## A story source is a real place, person, enemy territory or relic.  It may
+## broaden a player's understanding once, but cannot be farmed by repeatedly
+## speaking to the same NPC or reloading a scene.
+func observe_story_source(source_id: String, entry: Dictionary) -> bool:
+	_normalize_story_weave()
+	var normalized_source := source_id.strip_edges()
+	if normalized_source.is_empty():
+		return false
+	var story: Dictionary = player.story_weave
+	var observed_sources: Array = story.get("observed_sources", [])
+	if observed_sources.has(normalized_source):
+		return false
+	observed_sources.append(normalized_source)
+	story.observed_sources = observed_sources
+	player.story_weave = story
+	var recorded := entry.duplicate(true)
+	recorded.kind = str(recorded.get("kind", "story_observation"))
+	recorded.story_source = normalized_source
+	record_opportunity(recorded)
+	return true
 
 
 ## Story progress is observation-only. It records a player's actual path but
@@ -1714,7 +1736,7 @@ func _normalize_player_schema() -> void:
 
 
 func _normalize_story_weave() -> void:
-	var defaults := {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "paused": false}
+	var defaults := {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "paused": false}
 	if not player.has("story_weave") or not player.story_weave is Dictionary:
 		player.story_weave = defaults
 		return
@@ -1726,7 +1748,7 @@ func _normalize_story_weave() -> void:
 	if not story.origin_id.is_empty() and not valid_origins.has(story.origin_id):
 		story.origin_id = ""
 		story.origin_locked = false
-	for key in ["world_marks", "personal_marks"]:
+	for key in ["world_marks", "personal_marks", "observed_sources"]:
 		var raw_marks: Variant = story.get(key, [])
 		var marks: Array[String] = []
 		if raw_marks is Array:

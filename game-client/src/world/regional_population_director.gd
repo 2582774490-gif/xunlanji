@@ -114,6 +114,8 @@ func resolve(interaction: Area2D) -> void:
 			summary = "%s 的出现为这片区域增加了一条可自由追踪的线索。" % name
 	if kind == "resource":
 		GameState.record_opportunity({"region": str(profile.get("region", "")), "name": name, "kind": kind, "cultivation": 0})
+	else:
+		summary += _observe_profile_story(profile)
 	population_resolved.emit(summary)
 
 func profile_for(interaction: Area2D) -> Dictionary:
@@ -132,7 +134,7 @@ func defeat_hostile(interaction: Area2D) -> void:
 	GameState.add_item(reward)
 	GameState.gain_cultivation(int(profile.get("cultivation", 4)))
 	GameState.record_opportunity({"region": str(profile.get("region", "")), "name": name, "kind": "hostile_defeated", "item": reward})
-	population_resolved.emit("击退 %s，获得 %s。这里的生态位会在后续时段重新出现。" % [name, reward])
+	population_resolved.emit("击退 %s，获得 %s。这里的生态位会在后续时段重新出现。%s" % [name, reward, _observe_profile_story(profile)])
 
 func active_count() -> int:
 	return _entries.size()
@@ -143,6 +145,21 @@ func interaction_for_profile_id(profile_id: String) -> Area2D:
 		if str(profile.get("id", "")) == profile_id:
 			return interaction
 	return null
+
+
+func _observe_profile_story(profile: Dictionary) -> String:
+	var trace := str(profile.get("story_trace", ""))
+	if not ["water", "road", "relic"].has(trace):
+		return ""
+	var source_id := "population_%s" % str(profile.get("id", ""))
+	var name := str(profile.get("name", "无名线索"))
+	var note := str(profile.get("story_note", "你把这段见闻记入游历簿。"))
+	if not GameState.observe_story_source(source_id, {
+		"region": str(profile.get("region", "")), "name": name,
+		"kind": "story_observation", "story_trace": trace, "description": note,
+	}):
+		return ""
+	return " 你将这段见闻记为%s。" % note
 
 func _clear_population() -> void:
 	for interaction in _entries.keys():
