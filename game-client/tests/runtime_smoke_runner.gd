@@ -15,6 +15,7 @@ func _run() -> void:
 	await _check_monthly_card_fairness_rules()
 	await _check_optional_world_guidance()
 	await _check_non_linear_story_weave()
+	await _check_personal_story_world_resonance()
 	await _check_cultivation_affinity()
 	await _check_codex_registry_ui()
 	await _check_fair_attribute_and_technique_growth()
@@ -299,6 +300,28 @@ func _check_non_linear_story_weave() -> void:
 	var saved := GameState.export_local_profile()
 	_expect((saved.player.get("story_weave", {}) as Dictionary).get("world_marks", []).size() == 3, "Personal story state must enter the local profile payload.")
 	_expect(GameState.personal_story_side_threads().size() >= 3, "The story weave must expose multiple optional exploration networks rather than one mandatory task chain.")
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
+func _check_personal_story_world_resonance() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.spirit_root = "水灵根"
+	GameState.player.physique = "流泉脉"
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "paused": false}
+	GameState.player.opening_lore_seen = true
+	GameState.player.world_positions = {}
+	var world := preload("res://scenes/yunlan_outskirts.tscn").instantiate()
+	add_child(world)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_expect(world.personal_resonance != null and str(world.personal_resonance_profile.get("name", "")) == "潮痕浮灯", "A water-route character must receive a real tide-specific resonance point in the appropriate open-world terrain.")
+	_expect(str(RegionalSectorCatalog.sector_at("yunlan_outskirts", world.personal_resonance.get_parent().position).get("id", "")) == "mist_stream_banks", "Personal resonance anchors must stay inside their declared ecological sector.")
+	world._resolve_personal_story_resonance()
+	await get_tree().process_frame
+	_expect((GameState.personal_story_state().get("personal_marks", []) as Array).has("origin_resonance") and not world.personal_resonance.get_parent().visible, "Resolving a personal resonance must persist one individual story record and remove only that local marker.")
+	world.queue_free()
+	await get_tree().process_frame
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 

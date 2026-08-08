@@ -5,6 +5,7 @@ const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
 const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
 const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
 const RemoteAvatarLayerScript = preload("res://src/world/remote_avatar_layer.gd")
+const WorldInteractionScript = preload("res://src/world/world_interaction.gd")
 
 const CHANCE_TRACES := [
 	{
@@ -93,6 +94,8 @@ var chosen_chance_trace: Dictionary = {}
 var current_sector_id := ""
 var opening_active := false
 var opening_page_index := 0
+var personal_resonance: Area2D
+var personal_resonance_profile: Dictionary = {}
 
 
 func _ready() -> void:
@@ -111,9 +114,12 @@ func _ready() -> void:
 	])
 	status.text = "云岚外野：云岚村只是第一处聚落。沿灵田、雾溪、云麓疏林与旧商道自由探索；资源和人物只会出现在合适地形。"
 	_setup_chance_trace()
+	_setup_personal_story_resonance()
 	var interactions: Array[Area2D] = [village_gate, mist_border_gate, water_palace_gate, echo_stone, stream_stair_cairn, caravan_milestone, wind_etched_marker]
 	if not chosen_chance_trace.is_empty():
 		interactions.append(chance_trace)
+	if personal_resonance != null:
+		interactions.append(personal_resonance)
 	for interaction in interactions:
 		interaction.focused.connect(_focus_interaction)
 		interaction.unfocused.connect(_unfocus_interaction)
@@ -145,6 +151,65 @@ func _setup_chance_trace() -> void:
 	$YunlanChanceTrace.position = chosen_chance_trace.position
 	$YunlanChanceTrace/Name.text = str(chosen_chance_trace.name)
 	chance_trace.prompt_text = str(chosen_chance_trace.prompt)
+
+
+func _setup_personal_story_resonance() -> void:
+	# This is an authored personal observation point, not a spawned quest-giver.
+	# It appears in an origin-appropriate terrain sector only until the player
+	# has actually found that route's first resonance.
+	var story_state := GameState.personal_story_state()
+	if (story_state.get("personal_marks", []) as Array).has("origin_resonance"):
+		return
+	var origin := GameState.personal_story_profile()
+	var resonance: Variant = origin.get("resonance", {})
+	if not resonance is Dictionary or str(resonance.get("region", "")) != "starter_village":
+		return
+	personal_resonance_profile = (resonance as Dictionary).duplicate(true)
+	var position: Vector2 = personal_resonance_profile.get("position", Vector2.ZERO)
+	var expected_sector := str(personal_resonance_profile.get("sector", ""))
+	var actual_sector := RegionalSectorCatalogScript.sector_at("yunlan_outskirts", position)
+	if position == Vector2.ZERO or str(actual_sector.get("id", "")) != expected_sector:
+		push_warning("Personal story resonance had no valid sector anchor.")
+		return
+	var root := Node2D.new()
+	root.name = "PersonalStoryResonance"
+	root.position = position
+	root.y_sort_enabled = true
+	add_child(root)
+	var shadow := Polygon2D.new()
+	shadow.polygon = PackedVector2Array([Vector2(-62, 2), Vector2(-14, -12), Vector2(62, -2), Vector2(28, 16), Vector2(-38, 14)])
+	shadow.color = Color(0.03, 0.06, 0.08, 0.50)
+	root.add_child(shadow)
+	var halo := Polygon2D.new()
+	halo.polygon = PackedVector2Array([Vector2(0, -178), Vector2(58, -92), Vector2(44, -20), Vector2(0, 8), Vector2(-44, -20), Vector2(-58, -92)])
+	halo.color = Color(0.54, 0.94, 0.84, 0.46)
+	root.add_child(halo)
+	var shard := Polygon2D.new()
+	shard.polygon = PackedVector2Array([Vector2(-18, -14), Vector2(-9, -148), Vector2(12, -190), Vector2(28, -132), Vector2(18, -38), Vector2(0, 0)])
+	shard.color = Color(0.83, 0.98, 0.74, 0.92)
+	root.add_child(shard)
+	var name_label := Label.new()
+	name_label.position = Vector2(-156, -242)
+	name_label.size = Vector2(312, 30)
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.add_theme_color_override("font_color", Color(0.86, 0.98, 0.76))
+	name_label.add_theme_color_override("font_outline_color", Color(0.04, 0.08, 0.1))
+	name_label.add_theme_constant_override("outline_size", 6)
+	name_label.text = str(personal_resonance_profile.get("name", "岚潮回响"))
+	root.add_child(name_label)
+	personal_resonance = Area2D.new()
+	personal_resonance.name = "Interaction"
+	personal_resonance.set_script(WorldInteractionScript)
+	personal_resonance.interaction_id = "personal_story_resonance"
+	personal_resonance.prompt_text = str(personal_resonance_profile.get("prompt", "静观岚潮回响"))
+	root.add_child(personal_resonance)
+	var collision := CollisionShape2D.new()
+	var shape := CircleShape2D.new()
+	shape.radius = 96.0
+	collision.shape = shape
+	collision.position = Vector2(0, -88)
+	personal_resonance.add_child(collision)
 
 
 func _setup_environment_depth() -> void:
@@ -249,6 +314,8 @@ func _activate_contextual() -> void:
 		_observe_lan_echo()
 	elif active_interaction == chance_trace and not chance_trace_resolved:
 		_resolve_chance_trace()
+	elif active_interaction == personal_resonance:
+		_resolve_personal_story_resonance()
 	elif active_interaction == stream_stair_cairn:
 		_read_field_clue("stream_stair_cairn")
 	elif active_interaction == caravan_milestone:
@@ -309,6 +376,19 @@ func _resolve_chance_trace() -> void:
 		str(chosen_chance_trace.description), str(chosen_chance_trace.item), int(chosen_chance_trace.cultivation),
 	]
 	$YunlanChanceTrace.visible = false
+	_close_interaction()
+
+
+func _resolve_personal_story_resonance() -> void:
+	if personal_resonance == null or personal_resonance_profile.is_empty():
+		return
+	GameState.record_opportunity({
+		"region": "starter_village", "name": str(personal_resonance_profile.get("name", "岚潮回响")),
+		"kind": "personal_resonance", "story_trace": str(personal_resonance_profile.get("story_trace", "")),
+	})
+	status.text = "%s\n（这是一条与你的灵根、体质相呼应的个人线索；它不会指定唯一任务，也不封锁任何其他道路。）" % str(personal_resonance_profile.get("description", ""))
+	personal_resonance.set_deferred("monitoring", false)
+	personal_resonance.get_parent().visible = false
 	_close_interaction()
 
 
