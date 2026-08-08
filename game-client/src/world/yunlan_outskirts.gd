@@ -54,7 +54,22 @@ const PERSONAL_OPPORTUNITY_PROFILES: Array[Dictionary] = [
 		"id": "oldroad_cargo_mark", "sector": "old_caravan_road", "name": "失蜡货印", "prompt": "辨认车辙旁未干的失蜡货印", "chance": 0.82,
 		"anchors": [Vector2(8420, 1840), Vector2(10160, 2120)], "reward": "旧道货签", "cultivation": 2, "story_trace": "road",
 		"description": "货印没有归属商会，蜡封却仍带温度。它证明某支商队刚刚经过此地，却没有人能在村里说出他们从哪条路而来。",
-		"story_branch": "opportunity_oldroad_cargo_mark", "story_branch_title": "失蜡货印", "tint": Color(1.0, 0.80, 0.52),
+		"choices": [
+			{
+				"id": "ledger", "title": "交云市验印", "prompt": "将失蜡货印带往云市比对商会旧账", "reward": "云市验印凭", "cultivation": 2, "story_trace": "road",
+				"description": "你没有急着追车辙，而是把货印带去云市与旧账比对。几家商会的蜡印都不相符，唯有一页停用货簿记着同样的转运编号。",
+				"story_branch": "opportunity_oldroad_ledger_choice", "story_branch_title": "失蜡货印·云市验记",
+				"story_branch_description": "你把失蜡货印交给云市验看，从旧账里留下了一条商路证词。它不是委托，也不要求你替商会追查。",
+				"story_thread": "market", "story_thread_title": "云市验印", "story_thread_description": "你选择先让货印进入公开账簿，留下岚潮如何扰动商路的亲历。",
+			},
+			{
+				"id": "tracks", "title": "循辙入岔", "prompt": "沿尚未散去的车辙查看旧商道岔口", "reward": "断辙砂", "cultivation": 2, "story_trace": "road",
+				"description": "你沿着车辙走到旧商道岔口。痕迹在一段被草覆住的石路前突然折返，留下少量沾雾的细砂；那条路不在任何现行商图上。",
+				"story_branch": "opportunity_oldroad_tracks_choice", "story_branch_title": "失蜡货印·断辙记",
+				"story_branch_description": "你没有把线索交给任何人，只记下车辙折返的旧路位置。它可以被搁置，也可以在之后与别处痕迹对照。",
+			},
+		],
+		"tint": Color(1.0, 0.80, 0.52),
 	},
 	{
 		"id": "cloudfoot_dew_crane", "sector": "cloudfoot_wood", "name": "云麓露羽", "prompt": "观察林缘沾满异露的灵禽羽痕", "chance": 0.68,

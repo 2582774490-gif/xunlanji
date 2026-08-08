@@ -1885,6 +1885,24 @@ func _check_personal_opportunity_director() -> void:
 	_expect(director.active_count() == 0, "A resolved personal opportunity must remain absent through its cooldown even in the same time window.")
 	var saved := GameState.export_local_profile()
 	_expect(int((saved.get("player", {}) as Dictionary).get("opportunity_seed", 0)) == 24681357, "The character-specific opportunity seed must persist in the local profile.")
+	GameState.player.ecology_cooldowns = {}
+	var branching_profiles: Array[Dictionary] = [{
+		"id": "smoke_branching_opportunity", "sector": "mist_stream_banks", "name": "烟测岔路货印", "prompt": "查看", "chance": 1.0,
+		"anchors": [Vector2(3260, 960)], "reward": "", "gives_item": false, "cultivation": 0, "story_trace": "road",
+		"description": "一处需要由玩家自行处理的商路痕迹。", "tint": Color(1.0, 0.8, 0.5),
+		"choices": [
+			{"id": "ledger", "title": "入账", "prompt": "交给云市", "reward": "烟测验印", "cultivation": 2, "story_thread": "market", "story_thread_title": "烟测验印入账"},
+			{"id": "tracks", "title": "循辙", "prompt": "沿旧路追查", "reward": "烟测断辙砂", "cultivation": 2},
+		],
+	}]
+	director.populate("starter_village", branching_profiles, 12000)
+	_expect(director.active_count() == 1, "A branching personal opportunity must remain one sparse world event even when it exposes multiple handling choices.")
+	var ledger_choice: Area2D = director.interaction_for_response_id("smoke_branching_opportunity", "ledger")
+	var tracks_choice: Area2D = director.interaction_for_response_id("smoke_branching_opportunity", "tracks")
+	_expect(ledger_choice != null and tracks_choice != null and ledger_choice != tracks_choice, "A branching opportunity must expose distinct physical choices instead of auto-resolving the same result for every player.")
+	director.resolve(ledger_choice, 12000)
+	_expect(GameState.player.inventory.has("烟测验印") and GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "personal_opportunity_smoke_branching_opportunity_ledger"), "Resolving a choice must grant only its selected equal-value outcome and preserve the corresponding lived history.")
+	_expect(director.active_count() == 0 and director.interaction_for_response_id("smoke_branching_opportunity", "tracks") == null, "Choosing one handling route must close the same local event without allowing the other route to be collected too.")
 	director.queue_free()
 	await get_tree().process_frame
 	GameState.player = profile_before
