@@ -138,6 +138,7 @@ var player := {
 	"opening_lore_seen": false,
 	"field_clues": [],
 	"ecology_cooldowns": {},
+	"opportunity_seed": 0,
 	"world_positions": {},
 	"equipped_weapon": "练气木剑",
 	"equipped_artifact": "纳灵玉佩",
@@ -1810,6 +1811,10 @@ func _normalize_player_schema() -> void:
 		player.ecology_cooldowns = {}
 	if not player.has("world_positions") or not player.world_positions is Dictionary:
 		player.world_positions = {}
+	if not player.has("opportunity_seed"):
+		player.opportunity_seed = 0
+	else:
+		player.opportunity_seed = max(0, int(player.opportunity_seed))
 	if not player.has("fixed_dungeon_attempts") or not player.fixed_dungeon_attempts is Dictionary:
 		player.fixed_dungeon_attempts = {"day": "", "used": 0}
 	else:
@@ -1936,6 +1941,26 @@ func is_ecology_profile_available(region_id: String, profile_id: String, now_uni
 	var now := int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
 	var available_at := int(player.ecology_cooldowns.get(key, 0))
 	return available_at <= now
+
+
+## Each local character receives a persisted exploration seed. It affects only
+## optional personal opportunities: no combat stat, market price, drop rate,
+## PVP result, or shared-world ecology depends on it.
+func personal_opportunity_seed() -> int:
+	_normalize_player_schema()
+	var existing := int(player.get("opportunity_seed", 0))
+	if existing > 0:
+		return existing
+	var material := "%s|%s|%s|%s|%d|%d" % [
+		str(player.get("gender", "")), str(player.get("spirit_root", "")), str(player.get("physique", "")),
+		str(player.get("cultivation_path", "")), int(Time.get_unix_time_from_system()), int(Time.get_ticks_usec()),
+	]
+	var generated: int = abs(int(material.hash()))
+	if generated <= 0:
+		generated = 104729
+	player.opportunity_seed = generated
+	profile_changed.emit()
+	return generated
 
 func mark_ecology_profile_resolved(region_id: String, profile_id: String, respawn_seconds: int, now_unix: int = -1) -> void:
 	if region_id.is_empty() or profile_id.is_empty() or respawn_seconds <= 0:

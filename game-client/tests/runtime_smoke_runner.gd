@@ -69,6 +69,7 @@ func _run() -> void:
 	await _check_local_market_loop()
 	await _check_online_session_presence_boundary()
 	await _check_random_opportunity()
+	await _check_personal_opportunity_director()
 	await _check_opportunity_journal()
 	await _check_world_menu_does_not_fabricate_opportunity_rewards()
 	await _check_village_routes()
@@ -1730,6 +1731,36 @@ func _check_random_opportunity() -> void:
 	south_gate.queue_free()
 	await get_tree().process_frame
 
+func _check_personal_opportunity_director() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.opportunity_seed = 24681357
+	GameState.player.ecology_cooldowns = {}
+	GameState.player.opportunity_log = []
+	GameState.player.story_weave = {"origin_id": "", "origin_locked": false, "world_marks": [], "personal_marks": [], "observed_sources": [], "branch_records": [], "thread_records": [], "stance_id": "", "paused": false}
+	var director = preload("res://src/world/personal_opportunity_director.gd").new()
+	add_child(director)
+	var profiles: Array[Dictionary] = [{
+		"id": "smoke_personal_stream", "sector": "mist_stream_banks", "name": "烟测雾溪机缘", "prompt": "探查", "chance": 1.0,
+		"anchors": [Vector2(3260, 960)], "reward": "", "gives_item": false, "cultivation": 0, "story_trace": "water",
+		"description": "一段只对该角色显现的雾溪见闻。", "tint": Color(0.7, 0.9, 1.0),
+	}]
+	director.populate("starter_village", profiles, 9000)
+	_expect(director.active_count() == 1, "A personal exploration seed should select one terrain-valid opportunity for the character.")
+	var interaction: Area2D = director.interaction_for_profile_id("smoke_personal_stream")
+	_expect(interaction != null and str(RegionalSectorCatalog.sector_at("yunlan_outskirts", interaction.get_parent().position).get("id", "")) == "mist_stream_banks", "A personal opportunity must remain in its declared ecological sector.")
+	director.resolve(interaction, 9000)
+	_expect(not GameState.is_ecology_profile_available("starter_village", "personal_opportunity_smoke_personal_stream", 9001), "Resolving a personal opportunity must apply its own cooldown rather than allow immediate reload farming.")
+	_expect(GameState.recent_opportunities(1).size() == 1 and str(GameState.recent_opportunities(1)[0].get("kind", "")) == "personal_opportunity", "Resolving a personal opportunity must create a real journal entry.")
+	director.populate("starter_village", profiles, 9001)
+	_expect(director.active_count() == 0, "A resolved personal opportunity must remain absent through its cooldown even in the same time window.")
+	var saved := GameState.export_local_profile()
+	_expect(int((saved.get("player", {}) as Dictionary).get("opportunity_seed", 0)) == 24681357, "The character-specific opportunity seed must persist in the local profile.")
+	director.queue_free()
+	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
+
+
 func _check_opportunity_journal() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	var screen_before := GameState.current_screen
@@ -1817,6 +1848,7 @@ func _check_yunlan_outskirts_scene() -> void:
 	_expect(outskirts.village_gate != null and outskirts.mist_border_gate != null and outskirts.water_palace_gate != null, "Yunlan Outskirts is missing its physical village, initial dungeon, or Mist Tide Border route.")
 	_expect(outskirts.stream_stair_cairn != null and outskirts.caravan_milestone != null and outskirts.wind_etched_marker != null, "Yunlan Outskirts is missing its physical, non-forced field-clue props.")
 	_expect(outskirts.chance_trace != null and not outskirts.chosen_chance_trace.is_empty(), "Yunlan Outskirts did not choose a terrain-bound random chance trace.")
+	_expect(outskirts.personal_opportunities != null and outskirts.personal_opportunities.active_count() <= 1, "Yunlan Outskirts is missing its character-specific sparse opportunity director.")
 	_expect(outskirts.has_node("HUD/WorldMinimap"), "Yunlan Outskirts is missing its large-region orientation map.")
 	_expect(outskirts.has_node("EnvironmentDepthLayer"), "Yunlan Outskirts is missing its independent depth-layer environment props.")
 	var depth: RegionalEnvironmentDepthLayer = outskirts.get_node("EnvironmentDepthLayer")
@@ -2044,6 +2076,7 @@ func _check_mist_border_scene() -> void:
 	_expect(border.has_node("SouthHighlandsChunk"), "Mist Tide Border is missing its authored southern-highlands terrain chunk.")
 	_expect(border.has_node("TidewardHillsChunk"), "Mist Tide Border is missing its authored southeast tideward-hills terrain chunk.")
 	_expect(border.tideward_watchstone_interaction != null, "Mist Tide Border is missing the tideward-hills exploration landmark.")
+	_expect(border.personal_opportunities != null and border.personal_opportunities.active_count() <= 1, "Mist Tide Border is missing its character-specific sparse opportunity director.")
 	var watchstone_art: Sprite2D = border.get_node("TidewardWatchstone/Art")
 	_expect(watchstone_art.texture.resource_path.ends_with("tideward_watchstone_v01_alpha.png"), "Tideward watchstone must use its approved independent alpha art.")
 	_expect(RegionalSectorCatalog.sector_at("mist_border", Vector2(7900, 5100)).get("id", "") == "tideward_hills", "Tideward watchstone must remain inside its exposed highland sector.")

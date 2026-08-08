@@ -6,6 +6,7 @@ const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_cat
 const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
 const RemoteAvatarLayerScript = preload("res://src/world/remote_avatar_layer.gd")
 const WorldInteractionScript = preload("res://src/world/world_interaction.gd")
+const PersonalOpportunityDirectorScript = preload("res://src/world/personal_opportunity_director.gd")
 
 const CHANCE_TRACES := [
 	{
@@ -32,6 +33,36 @@ const CHANCE_TRACES := [
 # disposable scene prop. Resolving one suppresses only that exact trace for a
 # while; another compatible terrain sector may still offer a different chance.
 const CHANCE_TRACE_RESPAWN_SECONDS := 1800
+
+# One of these can appear for this local character during an exploration
+# window. They are deliberately tied to terrain and never replace fixed gates,
+# dungeons, NPCs, or shared ecology.
+const PERSONAL_OPPORTUNITY_PROFILES: Array[Dictionary] = [
+	{
+		"id": "stream_medicine_cache", "sector": "mist_stream_banks", "name": "雾溪药函", "prompt": "探查石岸下被潮水送回的药函", "chance": 0.86,
+		"anchors": [Vector2(3260, 960), Vector2(3780, 1080)], "reward": "雾溪药", "cultivation": 3, "story_trace": "water",
+		"description": "潮水把一只密封药函送回了上游。函内药材尚未受损，唯有封泥上留着不属于此地的潮线。",
+		"story_branch": "opportunity_stream_medicine_cache", "story_branch_title": "雾溪回函", "tint": Color(0.56, 0.94, 0.90),
+	},
+	{
+		"id": "highland_wind_token", "sector": "stonebud_highland", "name": "背风铜铃", "prompt": "拾取石隙中不随风摆动的铜铃", "chance": 0.78,
+		"anchors": [Vector2(1880, 3540), Vector2(3060, 4020)], "reward": "背风铃片", "cultivation": 3, "story_trace": "relic",
+		"description": "铜铃没有铃舌，却在你靠近时轻轻一震。背风石隙里残留的古旧方位，像在等待有人把它与别处的痕迹相对照。",
+		"story_branch": "opportunity_highland_wind_token", "story_branch_title": "背风铃记", "tint": Color(0.86, 0.76, 1.0),
+	},
+	{
+		"id": "oldroad_cargo_mark", "sector": "old_caravan_road", "name": "失蜡货印", "prompt": "辨认车辙旁未干的失蜡货印", "chance": 0.82,
+		"anchors": [Vector2(8420, 1840), Vector2(10160, 2120)], "reward": "旧道货签", "cultivation": 2, "story_trace": "road",
+		"description": "货印没有归属商会，蜡封却仍带温度。它证明某支商队刚刚经过此地，却没有人能在村里说出他们从哪条路而来。",
+		"story_branch": "opportunity_oldroad_cargo_mark", "story_branch_title": "失蜡货印", "tint": Color(1.0, 0.80, 0.52),
+	},
+	{
+		"id": "cloudfoot_dew_crane", "sector": "cloudfoot_wood", "name": "云麓露羽", "prompt": "观察林缘沾满异露的灵禽羽痕", "chance": 0.68,
+		"anchors": [Vector2(5180, 2660), Vector2(6540, 2460)], "reward": "露羽", "cultivation": 2, "story_trace": "water",
+		"description": "灵禽没有留下巢穴，只在林缘留下沾着异露的羽痕。露珠在叶尖停留的方向，与雾溪的流向恰好相反。",
+		"story_branch": "opportunity_cloudfoot_dew_crane", "story_branch_title": "云麓露羽", "tint": Color(0.72, 1.0, 0.72),
+	},
+]
 
 const FIELD_CLUES := {
 	"stream_stair_cairn": {
@@ -97,6 +128,7 @@ var opening_active := false
 var opening_page_index := 0
 var personal_resonance: Area2D
 var personal_resonance_profile: Dictionary = {}
+var personal_opportunities: Variant = null
 
 
 func _ready() -> void:
@@ -116,6 +148,7 @@ func _ready() -> void:
 	status.text = "云岚外野：云岚村只是第一处聚落。沿灵田、雾溪、云麓疏林与旧商道自由探索；资源和人物只会出现在合适地形。"
 	_setup_chance_trace()
 	_setup_personal_story_resonance()
+	_setup_personal_opportunities()
 	var interactions: Array[Area2D] = [village_gate, mist_border_gate, water_palace_gate, echo_stone, stream_stair_cairn, caravan_milestone, wind_etched_marker, old_caravan_waystation]
 	if not chosen_chance_trace.is_empty():
 		interactions.append(chance_trace)
@@ -152,6 +185,20 @@ func _setup_chance_trace() -> void:
 	$YunlanChanceTrace.position = chosen_chance_trace.position
 	$YunlanChanceTrace/Name.text = str(chosen_chance_trace.name)
 	chance_trace.prompt_text = str(chosen_chance_trace.prompt)
+
+
+func _setup_personal_opportunities() -> void:
+	personal_opportunities = PersonalOpportunityDirectorScript.new()
+	personal_opportunities.name = "PersonalOpportunities"
+	add_child(personal_opportunities)
+	personal_opportunities.focused.connect(_focus_interaction)
+	personal_opportunities.unfocused.connect(_unfocus_interaction)
+	personal_opportunities.resolved.connect(_on_personal_opportunity_resolved)
+	personal_opportunities.populate("starter_village", PERSONAL_OPPORTUNITY_PROFILES)
+
+
+func _on_personal_opportunity_resolved(summary: String) -> void:
+	status.text = summary
 
 
 func _setup_personal_story_resonance() -> void:
@@ -326,6 +373,9 @@ func _activate_contextual() -> void:
 		_read_field_clue("wind_etched_marker")
 	elif active_interaction == old_caravan_waystation:
 		_visit_old_caravan_waystation()
+	elif personal_opportunities != null and personal_opportunities.owns(active_interaction):
+		personal_opportunities.resolve(active_interaction)
+		_close_interaction()
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()

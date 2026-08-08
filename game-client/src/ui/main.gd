@@ -750,7 +750,7 @@ func _journal_kind_name(kind: String) -> String:
 	var labels := {
 		"resource": "采集", "hostile_defeated": "遭遇", "starter_weapon_trial": "试兵",
 		"fixed_dungeon_entrance": "入口", "fixed_relic": "遗迹", "high_realm_lore": "见闻",
-		"port_rumor": "传闻", "foundation_preparation": "观想", "story_observation": "岚潮见闻", "exploration": "探索",
+		"port_rumor": "传闻", "foundation_preparation": "观想", "story_observation": "岚潮见闻", "personal_opportunity": "偶遇机缘", "exploration": "探索",
 	}
 	return str(labels.get(kind, "机缘"))
 

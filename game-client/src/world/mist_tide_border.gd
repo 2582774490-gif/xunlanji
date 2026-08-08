@@ -6,6 +6,34 @@ const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_cat
 const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
 const RemoteAvatarLayerScript = preload("res://src/world/remote_avatar_layer.gd")
 const WorldInteractionScript = preload("res://src/world/world_interaction.gd")
+const PersonalOpportunityDirectorScript = preload("res://src/world/personal_opportunity_director.gd")
+
+const PERSONAL_OPPORTUNITY_PROFILES: Array[Dictionary] = [
+	{
+		"id": "checkpoint_refuge_charm", "sector": "old_checkpoint", "name": "避潮护符", "prompt": "查看残关石阶下遗落的避潮护符", "chance": 0.80,
+		"anchors": [Vector2(1320, 1420), Vector2(1880, 1180)], "reward": "避潮符纸", "cultivation": 3, "story_trace": "road",
+		"description": "护符背面写着一串避潮车队的临时人名。有人在雾潮里先救走了陌生人，留下的不是功勋，只是一条仍能走通的路。",
+		"story_branch": "opportunity_checkpoint_refuge_charm", "story_branch_title": "残关避潮符", "tint": Color(0.94, 0.84, 0.56),
+	},
+	{
+		"id": "fog_channel_scale", "sector": "fog_channel", "name": "回水鳞片", "prompt": "拾取石岸夹缝中逆潮漂来的鳞片", "chance": 0.76,
+		"anchors": [Vector2(2260, 860), Vector2(3420, 580)], "reward": "回水鳞片", "cultivation": 4, "story_trace": "water",
+		"description": "鳞片的纹路朝向与水流相反，边缘还带着另一片水域的盐霜。雾渠只是两边潮息偶尔重叠的窄口。",
+		"story_branch": "opportunity_fog_channel_scale", "story_branch_title": "回水鳞片录", "tint": Color(0.48, 0.92, 0.96),
+	},
+	{
+		"id": "ore_flat_survey_pin", "sector": "ore_flats", "name": "断纹测钉", "prompt": "拔出矿滩上标记旧纹走向的测钉", "chance": 0.72,
+		"anchors": [Vector2(3980, 2140), Vector2(5480, 1860)], "reward": "断纹测钉", "cultivation": 4, "story_trace": "relic",
+		"description": "测钉沿着退潮矿线排开，却指向不存在的地层。有人曾在这里认真测量旧界，而不是传言中的宝藏。",
+		"story_branch": "opportunity_ore_flat_survey_pin", "story_branch_title": "断纹测钉", "tint": Color(0.86, 0.70, 1.0),
+	},
+	{
+		"id": "wetland_medicine_sachet", "sector": "herb_wetland", "name": "同枝药囊", "prompt": "辨认湿地石滩上晾晒的同枝药囊", "chance": 0.70,
+		"anchors": [Vector2(6760, 2180), Vector2(8260, 1680)], "reward": "雾泽灵草", "cultivation": 3, "story_trace": "water",
+		"description": "药囊里的两味药草来自同一枝根，却有相反的成熟时序。它们不是珍稀掉落，只是一片湿地正在缓慢改变的证据。",
+		"story_branch": "opportunity_wetland_medicine_sachet", "story_branch_title": "同枝药囊", "tint": Color(0.70, 1.0, 0.72),
+	},
+]
 
 @onready var player: CharacterBody2D = $Player
 @onready var return_interaction: Area2D = $RuinedCheckpoint/Interaction
@@ -35,6 +63,7 @@ var tideward_watchstone_observed := false
 var current_sector_id := ""
 var personal_resonance: Area2D
 var personal_resonance_profile: Dictionary = {}
+var personal_opportunities: Variant = null
 
 func _ready() -> void:
 	GameState.current_region_id = "mist_border"
@@ -79,6 +108,7 @@ func _ready() -> void:
 	tideward_watchstone_interaction.focused.connect(_focus_interaction)
 	tideward_watchstone_interaction.unfocused.connect(_unfocus_interaction)
 	_setup_personal_story_resonance()
+	_setup_personal_opportunities()
 	regional_population.focused.connect(_focus_interaction)
 	regional_population.unfocused.connect(_unfocus_interaction)
 	regional_population.population_resolved.connect(_on_population_resolved)
@@ -117,6 +147,20 @@ func _setup_environment_depth() -> void:
 	depth_layer.name = "EnvironmentDepthLayer"
 	depth_layer.region_style = "mist_border"
 	add_child(depth_layer)
+
+func _setup_personal_opportunities() -> void:
+	personal_opportunities = PersonalOpportunityDirectorScript.new()
+	personal_opportunities.name = "PersonalOpportunities"
+	add_child(personal_opportunities)
+	personal_opportunities.focused.connect(_focus_interaction)
+	personal_opportunities.unfocused.connect(_unfocus_interaction)
+	personal_opportunities.resolved.connect(_on_personal_opportunity_resolved)
+	personal_opportunities.populate("mist_border", PERSONAL_OPPORTUNITY_PROFILES)
+
+
+func _on_personal_opportunity_resolved(summary: String) -> void:
+	status.text = summary
+
 
 func _setup_personal_story_resonance() -> void:
 	# This second observation is authored, not randomly distributed. It appears
@@ -317,6 +361,9 @@ func _activate_contextual() -> void:
 		_observe_tideward_watchstone()
 	elif active_interaction == personal_resonance:
 		_resolve_personal_story_resonance()
+	elif personal_opportunities != null and personal_opportunities.owns(active_interaction):
+		personal_opportunities.resolve(active_interaction)
+		_close_interaction()
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()
