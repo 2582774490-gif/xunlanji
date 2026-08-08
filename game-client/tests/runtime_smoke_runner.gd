@@ -357,6 +357,27 @@ func _check_personal_story_world_resonance() -> void:
 	_expect((GameState.personal_story_state().get("personal_marks", []) as Array).has("origin_resonance") and not world.personal_resonance.get_parent().visible, "Resolving a personal resonance must persist one individual story record and remove only that local marker.")
 	world.queue_free()
 	await get_tree().process_frame
+	var border := preload("res://scenes/mist_tide_border.tscn").instantiate()
+	add_child(border)
+	await get_tree().process_frame
+	_expect(border.personal_resonance != null and str(border.personal_resonance_profile.get("name", "")) == "回潮石环", "A water-route character must receive a second, origin-specific observation in Mist Tide Border.")
+	_expect(str(RegionalSectorCatalog.sector_at("mist_border", border.personal_resonance.get_parent().position).get("id", "")) == "fog_channel", "The tide-listener continuation must remain on the fog-channel water ecology.")
+	border._resolve_personal_story_resonance()
+	await get_tree().process_frame
+	_expect((GameState.personal_story_state().get("personal_marks", []) as Array).has("border_resonance"), "Resolving a cross-region personal resonance must persist the continuation marker.")
+	_expect(GameState.personal_story_branch_records().any(func(record: Dictionary): return str(record.get("id", "")) == "tide_listener_border_ring"), "A cross-region personal resonance must leave an individual journal record, not only temporary dialogue.")
+	border.queue_free()
+	await get_tree().process_frame
+	var story_catalog = preload("res://src/data/story_weave_catalog.gd")
+	var expected_border_sectors := {
+		"tide_listener": "fog_channel", "herb_reader": "herb_wetland", "forge_watcher": "ore_flats",
+		"storm_walker": "mist_highlands", "mirror_keeper": "outer_shoals",
+	}
+	for origin_id in expected_border_sectors:
+		var origin: Dictionary = story_catalog.origin_by_id(str(origin_id))
+		var continuation: Dictionary = origin.get("border_resonance", {})
+		_expect(str(continuation.get("branch_id", "")).length() > 0, "Every launch origin must have an individually recorded Mist Border continuation.")
+		_expect(str(RegionalSectorCatalog.sector_at("mist_border", continuation.get("position", Vector2.ZERO)).get("id", "")) == str(expected_border_sectors[origin_id]), "Each personal continuation must stay in its declared, believable Mist Border sector.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 

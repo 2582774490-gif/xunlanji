@@ -5,6 +5,7 @@ const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
 const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
 const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
 const RemoteAvatarLayerScript = preload("res://src/world/remote_avatar_layer.gd")
+const WorldInteractionScript = preload("res://src/world/world_interaction.gd")
 
 @onready var player: CharacterBody2D = $Player
 @onready var return_interaction: Area2D = $RuinedCheckpoint/Interaction
@@ -32,6 +33,8 @@ var scout_dialogue_stage := 0
 var crystal_collected := false
 var tideward_watchstone_observed := false
 var current_sector_id := ""
+var personal_resonance: Area2D
+var personal_resonance_profile: Dictionary = {}
 
 func _ready() -> void:
 	GameState.current_region_id = "mist_border"
@@ -75,6 +78,7 @@ func _ready() -> void:
 	ancient_ridge_gate_interaction.unfocused.connect(_unfocus_interaction)
 	tideward_watchstone_interaction.focused.connect(_focus_interaction)
 	tideward_watchstone_interaction.unfocused.connect(_unfocus_interaction)
+	_setup_personal_story_resonance()
 	regional_population.focused.connect(_focus_interaction)
 	regional_population.unfocused.connect(_unfocus_interaction)
 	regional_population.population_resolved.connect(_on_population_resolved)
@@ -113,6 +117,116 @@ func _setup_environment_depth() -> void:
 	depth_layer.name = "EnvironmentDepthLayer"
 	depth_layer.region_style = "mist_border"
 	add_child(depth_layer)
+
+func _setup_personal_story_resonance() -> void:
+	# This second observation is authored, not randomly distributed. It appears
+	# only after the player found their own first resonance in Yunlan, then
+	# continues that perspective in a different but fitting regional ecology.
+	var story_state := GameState.personal_story_state()
+	if not (story_state.get("personal_marks", []) as Array).has("origin_resonance"):
+		return
+	if (story_state.get("personal_marks", []) as Array).has("border_resonance"):
+		return
+	var origin := GameState.personal_story_profile()
+	var resonance: Variant = origin.get("border_resonance", {})
+	if not resonance is Dictionary or str(resonance.get("region", "")) != "mist_border":
+		return
+	personal_resonance_profile = (resonance as Dictionary).duplicate(true)
+	var position: Vector2 = personal_resonance_profile.get("position", Vector2.ZERO)
+	var expected_sector := str(personal_resonance_profile.get("sector", ""))
+	var actual_sector := RegionalSectorCatalogScript.sector_at("mist_border", position)
+	if position == Vector2.ZERO or str(actual_sector.get("id", "")) != expected_sector:
+		push_warning("Mist Border personal resonance had no valid sector anchor.")
+		personal_resonance_profile.clear()
+		return
+	var root := Node2D.new()
+	root.name = "PersonalStoryResonance"
+	root.position = position
+	root.y_sort_enabled = true
+	add_child(root)
+	var colors := _personal_resonance_colors(str(origin.get("id", "")))
+	var shadow := Polygon2D.new()
+	shadow.polygon = PackedVector2Array([Vector2(-74, 0), Vector2(-28, -13), Vector2(64, -4), Vector2(40, 16), Vector2(-50, 14)])
+	shadow.color = Color(0.02, 0.05, 0.08, 0.52)
+	root.add_child(shadow)
+	var outer_halo := Polygon2D.new()
+	outer_halo.polygon = PackedVector2Array([Vector2(0, -182), Vector2(72, -104), Vector2(62, -36), Vector2(0, 12), Vector2(-62, -36), Vector2(-72, -104)])
+	outer_halo.color = colors[0]
+	root.add_child(outer_halo)
+	var inner_shard := Polygon2D.new()
+	inner_shard.polygon = PackedVector2Array([Vector2(-20, -18), Vector2(-12, -130), Vector2(0, -204), Vector2(20, -130), Vector2(26, -18), Vector2(0, 6)])
+	inner_shard.color = colors[1]
+	root.add_child(inner_shard)
+	var crest := Polygon2D.new()
+	crest.polygon = PackedVector2Array([Vector2(-48, -80), Vector2(0, -126), Vector2(48, -80), Vector2(0, -60)])
+	crest.color = colors[2]
+	root.add_child(crest)
+	var name_label := Label.new()
+	name_label.position = Vector2(-170, -256)
+	name_label.size = Vector2(340, 32)
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.add_theme_color_override("font_color", colors[1])
+	name_label.add_theme_color_override("font_outline_color", Color(0.03, 0.06, 0.09))
+	name_label.add_theme_constant_override("outline_size", 6)
+	name_label.text = str(personal_resonance_profile.get("name", "岚潮续响"))
+	root.add_child(name_label)
+	personal_resonance = Area2D.new()
+	personal_resonance.name = "Interaction"
+	personal_resonance.set_script(WorldInteractionScript)
+	personal_resonance.interaction_id = "mist_border_personal_story_resonance"
+	personal_resonance.prompt_text = str(personal_resonance_profile.get("prompt", "静观岚潮续响"))
+	root.add_child(personal_resonance)
+	var collision := CollisionShape2D.new()
+	var shape := CircleShape2D.new()
+	shape.radius = 102.0
+	collision.shape = shape
+	collision.position = Vector2(0, -88)
+	personal_resonance.add_child(collision)
+	personal_resonance.focused.connect(_focus_interaction)
+	personal_resonance.unfocused.connect(_unfocus_interaction)
+
+
+func _personal_resonance_colors(origin_id: String) -> Array[Color]:
+	match origin_id:
+		"tide_listener":
+			return [Color(0.20, 0.78, 0.96, 0.34), Color(0.70, 0.96, 1.0), Color(0.40, 0.70, 1.0, 0.86)]
+		"herb_reader":
+			return [Color(0.38, 0.92, 0.54, 0.34), Color(0.78, 1.0, 0.68), Color(0.32, 0.76, 0.44, 0.86)]
+		"forge_watcher":
+			return [Color(1.0, 0.48, 0.18, 0.32), Color(1.0, 0.84, 0.52), Color(0.92, 0.42, 0.20, 0.88)]
+		"storm_walker":
+			return [Color(0.70, 0.64, 1.0, 0.32), Color(0.90, 0.90, 1.0), Color(0.54, 0.48, 0.96, 0.88)]
+		_:
+			return [Color(0.94, 0.70, 1.0, 0.30), Color(1.0, 0.86, 1.0), Color(0.84, 0.50, 0.92, 0.88)]
+
+
+func _resolve_personal_story_resonance() -> void:
+	if personal_resonance == null or personal_resonance_profile.is_empty():
+		return
+	var trace := str(personal_resonance_profile.get("story_trace", ""))
+	var name := str(personal_resonance_profile.get("name", "岚潮续响"))
+	var description := str(personal_resonance_profile.get("description", ""))
+	GameState.record_opportunity({
+		"region": "mist_border", "name": name, "kind": "personal_border_resonance", "story_trace": trace,
+	})
+	GameState.record_personal_story_branch(
+		str(personal_resonance_profile.get("branch_id", "mist_border_resonance")),
+		str(personal_resonance_profile.get("branch_title", name)),
+		description
+	)
+	var story: Dictionary = GameState.player.story_weave
+	var marks: Array = story.get("personal_marks", [])
+	if not marks.has("border_resonance"):
+		marks.append("border_resonance")
+	story.personal_marks = marks
+	GameState.player.story_weave = story
+	GameState.profile_changed.emit()
+	status.text = "%s\n（这段续响来自你的命途起点；它记录你的理解，不要求你追随某个势力或完成固定任务。）" % description
+	personal_resonance.set_deferred("monitoring", false)
+	personal_resonance.get_parent().visible = false
+	_close_interaction()
+
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
@@ -201,6 +315,8 @@ func _activate_contextual() -> void:
 		_try_enter_ancient_ridge()
 	elif active_interaction == tideward_watchstone_interaction and not tideward_watchstone_observed:
 		_observe_tideward_watchstone()
+	elif active_interaction == personal_resonance:
+		_resolve_personal_story_resonance()
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()

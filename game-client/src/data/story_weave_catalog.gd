@@ -30,6 +30,7 @@ const ORIGINS := {
 		"roots": ["水灵根", "雾灵根"], "physiques": ["流泉脉", "岚息体"],
 		"signals": ["雾", "溪", "潮", "水府", "港", "海"],
 		"resonance": {"region": "starter_village", "sector": "mist_stream_banks", "position": Vector2(3860, 820), "story_trace": "water", "name": "潮痕浮灯", "prompt": "静观雾溪石岸的潮痕浮灯", "description": "浅潮没有推着浮灯向下，反而将它缓缓送回山脚。你第一次确认，这不是寻常的水雾异动。"},
+		"border_resonance": {"region": "mist_border", "sector": "fog_channel", "position": Vector2(3340, 780), "story_trace": "water", "name": "回潮石环", "prompt": "比对雾渠石环内外的回潮刻度", "description": "石环内的水位比渠外晚退半刻。你听见的不是一条水道在回声，而像两片水域隔着旧界彼此应答。", "branch_id": "tide_listener_border_ring", "branch_title": "回潮石环录"},
 		"leads": ["沿雾溪、水府或归墟雾港观察潮线变化。", "向水系散修、船工或丹师交换有关潮息的见闻。"],
 	},
 	"herb_reader": {
@@ -38,6 +39,7 @@ const ORIGINS := {
 		"roots": ["木灵根"], "physiques": ["青木灵胎"],
 		"signals": ["草", "药", "丹", "木", "湿地", "灵植"],
 		"resonance": {"region": "starter_village", "sector": "cloudfoot_wood", "position": Vector2(5580, 2360), "story_trace": "water", "name": "逆时草结", "prompt": "查看疏林中的逆时草结", "description": "同一株灵草的晨露与暮露同时凝在叶脉上。药性尚未变质，却先替这片山林记下了岚潮。"},
+		"border_resonance": {"region": "mist_border", "sector": "herb_wetland", "position": Vector2(7240, 2300), "story_trace": "water", "name": "并生药脉", "prompt": "查看同根异时开花的并生药脉", "description": "一段根须同时抽出早春与深秋的叶芽，药性并未相冲。你意识到岚潮先改变的是生长的时序，而非草木本身。", "branch_id": "herb_reader_border_veins", "branch_title": "并生药脉笺"},
 		"leads": ["在雾溪浅岸、湿地与山麓记录灵植的生长差异。", "与药师、丹修或采药散修交换药性与产地线索。"],
 	},
 	"forge_watcher": {
@@ -46,6 +48,7 @@ const ORIGINS := {
 		"roots": ["金灵根", "火灵根", "土灵根"], "physiques": ["玄岳骨", "赤阳髓"],
 		"signals": ["矿", "炉", "火", "石", "印", "器", "阵"],
 		"resonance": {"region": "starter_village", "sector": "stonebud_highland", "position": Vector2(2140, 3820), "story_trace": "relic", "name": "反纹石芽", "prompt": "辨认石芽上的反向器纹", "description": "石芽缝里的古旧纹路正逆向生长，像有什么东西从地脉深处倒着寻找出口。"},
+		"border_resonance": {"region": "mist_border", "sector": "ore_flats", "position": Vector2(5060, 2200), "story_trace": "relic", "name": "余温器砂", "prompt": "以灵识探查矿滩器砂残留的火候", "description": "冷矿砂里残留的不是地火余温，而是一种早已熄灭的炼器火候。它与石芽反纹同属一套被截断的旧制。", "branch_id": "forge_watcher_border_sand", "branch_title": "余温器砂谱"},
 		"leads": ["在矿滩、石窟或地火裂谷观察地脉留下的旧纹。", "从炼器师、阵师或地火附近的散修口中收集相互矛盾的解释。"],
 	},
 	"storm_walker": {
@@ -54,6 +57,7 @@ const ORIGINS := {
 		"roots": ["风灵根", "雷灵根", "冰灵根"], "physiques": ["听雷窍"],
 		"signals": ["风", "雷", "崖", "断", "符", "隙"],
 		"resonance": {"region": "starter_village", "sector": "lan_echo_hills", "position": Vector2(6760, 4060), "story_trace": "relic", "name": "回风残铃", "prompt": "倾听丘陵缺口中的回风残铃", "description": "没有风的时候，残铃却在崖隙中响了一次。它响起的方向与所有商路的风向都相反。"},
+		"border_resonance": {"region": "mist_border", "sector": "mist_highlands", "position": Vector2(4140, 3800), "story_trace": "relic", "name": "逆风符阶", "prompt": "沿逆风符阶辨认被抹去的行迹", "description": "石阶上没有脚印，风却始终从上方往下压。你沿着符阶看见一段有人故意避开的旧界折线。", "branch_id": "storm_walker_border_steps", "branch_title": "逆风符阶记"},
 		"leads": ["在高地、断崖和商道口留意天气窗口与不合常理的风痕。", "向符修、巡路者或御风散修询问他们避开的地段。"],
 	},
 	"mirror_keeper": {
@@ -62,6 +66,7 @@ const ORIGINS := {
 		"roots": [], "physiques": ["镜心魂", "御灵纹"],
 		"signals": ["镜", "魂", "妖", "傀", "灵", "古"],
 		"resonance": {"region": "starter_village", "sector": "old_caravan_road", "position": Vector2(9660, 1700), "story_trace": "road", "name": "无主影契", "prompt": "查看旧商道旁的无主影契", "description": "破损的影契没有署名，却映出一支从未经过此地的商队。它留下的脚印正朝着被遗忘的旧界边缘延伸。"},
+		"border_resonance": {"region": "mist_border", "sector": "outer_shoals", "position": Vector2(10780, 2000), "story_trace": "road", "name": "潮镜残影", "prompt": "凝视潮镜中不属于此岸的行人", "description": "浅潮映出的行人并没有影子，却在朝外海滩脊行走。你无法断定那是幻象，还是旧界有人正从另一侧看向此地。", "branch_id": "mirror_keeper_border_reflection", "branch_title": "潮镜对岸影"},
 		"leads": ["在遗府、雾林与有器灵传闻的地点比对幻象留下的细节。", "与御灵者、音修、散修或宗门弟子交谈，判断谁在借岚潮行事。"],
 	},
 }
