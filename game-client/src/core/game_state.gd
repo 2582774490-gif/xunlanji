@@ -974,8 +974,29 @@ func meet_npc(npc_name: String) -> bool:
 	met.append(npc_name)
 	player.npc_met = met
 	change_npc_rapport(npc_name, 3, "初识")
+	var reflection := npc_personal_reflection(npc_name)
+	if not reflection.is_empty():
+		record_personal_story_thread("companions", "npc_view_%s_%s" % [npc_name, str(reflection.get("origin_id", "unknown"))], str(reflection.get("title", "与%s的见闻" % npc_name)), str(reflection.get("description", "")))
 	record_personal_story_thread("companions", "npc_met_%s" % npc_name, "初识·%s" % npc_name, "你在游历中与%s交谈。这个世界的解释不只来自遗迹，也来自仍在这里生活、交易与修行的人。" % npc_name)
 	return true
+
+
+## NPCs may frame the same shared world event through the player's chosen
+## narrative lens. This only saves an account of that conversation: it never
+## grants power, replaces a quest, or locks a future route.
+func npc_personal_reflection(npc_name: String) -> Dictionary:
+	_normalize_player_schema()
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var profile: Dictionary = catalog.npc_card_profile_for_name(npc_name)
+	var reflections: Dictionary = profile.get("story_reflections", {})
+	if reflections.is_empty():
+		return {}
+	var origin_id := str(personal_story_profile().get("id", "mirror_keeper"))
+	var reflection: Dictionary = reflections.get(origin_id, reflections.get("default", {})).duplicate(true)
+	if reflection.is_empty():
+		return {}
+	reflection["origin_id"] = origin_id
+	return reflection
 
 
 func npc_rapport(npc_name: String) -> int:

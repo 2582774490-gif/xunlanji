@@ -521,7 +521,7 @@ func _check_codex_registry_ui() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var rendered_text := _collect_label_text(codex_ui)
-	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("完整修行路线") and rendered_text.contains("丹器百工") and rendered_text.contains("炉火化元法") and rendered_text.contains("炼气丹药图鉴") and rendered_text.contains("灵泉露") and rendered_text.contains("归元丹") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿") and rendered_text.contains("沈衍") and rendered_text.contains("岚息") and rendered_text.contains("温行客") and rendered_text.contains("雾港货物") and rendered_text.contains("白蘅") and rendered_text.contains("药性承受") and rendered_text.contains("宁远") and rendered_text.contains("入门帖") and rendered_text.contains("洛清") and rendered_text.contains("价格保护范围") and rendered_text.contains("区域生态图鉴") and rendered_text.contains("雾泽灵草丛") and rendered_text.contains("潇潮岚鲨") and rendered_text.contains("稀有水妖首领"), "Codex UI must render full cultivation, pill, equipment, NPC and ecology registry sections.")
+	_expect(rendered_text.contains("三折剑经") and rendered_text.contains("完整修行路线") and rendered_text.contains("丹器百工") and rendered_text.contains("炉火化元法") and rendered_text.contains("炼气丹药图鉴") and rendered_text.contains("灵泉露") and rendered_text.contains("归元丹") and rendered_text.contains("法宝与护具图鉴") and rendered_text.contains("首发基础器型") and rendered_text.contains("陆青禾") and rendered_text.contains("雾溪药") and rendered_text.contains("祝铁山") and rendered_text.contains("流火矿") and rendered_text.contains("沈衍") and rendered_text.contains("岚息") and rendered_text.contains("温行客") and rendered_text.contains("雾港货物") and rendered_text.contains("白蘅") and rendered_text.contains("药性承受") and rendered_text.contains("宁远") and rendered_text.contains("入门帖") and rendered_text.contains("洛清") and rendered_text.contains("价格保护范围") and rendered_text.contains("柳朔") and rendered_text.contains("巡路散修") and rendered_text.contains("区域生态图鉴") and rendered_text.contains("雾泽灵草丛") and rendered_text.contains("潇潮岚鲨") and rendered_text.contains("稀有水妖首领"), "Codex UI must render full cultivation, pill, equipment, NPC and ecology registry sections.")
 	codex_ui.queue_free()
 	GameState.player.inventory = ["雾港引潮盘", "沉雾舟纹袍"]
 	GameState.player.equipped_artifact = "雾港引潮盘"
@@ -2188,6 +2188,12 @@ func _check_mist_border_scene() -> void:
 	border.active_interaction = border.scout_interaction
 	border._activate_contextual()
 	_expect(border.scout_dialogue_stage == 1, "Border scout dialogue did not advance.")
+	_expect(GameState.player.npc_met.size() > 0, "Talking to the physical border scout must create a real NPC relationship instead of a disposable map prompt.")
+	var origin_specific_view_found := false
+	for record in GameState.personal_story_thread_records():
+		if str(record.get("id", "")).begins_with("npc_view_"):
+			origin_specific_view_found = true
+	_expect(origin_specific_view_found, "A border NPC must preserve an origin-specific personal reading without creating a mandatory quest.")
 	border.active_interaction = border.crystal_interaction
 	border._activate_contextual()
 	_expect(border.crystal_collected and not border.get_node("MistTideCrystal").visible, "Border crystal gathering did not remove the resource node.")

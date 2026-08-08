@@ -444,6 +444,7 @@ const NPCS := [
 	{"name": "白蘅", "role": "百草谷执事", "place": "雾泽药庐"},
 	{"name": "宁远", "role": "宗门接引使", "place": "云岚村"},
 	{"name": "洛清", "role": "云市掌柜", "place": "云岚村市集"},
+	{"name": "柳朔", "role": "边境探子", "place": "雾潮边境·残关"},
 ]
 
 const NPC_CARD_PROFILES := {
@@ -495,6 +496,20 @@ const NPC_CARD_PROFILES := {
 		"relationship": "初识 · 可交易",
 		"service": "负责云岚村市集的本地货单、玩家上架、5% 手续费与价格保护范围；不出售数值特权，也不会收取玩家私有物的绑定限制。",
 		"lead": "她会记录商路上的材料波动与远港消息，可把自由交易引向温行客的鉴宝货单、归墟雾港拍卖行和后续契约纠纷。",
+	},
+	"柳朔": {
+		"card_asset": "res://assets/art/npcs/border_scout_liushuo/processed_alpha/border_scout_liushuo_idle_v01_alpha.png",
+		"story_reflections": {
+			"tide_listener": {"title": "柳朔 · 听潮之问", "description": "柳朔听你分辨潮声后，提起残关外有一段水位总比雾期晚退半刻。他把它当作巡路经验；你却听出像有另一片水域隔着旧界回应。"},
+			"herb_reader": {"title": "柳朔 · 草木之问", "description": "柳朔说雾林里有些草总在潮退后才开花。他只担心药农误入湿地；你记下的却是生长时序被雾潮轻轻拨乱。"},
+			"forge_watcher": {"title": "柳朔 · 矿砂之问", "description": "柳朔把冷矿砂里的余温归为旧炉渣。你在他掌中看见的，却是已经熄灭的火候仍被某种回流留住。"},
+			"storm_walker": {"title": "柳朔 · 逆风之问", "description": "柳朔提醒残关风向会把人带离正路。你沿他所指的山口望去，发现逆风并非偶然，而是在刻意遮掩一段旧界折线。"},
+			"mirror_keeper": {"title": "柳朔 · 关外之问", "description": "柳朔说自己在潮镜里见过没有影子的行人，只当是边境人疲乏后的幻觉。你没有急着反驳，只把那道朝海岸走去的倒影记进游历簿。"},
+		},
+		"faction": "雾潮边境 · 巡路散修",
+		"relationship": "初识 · 边境传闻",
+		"service": "他不派发日常任务；只会把雾林、晶簇与潮期的现场判断告诉实际走到残关的修士。",
+		"lead": "柳朔认为雾潮涨退并非单一妖物所为。持有晶簇、走过雾林或见过旧关车辙后，再与他交谈会让边境的风险与人间生计有不同解释。",
 	},
 }
 
