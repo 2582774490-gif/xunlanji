@@ -597,6 +597,7 @@ func _try_enter_ancient_ridge() -> void:
 	if not can_enter_ancient_ridge():
 		status.text = "古脊岭的地火与遗址会压制元婴以下修士。它不是任务门槛；到元婴后可从边境关道自由进入。"
 		return
+	GameState.unlock_region("ancient_ridge")
 	GameState.selected_dungeon_id = "ancient_battlefield"
 	get_tree().change_scene_to_file("res://scenes/ancient_ridge.tscn")
 

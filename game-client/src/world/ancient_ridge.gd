@@ -5,11 +5,33 @@ const WorldMinimapScript = preload("res://src/ui/world_minimap.gd")
 const RegionalSectorCatalogScript = preload("res://src/world/regional_sector_catalog.gd")
 const RegionalEnvironmentDepthLayerScript = preload("res://src/world/regional_environment_depth_layer.gd")
 const RemoteAvatarLayerScript = preload("res://src/world/remote_avatar_layer.gd")
+const PersonalOpportunityDirectorScript = preload("res://src/world/personal_opportunity_director.gd")
 
 const RIDGE_EVENTS := [
 	{"name": "地火余温", "item": "赤焰精金", "cultivation": 22, "description": "地火裂缝退去后，岩层露出可炼器的精金。"},
 	{"name": "残阵兵魄", "item": "古战印", "cultivation": 19, "description": "古战场残阵还保留着一段行军与布阵之法。"},
 	{"name": "断岭风痕", "item": "破风石片", "cultivation": 20, "description": "峡谷长风在断崖刻下遁空前的身法痕迹。"},
+]
+
+const PERSONAL_OPPORTUNITY_PROFILES: Array[Dictionary] = [
+	{
+		"id": "earthfire_cooling_ore", "sector": "earthfire_ravine", "name": "熄火矿心", "prompt": "探查裂谷边尚未散尽热息的矿心", "chance": 0.74,
+		"anchors": [Vector2(3060, 1580), Vector2(4780, 1280)], "reward": "赤焰精金", "cultivation": 12, "story_trace": "relic", "realm_index": 3,
+		"description": "地火退去后露出的矿心已经冷却，却仍保留着旧日锻台的器纹。它不是首领掉落，只是山脉慢慢冷却时给行者的一次偶遇。",
+		"story_branch": "opportunity_earthfire_cooling_ore", "story_branch_title": "熄火矿心", "tint": Color(1.0, 0.54, 0.30),
+	},
+	{
+		"id": "battlefield_broken_banner", "sector": "ancient_battlefield", "name": "残阵旌影", "prompt": "辨认石海间未散的残阵旌影", "chance": 0.70,
+		"anchors": [Vector2(8360, 1560), Vector2(9480, 2040)], "reward": "残魂兵符", "cultivation": 13, "story_trace": "relic", "realm_index": 3,
+		"description": "断旗投下的影子比旗身多出一列。你从残阵里看见的不是必经战斗，而是一段曾被人为删去的退军路线。",
+		"story_branch": "opportunity_battlefield_broken_banner", "story_branch_title": "残阵旌影", "tint": Color(0.92, 0.66, 0.48),
+	},
+	{
+		"id": "windbreak_ancient_map", "sector": "windbreak_ridge", "name": "断风旧图", "prompt": "展开岩缝中未被风蚀尽的旧图", "chance": 0.62,
+		"anchors": [Vector2(10380, 1520), Vector2(11400, 2680)], "reward": "破风石片", "cultivation": 11, "story_trace": "road", "realm_index": 3,
+		"description": "旧图没有标出宝地，只标记了三段被风墙遮住的撤离线。越接近高阶区域，越能看出旧界曾怎样影响普通修士的生死。",
+		"story_branch": "opportunity_windbreak_ancient_map", "story_branch_title": "断风旧图", "tint": Color(0.70, 0.78, 1.0),
+	},
 ]
 
 @onready var player: CharacterBody2D = $Player
@@ -32,6 +54,7 @@ var event_resolved := false
 var earthfire_cave_discovered := false
 var battlefield_memorial_examined := false
 var current_sector_id := ""
+var personal_opportunities: Variant = null
 
 func _ready() -> void:
 	GameState.current_region_id = "ancient_ridge"
@@ -53,6 +76,7 @@ func _ready() -> void:
 	for interaction in [return_interaction, relic_interaction, event_interaction, earthfire_cave_interaction, battlefield_memorial_interaction]:
 		interaction.focused.connect(_focus_interaction)
 		interaction.unfocused.connect(_unfocus_interaction)
+	_setup_personal_opportunities()
 	regional_population.focused.connect(_focus_interaction)
 	regional_population.unfocused.connect(_unfocus_interaction)
 	regional_population.population_resolved.connect(_on_population_resolved)
@@ -82,6 +106,20 @@ func _setup_environment_depth() -> void:
 	depth_layer.name = "EnvironmentDepthLayer"
 	depth_layer.region_style = "ancient_ridge"
 	add_child(depth_layer)
+
+
+func _setup_personal_opportunities() -> void:
+	personal_opportunities = PersonalOpportunityDirectorScript.new()
+	personal_opportunities.name = "PersonalOpportunities"
+	add_child(personal_opportunities)
+	personal_opportunities.focused.connect(_focus_interaction)
+	personal_opportunities.unfocused.connect(_unfocus_interaction)
+	personal_opportunities.resolved.connect(_on_personal_opportunity_resolved)
+	personal_opportunities.populate("ancient_ridge", PERSONAL_OPPORTUNITY_PROFILES)
+
+
+func _on_personal_opportunity_resolved(summary: String) -> void:
+	status.text = summary
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
@@ -145,6 +183,9 @@ func _activate_contextual() -> void:
 		_examine_relic()
 	elif active_interaction == event_interaction and not event_resolved:
 		_resolve_event()
+	elif personal_opportunities != null and personal_opportunities.owns(active_interaction):
+		personal_opportunities.resolve(active_interaction)
+		_close_interaction()
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()

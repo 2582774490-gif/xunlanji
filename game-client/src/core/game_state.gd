@@ -1209,10 +1209,18 @@ func is_region_unlocked(region_id: String) -> bool:
 	return player.unlocked_regions.has(region_id)
 
 func unlock_region(region_id: String) -> bool:
+	if region_id.is_empty():
+		return false
 	if is_region_unlocked(region_id):
 		return false
 	player.unlocked_regions.append(region_id)
-	notify("新区域已开启：雾潮边境")
+	var region_name := region_id
+	var catalog := preload("res://src/data/game_catalog.gd")
+	for raw_region in catalog.REGIONS:
+		if str(raw_region.get("id", "")) == region_id:
+			region_name = str(raw_region.get("name", region_id))
+			break
+	notify("新区域已开启：%s" % region_name)
 	profile_changed.emit()
 	return true
 
