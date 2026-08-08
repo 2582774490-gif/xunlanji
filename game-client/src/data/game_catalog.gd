@@ -515,6 +515,17 @@ const NPC_CARD_PROFILES := {
 	},
 	"宁远": {
 		"card_asset": "res://assets/art/npcs/ning_yuan/processed_alpha/ning_yuan_card_v01_alpha.png",
+		"lived_contexts": [
+			{"id": "sect_entry", "when_any_thread": ["sect_join_mist_sword", "sect_join_cloud_market", "sect_join_wild_herb"], "title": "宁远 · 门帖印证", "description": "你没有只在接引台前比较门派名目，而是真的以外门弟子的身份走进了一处山门。宁远替你收好旧门帖，却提醒你：门规能解释一部分人间事，并不能替你解释岚潮。"},
+			{"id": "sect_departure", "when_any_thread": ["sect_leave_mist_sword", "sect_leave_cloud_market", "sect_leave_wild_herb"], "title": "宁远 · 归帖印证", "description": "你曾经加入，又选择离开。宁远没有替你判定对错，只把归还的门帖夹回册中：宗门关系会留下后果，但不会替任何人的游历写下终局。"},
+		],
+		"story_reflections": {
+			"tide_listener": {"title": "宁远 · 门外潮声", "description": "宁远说各宗门的门帖都有同一套递送时程。你听见南门外的水声却总在某几封帖送到前先起半刻，像岚潮比人更早知道谁要离开。"},
+			"herb_reader": {"title": "宁远 · 帖纸药香", "description": "宁远把门帖边缘微甜的气味归为防潮药纸。你分辨出其中一味药材并非用于保存，而像在标记不同山门附近的土壤与湿度。"},
+			"forge_watcher": {"title": "宁远 · 印蜡纹路", "description": "宁远说旧印蜡裂开只因年久。你看见裂纹朝同一个方向延伸，像每一枚门印都在无意间压出相同的旧界阵纹。"},
+			"storm_walker": {"title": "宁远 · 风送门帖", "description": "宁远习惯把迟到的门帖怪在山口乱风。你却发现风总把不同宗门的信使推向同一段废道，仿佛有人在借递送路线测量旧界的缝隙。"},
+			"mirror_keeper": {"title": "宁远 · 无名回帖", "description": "宁远说偶有未署名的回帖，不值得惊动山门。你见到纸背映出一枚不存在的印章，于是把它记作一份尚未寄出的选择。"},
+		},
 		"faction": "云岚村 · 宗门接引台",
 		"relationship": "初识 · 宗门引导",
 		"service": "说明雾隐剑宗、云市会与百草谷的加入方式、贡献晋升与离宗后果；只开启可选的“选择道路”引导，不替玩家指定宗门或功法。",

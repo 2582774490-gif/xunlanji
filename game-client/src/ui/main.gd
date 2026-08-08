@@ -408,6 +408,17 @@ func _add_inventory_costume_card(costume_id: String, profile: Dictionary, equipp
 func _show_sect() -> void:
 	_heading("宗门与身份")
 	_text("百草谷传功：雾泽药庐执事·白蘅负责内门传功登记《百草调息篇》；登记不会强制切换玩家主修。", 16, Color("a7d5ca"))
+	var met_ning_yuan: bool = GameState.player.npc_met.has("宁远")
+	var ning_reflection := GameState.npc_personal_reflection("宁远")
+	if met_ning_yuan and not ning_reflection.is_empty():
+		_text("接引台见闻：%s" % str(ning_reflection.get("description", "")), 16, Color("f2d79c"))
+	var ning_contexts: Array[String] = []
+	for record in GameState.personal_story_thread_records():
+		if str(record.get("id", "")).begins_with("npc_context_宁远_"):
+			ning_contexts.append(str(record.get("description", "")))
+	if not ning_contexts.is_empty():
+		_text("接引台印证：%s" % "\n".join(ning_contexts), 15, Color("c8d5d1"))
+	_text("这些是你亲自结识与选择后留下的解释；加入、离开或无视宗门，都不会使主线失败。", 15, Color("a7d5ca"))
 	if GameState.player.sect_id == "":
 		_text("当前为散修。可自由加入宗门；初始身份为外门弟子。副本结算与资源进献可获得贡献，达到境界与贡献要求后可申请晋升。")
 		for sect in Catalog.SECTS:

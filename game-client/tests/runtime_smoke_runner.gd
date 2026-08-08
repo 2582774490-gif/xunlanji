@@ -502,6 +502,9 @@ func _check_npc_relationship_rules() -> void:
 	GameState.record_personal_story_thread("craft", "forge_first_refit", "test", "test")
 	_expect(GameState.meet_npc("祝铁山"), "A player who actually refit equipment must be able to meet Zhu Tieshan in the physical starter village.")
 	_expect(GameState.record_npc_lived_contexts("祝铁山").any(func(context: Dictionary): return str(context.get("id", "")) == "first_refit"), "Zhu Tieshan testimony must develop from a real equipment refit, not a fixed story checkpoint.")
+	GameState.record_personal_story_thread("sect", "sect_join_mist_sword", "test", "test")
+	_expect(GameState.meet_npc("宁远"), "A player who voluntarily joined a sect must be able to revisit Ning Yuan as a real social encounter.")
+	_expect(GameState.record_npc_lived_contexts("宁远").any(func(context: Dictionary): return str(context.get("id", "")) == "sect_entry"), "Ning Yuan testimony must develop from a voluntary sect entry, not a fixed story checkpoint.")
 	GameState.player = profile_before
 	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()

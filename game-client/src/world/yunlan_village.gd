@@ -73,6 +73,7 @@ func _activate_contextual() -> void:
 			get_tree().change_scene_to_file("res://scenes/main.tscn")
 		"sect":
 			GameState.meet_npc("宁远")
+			GameState.record_npc_lived_contexts("宁远")
 			GameState.complete_world_guidance_step("path_choice")
 			GameState.enter_screen(GameState.Screen.SECT)
 			GameState.notify("宁远：可自由选择宗门，但门规、贡献与离宗后果也会随选择而来。")
