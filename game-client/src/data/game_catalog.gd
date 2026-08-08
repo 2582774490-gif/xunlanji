@@ -464,6 +464,9 @@ const NPC_CARD_PROFILES := {
 	},
 	"沈衍": {
 		"card_asset": "res://assets/art/npcs/shen_yan/processed_alpha/shen_yan_card_v01_alpha.png",
+		"lived_contexts": [
+			{"id": "south_gate_water_trace", "when_world_mark": "water", "title": "沈衍 · 溪路印证", "description": "你已亲自见过水路留下的岚潮痕迹。沈衍不再把南门异动只当作雾重，而承认旧石阶下的回响或许值得被不同的人分别记下。"},
+		],
 		"story_reflections": {
 			"tide_listener": {"title": "沈衍 · 溪雾之问", "description": "沈衍只说南门雾潮比往年早起。你在他停顿时听见溪水逆着石阶轻响，像山脚下还有一段不属于今日的潮线。"},
 			"herb_reader": {"title": "沈衍 · 药性之问", "description": "沈衍提醒雨后灵草药性易变。你却注意到他指的是一片尚未开花的坡地：岚潮最早改变的也许不是灵草，而是它们等待发芽的时序。"},
@@ -499,6 +502,9 @@ const NPC_CARD_PROFILES := {
 	},
 	"洛清": {
 		"card_asset": "res://assets/art/npcs/luo_qing/processed_alpha/luo_qing_card_v01_alpha.png",
+		"lived_contexts": [
+			{"id": "trade_ledger", "when_any_thread": ["market_first_consignment", "market_first_purchase"], "title": "洛清 · 账页印证", "description": "你已经让一件物品真正进入交换。洛清因此愿意给你看一页潮后账簿：价格变化并不证明谁说得对，却能证明岚潮正在改变人们如何生活。"},
+		],
 		"story_reflections": {
 			"tide_listener": {"title": "洛清 · 潮价之问", "description": "洛清只把雨后涨价归为港路受阻。你对照她的货签，却发现同一批盐袋在潮前已先沾上不属于此地的水息。"},
 			"herb_reader": {"title": "洛清 · 药箱之问", "description": "洛清留意到商队药箱里的干草总比车轮先返潮。她把这当作仓储损耗；你却怀疑雾潮正沿着商路改写草木的干湿次序。"},
@@ -513,6 +519,9 @@ const NPC_CARD_PROFILES := {
 	},
 	"柳朔": {
 		"card_asset": "res://assets/art/npcs/border_scout_liushuo/processed_alpha/border_scout_liushuo_idle_v01_alpha.png",
+		"lived_contexts": [
+			{"id": "mist_crystal", "when_item": "雾潮晶簇", "title": "柳朔 · 晶簇印证", "description": "你带着亲手取得的雾潮晶簇回到残关。柳朔承认晶簇的稳定感不像自然矿物，却仍不同意贸然把它称作灾兆；边地的人先要考虑如何活过下一次潮期。"},
+		],
 		"story_reflections": {
 			"tide_listener": {"title": "柳朔 · 听潮之问", "description": "柳朔听你分辨潮声后，提起残关外有一段水位总比雾期晚退半刻。他把它当作巡路经验；你却听出像有另一片水域隔着旧界回应。"},
 			"herb_reader": {"title": "柳朔 · 草木之问", "description": "柳朔说雾林里有些草总在潮退后才开花。他只担心药农误入湿地；你记下的却是生长时序被雾潮轻轻拨乱。"},

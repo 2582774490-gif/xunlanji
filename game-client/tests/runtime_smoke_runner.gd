@@ -478,6 +478,20 @@ func _check_npc_relationship_rules() -> void:
 	_expect(GameState.market_purchase_price(0) == 95, "Familiar NPC rapport should give only the documented five-percent NPC-listing discount.")
 	_expect(GameState.buy_market_listing(0) and GameState.player.gold == 5 and GameState.player.inventory.has("关系测试药材"), "NPC market purchase should charge its rapport-adjusted price and deliver the item.")
 	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "market_first_purchase"), "A voluntary market purchase should become a non-repeatable trade-thread memory.")
+	GameState.player.inventory.append("雾潮晶簇")
+	var lived_story: Dictionary = GameState.player.story_weave
+	lived_story.world_marks = ["water"]
+	GameState.player.story_weave = lived_story
+	_expect(GameState.meet_npc("沈衍"), "A real South Gate meeting should be available to players who discovered a water trace by another route.")
+	_expect(GameState.record_npc_lived_contexts("沈衍").any(func(context: Dictionary): return str(context.get("id", "")) == "south_gate_water_trace"), "South Gate testimony must change after an actual water-route discovery.")
+	_expect(GameState.meet_npc("洛清"), "A market participant must be able to meet the Red Maple merchant as an independent social encounter.")
+	_expect(GameState.record_npc_lived_contexts("洛清").any(func(context: Dictionary): return str(context.get("id", "")) == "trade_ledger"), "Red Maple testimony must react to a real voluntary market record.")
+	_expect(GameState.meet_npc("柳朔"), "A border explorer must be able to meet the residual-checkpoint scout independently of the market route.")
+	var border_contexts := GameState.record_npc_lived_contexts("柳朔")
+	_expect(border_contexts.any(func(context: Dictionary): return str(context.get("id", "")) == "mist_crystal"), "Border testimony must react to personally obtained border material.")
+	var thread_count_before_repeat := GameState.personal_story_thread_records().size()
+	GameState.record_npc_lived_contexts("柳朔")
+	_expect(GameState.personal_story_thread_records().size() == thread_count_before_repeat, "Repeated dialogue must not farm the same lived-context testimony.")
 	var base_rate := GameState.alchemy_success_rate("ningxi")
 	GameState.change_npc_rapport("白蘅", 20, "smoke")
 	_expect(is_equal_approx(GameState.alchemy_success_rate("ningxi") - base_rate, 0.03), "Bai Heng familiarity should add only the documented small alchemy-stability bonus.")

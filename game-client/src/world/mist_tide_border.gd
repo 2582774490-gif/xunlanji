@@ -502,6 +502,7 @@ func _on_population_resolved(summary: String) -> void:
 func _talk_to_scout() -> void:
 	var first_meeting := GameState.meet_npc("柳朔")
 	var personal_reflection := GameState.npc_personal_reflection("柳朔")
+	var lived_contexts := GameState.record_npc_lived_contexts("柳朔")
 	if scout_dialogue_stage == 0:
 		scout_dialogue_stage = 1
 		status.text = "边境探子·柳朔：雾潮会随着时辰退涨。北面的雾林从炼气二层起便可试探，但仍需稳住根基；盲目闯入只会被雾路带偏。" + ("\n（柳朔已记入万物图鉴与游历簿；这不是接取任务。）" if first_meeting else "")
@@ -510,6 +511,8 @@ func _talk_to_scout() -> void:
 			status.text += "\n【你的见闻】%s" % str(personal_reflection.get("description", ""))
 	else:
 		status.text = "柳朔：晶簇是雾潮留下的稳定锚点。炼气二层可先进入雾林妖径；筑基后，边境深处还会显现更危险的秘境。"
+	if not lived_contexts.is_empty():
+		status.text += "\n【实际游历】%s" % str(lived_contexts.back().get("description", ""))
 
 func _collect_crystal() -> void:
 	crystal_collected = true

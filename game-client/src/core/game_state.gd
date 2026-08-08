@@ -999,6 +999,50 @@ func npc_personal_reflection(npc_name: String) -> Dictionary:
 	return reflection
 
 
+## Some testimony develops only after a player has actually traded, gathered
+## or observed the relevant phenomenon.  These are saved interpretations of
+## lived play, never prerequisite checklists or rewards.
+func record_npc_lived_contexts(npc_name: String) -> Array[Dictionary]:
+	_normalize_player_schema()
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var profile: Dictionary = catalog.npc_card_profile_for_name(npc_name)
+	var result: Array[Dictionary] = []
+	for raw_context in profile.get("lived_contexts", []):
+		if not raw_context is Dictionary:
+			continue
+		var context: Dictionary = (raw_context as Dictionary).duplicate(true)
+		if not _is_npc_lived_context_eligible(context):
+			continue
+		var context_id := str(context.get("id", ""))
+		if context_id.is_empty():
+			continue
+		record_personal_story_thread("companions", "npc_context_%s_%s" % [npc_name, context_id], str(context.get("title", "%s的后续见闻" % npc_name)), str(context.get("description", "")))
+		result.append(context)
+	return result
+
+
+func _is_npc_lived_context_eligible(context: Dictionary) -> bool:
+	var required_item := str(context.get("when_item", ""))
+	if not required_item.is_empty() and not (player.inventory as Array).has(required_item):
+		return false
+	var required_mark := str(context.get("when_world_mark", ""))
+	if not required_mark.is_empty() and not (personal_story_state().get("world_marks", []) as Array).has(required_mark):
+		return false
+	var required_threads: Array = context.get("when_any_thread", [])
+	if not required_threads.is_empty():
+		var known_ids: Array[String] = []
+		for record in personal_story_thread_records():
+			known_ids.append(str(record.get("id", "")))
+		var matched := false
+		for thread_id in required_threads:
+			if known_ids.has(str(thread_id)):
+				matched = true
+				break
+		if not matched:
+			return false
+	return true
+
+
 func npc_rapport(npc_name: String) -> int:
 	_normalize_player_schema()
 	return clampi(int((player.npc_relations as Dictionary).get(npc_name, 0)), -100, 100)

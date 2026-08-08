@@ -108,6 +108,7 @@ func _activate_interaction() -> void:
 	if interaction_id == "guide_shen":
 		var first_meeting := GameState.meet_npc("沈衍")
 		var personal_reflection := GameState.npc_personal_reflection("沈衍")
+		var lived_contexts := GameState.record_npc_lived_contexts("沈衍")
 		if guide_dialogue_stage == 0:
 			guide_dialogue_stage = 1
 			GameState.complete_world_guidance_step("lan_breath")
@@ -120,6 +121,8 @@ func _activate_interaction() -> void:
 				status.text += "\n（沈衍已记入万物图鉴与游历簿；这只是一段世界认识，不是必须完成的任务。）"
 		else:
 			status.text = "沈衍：往南门东侧的溪路走。资源与机缘都在世界里，不在一张固定的任务清单里。"
+		if not lived_contexts.is_empty():
+			status.text += "\n【实际游历】%s" % str(lived_contexts.back().get("description", ""))
 	elif interaction_id == "mist_herb" and not herb_collected:
 		herb_collected = true
 		$MistHerb.visible = false
