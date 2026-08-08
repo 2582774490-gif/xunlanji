@@ -183,7 +183,7 @@ test("websocket room relays presence, duel state and private two-player exchange
   const hit = await second.waitFor("duel_state", (message) => message.duel.id === active.duels[0].id && message.duel.fighters[playerB.id].hp === 91);
   assert.equal(hit.duel.fighters[welcomeA.peerId].hp, 100);
 
-  first.send({ type: "trade_seed", gold: 10, items: { "Mist Herb": 1 } });
+  first.send({ type: "trade_seed", gold: 10, items: { "Mist Herb": 1, "Spirit Sword": 1 }, equipment: { "Spirit Sword": { level: 3 } } });
   second.send({ type: "trade_seed", gold: 2, items: { "Ore Fragment": 1 } });
   await first.waitFor("trade_ledger", (message) => message.ledger.gold === 10);
   await second.waitFor("trade_ledger", (message) => message.ledger.gold === 2);
@@ -194,13 +194,15 @@ test("websocket room relays presence, duel state and private two-player exchange
 		.catch(() => true);
   second.send({ type: "trade_response", tradeId: pendingTrade.trade.id, accept: true });
   await first.waitFor("trade_state", (message) => message.trade.id === pendingTrade.trade.id && message.trade.status === "active");
-  first.send({ type: "trade_offer", tradeId: pendingTrade.trade.id, gold: 3, items: { "Mist Herb": 1 } });
+  first.send({ type: "trade_offer", tradeId: pendingTrade.trade.id, gold: 3, items: { "Mist Herb": 1, "Spirit Sword": 1 } });
   second.send({ type: "trade_offer", tradeId: pendingTrade.trade.id, gold: 0, items: { "Ore Fragment": 1 } });
   await first.waitFor("trade_state", (message) => message.trade.id === pendingTrade.trade.id && message.trade.offers[welcomeA.peerId].gold === 3 && message.trade.offers[playerB.id].items["Ore Fragment"] === 1);
   first.send({ type: "trade_lock", tradeId: pendingTrade.trade.id });
   second.send({ type: "trade_lock", tradeId: pendingTrade.trade.id });
   const settledLedger = await first.waitFor("trade_ledger", (message) => message.ledger.gold === 7 && message.ledger.items["Ore Fragment"] === 1);
+  const transferredEquipment = await second.waitFor("trade_ledger", (message) => message.ledger.equipment?.["Spirit Sword"]?.level === 3);
   assert.equal(settledLedger.ledger.items["Mist Herb"], undefined);
+	assert.equal(transferredEquipment.ledger.items["Spirit Sword"], 1, "A room participant must receive the enhanced equipment item and its server-approved state together.");
 	assert.equal(await observerTradeLeak, true, "A third room player must not receive either party's private trade state.");
 	assert.ok(observerWelcome.peerId);
 });

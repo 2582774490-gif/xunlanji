@@ -674,6 +674,52 @@ func add_item(item_name: String) -> void:
 		player.codex.append(item_name)
 	profile_changed.emit()
 
+
+## The development room server uses a compact ledger. Upgrade state is copied
+## with a named item only when it is actually transferred, so an enhanced
+## weapon, artifact, armor or footwear never silently turns into a base item.
+func online_trade_equipment_states() -> Dictionary:
+	_normalize_player_schema()
+	var result: Dictionary = {}
+	var inventory: Array = player.get("inventory", [])
+	for raw_name in (player.get("equipment_upgrades", {}) as Dictionary).keys():
+		var item_name := str(raw_name)
+		if inventory.has(item_name) and is_upgradeable_equipment(item_name):
+			var level := equipment_upgrade_level(item_name)
+			if level > 0:
+				result[item_name] = {"level": level}
+	return result
+
+
+func apply_online_trade_ledger(ledger: Dictionary) -> void:
+	_normalize_player_schema()
+	player.gold = max(0, int(ledger.get("gold", player.gold)))
+	var rebuilt_inventory: Array[String] = []
+	var raw_items: Variant = ledger.get("items", {})
+	if raw_items is Dictionary:
+		for raw_item_name in (raw_items as Dictionary).keys():
+			var item_name := str(raw_item_name).strip_edges()
+			for _count in range(max(0, int((raw_items as Dictionary).get(raw_item_name, 0)))):
+				if not item_name.is_empty():
+					rebuilt_inventory.append(item_name)
+	player.inventory = rebuilt_inventory
+	var raw_equipment: Variant = ledger.get("equipment", null)
+	var source_states: Dictionary = (raw_equipment as Dictionary) if raw_equipment is Dictionary else player.get("equipment_upgrades", {})
+	var next_states: Dictionary = {}
+	for raw_item_name in source_states.keys():
+		var item_name := str(raw_item_name).strip_edges()
+		var raw_state: Variant = source_states.get(raw_item_name, {})
+		if item_name.is_empty() or not rebuilt_inventory.has(item_name) or not is_upgradeable_equipment(item_name) or not raw_state is Dictionary:
+			continue
+		var level := clampi(int((raw_state as Dictionary).get("level", 0)), 0, EQUIPMENT_MAX_UPGRADE)
+		if level > 0:
+			next_states[item_name] = {"level": level}
+	player.equipment_upgrades = next_states
+	for slot in ["equipped_weapon", "equipped_artifact", "equipped_armor", "equipped_footwear"]:
+		if not rebuilt_inventory.has(str(player.get(slot, ""))):
+			player[slot] = ""
+	profile_changed.emit()
+
 func claim_starter_weapon_trials(item_names: Array[String]) -> Array[String]:
 	# This one-off village rack is a launch-prototype testing route.  It grants
 	# only real runtime weapons, once per local profile, so it cannot become an

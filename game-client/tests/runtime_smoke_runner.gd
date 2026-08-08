@@ -1777,8 +1777,11 @@ func _check_online_session_presence_boundary() -> void:
 		"offers": {"self-peer": {"gold": 4, "items": {"雾溪灵草": 1}, "locked": true}, "remote-peer": {"gold": 0, "items": {"矿砂": 2}, "locked": false}},
 	}})
 	_expect(OnlineSession.local_player_has_trade() and str(OnlineSession.trade_state("trade_smoke").get("status", "")) == "active", "Online session did not retain a private server-mediated exchange state for its participant.")
-	OnlineSession._handle_message({"type": "trade_ledger", "ledger": {"gold": 6, "items": {"矿砂": 2}}})
-	_expect(int(GameState.player.gold) == 6 and GameState.player.inventory.size() == 2 and GameState.player.inventory[0] == "矿砂", "The client must apply a server settlement ledger instead of retaining a locally fabricated trade inventory.")
+	GameState.player.equipped_weapon = "练气木剑"
+	GameState.player.equipment_upgrades = {"练气木剑": {"level": 2}}
+	OnlineSession._handle_message({"type": "trade_ledger", "ledger": {"gold": 6, "items": {"矿砂": 2, "青篁练气剑": 1}, "equipment": {"青篁练气剑": {"level": 4}}}})
+	_expect(int(GameState.player.gold) == 6 and GameState.player.inventory.size() == 3 and GameState.player.inventory[0] == "矿砂", "The client must apply a server settlement ledger instead of retaining a locally fabricated trade inventory.")
+	_expect(GameState.equipment_upgrade_level("青篁练气剑") == 4 and GameState.equipment_upgrade_level("练气木剑") == 0 and str(GameState.player.equipped_weapon) == "", "A server-settled enhanced equipment item must retain its upgrade state while an item traded away is safely unequipped.")
 	layer.queue_free()
 	OnlineSession.disconnect_room(false)
 	await get_tree().process_frame

@@ -218,9 +218,14 @@ export class RoomState {
     const trade = this.tradeSessions.get(roomId)?.get(tradeId);
     const validation = this._activeTrader(trade, playerId);
     if (!validation.ok) return validation;
-    const offer = this._sanitizeOffer(payload);
     const ledger = this.rooms.get(roomId).get(playerId).tradeLedger;
+    const offer = this._sanitizeOffer(payload);
     if (!this._ledgerContains(ledger, offer)) return { ok: false, code: "trade_insufficient_funds" };
+    // A client never decides the upgrade state carried by an offer. The room
+    // copies it from the seller's registered ledger, and only when every copy
+    // of that named item is being transferred. This keeps the development
+    // prototype safe even before equipment receives unique-instance ids.
+    offer.equipment = this._equipmentForOffer(ledger, offer);
     trade.offers[playerId] = offer;
     trade.revision += 1;
     return { ok: true, trade: this._publicTrade(trade) };
@@ -290,17 +295,42 @@ export class RoomState {
   }
 
   _emptyOffer() {
-    return { gold: 0, items: {}, locked: false };
+    return { gold: 0, items: {}, equipment: {}, locked: false };
   }
 
   _sanitizeLedger(payload) {
     const gold = Math.max(0, Math.min(2_000_000, Math.floor(Number(payload?.gold) || 0)));
-    return { gold, items: this._sanitizeItemCounts(payload?.items, 120) };
+    const items = this._sanitizeItemCounts(payload?.items, 120);
+    return { gold, items, equipment: this._sanitizeEquipment(payload?.equipment, items) };
   }
 
   _sanitizeOffer(payload) {
     const gold = Math.max(0, Math.min(2_000_000, Math.floor(Number(payload?.gold) || 0)));
-    return { gold, items: this._sanitizeItemCounts(payload?.items, 12), locked: false };
+    return { gold, items: this._sanitizeItemCounts(payload?.items, 12), equipment: {}, locked: false };
+  }
+
+  _sanitizeEquipment(rawEquipment, items) {
+    const equipment = {};
+    const source = rawEquipment && typeof rawEquipment === "object" ? rawEquipment : {};
+    for (const [rawName, rawState] of Object.entries(source)) {
+      const name = String(rawName).trim().slice(0, 48);
+      if (!name || Number(items[name] ?? 0) <= 0 || !rawState || typeof rawState !== "object") continue;
+      const level = Math.max(0, Math.min(12, Math.floor(Number(rawState.level) || 0)));
+      if (level > 0) equipment[name] = { level };
+    }
+    return equipment;
+  }
+
+  _equipmentForOffer(ledger, offer) {
+    const equipment = {};
+    for (const [name, offeredCount] of Object.entries(offer.items)) {
+      const sourceCount = Number(ledger.items[name] ?? 0);
+      const state = ledger.equipment?.[name];
+      if (state && sourceCount > 0 && Number(offeredCount) === sourceCount) {
+        equipment[name] = structuredClone(state);
+      }
+    }
+    return equipment;
   }
 
   _sanitizeItemCounts(rawItems, maxTotal) {
@@ -344,6 +374,10 @@ export class RoomState {
       from.items[name] -= count;
       if (from.items[name] <= 0) delete from.items[name];
       to.items[name] = Number(to.items[name] ?? 0) + count;
+      if (offer.equipment?.[name]) {
+        delete from.equipment[name];
+        to.equipment[name] = structuredClone(offer.equipment[name]);
+      }
     }
   }
 
@@ -355,7 +389,7 @@ export class RoomState {
   }
 
   _publicLedger(ledger) {
-    return { gold: ledger.gold, items: structuredClone(ledger.items) };
+    return { gold: ledger.gold, items: structuredClone(ledger.items), equipment: structuredClone(ledger.equipment ?? {}) };
   }
 
   _publicPlayer(player) {

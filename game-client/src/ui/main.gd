@@ -484,7 +484,7 @@ func _show_online_trade_session() -> void:
 	if not OnlineSession.is_room_connected():
 		_text("连接本机十人房后，可向同房修士发起双人交换。当前云市购买仍是本地模拟；该交换由房间服务端暂存报价、双方锁定并原子结算。", 15, Color("a7d5ca"))
 		return
-	_text("会话账本：%d 金｜本次连接时登记的背包会由服务端校验。没有账号、云存档与正式经济服务前，它只用于本机开发验证。" % int(OnlineSession.trade_ledger().get("gold", GameState.player.gold)), 15, Color("f2d79c"))
+	_text("会话账本：%d 金｜本次连接时登记的背包与器纹状态会由服务端校验；未装备的强化武器、法宝、护具和足部装备可随报价原子转移。没有账号、云存档与正式经济服务前，它只用于本机开发验证。" % int(OnlineSession.trade_ledger().get("gold", GameState.player.gold)), 15, Color("f2d79c"))
 	for peer in OnlineSession.remote_players():
 		var peer_id := str(peer.get("id", ""))
 		var peer_name := str(peer.get("name", "远游修士"))
@@ -521,7 +521,13 @@ func _online_trade_offer_text(offer: Dictionary) -> String:
 	var raw_items: Variant = offer.get("items", {})
 	if raw_items is Dictionary:
 		for raw_name in (raw_items as Dictionary).keys():
-			item_parts.append("%s×%d" % [str(raw_name), int((raw_items as Dictionary).get(raw_name, 0))])
+			var item_name := str(raw_name)
+			var item_text := "%s×%d" % [item_name, int((raw_items as Dictionary).get(raw_name, 0))]
+			var raw_equipment: Variant = offer.get("equipment", {})
+			if raw_equipment is Dictionary and (raw_equipment as Dictionary).get(item_name, null) is Dictionary:
+				var state: Dictionary = (raw_equipment as Dictionary).get(item_name, {})
+				item_text += "（器纹 +%d）" % int(state.get("level", 0))
+			item_parts.append(item_text)
 	var parts: Array[String] = item_parts
 	if int(offer.get("gold", 0)) > 0:
 		parts.append("%d 金" % int(offer.get("gold", 0)))
@@ -555,13 +561,11 @@ func _respond_online_trade(trade_id: String, accept: bool) -> void:
 
 func _offer_first_online_trade_item(trade_id: String) -> void:
 	var chosen := ""
-	for raw_item in GameState.player.inventory:
-		var item_name := str(raw_item)
-		if item_name != GameState.player.equipped_weapon and item_name != GameState.player.equipped_artifact and item_name != GameState.player.equipped_armor:
-			chosen = item_name
-			break
+	var selectable := _online_trade_selectable_items()
+	if not selectable.is_empty():
+		chosen = selectable[0]
 	if chosen.is_empty():
-		GameState.notify("当前没有可用于交换的非装备物品。")
+		GameState.notify("当前没有可用于交换的物品；装备中的武器、法宝、护具与足部装备请先卸下。")
 		return
 	OnlineSession.offer_trade(trade_id, {chosen: 1}, 0)
 	_render()
@@ -594,7 +598,7 @@ func _online_trade_selectable_items() -> Array[String]:
 	var result: Array[String] = []
 	for raw_item in GameState.player.inventory:
 		var item_name := str(raw_item)
-		if item_name.is_empty() or item_name == GameState.player.equipped_weapon or item_name == GameState.player.equipped_artifact or item_name == GameState.player.equipped_armor or result.has(item_name):
+		if item_name.is_empty() or item_name == GameState.player.equipped_weapon or item_name == GameState.player.equipped_artifact or item_name == GameState.player.equipped_armor or item_name == GameState.player.equipped_footwear or result.has(item_name):
 			continue
 		result.append(item_name)
 	return result
@@ -603,6 +607,9 @@ func _online_trade_selectable_items() -> Array[String]:
 func _add_online_trade_draft_item(trade_id: String, item_name: String) -> void:
 	var draft := _trade_draft_for(trade_id)
 	var items: Dictionary = draft.get("items", {})
+	if int(items.get(item_name, 0)) >= GameState.player.inventory.count(item_name):
+		GameState.notify("行囊中的 %s 数量不足，不能继续加入拟议报价。" % item_name)
+		return
 	items[item_name] = int(items.get(item_name, 0)) + 1
 	draft.items = items
 	_store_trade_draft(trade_id, draft)

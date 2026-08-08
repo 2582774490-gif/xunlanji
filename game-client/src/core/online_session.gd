@@ -377,22 +377,13 @@ func _send_trade_seed() -> void:
 		if item_name.is_empty():
 			continue
 		counts[item_name] = int(counts.get(item_name, 0)) + 1
-	_send({"type": "trade_seed", "gold": max(0, int(GameState.player.gold)), "items": counts})
+	_send({"type": "trade_seed", "gold": max(0, int(GameState.player.gold)), "items": counts, "equipment": GameState.online_trade_equipment_states()})
 
 
 func _apply_trade_ledger(ledger: Dictionary) -> void:
 	# The room ledger wins after settlement. This is intentionally limited to a
 	# local development session until authenticated account inventories exist.
-	GameState.player.gold = max(0, int(ledger.get("gold", GameState.player.gold)))
-	var raw_items: Variant = ledger.get("items", {})
-	if raw_items is Dictionary:
-		var rebuilt_inventory: Array[String] = []
-		for raw_item_name in (raw_items as Dictionary).keys():
-			var item_name := str(raw_item_name)
-			for _count in range(max(0, int((raw_items as Dictionary).get(raw_item_name, 0)))):
-				rebuilt_inventory.append(item_name)
-		GameState.player.inventory = rebuilt_inventory
-	GameState.profile_changed.emit()
+	GameState.apply_online_trade_ledger(ledger)
 
 
 func _local_display_name() -> String:

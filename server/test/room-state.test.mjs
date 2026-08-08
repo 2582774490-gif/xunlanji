@@ -50,14 +50,14 @@ test("room escrow validates offers and settles a two-player exchange atomically"
   const rooms = new RoomState(10);
   rooms.join("launch-1", { id: "p1", name: "First", region: "starter_village", x: 0, y: 0 });
   rooms.join("launch-1", { id: "p2", name: "Second", region: "starter_village", x: 0, y: 0 });
-  assert.equal(rooms.seedTradeLedger("launch-1", "p1", { gold: 20, items: { "Mist Herb": 2, "Spirit Stone": 3 } }).ok, true);
+  assert.equal(rooms.seedTradeLedger("launch-1", "p1", { gold: 20, items: { "Mist Herb": 2, "Spirit Stone": 3, "Spirit Sword": 1 }, equipment: { "Spirit Sword": { level: 4 } } }).ok, true);
   assert.equal(rooms.seedTradeLedger("launch-1", "p2", { gold: 7, items: { "Ore Fragment": 4 } }).ok, true);
   assert.equal(rooms.seedTradeLedger("launch-1", "p1", { gold: 999, items: {} }).code, "trade_ledger_already_seeded");
   const requested = rooms.requestTrade("launch-1", "p1", "p2");
   assert.equal(requested.ok, true);
   assert.equal(rooms.requestTrade("launch-1", "p1", "p1").code, "trade_self_target");
   assert.equal(rooms.respondToTrade("launch-1", "p2", requested.trade.id, true).trade.status, "active");
-  assert.equal(rooms.setTradeOffer("launch-1", "p1", requested.trade.id, { gold: 5, items: { "Mist Herb": 1 } }).ok, true);
+  assert.equal(rooms.setTradeOffer("launch-1", "p1", requested.trade.id, { gold: 5, items: { "Mist Herb": 1, "Spirit Sword": 1 } }).ok, true);
   assert.equal(rooms.setTradeOffer("launch-1", "p2", requested.trade.id, { gold: 0, items: { "Ore Fragment": 2 } }).ok, true);
   assert.equal(rooms.setTradeOffer("launch-1", "p1", requested.trade.id, { gold: 99, items: {} }).code, "trade_insufficient_funds");
   assert.equal(rooms.lockTradeOffer("launch-1", "p1", requested.trade.id).settled, false);
@@ -65,7 +65,7 @@ test("room escrow validates offers and settles a two-player exchange atomically"
   assert.equal(settled.ok, true);
   assert.equal(settled.settled, true);
   assert.equal(settled.trade.status, "completed");
-  assert.deepEqual(rooms.tradeLedgerFor("launch-1", "p1").ledger, { gold: 15, items: { "Mist Herb": 1, "Spirit Stone": 3, "Ore Fragment": 2 } });
-  assert.deepEqual(rooms.tradeLedgerFor("launch-1", "p2").ledger, { gold: 12, items: { "Ore Fragment": 2, "Mist Herb": 1 } });
+  assert.deepEqual(rooms.tradeLedgerFor("launch-1", "p1").ledger, { gold: 15, items: { "Mist Herb": 1, "Spirit Stone": 3, "Ore Fragment": 2 }, equipment: {} });
+  assert.deepEqual(rooms.tradeLedgerFor("launch-1", "p2").ledger, { gold: 12, items: { "Ore Fragment": 2, "Mist Herb": 1, "Spirit Sword": 1 }, equipment: { "Spirit Sword": { level: 4 } } });
   assert.equal(rooms.activeTradeFor("launch-1", "p1"), null);
 });
