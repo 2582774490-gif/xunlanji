@@ -112,6 +112,27 @@ centered = false
 offset = Vector2(-658, -1120)
 scale = Vector2(0.54, 0.54)
 
+[node name="Name" type="Label" parent="OldCaravanWaystation"]
+offset_left = -164.0
+offset_top = -398.0
+offset_right = 164.0
+offset_bottom = -368.0
+theme_override_colors/font_color = Color(0.98, 0.82, 0.54, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.1, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 17
+text = "旧商道歇脚站"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="OldCaravanWaystation"]
+script = ExtResource("9_interaction")
+interaction_id = "old_caravan_waystation"
+prompt_text = "查看歇脚站的寄售木牌"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OldCaravanWaystation/Interaction"]
+position = Vector2(0, -112)
+shape = SubResource("ChanceTraceShape")
+
 [node name="LanEchoHillsChunk" type="Node2D" parent="."]
 position = Vector2(4352, 3840)
 z_index = -9

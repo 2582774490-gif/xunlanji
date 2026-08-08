@@ -75,6 +75,7 @@ const OPENING_PAGES := [
 @onready var stream_stair_cairn: Area2D = $FieldClues/StreamStairCairn/Interaction
 @onready var caravan_milestone: Area2D = $FieldClues/CaravanMilestone/Interaction
 @onready var wind_etched_marker: Area2D = $FieldClues/WindEtchedMarker/Interaction
+@onready var old_caravan_waystation: Area2D = $OldCaravanWaystation/Interaction
 @onready var regional_population = $RegionalPopulation
 @onready var chunk_streamer = $ChunkStreamer
 @onready var world_encounter = $WorldCombat
@@ -115,7 +116,7 @@ func _ready() -> void:
 	status.text = "云岚外野：云岚村只是第一处聚落。沿灵田、雾溪、云麓疏林与旧商道自由探索；资源和人物只会出现在合适地形。"
 	_setup_chance_trace()
 	_setup_personal_story_resonance()
-	var interactions: Array[Area2D] = [village_gate, mist_border_gate, water_palace_gate, echo_stone, stream_stair_cairn, caravan_milestone, wind_etched_marker]
+	var interactions: Array[Area2D] = [village_gate, mist_border_gate, water_palace_gate, echo_stone, stream_stair_cairn, caravan_milestone, wind_etched_marker, old_caravan_waystation]
 	if not chosen_chance_trace.is_empty():
 		interactions.append(chance_trace)
 	if personal_resonance != null:
@@ -231,6 +232,7 @@ func _setup_world_minimap() -> void:
 		{"position": Vector2(7720, 1500), "kind": "relic"},
 		{"position": Vector2(2800, 3360), "kind": "clue"},
 		{"position": Vector2(9060, 1560), "kind": "clue"},
+		{"position": Vector2(10560, 1540), "kind": "trade"},
 		{"position": Vector2(11000, 1650), "kind": "gate"},
 	], [
 		PackedVector2Array([Vector2(760, 1440), Vector2(2780, 1660), Vector2(5140, 1770), Vector2(7720, 1500), Vector2(11000, 1650)]),
@@ -322,6 +324,8 @@ func _activate_contextual() -> void:
 		_read_field_clue("caravan_milestone")
 	elif active_interaction == wind_etched_marker:
 		_read_field_clue("wind_etched_marker")
+	elif active_interaction == old_caravan_waystation:
+		_visit_old_caravan_waystation()
 	elif regional_population.owns(active_interaction):
 		regional_population.resolve(active_interaction)
 		_close_interaction()
@@ -390,6 +394,19 @@ func _resolve_personal_story_resonance() -> void:
 	personal_resonance.set_deferred("monitoring", false)
 	personal_resonance.get_parent().visible = false
 	_close_interaction()
+
+
+func _visit_old_caravan_waystation() -> void:
+	# The road-side market is a physical access point.  It contributes a one-time
+	# trade-route observation, then opens the existing market prototype; it does
+	# not mint currency or make the player accept any trading task.
+	GameState.observe_story_source("old_caravan_waystation_ledger", {
+		"region": "starter_village", "name": "旧商道歇脚站货簿", "kind": "story_observation", "story_trace": "road",
+		"description": "寄售木牌上的几笔货号与边关巡修提到的消失车辙相同，仿佛货物曾走过一条未被地图记载的旧路。",
+	})
+	GameState.notify("你在旧商道歇脚站查看寄售木牌。这里是大地图中的市集入口；当前交易仍为本地原型。")
+	GameState.enter_screen(GameState.Screen.MARKET)
+	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
 func _setup_opening_lore() -> void:
