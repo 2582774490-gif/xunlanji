@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://src/world/yunlan_village.gd" id="1_world"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/yunlan_village/terrain/yunlan_village_center_ground_v01.png" id="2_ground"]
@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://src/ui/virtual_touch_controls.gd" id="11_touch"]
 [ext_resource type="Texture2D" path="res://assets/art/npcs/sect_envoy_ningyuan/processed_alpha/sect_envoy_ningyuan_idle_v01_alpha.png" id="12_sect_envoy"]
 [ext_resource type="Texture2D" path="res://assets/art/maps/mist_tide_border/props/processed_alpha/mist_tide_border_ruined_gate_v01_alpha.png" id="13_border_gate"]
+[ext_resource type="Texture2D" path="res://assets/art/npcs/bai_heng/processed_alpha/bai_heng_card_v01_alpha.png" id="14_bai_heng"]
 
 [sub_resource type="CircleShape2D" id="PlayerShape"]
 radius = 18.0
@@ -33,6 +34,9 @@ radius = 92.0
 radius = 120.0
 
 [sub_resource type="CircleShape2D" id="WeaponRackRange"]
+radius = 92.0
+
+[sub_resource type="CircleShape2D" id="BaiHengRange"]
 radius = 92.0
 
 [node name="YunlanVillage" type="Node2D"]
@@ -100,6 +104,36 @@ prompt_text = "进入炼丹工坊"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AlchemyWorkshop/Interaction"]
 position = Vector2(0, -120)
 shape = SubResource("AlchemyRange")
+
+[node name="HerbalistBaiHeng" type="Node2D" parent="."]
+position = Vector2(1280, 510)
+
+[node name="Art" type="Sprite2D" parent="HerbalistBaiHeng"]
+texture = ExtResource("14_bai_heng")
+scale = Vector2(0.18, 0.18)
+centered = false
+offset = Vector2(-512, -768)
+
+[node name="Name" type="Label" parent="HerbalistBaiHeng"]
+offset_left = -106.0
+offset_top = -264.0
+offset_right = 106.0
+offset_bottom = -238.0
+theme_override_colors/font_color = Color(0.77, 0.94, 0.70, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.10, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+text = "百草谷执事 · 白蘅"
+horizontal_alignment = 1
+
+[node name="Interaction" type="Area2D" parent="HerbalistBaiHeng"]
+script = ExtResource("8_interaction")
+interaction_id = "herbalist_bai_heng"
+prompt_text = "与百草谷执事 · 白蘅交谈"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HerbalistBaiHeng/Interaction"]
+position = Vector2(0, -92)
+shape = SubResource("BaiHengRange")
 
 [node name="SectEnvoyNingYuan" type="Node2D" parent="."]
 position = Vector2(1060, 730)
@@ -253,12 +287,30 @@ theme_override_colors/font_color = Color(0.78, 0.9, 0.86, 1)
 theme_override_font_sizes/font_size = 15
 text = "方向键：探索村心  |  H / Esc：返回云岚南门"
 
+[node name="StatusPanel" type="ColorRect" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.025, 0.07, 0.10, 0.90)
+
+[node name="Status" type="Label" parent="HUD/StatusPanel"]
+offset_left = 24.0
+offset_top = 12.0
+offset_right = 1200.0
+offset_bottom = 86.0
+theme_override_colors/font_color = Color(0.83, 0.91, 0.88, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+
 [node name="Prompt" type="Label" parent="HUD"]
 anchors_preset = 10
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -130.0
-offset_bottom = -90.0
+offset_top = -150.0
+offset_bottom = -110.0
 theme_override_colors/font_color = Color(1, 0.88, 0.58, 1)
 theme_override_font_sizes/font_size = 19
 horizontal_alignment = 1

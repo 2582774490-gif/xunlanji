@@ -496,6 +496,9 @@ func _check_npc_relationship_rules() -> void:
 	var base_rate := GameState.alchemy_success_rate("ningxi")
 	GameState.change_npc_rapport("白蘅", 20, "smoke")
 	_expect(is_equal_approx(GameState.alchemy_success_rate("ningxi") - base_rate, 0.03), "Bai Heng familiarity should add only the documented small alchemy-stability bonus.")
+	GameState.record_personal_story_thread("craft", "alchemy_first_attempt", "test", "test")
+	_expect(GameState.meet_npc("白蘅"), "A player who actually used alchemy must be able to meet Bai Heng in the physical starter village.")
+	_expect(GameState.record_npc_lived_contexts("白蘅").any(func(context: Dictionary): return str(context.get("id", "")) == "first_alchemy"), "Bai Heng testimony must develop from a real alchemy attempt, not a fixed story checkpoint.")
 	GameState.player = profile_before
 	GameState.local_market_listings = listings_before
 	GameState.profile_changed.emit()
@@ -1885,9 +1888,13 @@ func _check_village_routes() -> void:
 	add_child(village)
 	await get_tree().process_frame
 	_expect(village.sect_envoy != null, "Village is missing the physical sect envoy route.")
+	_expect(village.herbalist != null, "Village is missing the physical Bai Heng testimony route.")
 	_expect(village.weapon_rack != null, "Village is missing the physical Yunlan weapon-trial rack.")
 	village._set_context("sect", "test")
 	_expect(village.active_interaction_id == "sect", "Village sect route did not use the shared contextual interaction path.")
+	village._set_context("herbalist", "test")
+	village._activate_contextual()
+	_expect(GameState.player.npc_met.has("白蘅") and village.status.text.contains("不必"), "Bai Heng must be an optional physical conversation that records a real meeting without creating a mandatory route.")
 	village._set_context("weapon_rack", "test")
 	village._activate_contextual()
 	for weapon_name in village.STARTER_TRIAL_WEAPONS:

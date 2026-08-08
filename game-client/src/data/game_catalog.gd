@@ -488,6 +488,16 @@ const NPC_CARD_PROFILES := {
 	},
 	"白蘅": {
 		"card_asset": "res://assets/art/npcs/bai_heng/processed_alpha/bai_heng_card_v01_alpha.png",
+		"lived_contexts": [
+			{"id": "first_alchemy", "when_any_thread": ["alchemy_first_attempt"], "title": "白蘅 · 炉火印证", "description": "你不是只听过丹炉的传闻，而是亲手经历过一次成丹或失手。白蘅因此不再只讲药性规约；她把你留在炉边的选择也记进雾泽药录：修行的理解可以来自一味药、一炉火，以及愿意承担结果的人。"},
+		],
+		"story_reflections": {
+			"tide_listener": {"title": "白蘅 · 药泉之问", "description": "白蘅说雨后灵泉的水位只是受雾气影响。你在药钵边听到的细响却比泉水慢半拍，像另一道潮线正从地下替这里回声。"},
+			"herb_reader": {"title": "白蘅 · 芽序之问", "description": "白蘅把灵草错开的发芽期记作季候异常。你按叶脉与泥色重新排过药样，发现它们并非失序，而是在等待一段旧有的、生长得更慢的时辰。"},
+			"forge_watcher": {"title": "白蘅 · 炉纹之问", "description": "白蘅担心药炉底部新出现的细纹会散失火候。你辨出那不是裂纹，而像一圈圈被岚息反复描过的阵纹，正把热意引向某处未开封的地脉。"},
+			"storm_walker": {"title": "白蘅 · 风晒之问", "description": "白蘅让弟子把药草移离东坡乱风。你看见风每次掠过药架都会避开同一只空药匣，仿佛有一条看不见的旧路仍在从谷外经过。"},
+			"mirror_keeper": {"title": "白蘅 · 倒叶之问", "description": "白蘅说雾泽有些草叶会在露水里映出两层颜色。你没有急着把它归作异象，只把那片倒映出陌生星纹的叶子夹进游历簿。"},
+		},
 		"faction": "百草谷 · 雾泽药庐",
 		"relationship": "初识 · 丹修传功",
 		"service": "说明药性承受、灵植分区与百草谷门规；玩家自由加入百草谷并晋升内门后，会登记《百草调息篇》，但不会强制切换主修。",

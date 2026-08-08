@@ -2,11 +2,13 @@ extends Node2D
 
 @onready var merchant: Area2D = $MarketkeeperLuo/Interaction
 @onready var alchemy: Area2D = $AlchemyWorkshop/Interaction
+@onready var herbalist: Area2D = $HerbalistBaiHeng/Interaction
 @onready var sect_envoy: Area2D = $SectEnvoyNingYuan/Interaction
 @onready var mist_border: Area2D = $MistBorderPassage/Interaction
 @onready var water_palace: Area2D = $WaterPalaceEntrance/Interaction
 @onready var weapon_rack: Area2D = $WeaponTrialRack/Interaction
 @onready var prompt: Label = $HUD/Prompt
+@onready var status: Label = $HUD/StatusPanel/Status
 @onready var touch_controls: Node = $HUD/TouchControls
 
 var active_interaction_id := ""
@@ -18,6 +20,8 @@ func _ready() -> void:
 	merchant.unfocused.connect(func(_interaction): _clear_context("merchant"))
 	alchemy.focused.connect(func(_interaction): _set_context("alchemy", "进入炼丹工坊"))
 	alchemy.unfocused.connect(func(_interaction): _clear_context("alchemy"))
+	herbalist.focused.connect(func(_interaction): _set_context("herbalist", "与百草谷执事·白蘅交谈"))
+	herbalist.unfocused.connect(func(_interaction): _clear_context("herbalist"))
 	sect_envoy.focused.connect(func(_interaction): _set_context("sect", "与宗门接引使·宁远交谈"))
 	sect_envoy.unfocused.connect(func(_interaction): _clear_context("sect"))
 	mist_border.focused.connect(func(_interaction): _set_context("mist_border", "前往雾潮边境" if GameState.is_region_unlocked("mist_border") else "雾潮边境尚待水府试炼开启"))
@@ -52,6 +56,8 @@ func _on_touch_action_requested(action_id: String) -> void:
 
 func _activate_contextual() -> void:
 	match active_interaction_id:
+		"herbalist":
+			_talk_to_bai_heng()
 		"merchant":
 			GameState.meet_npc("洛清")
 			GameState.enter_screen(GameState.Screen.MARKET)
@@ -84,3 +90,17 @@ func _activate_contextual() -> void:
 				prompt.text = "已领取：%s\n按 Q 切换武器；可前往雾溪水府或山门论剑试用。" % "、".join(granted)
 			else:
 				prompt.text = "试兵资格已记录。按 Q 可切换已完成的专属武器。"
+
+
+func _talk_to_bai_heng() -> void:
+	var first_meeting := GameState.meet_npc("白蘅")
+	var reflection := GameState.npc_personal_reflection("白蘅")
+	var lived_contexts := GameState.record_npc_lived_contexts("白蘅")
+	status.text = "白蘅：药草、丹火与人的承受各有时序。百草谷可以传功，也可以售药；你不必因此把丹修当成唯一道路。"
+	if not reflection.is_empty():
+		status.text += "\n【你的见闻】%s" % str(reflection.get("description", ""))
+	if not lived_contexts.is_empty():
+		status.text += "\n【实际游历】%s" % str(lived_contexts.back().get("description", ""))
+	if first_meeting:
+		status.text += "\n（白蘅已记入万物图鉴与游历簿；这段交谈不派发必做任务。）"
+	prompt.text = "[E / 交互] 再问白蘅"
