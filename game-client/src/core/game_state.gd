@@ -1673,6 +1673,68 @@ func contribute_item_to_sect(item_name: String) -> bool:
 	add_sect_contribution(gained, "进献%s" % item_name)
 	return true
 
+
+func current_sect_services(now_unix: int = -1) -> Array[Dictionary]:
+	_normalize_player_schema()
+	var sect_id := str(player.get("sect_id", ""))
+	if sect_id.is_empty():
+		return []
+	var catalog := preload("res://src/data/game_catalog.gd")
+	var services: Array[Dictionary] = []
+	for raw_service in catalog.SECT_SERVICES:
+		if str(raw_service.get("sect_id", "")) != sect_id:
+			continue
+		var service: Dictionary = (raw_service as Dictionary).duplicate(true)
+		service.available = is_sect_service_available(str(service.id), now_unix)
+		service.in_region = (service.get("regions", []) as Array).has(current_region_id)
+		services.append(service)
+	return services
+
+
+func is_sect_service_available(service_id: String, now_unix: int = -1) -> bool:
+	if service_id.is_empty():
+		return false
+	return is_ecology_profile_available("sect_service", service_id, now_unix)
+
+
+func sect_service_remaining(service_id: String, now_unix: int = -1) -> float:
+	_normalize_player_schema()
+	var now := int(Time.get_unix_time_from_system()) if now_unix < 0 else now_unix
+	return maxf(0.0, float(int(player.ecology_cooldowns.get("sect_service::%s" % service_id, 0)) - now))
+
+
+func complete_sect_service(service_id: String, now_unix: int = -1) -> bool:
+	_normalize_player_schema()
+	var sect := current_sect()
+	if sect.is_empty():
+		notify("散修不受宗门事务约束，也无法以宗门名义结报。")
+		return false
+	var service: Dictionary = {}
+	var catalog := preload("res://src/data/game_catalog.gd")
+	for raw_service in catalog.SECT_SERVICES:
+		if str(raw_service.get("id", "")) == service_id:
+			service = (raw_service as Dictionary).duplicate(true)
+			break
+	if service.is_empty() or str(service.get("sect_id", "")) != str(sect.get("id", "")):
+		notify("这不是当前宗门的有效事务。")
+		return false
+	if not (service.get("regions", []) as Array).has(current_region_id):
+		notify("此事需在%s实地完成后再结报。" % str(service.get("region_name", "指定区域")))
+		return false
+	if not is_sect_service_available(service_id, now_unix):
+		notify("该宗门事务正在轮休，%.0f 秒后再开放。" % ceilf(sect_service_remaining(service_id, now_unix)))
+		return false
+	var item_name := str(service.get("item", ""))
+	if item_name.is_empty() or not player.inventory.has(item_name):
+		notify("结报需要%s；可自行探索、交易或暂时不参与。" % item_name)
+		return false
+	player.inventory.erase(item_name)
+	mark_ecology_profile_resolved("sect_service", service_id, int(service.get("cooldown", 3600)), now_unix)
+	add_sect_contribution(int(service.get("contribution", 0)), "宗门事务·%s" % str(service.get("name", "结报")))
+	record_personal_story_thread("sect", "sect_service_%s" % service_id, "门中事务·%s" % str(service.get("name", "结报")), "你选择回应%s的当期事务。它只是你在山门中的一段经历，不会取代探索、功法、交易或对旧界的个人判断。" % str(sect.get("name", "宗门")))
+	return true
+
+
 func add_sect_contribution(amount: int, source: String) -> void:
 	if str(player.get("sect_id", "")).is_empty() or amount <= 0:
 		return

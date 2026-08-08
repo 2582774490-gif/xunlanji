@@ -399,6 +399,7 @@ func _check_personal_story_world_resonance() -> void:
 
 func _check_sect_progression() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
+	var region_before: String = GameState.current_region_id
 	GameState.player.sect_id = ""
 	GameState.player.sect_rank = 0
 	GameState.player.sect_contribution = 0
@@ -411,6 +412,13 @@ func _check_sect_progression() -> void:
 	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "sect_join_mist_sword"), "Joining a sect should preserve a voluntary faction-viewpoint memory without becoming a main-story lock.")
 	_expect(GameState.contribute_item_to_sect("宗门测试贡品"), "Sect contribution should accept a carried material.")
 	_expect(int(GameState.player.sect_contribution) >= 6 and not GameState.player.inventory.has("宗门测试贡品"), "Sect contribution did not consume the offered material and award contribution.")
+	GameState.current_region_id = "yunlan_outskirts"
+	GameState.player.inventory.append("雾潮晶簇")
+	var sect_services := GameState.current_sect_services(1704110400)
+	_expect(sect_services.size() >= 2 and str(sect_services[0].get("sect_id", "")) == "mist_sword", "Every joined sect should expose its own optional regional affairs.")
+	_expect(GameState.complete_sect_service("mist_sword_oldroad_patrol", 1704110400), "A sect affair should accept its region-appropriate material after actual world travel.")
+	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "sect_service_mist_sword_oldroad_patrol"), "Completing a sect affair must create an optional social-history memory rather than a main-story checkpoint.")
+	_expect(not GameState.complete_sect_service("mist_sword_oldroad_patrol", 1704110400), "The same sect affair must respect its own non-farmable rotation cooldown.")
 	GameState.player.realm_index = 0
 	GameState.player.minor_stage = 6
 	GameState.player.sect_contribution = 80
@@ -421,6 +429,7 @@ func _check_sect_progression() -> void:
 	_expect(GameState.is_wanted_by_sect("mist_sword"), "Leaving Mist Sword at inner rank should preserve a sect wanted record.")
 	_expect(GameState.personal_story_thread_records().any(func(record: Dictionary): return str(record.get("id", "")) == "sect_leave_mist_sword"), "Leaving a sect should preserve the player's social-history branch instead of erasing it.")
 	GameState.player = profile_before
+	GameState.current_region_id = region_before
 	GameState.profile_changed.emit()
 
 

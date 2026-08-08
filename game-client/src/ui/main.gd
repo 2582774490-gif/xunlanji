@@ -428,6 +428,14 @@ func _show_sect() -> void:
 				break
 		for item_name in contribution_items:
 			_buttons([["进献 %s" % item_name, func(): GameState.contribute_item_to_sect(item_name), 210]])
+		_line()
+		_text("山门当期事务（完全自愿，不是主线任务）：", 18, Color("f2d79c"))
+		_text("这些事务反映宗门正在关心的商路、边关或药性。你可以忽略、改走其他修行路径，或在合适区域带着材料回来结报。", 15, Color("a7d5ca"))
+		for service in GameState.current_sect_services():
+			var readiness := "可结报" if bool(service.get("available", false)) else "轮休 %.0f 秒" % ceilf(GameState.sect_service_remaining(str(service.id)))
+			var location := "已在对应区域" if bool(service.get("in_region", false)) else "需前往%s" % str(service.get("region_name", "指定区域"))
+			_text("【%s】%s｜需 %s｜贡献 +%d｜%s｜%s" % [str(service.get("name", "宗门事务")), str(service.get("brief", "")), str(service.get("item", "材料")), int(service.get("contribution", 0)), location, readiness], 15)
+			_buttons([["结报 %s" % str(service.get("name", "事务")), func(): GameState.complete_sect_service(str(service.id)), 240]])
 		_text("离宗后仍可选择其他道路；部分门规会保留追查或通缉记录。真实多人追捕、赎罪和关系修复将由服务器权威结算。", 15, Color("a7d5ca"))
 		_buttons([["退出宗门", GameState.leave_sect, 220]])
 

@@ -425,6 +425,17 @@ const SECT_RANKS := [
 	{"name": "副宗主", "contribution": 2400, "realm_index": 3, "minor_stage": 3},
 ]
 
+# 宗门事务不是强制任务链：它们是山门对真实区域的当期需求。
+# 玩家可绕开、换宗或做散修；完成后只留下自己的社会经历和贡献。
+const SECT_SERVICES := [
+	{"id": "mist_sword_oldroad_patrol", "sect_id": "mist_sword", "name": "旧商道巡守结报", "regions": ["yunlan_outskirts"], "region_name": "云岚外野·旧商道", "item": "雾潮晶簇", "contribution": 18, "cooldown": 3600, "brief": "雾隐剑宗要核验旧商道的雾潮晶簇，以判断巡守阵眼是否还能维持。"},
+	{"id": "mist_sword_pass_watch", "sect_id": "mist_sword", "name": "雾关阵眼校验", "regions": ["mist_border"], "region_name": "雾潮边境", "item": "雾潮矿芯", "contribution": 24, "cooldown": 5400, "brief": "边关水雾反常，剑宗向路过的门人征集矿芯校验阵眼。"},
+	{"id": "cloud_market_route_ledger", "sect_id": "cloud_market", "name": "旧道货签核验", "regions": ["yunlan_outskirts"], "region_name": "云岚外野·旧商道", "item": "旧道货签", "contribution": 16, "cooldown": 3600, "brief": "云市会不问你从何处来，只需一枚可靠货签来修正商路风险。"},
+	{"id": "cloud_market_relic_appraisal", "sect_id": "cloud_market", "name": "古脊遗物鉴别", "regions": ["ancient_ridge"], "region_name": "古脊岭", "item": "古战印", "contribution": 26, "cooldown": 5400, "brief": "古脊岭遗物涌入市面，云市会收取古战印建立公开的鉴别记录。"},
+	{"id": "wild_herb_medicine_sample", "sect_id": "wild_herb", "name": "雾溪药性留样", "regions": ["yunlan_outskirts"], "region_name": "云岚外野·雾溪", "item": "雾溪草", "contribution": 14, "cooldown": 3000, "brief": "百草谷收集雨后雾溪草的药性差异；不是上缴药圃，只是补足公共药录。"},
+	{"id": "wild_herb_marsh_remedy", "sect_id": "wild_herb", "name": "边泽药包转存", "regions": ["mist_border"], "region_name": "雾潮边境", "item": "雾溪药", "contribution": 20, "cooldown": 4200, "brief": "湿雾季将至，百草谷请门人将可用药材转入边泽药庐。"},
+]
+
 const NPCS := [
 	{"name": "沈衍", "role": "南门引路人", "place": "云岚村南门"},
 	{"name": "陆青禾", "role": "药材商", "place": "云岚村"},
