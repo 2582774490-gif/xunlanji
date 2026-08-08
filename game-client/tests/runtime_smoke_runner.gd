@@ -1620,6 +1620,7 @@ func _check_local_market_loop() -> void:
 
 
 func _check_online_session_presence_boundary() -> void:
+	var profile_before: Dictionary = GameState.player.duplicate(true)
 	OnlineSession.disconnect_room(false)
 	var layer := preload("res://src/world/remote_avatar_layer.gd").new()
 	add_child(layer)
@@ -1658,9 +1659,18 @@ func _check_online_session_presence_boundary() -> void:
 	await get_tree().process_frame
 	OnlineSession._handle_message({"type": "duel_sessions", "duels": []})
 	_expect(OnlineSession.duel_sessions().is_empty() and not OnlineSession.local_player_has_duel(), "Online session did not clear a server-ended duel session.")
+	OnlineSession._handle_message({"type": "trade_state", "trade": {
+		"id": "trade_smoke", "requesterId": "self-peer", "targetId": "remote-peer", "status": "active", "revision": 3,
+		"offers": {"self-peer": {"gold": 4, "items": {"雾溪灵草": 1}, "locked": true}, "remote-peer": {"gold": 0, "items": {"矿砂": 2}, "locked": false}},
+	}})
+	_expect(OnlineSession.local_player_has_trade() and str(OnlineSession.trade_state("trade_smoke").get("status", "")) == "active", "Online session did not retain a private server-mediated exchange state for its participant.")
+	OnlineSession._handle_message({"type": "trade_ledger", "ledger": {"gold": 6, "items": {"矿砂": 2}}})
+	_expect(int(GameState.player.gold) == 6 and GameState.player.inventory.size() == 2 and GameState.player.inventory[0] == "矿砂", "The client must apply a server settlement ledger instead of retaining a locally fabricated trade inventory.")
 	layer.queue_free()
 	OnlineSession.disconnect_room(false)
 	await get_tree().process_frame
+	GameState.player = profile_before
+	GameState.profile_changed.emit()
 
 func _check_random_opportunity() -> void:
 	var log_before: int = GameState.player.opportunity_log.size()

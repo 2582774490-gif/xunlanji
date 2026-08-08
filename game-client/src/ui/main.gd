@@ -11,6 +11,7 @@ var selected_root_index := 2
 var selected_physique_index := 0
 var content: VBoxContainer
 var notice_label: Label
+var _trade_drafts: Dictionary = {}
 
 func _ready() -> void:
 	GameState.screen_changed.connect(func(_screen): _render())
@@ -481,6 +482,14 @@ func _show_online_trade_session() -> void:
 			_buttons([["以首件非装备物品报价", func(): _offer_first_online_trade_item(trade_id), 220, bool(mine.get("locked", false))], ["锁定我的报价", func(): _lock_online_trade(trade_id), 170, bool(mine.get("locked", false))], ["取消交换", func(): _cancel_online_trade(trade_id), 150]])
 
 
+			var draft := _trade_draft_for(trade_id)
+			_text("拟议报价（可组合物品与灵石，提交前不会改变服务端报价）：%s" % _online_trade_offer_text({"items": draft.get("items", {}), "gold": draft.get("gold", 0), "locked": false}), 15, Color("a7d5ca"))
+			for item_name in _online_trade_selectable_items():
+				_buttons([["加入 %s ×1" % item_name, func(): _add_online_trade_draft_item(trade_id, item_name), 250, bool(mine.get("locked", false))]])
+			_buttons([["拟议灵石 +1", func(): _add_online_trade_draft_gold(trade_id, 1), 150, bool(mine.get("locked", false))], ["拟议灵石 +5", func(): _add_online_trade_draft_gold(trade_id, 5), 150, bool(mine.get("locked", false))], ["清空拟议报价", func(): _clear_online_trade_draft(trade_id), 160, bool(mine.get("locked", false))]])
+			_buttons([["提交拟议报价", func(): _submit_online_trade_draft(trade_id), 180, bool(mine.get("locked", false))]])
+
+
 func _online_trade_offer_text(offer: Dictionary) -> String:
 	var item_parts: Array[String] = []
 	var raw_items: Variant = offer.get("items", {})
@@ -539,6 +548,56 @@ func _lock_online_trade(trade_id: String) -> void:
 
 func _cancel_online_trade(trade_id: String) -> void:
 	OnlineSession.cancel_trade(trade_id)
+	_render()
+
+
+func _trade_draft_for(trade_id: String) -> Dictionary:
+	var existing: Variant = _trade_drafts.get(trade_id, {})
+	if existing is Dictionary:
+		var draft: Dictionary = existing
+		if draft.has("items") and draft.get("items") is Dictionary:
+			return draft.duplicate(true)
+	return {"items": {}, "gold": 0}
+
+
+func _store_trade_draft(trade_id: String, draft: Dictionary) -> void:
+	_trade_drafts[trade_id] = draft.duplicate(true)
+
+
+func _online_trade_selectable_items() -> Array[String]:
+	var result: Array[String] = []
+	for raw_item in GameState.player.inventory:
+		var item_name := str(raw_item)
+		if item_name.is_empty() or item_name == GameState.player.equipped_weapon or item_name == GameState.player.equipped_artifact or item_name == GameState.player.equipped_armor or result.has(item_name):
+			continue
+		result.append(item_name)
+	return result
+
+
+func _add_online_trade_draft_item(trade_id: String, item_name: String) -> void:
+	var draft := _trade_draft_for(trade_id)
+	var items: Dictionary = draft.get("items", {})
+	items[item_name] = int(items.get(item_name, 0)) + 1
+	draft.items = items
+	_store_trade_draft(trade_id, draft)
+	_render()
+
+
+func _add_online_trade_draft_gold(trade_id: String, amount: int) -> void:
+	var draft := _trade_draft_for(trade_id)
+	draft.gold = min(int(GameState.player.gold), max(0, int(draft.get("gold", 0)) + amount))
+	_store_trade_draft(trade_id, draft)
+	_render()
+
+
+func _clear_online_trade_draft(trade_id: String) -> void:
+	_trade_drafts.erase(trade_id)
+	_render()
+
+
+func _submit_online_trade_draft(trade_id: String) -> void:
+	var draft := _trade_draft_for(trade_id)
+	OnlineSession.offer_trade(trade_id, draft.get("items", {}), int(draft.get("gold", 0)))
 	_render()
 
 
