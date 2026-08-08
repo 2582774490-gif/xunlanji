@@ -30,6 +30,8 @@ func populate(seed_value: int, profiles: Array[Dictionary]) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	for profile in profiles:
+		if not _profile_matches_story_stance(profile):
+			continue
 		if not GameState.is_ecology_profile_available(str(profile.get("region", "")), str(profile.get("id", ""))):
 			continue
 		if rng.randf() > float(profile.get("chance", 1.0)):
@@ -39,6 +41,17 @@ func populate(seed_value: int, profiles: Array[Dictionary]) -> void:
 			continue
 		var anchor: Vector2 = anchors[rng.randi_range(0, anchors.size() - 1)]
 		_create_population_node(profile, anchor)
+
+
+## Some witnesses only approach a cultivator after they have formed a view of
+## the old boundary. These are not quest givers: no map pin, reward, or region
+## lock is attached. They make the same landscape answer different characters
+## with different plausible people and concerns.
+func _profile_matches_story_stance(profile: Dictionary) -> bool:
+	var required_stance := str(profile.get("story_stance", ""))
+	if required_stance.is_empty():
+		return true
+	return required_stance == str(GameState.personal_story_stance().get("id", ""))
 
 
 func _eligible_anchors(profile: Dictionary) -> Array:
@@ -154,6 +167,9 @@ func _observe_profile_story(profile: Dictionary) -> String:
 	var source_id := "population_%s" % str(profile.get("id", ""))
 	var name := str(profile.get("name", "无名线索"))
 	var note := str(profile.get("story_note", "你把这段见闻记入游历簿。"))
+	var stance_note := str(profile.get("story_stance_note", ""))
+	if not stance_note.is_empty():
+		note += " " + stance_note
 	if not GameState.observe_story_source(source_id, {
 		"region": str(profile.get("region", "")), "name": name,
 		"kind": "story_observation", "story_trace": trace, "description": note,
