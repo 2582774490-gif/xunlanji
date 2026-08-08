@@ -265,6 +265,8 @@ func _check_monthly_card_fairness_rules() -> void:
 
 func _check_optional_world_guidance() -> void:
 	var shen_card := GameCatalog.npc_card_profile_for_name("沈衍")
+	var shen_reflections: Dictionary = shen_card.get("story_reflections", {})
+	_expect(shen_reflections.size() == 5 and shen_reflections.has("tide_listener") and shen_reflections.has("herb_reader") and shen_reflections.has("forge_watcher") and shen_reflections.has("storm_walker") and shen_reflections.has("mirror_keeper"), "South Gate testimony must retain a complete five-origin reading set rather than one universal beginner line.")
 	_expect(not shen_card.is_empty() and ResourceLoader.exists(str(shen_card.card_asset)), "South Gate guide NPC card must be registered with a runtime portrait.")
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.world_guidance = {"steps": [], "skipped": false}
@@ -1759,6 +1761,9 @@ func _check_random_opportunity() -> void:
 	add_child(south_gate)
 	await get_tree().process_frame
 	_expect(south_gate.chosen_opportunity.size() > 0, "South Gate did not select a random opportunity.")
+	south_gate.active_interaction = south_gate.guide_interaction
+	south_gate._activate_interaction()
+	_expect(GameState.npc_rapport("沈衍") >= 3 and south_gate.status.text.contains("【你的见闻】") and south_gate.status.text.contains("不是必须完成的任务"), "South Gate guidance must become an optional personal NPC account instead of a mandatory beginner quest.")
 	south_gate.active_interaction = south_gate.opportunity_interaction
 	south_gate._activate_interaction()
 	_expect(south_gate.opportunity_collected, "Opportunity interaction did not collect the world object.")

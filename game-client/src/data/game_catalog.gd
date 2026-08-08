@@ -464,6 +464,13 @@ const NPC_CARD_PROFILES := {
 	},
 	"沈衍": {
 		"card_asset": "res://assets/art/npcs/shen_yan/processed_alpha/shen_yan_card_v01_alpha.png",
+		"story_reflections": {
+			"tide_listener": {"title": "沈衍 · 溪雾之问", "description": "沈衍只说南门雾潮比往年早起。你在他停顿时听见溪水逆着石阶轻响，像山脚下还有一段不属于今日的潮线。"},
+			"herb_reader": {"title": "沈衍 · 药性之问", "description": "沈衍提醒雨后灵草药性易变。你却注意到他指的是一片尚未开花的坡地：岚潮最早改变的也许不是灵草，而是它们等待发芽的时序。"},
+			"forge_watcher": {"title": "沈衍 · 石阶之问", "description": "沈衍把南门湿滑石阶当作寻常雾重。你摸到阶缝里细微的反向纹路，像一座早已废弃的引灵阵仍在地下缓慢回火。"},
+			"storm_walker": {"title": "沈衍 · 风口之问", "description": "沈衍要你留意山风与雾线的变化。你发现南门风总在同一刻折向东侧溪谷，仿佛避开某条没有写入地形图的旧道。"},
+			"mirror_keeper": {"title": "沈衍 · 门影之问", "description": "沈衍说门楼的长影只是晨雾折光。你没有争辩，只记下影子偶尔比真实门柱多出半截，且始终朝着村外延伸。"},
+		},
 		"faction": "云岚村 · 南门引路人",
 		"relationship": "初识 · 世界引导",
 		"service": "说明岚息、灵根与吐纳的基础关系；与他交谈会记录“认识岚息”，但不会强制接取任务、发放境界经验或限制探索。",

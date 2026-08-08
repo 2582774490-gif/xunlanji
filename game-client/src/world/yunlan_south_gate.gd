@@ -106,11 +106,18 @@ func _activate_interaction() -> void:
 		return
 	var interaction_id := str(active_interaction.get("interaction_id"))
 	if interaction_id == "guide_shen":
+		var first_meeting := GameState.meet_npc("沈衍")
+		var personal_reflection := GameState.npc_personal_reflection("沈衍")
 		if guide_dialogue_stage == 0:
 			guide_dialogue_stage = 1
 			GameState.complete_world_guidance_step("lan_breath")
 			status.text = "沈衍：岚息是山风、水汽与灵机交汇的可感之息。南门之外雾潮有异动；沿溪路找一株雾溪灵草即可。你不必急于选定唯一的道途。"
 			prompt.text = "[E] 再问沈衍"
+			status.text = "沈衍：岚息是山风、水汽与灵机交汇的可感之息。南门之外的溪路、坡地与雾线都可自行观察；采药、试武、入村、行商或直接远游都不会错过唯一的道路。"
+			if not personal_reflection.is_empty():
+				status.text += "\n【你的见闻】%s" % str(personal_reflection.get("description", ""))
+			if first_meeting:
+				status.text += "\n（沈衍已记入万物图鉴与游历簿；这只是一段世界认识，不是必须完成的任务。）"
 		else:
 			status.text = "沈衍：往南门东侧的溪路走。资源与机缘都在世界里，不在一张固定的任务清单里。"
 	elif interaction_id == "mist_herb" and not herb_collected:
