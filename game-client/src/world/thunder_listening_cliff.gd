@@ -3,7 +3,7 @@ extends Node2D
 
 const THUNDER_WINDOWS := [
 	{"name": "初雷照崖", "item": "雷纹符材", "cultivation": 11, "description": "第一道落雷过后，崖壁残留的雷纹最适合符修与雷灵根修士辨认。"},
-	{"name": "风隙回响", "item": "御风残页", "cultivation": 13, "description": "断崖风口的回响暗合身法运息，任何流派都可尝试参悟。"},
+	{"name": "风隙回响", "item": "御风残页", "technique": "驭风游身诀", "cultivation": 13, "description": "断崖风口的回响暗合身法运息，任何流派都可尝试参悟。"},
 	{"name": "雨后雷晶", "item": "微雷晶", "cultivation": 9, "description": "暴雨稍歇时，浅层岩缝会析出可交易的微雷晶。"},
 ]
 
@@ -97,8 +97,9 @@ func _resolve_thunder_window() -> void:
 	thunder_interaction.set_deferred("monitoring", false)
 	GameState.add_item(str(thunder_window.item))
 	GameState.gain_cultivation(int(thunder_window.cultivation))
-	if str(thunder_window.get("item", "")) == "驭风残页":
-		GameState.discover_technique("驭风游身诀", "听雷断崖的风隙回响")
+	var discovered_technique := str(thunder_window.get("technique", ""))
+	if not discovered_technique.is_empty():
+		GameState.discover_technique(discovered_technique, "听雷断崖的风隙回响")
 	GameState.record_opportunity({"region": "thunder_listening_cliff", "name": thunder_window.name, "item": thunder_window.item, "cultivation": thunder_window.cultivation})
 	status.text = "你抓住 %s：%s 获得 %s，修为 +%d。" % [thunder_window.name, thunder_window.description, thunder_window.item, thunder_window.cultivation]
 	_close_interaction()

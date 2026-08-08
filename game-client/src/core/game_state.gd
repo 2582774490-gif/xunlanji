@@ -956,11 +956,11 @@ func use_exploration_compass(region_id: String, now_unix: int = -1) -> Dictionar
 	return {"ok": true, "message": hint, "cooldown_seconds": duration}
 
 
-func try_award_monthly_card_common_material(dungeon_id: String, common_materials: Array[String], roll: float = -1.0) -> String:
+func try_award_monthly_card_common_material(dungeon_id: String, common_materials: Array[String], roll: float = -1.0, now_unix: int = -1) -> String:
 	# 只可额外产出明确传入的常规材料；首领装备、功法、法宝、丹药和稀有掉落绝不进入此池。
 	if dungeon_id.is_empty() or common_materials.is_empty():
 		return ""
-	var chance: float = float(monthly_card_benefits().get("common_bonus_chance", 0.0))
+	var chance: float = float(monthly_card_benefits(now_unix).get("common_bonus_chance", 0.0))
 	var resolved_roll: float = randf() if roll < 0.0 else roll
 	if chance <= 0.0 or resolved_roll >= chance:
 		return ""
@@ -1047,7 +1047,9 @@ func craft_alchemy_recipe(recipe_id: String, forced_roll := -1.0) -> bool:
 	var recipe: Dictionary = catalog.ALCHEMY_RECIPES.get(recipe_id, {})
 	if recipe.is_empty():
 		return false
-	var materials: Array = recipe.get("materials", [])
+	var materials: Array[String] = []
+	for raw_material in recipe.get("materials", []):
+		materials.append(str(raw_material))
 	if not consume_items(materials):
 		notify("炼制%s的材料不足。" % str(recipe.get("name", "丹药")))
 		return false

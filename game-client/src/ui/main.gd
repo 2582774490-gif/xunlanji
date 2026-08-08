@@ -85,6 +85,7 @@ func _render() -> void:
 		GameState.Screen.ALCHEMY: _show_alchemy()
 		GameState.Screen.PVP: _show_pvp()
 		GameState.Screen.CODEX: _show_codex()
+		GameState.Screen.JOURNAL: _show_journal()
 		GameState.Screen.SETTINGS: _show_settings()
 
 func _subtitle() -> String:
@@ -386,6 +387,7 @@ func _add_inventory_costume_card(costume_id: String, profile: Dictionary, equipp
 
 func _show_sect() -> void:
 	_heading("宗门与身份")
+	_text("百草谷传功：雾泽药庐执事·白蘅负责内门传功登记《百草调息篇》；登记不会强制切换玩家主修。", 16, Color("a7d5ca"))
 	if GameState.player.sect_id == "":
 		_text("当前为散修。可自由加入宗门；初始身份为外门弟子。副本结算与资源进献可获得贡献，达到境界与贡献要求后可申请晋升。")
 		for sect in Catalog.SECTS:

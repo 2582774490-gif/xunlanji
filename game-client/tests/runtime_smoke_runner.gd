@@ -1,6 +1,8 @@
 extends Node
 
 var failures: Array[String] = []
+const RETURN_ABYSS_MIST_PORT_SCENE: PackedScene = preload("res://scenes/return_abyss_mist_port.tscn")
+const MIST_STREAM_WATER_PALACE_SCENE: PackedScene = preload("res://scenes/mist_stream_water_palace.tscn")
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -190,19 +192,20 @@ func _check_costume_wardrobe_rules() -> void:
 	_expect(str(GameState.player.equipped_costume) == "liulan_wayfarer", "Costume selection did not persist in player state.")
 	_expect(GameState.derived_stats() == stats_before, "Costume selection must not alter any combat or movement stat.")
 	_expect(str(costume.get("runtime_state", "")) == "ready" and GameState.costume_runtime_status_text("liulan_wayfarer").contains("已接入地图角色层"), "Liulan Wayfarer must be marked map-ready only after all eight idle and walk directions are locally verified.")
-	var costume_world := preload("res://scenes/yunlan_village.tscn").instantiate()
+	var costume_world := preload("res://scenes/yunlan_outskirts.tscn").instantiate()
 	add_child(costume_world)
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_expect(costume_world.player._has_runtime_costume_body(), "Equipped Liulan Wayfarer must replace the live male map body rather than remaining an inventory-only card.")
 	_expect(costume_world.player.body.sprite_frames.get_frame_count("idle_north_east") == 1 and costume_world.player.body.sprite_frames.get_frame_count("walk_east") == 6 and costume_world.player.body.sprite_frames.get_frame_count("walk_south_east") == 6 and costume_world.player.body.sprite_frames.get_frame_count("attack_south") == 6, "Live Liulan Wayfarer map body must use its eight-direction idle, six-frame walk and approved Qinghuang attack sources.")
-	var liulan_idle_frame := costume_world.player.body.sprite_frames.get_frame("idle_south", 0) as AtlasTexture
+	var liulan_idle_frame := costume_world.player.body.sprite_frames.get_frame_texture("idle_south", 0) as AtlasTexture
 	_expect(liulan_idle_frame != null and liulan_idle_frame.atlas.resource_path.ends_with("liulan_wayfarer_idle_south_v01_alpha.png"), "Live costume body must use the Liulan Wayfarer source asset rather than silently retaining the default male template atlas.")
 	GameState.equip_costume("")
 	await get_tree().process_frame
 	_expect(not costume_world.player._has_runtime_costume_body(), "Unequipping a completed costume must restore the selected default template rather than leave costume frames active.")
-	var default_idle_frame := costume_world.player.body.sprite_frames.get_frame("idle_south", 0) as AtlasTexture
+	var default_idle_frame := costume_world.player.body.sprite_frames.get_frame_texture("idle_south", 0) as AtlasTexture
 	_expect(default_idle_frame != null and default_idle_frame.atlas.resource_path.ends_with("yunlan_spatial_male_idle_8dir_v01_alpha.png"), "Unequipping a costume must restore the real selected male template atlas.")
+	_expect(GameState.equip_costume("liulan_wayfarer"), "Re-equipping a completed costume should restore the saved wardrobe selection.")
 	costume_world.queue_free()
 	await get_tree().process_frame
 	_expect(GameState.costume_runtime_status_text("jiangyun_rainbow").contains("南向、西南向待机") and GameState.costume_runtime_status_text("jiangyun_rainbow").contains("不会以静态立绘覆盖地图角色"), "Female partial costume status must accurately distinguish source candidates from a map-ready runtime asset.")
@@ -241,7 +244,7 @@ func _check_monthly_card_fairness_rules() -> void:
 	_expect(is_equal_approx(GameState.convenience_cooldown_multiplier("combat", test_time), 1.0), "Monthly cards must never reduce combat-skill cooldowns.")
 	var materials: Array[String] = ["雾溪药"]
 	var inventory_before: int = GameState.player.inventory.size()
-	_expect(GameState.try_award_monthly_card_common_material("mist_stream_palace", materials, 0.01) == "雾溪药", "Small monthly card should only award the configured common material on a successful low-probability roll.")
+	_expect(GameState.try_award_monthly_card_common_material("mist_stream_palace", materials, 0.01, test_time) == "雾溪药", "Small monthly card should only award the configured common material on a successful low-probability roll.")
 	_expect(GameState.player.inventory.size() == inventory_before + 1, "Monthly-card common material award did not enter inventory.")
 	_expect(GameState.set_local_monthly_card_test_entitlement("large", test_time), "Large monthly-card test entitlement was not accepted.")
 	_expect(GameState.daily_fixed_dungeon_limit(test_time) == 5, "Large monthly card should add exactly two daily fixed-dungeon attempts.")
@@ -250,7 +253,7 @@ func _check_monthly_card_fairness_rules() -> void:
 	var large_compass := GameState.use_exploration_compass("mist_border", test_time)
 	_expect(bool(large_compass.get("ok", false)) and is_equal_approx(float(large_compass.get("cooldown_seconds", 0.0)), 96.0), "Large monthly card should reduce the actual exploration-compass cooldown to 96 seconds, without any battle effect.")
 	_expect(GameState.market_fee(100) == 5, "Monthly-card state must not alter the five-percent trade listing fee.")
-	_expect(GameState.try_award_monthly_card_common_material("mist_stream_palace", materials, 0.041).is_empty(), "Even large monthly cards must not exceed the four-percent common-material bonus boundary.")
+	_expect(GameState.try_award_monthly_card_common_material("mist_stream_palace", materials, 0.041, test_time).is_empty(), "Even large monthly cards must not exceed the four-percent common-material bonus boundary.")
 	GameState.player = profile_before
 	GameState.profile_changed.emit()
 
@@ -609,14 +612,14 @@ func _check_layered_avatar_direction_motion() -> void:
 	var artifact_layer: ArtifactMotionController = port.player.get_node("ArtifactPivot")
 	weapon_layer.update_from_movement(Vector2.LEFT, "west")
 	artifact_layer.update_from_movement(Vector2.LEFT, "west")
-	for _step in 12:
-		await get_tree().process_frame
+	weapon_layer._process(0.25)
+	artifact_layer._process(0.25)
 	_expect(weapon_layer.position.x < 0.0, "Independent weapon layer did not move to the west-facing hand position.")
 	_expect(artifact_layer.position.x < 0.0, "Independent artifact layer did not orbit to the west-facing side of the player.")
 	weapon_layer.update_from_movement(Vector2.RIGHT, "east")
 	artifact_layer.update_from_movement(Vector2.RIGHT, "east")
-	for _step in 12:
-		await get_tree().process_frame
+	weapon_layer._process(0.25)
+	artifact_layer._process(0.25)
 	_expect(weapon_layer.position.x > 0.0, "Independent weapon layer did not move to the east-facing hand position.")
 	_expect(artifact_layer.position.x > 0.0, "Independent artifact layer did not orbit to the east-facing side of the player.")
 	port.queue_free()
@@ -983,7 +986,7 @@ func _check_xuanshuang_bell_runtime_layer_and_skill_set() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.inventory = ["玄霜摄魂铃"]
 	GameState.player.equipped_weapon = "玄霜摄魂铃"
-	var port := SpatialTestPort.new()
+	var port: Variant = RETURN_ABYSS_MIST_PORT_SCENE.instantiate()
 	add_child(port)
 	await get_tree().process_frame
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Xuanshuang Soul Bell did not create an independent player weapon render slot.")
@@ -995,7 +998,7 @@ func _check_xuanshuang_bell_runtime_layer_and_skill_set() -> void:
 	_expect(str(bell_skills[1].name) == "玄霜镇音" and str(bell_skills[1].get("visual", "")) == "bell_sonic_seal", "Xuanshuang Soul Bell needs its own octagonal sonic seal primary skill.")
 	port.queue_free()
 	await get_tree().process_frame
-	var palace := MistStreamWaterPalace.new()
+	var palace: Variant = MIST_STREAM_WATER_PALACE_SCENE.instantiate()
 	GameState.player.equipped_weapon = "玄霜摄魂铃"
 	add_child(palace)
 	await get_tree().process_frame
@@ -1010,7 +1013,7 @@ func _check_eightfold_array_disk_runtime_layer_and_skill_set() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.inventory = ["八方引岚阵盘"]
 	GameState.player.equipped_weapon = "八方引岚阵盘"
-	var port := SpatialTestPort.new()
+	var port: Variant = RETURN_ABYSS_MIST_PORT_SCENE.instantiate()
 	add_child(port)
 	await get_tree().process_frame
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Eightfold Wind Array Disk did not create an independent player weapon render slot.")
@@ -1022,7 +1025,7 @@ func _check_eightfold_array_disk_runtime_layer_and_skill_set() -> void:
 	_expect(str(disk_skills[1].name) == "八方锁岚" and str(disk_skills[1].get("visual", "")) == "array_lattice", "Eightfold Wind Array Disk needs its own lattice primary skill.")
 	port.queue_free()
 	await get_tree().process_frame
-	var palace := MistStreamWaterPalace.new()
+	var palace: Variant = MIST_STREAM_WATER_PALACE_SCENE.instantiate()
 	GameState.player.equipped_weapon = "八方引岚阵盘"
 	add_child(palace)
 	await get_tree().process_frame
@@ -1037,7 +1040,7 @@ func _check_moxu_puppet_runtime_layer_and_skill_set() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.inventory = ["墨枢练气傀儡"]
 	GameState.player.equipped_weapon = "墨枢练气傀儡"
-	var port := SpatialTestPort.new()
+	var port: Variant = RETURN_ABYSS_MIST_PORT_SCENE.instantiate()
 	add_child(port)
 	await get_tree().process_frame
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Moxu Qi Puppet did not create an independent companion render slot.")
@@ -1049,7 +1052,7 @@ func _check_moxu_puppet_runtime_layer_and_skill_set() -> void:
 	_expect(str(puppet_skills[1].name) == "墨枢连机" and str(puppet_skills[1].get("visual", "")) == "puppet_dash", "Moxu Qi Puppet needs its own summoned dash primary skill.")
 	port.queue_free()
 	await get_tree().process_frame
-	var palace := MistStreamWaterPalace.new()
+	var palace: Variant = MIST_STREAM_WATER_PALACE_SCENE.instantiate()
 	GameState.player.equipped_weapon = "墨枢练气傀儡"
 	add_child(palace)
 	await get_tree().process_frame
@@ -1064,7 +1067,7 @@ func _check_qinglu_cauldron_runtime_layer_and_skill_set() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.inventory = ["青炉练气鼎"]
 	GameState.player.equipped_weapon = "青炉练气鼎"
-	var port := SpatialTestPort.new()
+	var port: Variant = RETURN_ABYSS_MIST_PORT_SCENE.instantiate()
 	add_child(port)
 	await get_tree().process_frame
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Qinglu Qi Cauldron did not create an independent hovering furnace render slot.")
@@ -1076,7 +1079,7 @@ func _check_qinglu_cauldron_runtime_layer_and_skill_set() -> void:
 	_expect(str(cauldron_skills[1].name) == "炉火回震" and str(cauldron_skills[1].get("visual", "")) == "cauldron_flame", "Qinglu Qi Cauldron needs its own furnace flame primary skill.")
 	port.queue_free()
 	await get_tree().process_frame
-	var palace := MistStreamWaterPalace.new()
+	var palace: Variant = MIST_STREAM_WATER_PALACE_SCENE.instantiate()
 	GameState.player.equipped_weapon = "青炉练气鼎"
 	add_child(palace)
 	await get_tree().process_frame
@@ -1091,7 +1094,7 @@ func _check_canglan_pearl_runtime_layer_and_skill_set() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.inventory = ["沧澜引灵珠"]
 	GameState.player.equipped_weapon = "沧澜引灵珠"
-	var port := SpatialTestPort.new()
+	var port: Variant = RETURN_ABYSS_MIST_PORT_SCENE.instantiate()
 	add_child(port)
 	await get_tree().process_frame
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Canglan Spirit Pearl did not create an independent floating focus render slot.")
@@ -1103,7 +1106,7 @@ func _check_canglan_pearl_runtime_layer_and_skill_set() -> void:
 	_expect(str(pearl_skills[1].name) == "沧澜回潮" and str(pearl_skills[1].get("visual", "")) == "pearl_tide", "Canglan Spirit Pearl needs its own tide pearl primary skill.")
 	port.queue_free()
 	await get_tree().process_frame
-	var palace := MistStreamWaterPalace.new()
+	var palace: Variant = MIST_STREAM_WATER_PALACE_SCENE.instantiate()
 	GameState.player.equipped_weapon = "沧澜引灵珠"
 	add_child(palace)
 	await get_tree().process_frame
@@ -1118,7 +1121,7 @@ func _check_zhenyue_seal_runtime_layer_and_skill_set() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.inventory = ["镇岳缚灵印"]
 	GameState.player.equipped_weapon = "镇岳缚灵印"
-	var port := SpatialTestPort.new()
+	var port: Variant = RETURN_ABYSS_MIST_PORT_SCENE.instantiate()
 	add_child(port)
 	await get_tree().process_frame
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Zhenyue Spirit Seal did not create an independent floating seal render slot.")
@@ -1130,7 +1133,7 @@ func _check_zhenyue_seal_runtime_layer_and_skill_set() -> void:
 	_expect(str(seal_skills[1].name) == "镇岳缚灵" and str(seal_skills[1].get("visual", "")) == "seal_slam", "Zhenyue Spirit Seal needs its own mountain-seal primary skill.")
 	port.queue_free()
 	await get_tree().process_frame
-	var palace := MistStreamWaterPalace.new()
+	var palace: Variant = MIST_STREAM_WATER_PALACE_SCENE.instantiate()
 	GameState.player.equipped_weapon = "镇岳缚灵印"
 	add_child(palace)
 	await get_tree().process_frame
@@ -1145,7 +1148,7 @@ func _check_hanzhao_mirror_runtime_layer_and_skill_set() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.inventory = ["寒照破妄镜"]
 	GameState.player.equipped_weapon = "寒照破妄镜"
-	var port := SpatialTestPort.new()
+	var port: Variant = RETURN_ABYSS_MIST_PORT_SCENE.instantiate()
 	add_child(port)
 	await get_tree().process_frame
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Hanzhao Truth Mirror did not create an independent floating mirror render slot.")
@@ -1157,7 +1160,7 @@ func _check_hanzhao_mirror_runtime_layer_and_skill_set() -> void:
 	_expect(str(mirror_skills[1].name) == "寒照回映" and str(mirror_skills[1].get("visual", "")) == "mirror_ray", "Hanzhao Truth Mirror needs its own reflected-ray primary skill.")
 	port.queue_free()
 	await get_tree().process_frame
-	var palace := MistStreamWaterPalace.new()
+	var palace: Variant = MIST_STREAM_WATER_PALACE_SCENE.instantiate()
 	GameState.player.equipped_weapon = "寒照破妄镜"
 	add_child(palace)
 	await get_tree().process_frame
@@ -1172,7 +1175,7 @@ func _check_futu_tower_runtime_layer_and_skill_set() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.inventory = ["浮屠镇妖塔"]
 	GameState.player.equipped_weapon = "浮屠镇妖塔"
-	var port := SpatialTestPort.new()
+	var port: Variant = RETURN_ABYSS_MIST_PORT_SCENE.instantiate()
 	add_child(port)
 	await get_tree().process_frame
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Futu Demon Tower did not create an independent floating tower render slot.")
@@ -1184,7 +1187,7 @@ func _check_futu_tower_runtime_layer_and_skill_set() -> void:
 	_expect(str(tower_skills[1].name) == "浮屠三镇" and str(tower_skills[1].get("visual", "")) == "tower_ward_impact", "Futu Demon Tower needs its own layered ward primary skill.")
 	port.queue_free()
 	await get_tree().process_frame
-	var palace := MistStreamWaterPalace.new()
+	var palace: Variant = MIST_STREAM_WATER_PALACE_SCENE.instantiate()
 	GameState.player.equipped_weapon = "浮屠镇妖塔"
 	add_child(palace)
 	await get_tree().process_frame
@@ -1199,7 +1202,7 @@ func _check_zhulan_wheel_runtime_layer_and_skill_set() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.inventory = ["逐岚练气轮"]
 	GameState.player.equipped_weapon = "逐岚练气轮"
-	var port := SpatialTestPort.new()
+	var port: Variant = RETURN_ABYSS_MIST_PORT_SCENE.instantiate()
 	add_child(port)
 	await get_tree().process_frame
 	_expect(port.player.has_node("WeaponPivot/WeaponSprite"), "Zhulan Qi Wheel did not create an independent wheel render slot.")
@@ -1211,7 +1214,7 @@ func _check_zhulan_wheel_runtime_layer_and_skill_set() -> void:
 	_expect(str(wheel_skills[1].name) == "裂空回轮" and str(wheel_skills[1].get("visual", "")) == "wheel_return", "Zhulan Qi Wheel needs its own return-arc primary skill.")
 	port.queue_free()
 	await get_tree().process_frame
-	var palace := MistStreamWaterPalace.new()
+	var palace: Variant = MIST_STREAM_WATER_PALACE_SCENE.instantiate()
 	GameState.player.equipped_weapon = "逐岚练气轮"
 	add_child(palace)
 	await get_tree().process_frame
@@ -1598,7 +1601,9 @@ func _check_world_menu_does_not_fabricate_opportunity_rewards() -> void:
 	var cultivation_before: int = GameState.player.cultivation
 	var log_before: int = GameState.player.opportunity_log.size()
 	var region_before: String = GameState.current_region_id
+	var screen_before := GameState.current_screen
 	GameState.current_region_id = "mist_border"
+	GameState.current_screen = GameState.Screen.OVERWORLD
 	var menu := preload("res://scenes/main.tscn").instantiate()
 	add_child(menu)
 	await get_tree().process_frame
@@ -1610,6 +1615,7 @@ func _check_world_menu_does_not_fabricate_opportunity_rewards() -> void:
 	menu.queue_free()
 	await get_tree().process_frame
 	GameState.current_region_id = region_before
+	GameState.current_screen = screen_before
 
 func _check_village_routes() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
@@ -1763,7 +1769,7 @@ func _check_large_region_position_resume() -> void:
 func _check_water_palace_loop() -> void:
 	var runs_before: int = GameState.player.dungeon_runs.size()
 	var inventory_before: int = GameState.player.inventory.size()
-	var had_pearl := GameState.player.inventory.has("雾潮练气珠")
+	var had_pearl: bool = GameState.player.inventory.has("雾潮练气珠")
 	var palace := preload("res://scenes/mist_stream_water_palace.tscn").instantiate()
 	add_child(palace)
 	await get_tree().process_frame
@@ -1825,7 +1831,7 @@ func _check_umbrella_weapon_skill_sets() -> void:
 func _check_female_east_walk_cycle() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
 	GameState.player.gender = "女"
-	var village := preload("res://scenes/yunlan_village.tscn").instantiate()
+	var village := preload("res://scenes/yunlan_outskirts.tscn").instantiate()
 	add_child(village)
 	await get_tree().process_frame
 	_expect(village.player.body.sprite_frames.get_frame_count("walk_east") == 6, "Female player template did not load its approved six-frame eastward walking cycle.")
@@ -2178,6 +2184,7 @@ func _check_world_population_encounter() -> void:
 
 func _check_world_population_resource() -> void:
 	var profile_before: Dictionary = GameState.player.duplicate(true)
+	GameState.player.cultivation = 0
 	var inventory_before: int = GameState.player.inventory.size()
 	var cultivation_before: int = GameState.player.cultivation
 	var population := preload("res://src/world/regional_population_director.gd").new()
@@ -2223,8 +2230,8 @@ func _check_dedicated_ecology_visual() -> void:
 	var population := preload("res://src/world/regional_population_director.gd").new()
 	add_child(population)
 	population.populate(19, [{
-		"id": "fog_channel_beast", "region": "art_smoke", "kind": "beast", "name": "雾渠獭妖",
-		"prompt": "观察雾渠獭妖", "chance": 1.0, "anchors": [Vector2(120, 120)],
+		"id": "fog_channel_beast", "region": "mist_border", "kind": "beast", "name": "雾渠獭妖",
+		"prompt": "观察雾渠獭妖", "chance": 1.0, "anchors": [Vector2(2200, 200)],
 		"health": 10, "damage": 1, "reward": "雾獭灵皮", "cultivation": 0,
 	}])
 	var otter_visual: Sprite2D = population.get_child(0).get_node("Visual")
@@ -2266,7 +2273,7 @@ func _check_local_duel_arena() -> void:
 	arena._cast_ningxi_sword_art()
 	await get_tree().create_timer(0.26).timeout
 	_expect(arena.opponent.hp < hp_before_ningxi and arena.ningxi_cooldown > 0.0, "Local-duel Ningxi skill did not deal damage and start its cooldown.")
-	var position_before_step := arena.player.position
+	var position_before_step: Vector2 = arena.player.position
 	arena._cast_cloud_step()
 	_expect(arena.player.position.distance_to(position_before_step) > 20.0 and arena.cloud_step_cooldown > 0.0, "Local-duel Cloud Step did not move the player and start its cooldown.")
 	arena._cast_lan_breath_guard()
@@ -2426,14 +2433,15 @@ func _check_earthfire_cave() -> void:
 	var stage_before: int = GameState.player.minor_stage
 	var inventory_before: int = GameState.player.inventory.size()
 	var runs_before: int = GameState.player.dungeon_runs.size()
-	var had_earthseal := GameState.player.inventory.has("玄土练气印")
+	var had_earthseal: bool = GameState.player.inventory.has("玄土练气印")
 	GameState.player.realm_index = 3
 	GameState.player.minor_stage = 1
 	var cave := preload("res://scenes/earthfire_cave.tscn").instantiate()
 	add_child(cave)
 	await get_tree().process_frame
 	_expect(cave.boss_health == 260, "Earthfire Cave did not configure the Earthfire Spirit Beast as its fixed boss.")
-	_expect(cave.get_node("Boss/Sprite").texture != null, "Earthfire Cave did not render a dedicated boss asset.")
+	var boss_sprite: FrameAnimationController = cave.get_node("Boss/Sprite")
+	_expect(boss_sprite.sprite_frames != null, "Earthfire Cave did not render a dedicated boss asset.")
 	cave.near_boss = true
 	cave._cast_ningxi_sword_art()
 	await get_tree().create_timer(0.35).timeout
@@ -2456,18 +2464,6 @@ func _check_world_menu_region_resume() -> void:
 	var main := main_script.new()
 	add_child(main)
 	await get_tree().process_frame
-
-
-func _check_costume_animation_preview() -> void:
-	var preview := preload("res://scenes/costume_animation_preview.tscn").instantiate()
-	add_child(preview)
-	await get_tree().process_frame
-	_expect(preview.avatar.sprite_frames.get_frame_count("idle_south_east") == 1, "Costume animation preview must expose the approved south-east idle source.")
-	_expect(preview.avatar.sprite_frames.get_frame_count("walk_east") == 6, "Costume animation preview must expose the approved east six-frame walking source.")
-	_expect(preview.avatar.sprite_frames.get_frame_count("walk_south_east") == 6, "Costume animation preview must expose the approved south-east six-frame walking source.")
-	_expect(preview.avatar.sprite_frames.get_frame_count("attack_south") == 6, "Costume animation preview must expose Qinghuang Qi Sword's independent six-frame south attack source.")
-	preview.queue_free()
-	await get_tree().process_frame
 	GameState.current_region_id = "starter_village"
 	_expect(main._playable_scene_for_current_region() == "res://scenes/yunlan_outskirts.tscn", "World menu did not resume the continuous Yunlan Outskirts starting region.")
 	GameState.current_region_id = "return_abyss_mist_port"
@@ -2480,6 +2476,18 @@ func _check_costume_animation_preview() -> void:
 	_expect(main._playable_scene_for_current_region() == "res://scenes/ancient_ridge.tscn", "World menu did not resume Ancient Ridge.")
 	GameState.current_region_id = region_before
 	main.queue_free()
+	await get_tree().process_frame
+
+
+func _check_costume_animation_preview() -> void:
+	var preview := preload("res://scenes/costume_animation_preview.tscn").instantiate()
+	add_child(preview)
+	await get_tree().process_frame
+	_expect(preview.avatar.sprite_frames.get_frame_count("idle_south_east") == 1, "Costume animation preview must expose the approved south-east idle source.")
+	_expect(preview.avatar.sprite_frames.get_frame_count("walk_east") == 6, "Costume animation preview must expose the approved east six-frame walking source.")
+	_expect(preview.avatar.sprite_frames.get_frame_count("walk_south_east") == 6, "Costume animation preview must expose the approved south-east six-frame walking source.")
+	_expect(preview.avatar.sprite_frames.get_frame_count("attack_south") == 6, "Costume animation preview must expose Qinghuang Qi Sword's independent six-frame south attack source.")
+	preview.queue_free()
 	await get_tree().process_frame
 
 func _expect(condition: bool, message: String) -> void:

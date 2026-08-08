@@ -209,6 +209,7 @@ func _check_boss_phase() -> void:
 	boss_phase = 2
 	boss_attack_cooldown = minf(boss_attack_cooldown, 0.75)
 	status.text = "%s的水袖与鲛鳞共鸣，映潮分身进入第二重“岚潮回环”；她会放出可见的三道水刃。" % BOSS_ECHO_NAME
+	_refresh_boss_hp()
 
 
 func _on_player_attack_started(direction: String) -> void:
@@ -264,7 +265,7 @@ func _cast_ningxi_sword_art() -> void:
 
 func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_offset: Vector2) -> void:
 	var primary := _skill(1)
-	if boss_health <= 0 or player.position.distance_to(boss.position) > float(primary.get("range", 205.0)):
+	if boss_health <= 0 or (not near_boss and player.position.distance_to(boss.position) > float(primary.get("range", 205.0))):
 		status.text = "%s需要锁定近处目标。" % str(primary["name"])
 		return
 	if ningxi_cooldown > 0.0:
@@ -354,7 +355,7 @@ func _cast_dungeon_weapon_primary(base_damage: int, target_name: String, hit_off
 		ningxi_cast.play_burst(player.position + Vector2(0, -62), facing)
 	status.text = "%s结印中……灵力 -%d。" % [str(primary["name"]), int(primary["spirit_cost"])]
 	await get_tree().create_timer(0.24).timeout
-	if defeated or boss_health <= 0 or player.position.distance_to(boss.position) > float(primary.get("range", 205.0)) + 30.0:
+	if defeated or boss_health <= 0 or (not near_boss and player.position.distance_to(boss.position) > float(primary.get("range", 205.0)) + 30.0):
 		return
 	var tuned_base := int(primary.get("damage_base", 20)) + (base_damage - 20)
 	var damage := GameState.weapon_skill_damage(tuned_base, float(primary.get("attack_ratio", 0.5)), player_max_mana, float(primary.get("mana_ratio", 30.0)))
@@ -437,6 +438,7 @@ func _spawn_wind_arrow(origin: Vector2, target: Vector2, travel_time := 0.30) ->
 
 func _spawn_dao_crescent(origin: Vector2, direction: Vector2, radius := 72.0, thickness := 7.0) -> void:
 	var slash: DaoCrescentSlash = DaoCrescentSlashScript.new()
+	slash.name = "DaoCrescentSlash"
 	add_child(slash)
 	slash.launch(origin, direction, radius, thickness)
 
@@ -560,7 +562,10 @@ func _show_eightfold_array_ward(element: String) -> bool:
 	return true
 
 func _boss_can_reach_player() -> bool:
-	return player.position.distance_to(boss.position) <= BOSS_RETALIATION_RANGE
+	# `near_boss` is set by the physical encounter collider. It is a stronger
+	# signal than the broad retaliation-radius fallback and prevents a frame of
+	# collider state from making a close-range hit disappear.
+	return near_boss or player.position.distance_to(boss.position) <= BOSS_RETALIATION_RANGE
 
 
 func _cast_cloud_step() -> void:

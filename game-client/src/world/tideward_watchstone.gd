@@ -19,7 +19,7 @@ func _draw() -> void:
 	if not draw_fallback_geometry:
 		return
 	# Ground shadow and stepped basalt foundation.
-	draw_ellipse(Vector2(0, 4), Vector2(104, 22), Color(0.02, 0.05, 0.06, 0.48))
+	_draw_ellipse(Vector2(0, 4), Vector2(104, 22), Color(0.02, 0.05, 0.06, 0.48))
 	draw_colored_polygon(PackedVector2Array([
 		Vector2(-92, 0), Vector2(-46, -32), Vector2(58, -28), Vector2(102, 4),
 		Vector2(48, 30), Vector2(-54, 28),
@@ -53,7 +53,7 @@ func _draw() -> void:
 	]), Color("d5fff0"), 2.0, true)
 	draw_circle(Vector2(11, -182), 7.0, Color("d5fff0"))
 
-func draw_ellipse(center: Vector2, radii: Vector2, color: Color) -> void:
+func _draw_ellipse(center: Vector2, radii: Vector2, color: Color) -> void:
 	var points := PackedVector2Array()
 	for index in 24:
 		var angle := TAU * float(index) / 24.0

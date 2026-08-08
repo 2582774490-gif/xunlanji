@@ -161,7 +161,7 @@ static func _ancient_ridge_sectors() -> Array[Dictionary]:
 			"description": "入岭关道贴着旧山脊延伸，是商队与散修进入高阶区域的唯一稳妥路线。", "terrain": "settled",
 		},
 		{
-			"id": "earthfire_ravine", "name": "地火裂谷", "bounds": Rect2(2180, 140, 3560, 1960),
+			"id": "earthfire_ravine", "name": "地火裂谷", "bounds": Rect2(2180, 140, 3580, 1960),
 			"description": "地火从裂隙涌出，灵兽与矿脉都受其影响；只有固定洞口可进入副本。", "terrain": "fire",
 		},
 		{

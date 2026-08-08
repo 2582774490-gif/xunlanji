@@ -129,6 +129,7 @@ func use_action(action_id: String) -> void:
 		"cloud_step": _cast_cloud_step()
 		"guard": _cast_lan_breath_guard()
 		"nourish": _cast_spirit_nourish()
+	_publish_combat_state()
 
 
 func _cast_weapon_primary() -> void:

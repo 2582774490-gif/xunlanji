@@ -61,7 +61,7 @@ position = Vector2(0, -42)
 shape = SubResource("BattlefieldMemorialShape")
 
 [node name="EarthfireCave" type="Node2D" parent="."]
-position = Vector2(5750, 430)
+position = Vector2(5650, 430)
 
 [node name="Name" type="Label" parent="EarthfireCave"]
 offset_left = -150.0

@@ -100,5 +100,5 @@ func _create_avatar(peer_id: String, gender: String) -> Node2D:
 func _set_direction(sprite: Sprite2D, direction: String) -> void:
 	var texture_size := sprite.texture.get_size()
 	var cell_size := Vector2(texture_size.x / 4.0, texture_size.y / 2.0)
-	var index := {"south": 0, "west": 2, "north": 4, "east": 6}.get(direction, 0)
+	var index: int = int({"south": 0, "west": 2, "north": 4, "east": 6}.get(direction, 0))
 	sprite.region_rect = Rect2(Vector2(float(index % 4) * cell_size.x, float(index / 4) * cell_size.y), cell_size)

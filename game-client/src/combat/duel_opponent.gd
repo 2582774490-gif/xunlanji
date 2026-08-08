@@ -22,7 +22,7 @@ const ATTACK_SOUTH_SHEET: Texture2D = preload("res://assets/art/characters/yunla
 
 var hp := 100
 var target: CharacterBody2D
-var _attack_cooldown := 0.6
+var _attack_cooldown := 0.0
 var _attacking := false
 var _hit_flash_time := 0.0
 var _guard_time_left := 0.0
@@ -60,7 +60,7 @@ func configure(next_target: CharacterBody2D) -> void:
 func take_damage(amount: int) -> void:
 	if hp <= 0:
 		return
-	var reduced_amount := max(amount, 0)
+	var reduced_amount: int = maxi(amount, 0)
 	if _guard_time_left > 0.0:
 		reduced_amount = ceili(float(reduced_amount) * 0.45)
 		_guard_time_left = 0.0

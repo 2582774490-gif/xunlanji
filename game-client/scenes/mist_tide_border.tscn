@@ -448,7 +448,7 @@ position = Vector2(0, -94)
 shape = SubResource("MistPortGateInteractionShape")
 
 [node name="AbysswatchGate" type="Node2D" parent="."]
-position = Vector2(9000, 3900)
+position = Vector2(9000, 4400)
 
 [node name="Art" type="Sprite2D" parent="AbysswatchGate"]
 texture = ExtResource("13_creek_gate")
